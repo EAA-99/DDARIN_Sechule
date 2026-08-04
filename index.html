@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>DDARIN</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4a7fd6">
+<link rel="icon" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="DDARIN">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <div class="calendar-header">
+      <button id="editLockBtn" class="sheet-corner-btn" style="right:auto; left:24px;">🔒 편집 잠금</button>
+      <button id="sheetSettingsBtn" class="sheet-corner-btn hidden">📄 구글 시트 연동</button>
+
+      <header class="toolbar">
+        <button id="prevBtn" class="nav-btn" aria-label="이전 달">◀</button>
+        <h1 id="monthTitle">1월</h1>
+        <button id="nextBtn" class="nav-btn" aria-label="다음 달">▶</button>
+      </header>
+
+      <div class="weekday-row">
+        <span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="sat">토</span><span class="sun">일</span>
+      </div>
+
+      <div class="view-toggle">
+        <button type="button" id="listViewBtn" class="view-toggle-btn active" title="목록형" aria-label="목록형">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <line x1="4" y1="6" x2="20" y2="6"/>
+            <line x1="4" y1="12" x2="20" y2="12"/>
+            <line x1="4" y1="18" x2="20" y2="18"/>
+          </svg>
+        </button>
+        <button type="button" id="cardViewBtn" class="view-toggle-btn" title="카드형" aria-label="카드형">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+            <rect x="3" y="3" width="8" height="8" rx="2"/>
+            <rect x="13" y="3" width="8" height="8" rx="2"/>
+            <rect x="3" y="13" width="8" height="8" rx="2"/>
+            <rect x="13" y="13" width="8" height="8" rx="2"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="grid" class="grid"></div>
+
+    <div id="cardView" class="card-view hidden">
+      <button type="button" id="weekPrevBtn" class="week-nav-btn" aria-label="이전 주">‹</button>
+      <div id="cardList" class="card-list"></div>
+      <button type="button" id="weekNextBtn" class="week-nav-btn" aria-label="다음 주">›</button>
+    </div>
+  </div>
+
+  <div id="modalBackdrop" class="modal-backdrop hidden">
+    <div class="modal">
+      <h2 id="modalDate">일정</h2>
+
+      <div id="eventList" class="event-list"></div>
+
+      <form id="eventForm">
+        <input type="text" id="eventTitle" placeholder="일정 제목" required maxlength="100">
+        <div class="attendees-input-row">
+          <span class="attendees-icon">👤</span>
+          <input type="text" id="eventAttendees" placeholder="참석자 이름 (쉼표로 구분)" maxlength="200">
+        </div>
+        <div id="colorPicker" class="color-picker">
+          <button type="button" class="color-swatch" data-color="blue" style="background:#cfe8fb"></button>
+          <button type="button" class="color-swatch" data-color="gray" style="background:#e2e2e2"></button>
+          <button type="button" class="color-swatch" data-color="pink" style="background:#fbd7e4"></button>
+          <button type="button" class="color-swatch" data-color="green" style="background:#d3f3d8"></button>
+          <button type="button" class="color-swatch" data-color="purple" style="background:#e5d9fb"></button>
+          <button type="button" class="color-swatch" data-color="orange" style="background:#fde3c7"></button>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" id="eventSubmitBtn" class="primary-btn">추가</button>
+          <button type="button" id="closeModalBtn">닫기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="sheetModalBackdrop" class="modal-backdrop hidden">
+    <div class="modal">
+      <h2>구글 시트 연동 (불러오기)</h2>
+
+      <p class="sheet-help">Apps Script 웹앱 URL(<code>/exec</code>로 끝나는 주소)을 입력하면 자동으로 불러옵니다.</p>
+      <input type="url" id="sheetUrlInput" placeholder="https://script.google.com/macros/s/.../exec">
+      <div class="modal-actions" style="justify-content:flex-start; margin-bottom:14px;">
+        <button type="button" id="sheetAutoImportBtn" class="primary-btn">자동 불러오기</button>
+      </div>
+
+      <p class="sheet-help">
+        자동으로 안 될 경우: 위 URL을 새 탭에서 열어 <b>Ctrl+A → Ctrl+C</b>로 전체 복사한 뒤 아래에 붙여넣으세요.
+      </p>
+      <textarea id="sheetJsonInput" placeholder='여기에 [{"date":"2026-08-01","title":"..."}, ...] 형태의 내용을 붙여넣으세요'></textarea>
+
+      <div id="sheetStatus" class="sheet-status"></div>
+      <div class="modal-actions">
+        <button type="button" id="sheetImportBtn" class="primary-btn">붙여넣은 내용 가져오기</button>
+        <button type="button" id="closeSheetModalBtn">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("service-worker.js").catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
