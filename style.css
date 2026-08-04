@@ -598,4 +598,9 @@ body {
   .sheet-corner-btn {
     display: none;
   }
+
+  .edit-lock-btn {
+    top: 74px;
+    left: 16px;
+  }
 }
