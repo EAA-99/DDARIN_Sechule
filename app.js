@@ -675,16 +675,20 @@ editLockBtn.addEventListener("click", async () => {
   }
 });
 
-async function init() {
-  await tryAutoUnlock();
-  updateLockUi();
-  await initEvents();
-
+function init() {
   const today = new Date();
   if (today.getFullYear() === YEAR) currentMonth = today.getMonth();
 
+  // 1) 캐시된 내용으로 화면을 즉시 그림 (네트워크 기다리지 않음)
+  updateLockUi();
   renderGrid();
   if (window.innerWidth <= 600) setViewMode("card");
+
+  // 2) 백그라운드에서 실제 잠금 상태 + 최신 일정을 받아와서 조용히 갱신
+  Promise.all([tryAutoUnlock(), initEvents()]).then(() => {
+    updateLockUi();
+    refreshCurrentView();
+  });
 }
 init();
 
