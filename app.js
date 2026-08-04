@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbz8HS21qDYW10_Po9ZSAMQI0woJZelv-eNEslKFBrq9bq3ZbdgKuqFOWODFgTdsx4nA/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwuOrjG9SZxN4CtkXb9EW2Hd_bt4x-ntPXjAFisw9VojI2X8lijwSZ2Prw5xaxkP8CYeg/exec";
 
 const YEAR = 2026;
 const STORAGE_KEY = "calendar-events-2026";
