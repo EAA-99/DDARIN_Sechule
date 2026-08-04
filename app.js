@@ -679,6 +679,10 @@ async function init() {
   await tryAutoUnlock();
   updateLockUi();
   await initEvents();
+
+  const today = new Date();
+  if (today.getFullYear() === YEAR) currentMonth = today.getMonth();
+
   renderGrid();
   if (window.innerWidth <= 600) setViewMode("card");
 }
