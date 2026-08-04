@@ -18,7 +18,12 @@
 <body>
   <div class="app">
     <div class="calendar-header">
-      <button id="editLockBtn" class="sheet-corner-btn" style="right:auto; left:24px;">🔒 편집 잠금</button>
+      <button id="editLockBtn" class="edit-lock-btn" title="편집 잠금" aria-label="편집 잠금">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20h9"/>
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+        </svg>
+      </button>
       <button id="sheetSettingsBtn" class="sheet-corner-btn hidden">📄 구글 시트 연동</button>
 
       <header class="toolbar">

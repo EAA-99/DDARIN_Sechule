@@ -422,6 +422,7 @@ function renderEventList() {
   list.forEach((ev, idx) => {
     const card = document.createElement("div");
     card.className = "event-card";
+    applyEventColor(card, ev);
     if (isReadOnly) card.style.cursor = "default";
     else card.addEventListener("click", () => editEvent(idx));
 
@@ -635,7 +636,10 @@ sheetAutoImportBtn.addEventListener("click", importFromSheetAuto);
 
 function updateLockUi() {
   sheetSettingsBtn.classList.toggle("hidden", isReadOnly);
-  editLockBtn.textContent = isReadOnly ? "🔒 편집 잠금" : "🔓 편집 중";
+  editLockBtn.classList.toggle("unlocked", !isReadOnly);
+  const label = isReadOnly ? "편집 잠금 (눌러서 해제)" : "편집 중 (눌러서 잠그기)";
+  editLockBtn.title = label;
+  editLockBtn.setAttribute("aria-label", label);
 }
 
 async function tryAutoUnlock() {
