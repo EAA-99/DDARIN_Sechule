@@ -203,11 +203,20 @@ function renderSongGrid() {
   filtered.forEach((song) => {
     const card = document.createElement("div");
     card.className = "song-card";
-    card.innerHTML = `
-      <div class="song-card-title">${escapeHtml(song.title)}</div>
-      <div class="song-card-artist">${escapeHtml(song.artist)}</div>
-      <span class="song-card-genre">${escapeHtml(song.genre)}</span>
-    `;
+
+    const titleEl = document.createElement("div");
+    titleEl.className = "song-card-title";
+    titleEl.textContent = song.title;
+
+    const artistEl = document.createElement("div");
+    artistEl.className = "song-card-artist";
+    artistEl.textContent = song.artist;
+
+    const genreEl = document.createElement("span");
+    genreEl.className = "song-card-genre";
+    genreEl.textContent = song.genre;
+
+    card.append(titleEl, artistEl, genreEl);
     songGrid.appendChild(card);
   });
 }
