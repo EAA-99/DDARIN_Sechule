@@ -5,6 +5,7 @@ const SHEETS_API_KEY = "AIzaSyC0RsFfc5y9GmEaE29niGWD9hbSnpIc7rM";
 const SHEETS_API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/AppEvents!A2:D?key=${SHEETS_API_KEY}`;
 
 const SONGBOOK_SPREADSHEET_ID = "1NhImCLm5diXM0pA45SkB-g2PARivQiVN8bUKlniiOB8";
+const SONGBOOK_CLIPS_SPREADSHEET_ID = "17EmfOEPVGesH9FXnh7xsKvBYYIhi2TrerSzY23E2N9A";
 
 const YEAR = 2026;
 const STORAGE_KEY = "calendar-events-2026";
@@ -50,6 +51,12 @@ const songbookView = document.getElementById("songbookView");
 const songbookBackBtn = document.getElementById("songbookBackBtn");
 const songSearchInput = document.getElementById("songSearchInput");
 const genreTabs = document.getElementById("genreTabs");
+const playerEmpty = document.getElementById("playerEmpty");
+const playerNoClip = document.getElementById("playerNoClip");
+const playerNoClipSong = document.getElementById("playerNoClipSong");
+const playerFrameWrap = document.getElementById("playerFrameWrap");
+const playerFrame = document.getElementById("playerFrame");
+const playerCurrentTitle = document.getElementById("playerCurrentTitle");
 const songGrid = document.getElementById("songGrid");
 let allSongs = null;
 let songbookGenre = "전체";
@@ -284,7 +291,61 @@ function ensureSongbookSongs() {
 
 async function prefetchSongbookInBackground() {
   const songs = await ensureSongbookSongs();
+  ensureClipMap();
   songs.forEach((song) => getAlbumArt(song));
+}
+
+let clipMap = null;
+let clipMapPromise = null;
+
+async function fetchClipMap() {
+  const map = {};
+  try {
+    const range = encodeURIComponent("시트1!A2:C");
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SONGBOOK_CLIPS_SPREADSHEET_ID}/values/${range}?key=${SHEETS_API_KEY}`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      (data.values || []).forEach((row) => {
+        const [artist, title, link] = row;
+        if (!title || !link) return;
+        const m = /player\/(\d+)/.exec(link);
+        if (!m) return;
+        const key = `${artist || ""}|${title}`.toLowerCase();
+        map[key] = `https://vod.sooplive.com/player/${m[1]}/embed?autoPlay=true&showChat=true&mutePlay=true`;
+      });
+    }
+  } catch {
+    // clipMap stays as whatever was parsed so far
+  }
+  clipMap = map;
+  return map;
+}
+
+function ensureClipMap() {
+  if (!clipMapPromise) clipMapPromise = fetchClipMap();
+  return clipMapPromise;
+}
+
+async function playSong(song) {
+  const map = clipMap || (await ensureClipMap());
+  const key = albumArtCacheKey(song);
+  const clipUrl = map[key];
+
+  playerEmpty.classList.add("hidden");
+
+  if (!clipUrl) {
+    playerFrameWrap.classList.add("hidden");
+    playerFrame.src = "";
+    playerNoClip.classList.remove("hidden");
+    playerNoClipSong.textContent = `${song.title} - ${song.artist}`;
+    return;
+  }
+
+  playerNoClip.classList.add("hidden");
+  playerFrameWrap.classList.remove("hidden");
+  playerCurrentTitle.textContent = `${song.title} - ${song.artist}`;
+  playerFrame.src = clipUrl;
 }
 
 function renderSongGrid() {
@@ -330,6 +391,7 @@ function renderSongGrid() {
     genreEl.textContent = song.genre;
 
     card.append(artEl, titleEl, artistEl, genreEl);
+    card.addEventListener("click", () => playSong(song));
     songGrid.appendChild(card);
 
     const key = albumArtCacheKey(song);
@@ -356,6 +418,10 @@ async function openSongbook() {
 function closeSongbook() {
   songbookView.classList.add("hidden");
   pageEl.classList.remove("hidden");
+  playerFrame.src = "";
+  playerFrameWrap.classList.add("hidden");
+  playerNoClip.classList.add("hidden");
+  playerEmpty.classList.remove("hidden");
 }
 
 songbookBtn.addEventListener("click", openSongbook);

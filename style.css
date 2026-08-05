@@ -691,6 +691,24 @@ body {
   margin: 0;
 }
 
+.player-frame-wrap {
+  margin-bottom: 20px;
+}
+
+.player-current-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.player-frame {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: none;
+  border-radius: 10px;
+}
+
 .player-controls {
   display: flex;
   align-items: center;

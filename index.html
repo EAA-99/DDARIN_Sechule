@@ -9,6 +9,7 @@
 <meta name="theme-color" content="#4a7fd6">
 <link rel="icon" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
@@ -85,9 +86,17 @@
     <div class="songbook-body">
       <div class="player-panel">
         <h2>플레이어</h2>
-        <div class="player-empty">
+        <div id="playerEmpty" class="player-empty">
           <p class="player-empty-title">재생할 곡이 없습니다</p>
           <p class="player-empty-sub">곡을 선택해보세요.</p>
+        </div>
+        <div id="playerNoClip" class="player-empty hidden">
+          <p class="player-empty-title">클립이 없습니다</p>
+          <p class="player-empty-sub" id="playerNoClipSong"></p>
+        </div>
+        <div id="playerFrameWrap" class="player-frame-wrap hidden">
+          <p id="playerCurrentTitle" class="player-current-title"></p>
+          <iframe id="playerFrame" class="player-frame" allow="autoplay" allowfullscreen></iframe>
         </div>
         <div class="player-controls">
           <button type="button" class="player-btn" disabled>⏮</button>
