@@ -217,6 +217,25 @@ async function loadAlbumArt(imgEl, song) {
   if (url) imgEl.src = url;
 }
 
+const albumArtQueue = [];
+let albumArtQueueRunning = false;
+
+function enqueueAlbumArt(imgEl, song) {
+  albumArtQueue.push({ imgEl, song });
+  runAlbumArtQueue();
+}
+
+async function runAlbumArtQueue() {
+  if (albumArtQueueRunning) return;
+  albumArtQueueRunning = true;
+  while (albumArtQueue.length) {
+    const { imgEl, song } = albumArtQueue.shift();
+    await loadAlbumArt(imgEl, song);
+    await new Promise((resolve) => setTimeout(resolve, 150));
+  }
+  albumArtQueueRunning = false;
+}
+
 let albumArtObserver = null;
 
 function observeAlbumArt(imgEl, song) {
@@ -226,7 +245,7 @@ function observeAlbumArt(imgEl, song) {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
           albumArtObserver.unobserve(entry.target);
-          loadAlbumArt(entry.target, entry.target._song);
+          enqueueAlbumArt(entry.target, entry.target._song);
         });
       },
       { root: songGrid, rootMargin: "300px" }
@@ -238,6 +257,7 @@ function observeAlbumArt(imgEl, song) {
 
 function renderSongGrid() {
   if (albumArtObserver) albumArtObserver.disconnect();
+  albumArtQueue.length = 0;
 
   const query = songSearchInput.value.trim().toLowerCase();
 
