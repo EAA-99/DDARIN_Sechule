@@ -181,7 +181,64 @@ function renderGenreTabs(genres) {
   });
 }
 
+const ALBUM_ART_CACHE_KEY = "songbook-album-art-cache";
+let albumArtCache = {};
+try {
+  albumArtCache = JSON.parse(localStorage.getItem(ALBUM_ART_CACHE_KEY)) || {};
+} catch {
+  albumArtCache = {};
+}
+
+function albumArtCacheKey(song) {
+  return `${song.artist}|${song.title}`.toLowerCase();
+}
+
+async function fetchAlbumArt(song) {
+  const key = albumArtCacheKey(song);
+  if (key in albumArtCache) return albumArtCache[key];
+
+  try {
+    const term = encodeURIComponent(`${song.artist} ${song.title}`);
+    const res = await fetch(`https://itunes.apple.com/search?term=${term}&entity=song&limit=1`);
+    if (!res.ok) throw new Error("art fetch failed");
+    const data = await res.json();
+    const first = data.results && data.results[0];
+    const art = first ? first.artworkUrl100.replace("100x100", "300x300") : null;
+    albumArtCache[key] = art;
+    localStorage.setItem(ALBUM_ART_CACHE_KEY, JSON.stringify(albumArtCache));
+    return art;
+  } catch {
+    return null;
+  }
+}
+
+async function loadAlbumArt(imgEl, song) {
+  const url = await fetchAlbumArt(song);
+  if (url) imgEl.src = url;
+}
+
+let albumArtObserver = null;
+
+function observeAlbumArt(imgEl, song) {
+  if (!albumArtObserver) {
+    albumArtObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          albumArtObserver.unobserve(entry.target);
+          loadAlbumArt(entry.target, entry.target._song);
+        });
+      },
+      { root: songGrid, rootMargin: "300px" }
+    );
+  }
+  imgEl._song = song;
+  albumArtObserver.observe(imgEl);
+}
+
 function renderSongGrid() {
+  if (albumArtObserver) albumArtObserver.disconnect();
+
   const query = songSearchInput.value.trim().toLowerCase();
 
   const filtered = (allSongs || []).filter((song) => {
@@ -204,6 +261,11 @@ function renderSongGrid() {
     const card = document.createElement("div");
     card.className = "song-card";
 
+    const artEl = document.createElement("img");
+    artEl.className = "song-card-art";
+    artEl.alt = "";
+    artEl.loading = "lazy";
+
     const titleEl = document.createElement("div");
     titleEl.className = "song-card-title";
     titleEl.textContent = song.title;
@@ -216,8 +278,9 @@ function renderSongGrid() {
     genreEl.className = "song-card-genre";
     genreEl.textContent = song.genre;
 
-    card.append(titleEl, artistEl, genreEl);
+    card.append(artEl, titleEl, artistEl, genreEl);
     songGrid.appendChild(card);
+    observeAlbumArt(artEl, song);
   });
 }
 
