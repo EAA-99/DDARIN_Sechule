@@ -334,7 +334,7 @@ async function fetchClipMap() {
         const m = /player\/(\d+)/.exec(link);
         if (!m) return;
         const key = `${artist || ""}|${title}`.toLowerCase();
-        map[key] = `https://vod.sooplive.com/player/${m[1]}/embed?autoPlay=true&showChat=true&mutePlay=true`;
+        map[key] = `https://vod.sooplive.com/player/${m[1]}/embed?autoPlay=false&showChat=false&mutePlay=false`;
       });
     }
   } catch {
