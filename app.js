@@ -385,6 +385,11 @@ playerPlayBtn.addEventListener("click", () => {
   playerFrame.src = buildEmbedUrl(currentClipId, true);
 });
 
+window.addEventListener("message", (e) => {
+  if (!e.origin.includes("sooplive")) return;
+  console.log("[SOOP player message]", e.origin, e.data);
+});
+
 function renderSongGrid() {
   if (albumArtObserver) albumArtObserver.disconnect();
   albumArtQueue.length = 0;
