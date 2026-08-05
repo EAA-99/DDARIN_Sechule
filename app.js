@@ -1,5 +1,9 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbwuOrjG9SZxN4CtkXb9EW2Hd_bt4x-ntPXjAFisw9VojI2X8lijwSZ2Prw5xaxkP8CYeg/exec";
 
+const SPREADSHEET_ID = "1gCvMJMK52QUyo1M4FbFzWsJ_NZp3MUqgrDa0obhNIbY";
+const SHEETS_API_KEY = "AIzaSyC0RsFfc5y9GmEaE29niGWD9hbSnpIc7rM";
+const SHEETS_API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/AppEvents!A2:D?key=${SHEETS_API_KEY}`;
+
 const YEAR = 2026;
 const STORAGE_KEY = "calendar-events-2026";
 const SHEET_URL_KEY = "calendar-sheet-url-2026";
@@ -77,7 +81,28 @@ function flatToEventsObject(flat) {
   return events;
 }
 
-async function apiGetEvents() {
+async function apiGetEventsDirect() {
+  try {
+    const res = await fetch(SHEETS_API_URL);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.values) return [];
+    return data.values
+      .map((row) => {
+        const [date, title, color, sheetColor] = row;
+        if (!date || !title) return null;
+        const item = { date: String(date), title: String(title) };
+        if (color) item.color = String(color);
+        if (sheetColor) item.sheetColor = String(sheetColor);
+        return item;
+      })
+      .filter(Boolean);
+  } catch {
+    return null;
+  }
+}
+
+async function apiGetEventsAppsScript() {
   try {
     const res = await fetch(`${API_URL}?data=events`);
     if (!res.ok) return null;
@@ -85,6 +110,12 @@ async function apiGetEvents() {
   } catch {
     return null;
   }
+}
+
+async function apiGetEvents() {
+  const direct = await apiGetEventsDirect();
+  if (direct) return direct;
+  return apiGetEventsAppsScript();
 }
 
 async function apiPost(payload) {
