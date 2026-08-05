@@ -2,6 +2,23 @@
 
 .hidden { display: none !important; }
 
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+
+.loading-gif {
+  max-width: 280px;
+  width: 70vw;
+  height: auto;
+  border-radius: 16px;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
