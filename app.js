@@ -351,7 +351,7 @@ function ensureClipMap() {
 }
 
 function buildEmbedUrl(clipId, autoPlay) {
-  return `https://vod.sooplive.com/player/${clipId}/embed?autoPlay=${autoPlay}&showChat=false&mutePlay=false`;
+  return `https://vod.sooplive.com/player/${clipId}/embed?type=catch&autoPlay=${autoPlay}&showChat=false&mutePlay=false`;
 }
 
 let currentClipId = null;
@@ -383,11 +383,6 @@ async function playSong(song) {
 playerPlayBtn.addEventListener("click", () => {
   if (!currentClipId) return;
   playerFrame.src = buildEmbedUrl(currentClipId, true);
-});
-
-window.addEventListener("message", (e) => {
-  if (!e.origin.includes("sooplive")) return;
-  console.log("[SOOP player message]", e.origin, e.data);
 });
 
 function renderSongGrid() {
