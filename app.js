@@ -193,10 +193,7 @@ function albumArtCacheKey(song) {
   return `${song.artist}|${song.title}`.toLowerCase();
 }
 
-async function fetchAlbumArt(song) {
-  const key = albumArtCacheKey(song);
-  if (key in albumArtCache) return albumArtCache[key];
-
+async function fetchAlbumArtRaw(song, key) {
   try {
     const term = encodeURIComponent(`${song.artist} ${song.title}`);
     const res = await fetch(`https://itunes.apple.com/search?term=${term}&entity=song&limit=1`);
@@ -212,26 +209,41 @@ async function fetchAlbumArt(song) {
   }
 }
 
-async function loadAlbumArt(imgEl, song) {
-  const url = await fetchAlbumArt(song);
-  if (url) imgEl.src = url;
-}
-
 const albumArtQueue = [];
+const albumArtPending = new Map(); // key -> Promise<url|null>
 let albumArtQueueRunning = false;
 
-function enqueueAlbumArt(imgEl, song) {
-  albumArtQueue.push({ imgEl, song });
+function getAlbumArt(song, { priority = false } = {}) {
+  const key = albumArtCacheKey(song);
+  if (key in albumArtCache) return Promise.resolve(albumArtCache[key]);
+
+  if (albumArtPending.has(key)) {
+    if (priority) {
+      const idx = albumArtQueue.findIndex((item) => item.key === key);
+      if (idx > 0) albumArtQueue.unshift(albumArtQueue.splice(idx, 1)[0]);
+    }
+    return albumArtPending.get(key);
+  }
+
+  const promise = new Promise((resolve) => {
+    const item = { key, song, resolve };
+    if (priority) albumArtQueue.unshift(item);
+    else albumArtQueue.push(item);
+  });
+  albumArtPending.set(key, promise);
   runAlbumArtQueue();
+  return promise;
 }
 
 async function runAlbumArtQueue() {
   if (albumArtQueueRunning) return;
   albumArtQueueRunning = true;
   while (albumArtQueue.length) {
-    const { imgEl, song } = albumArtQueue.shift();
-    await loadAlbumArt(imgEl, song);
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    const { key, song, resolve } = albumArtQueue.shift();
+    const url = await fetchAlbumArtRaw(song, key);
+    albumArtPending.delete(key);
+    resolve(url);
+    await new Promise((r) => setTimeout(r, 150));
   }
   albumArtQueueRunning = false;
 }
@@ -245,7 +257,9 @@ function observeAlbumArt(imgEl, song) {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
           albumArtObserver.unobserve(entry.target);
-          enqueueAlbumArt(entry.target, entry.target._song);
+          getAlbumArt(entry.target._song, { priority: true }).then((url) => {
+            if (url) entry.target.src = url;
+          });
         });
       },
       { root: songGrid, rootMargin: "300px" }
@@ -253,6 +267,25 @@ function observeAlbumArt(imgEl, song) {
   }
   imgEl._song = song;
   albumArtObserver.observe(imgEl);
+}
+
+let songbookSongsPromise = null;
+
+function ensureSongbookSongs() {
+  if (!songbookSongsPromise) {
+    songbookSongsPromise = fetchSongbookSongs().then((songs) => {
+      allSongs = songs;
+      const genres = [...new Set(songs.map((s) => s.genre))];
+      renderGenreTabs(genres);
+      return songs;
+    });
+  }
+  return songbookSongsPromise;
+}
+
+async function prefetchSongbookInBackground() {
+  const songs = await ensureSongbookSongs();
+  songs.forEach((song) => getAlbumArt(song));
 }
 
 function renderSongGrid() {
@@ -284,7 +317,6 @@ function renderSongGrid() {
     const artEl = document.createElement("img");
     artEl.className = "song-card-art";
     artEl.alt = "";
-    artEl.loading = "lazy";
 
     const titleEl = document.createElement("div");
     titleEl.className = "song-card-title";
@@ -300,7 +332,13 @@ function renderSongGrid() {
 
     card.append(artEl, titleEl, artistEl, genreEl);
     songGrid.appendChild(card);
-    observeAlbumArt(artEl, song);
+
+    const key = albumArtCacheKey(song);
+    if (key in albumArtCache) {
+      if (albumArtCache[key]) artEl.src = albumArtCache[key];
+    } else {
+      observeAlbumArt(artEl, song);
+    }
   });
 }
 
@@ -310,9 +348,7 @@ async function openSongbook() {
 
   if (!allSongs) {
     songGrid.innerHTML = `<div class="song-empty">불러오는 중...</div>`;
-    allSongs = await fetchSongbookSongs();
-    const genres = [...new Set(allSongs.map((s) => s.genre))];
-    renderGenreTabs(genres);
+    await ensureSongbookSongs();
   }
 
   renderSongGrid();
@@ -935,6 +971,8 @@ async function init() {
   if (window.innerWidth <= 600) setViewMode("card");
 
   loadingScreen.classList.add("hidden");
+
+  prefetchSongbookInBackground();
 }
 init();
 
