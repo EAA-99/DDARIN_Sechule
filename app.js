@@ -40,6 +40,7 @@ let selectedColor = "blue";
 let editingIndex = null;
 
 const editLockBtn = document.getElementById("editLockBtn");
+const loginBtnLabel = document.getElementById("loginBtnLabel");
 const sheetSettingsBtn = document.getElementById("sheetSettingsBtn");
 const sheetModalBackdrop = document.getElementById("sheetModalBackdrop");
 const sheetUrlInput = document.getElementById("sheetUrlInput");
@@ -669,9 +670,10 @@ sheetAutoImportBtn.addEventListener("click", importFromSheetAuto);
 function updateLockUi() {
   sheetSettingsBtn.classList.toggle("hidden", isReadOnly);
   editLockBtn.classList.toggle("unlocked", !isReadOnly);
-  const label = isReadOnly ? "편집 잠금 (눌러서 해제)" : "편집 중 (눌러서 잠그기)";
+  const label = isReadOnly ? "로그인 (눌러서 편집 잠금 해제)" : "로그아웃 (눌러서 편집 잠그기)";
   editLockBtn.title = label;
   editLockBtn.setAttribute("aria-label", label);
+  loginBtnLabel.textContent = isReadOnly ? "로그인" : "로그아웃";
 }
 
 async function tryAutoUnlock() {
