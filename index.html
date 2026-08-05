@@ -64,9 +64,9 @@
   </div>
 
   <nav class="side-nav">
-    <a class="side-nav-btn" href="#" target="_blank" rel="noopener" aria-label="노래책">
+    <button type="button" id="songbookBtn" class="side-nav-btn" aria-label="노래책">
       <span class="side-nav-icon">🎵</span>노래책
-    </a>
+    </button>
     <a class="side-nav-btn" href="https://www.youtube.com/@DDARINEE" target="_blank" rel="noopener" aria-label="유튜브">
       <span class="side-nav-icon">▶️</span>유튜브
     </a>
@@ -74,6 +74,38 @@
       <span class="side-nav-icon">🔑</span><span id="loginBtnLabel">로그인</span>
     </button>
   </nav>
+  </div>
+
+  <div id="songbookView" class="songbook-view hidden">
+    <div class="songbook-header">
+      <button type="button" id="songbookBackBtn" class="songbook-back-btn">← 달력으로</button>
+      <h1>노래책</h1>
+    </div>
+
+    <div class="songbook-body">
+      <div class="player-panel">
+        <h2>플레이어</h2>
+        <div class="player-empty">
+          <p class="player-empty-title">재생할 곡이 없습니다</p>
+          <p class="player-empty-sub">곡을 선택해보세요.</p>
+        </div>
+        <div class="player-controls">
+          <button type="button" class="player-btn" disabled>⏮</button>
+          <button type="button" class="player-btn player-btn-play" disabled>▶</button>
+          <button type="button" class="player-btn" disabled>⏭</button>
+        </div>
+      </div>
+
+      <div class="songbook-main">
+        <input type="text" id="songSearchInput" class="song-search" placeholder="노래 제목 또는 가수를 검색하세요">
+
+        <div id="genreTabs" class="genre-tabs">
+          <button type="button" class="genre-tab active" data-genre="전체">전체</button>
+        </div>
+
+        <div id="songGrid" class="song-grid"></div>
+      </div>
+    </div>
   </div>
 
   <div id="modalBackdrop" class="modal-backdrop hidden">

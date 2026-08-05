@@ -4,6 +4,8 @@ const SPREADSHEET_ID = "1gCvMJMK52QUyo1M4FbFzWsJ_NZp3MUqgrDa0obhNIbY";
 const SHEETS_API_KEY = "AIzaSyC0RsFfc5y9GmEaE29niGWD9hbSnpIc7rM";
 const SHEETS_API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/AppEvents!A2:D?key=${SHEETS_API_KEY}`;
 
+const SONGBOOK_SPREADSHEET_ID = "1NhImCLm5diXM0pA45SkB-g2PARivQiVN8bUKlniiOB8";
+
 const YEAR = 2026;
 const STORAGE_KEY = "calendar-events-2026";
 const SHEET_URL_KEY = "calendar-sheet-url-2026";
@@ -41,6 +43,16 @@ let editingIndex = null;
 
 const editLockBtn = document.getElementById("editLockBtn");
 const loginBtnLabel = document.getElementById("loginBtnLabel");
+
+const pageEl = document.querySelector(".page");
+const songbookBtn = document.getElementById("songbookBtn");
+const songbookView = document.getElementById("songbookView");
+const songbookBackBtn = document.getElementById("songbookBackBtn");
+const songSearchInput = document.getElementById("songSearchInput");
+const genreTabs = document.getElementById("genreTabs");
+const songGrid = document.getElementById("songGrid");
+let allSongs = null;
+let songbookGenre = "전체";
 const sheetSettingsBtn = document.getElementById("sheetSettingsBtn");
 const sheetModalBackdrop = document.getElementById("sheetModalBackdrop");
 const sheetUrlInput = document.getElementById("sheetUrlInput");
@@ -118,6 +130,117 @@ async function apiGetEvents() {
   if (direct) return direct;
   return apiGetEventsAppsScript();
 }
+
+async function fetchSongbookGenres() {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SONGBOOK_SPREADSHEET_ID}?key=${SHEETS_API_KEY}&fields=sheets.properties.title`;
+  const res = await fetch(url);
+  if (!res.ok) return [];
+  const data = await res.json();
+  return (data.sheets || []).map((s) => s.properties.title);
+}
+
+async function fetchSongbookSongs() {
+  const genres = await fetchSongbookGenres();
+  if (!genres.length) return [];
+
+  const ranges = genres.map((g) => `ranges=${encodeURIComponent(`'${g}'!C2:D`)}`).join("&");
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SONGBOOK_SPREADSHEET_ID}/values:batchGet?${ranges}&key=${SHEETS_API_KEY}`;
+  const res = await fetch(url);
+  if (!res.ok) return [];
+  const data = await res.json();
+
+  const songs = [];
+  (data.valueRanges || []).forEach((vr, i) => {
+    const genre = genres[i];
+    (vr.values || []).forEach((row) => {
+      const [artist, title] = row;
+      if (!title) return;
+      songs.push({ genre, artist: artist || "", title });
+    });
+  });
+  return songs;
+}
+
+function renderGenreTabs(genres) {
+  genreTabs.innerHTML = "";
+
+  const allBtn = document.createElement("button");
+  allBtn.type = "button";
+  allBtn.className = "genre-tab" + (songbookGenre === "전체" ? " active" : "");
+  allBtn.dataset.genre = "전체";
+  allBtn.textContent = "전체";
+  genreTabs.appendChild(allBtn);
+
+  genres.forEach((genre) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "genre-tab" + (songbookGenre === genre ? " active" : "");
+    btn.dataset.genre = genre;
+    btn.textContent = genre;
+    genreTabs.appendChild(btn);
+  });
+}
+
+function renderSongGrid() {
+  const query = songSearchInput.value.trim().toLowerCase();
+
+  const filtered = (allSongs || []).filter((song) => {
+    if (songbookGenre !== "전체" && song.genre !== songbookGenre) return false;
+    if (query && !song.title.toLowerCase().includes(query) && !song.artist.toLowerCase().includes(query)) return false;
+    return true;
+  });
+
+  songGrid.innerHTML = "";
+
+  if (!filtered.length) {
+    const empty = document.createElement("div");
+    empty.className = "song-empty";
+    empty.textContent = "곡이 없습니다.";
+    songGrid.appendChild(empty);
+    return;
+  }
+
+  filtered.forEach((song) => {
+    const card = document.createElement("div");
+    card.className = "song-card";
+    card.innerHTML = `
+      <div class="song-card-title">${escapeHtml(song.title)}</div>
+      <div class="song-card-artist">${escapeHtml(song.artist)}</div>
+      <span class="song-card-genre">${escapeHtml(song.genre)}</span>
+    `;
+    songGrid.appendChild(card);
+  });
+}
+
+async function openSongbook() {
+  pageEl.classList.add("hidden");
+  songbookView.classList.remove("hidden");
+
+  if (!allSongs) {
+    songGrid.innerHTML = `<div class="song-empty">불러오는 중...</div>`;
+    allSongs = await fetchSongbookSongs();
+    const genres = [...new Set(allSongs.map((s) => s.genre))];
+    renderGenreTabs(genres);
+  }
+
+  renderSongGrid();
+}
+
+function closeSongbook() {
+  songbookView.classList.add("hidden");
+  pageEl.classList.remove("hidden");
+}
+
+songbookBtn.addEventListener("click", openSongbook);
+songbookBackBtn.addEventListener("click", closeSongbook);
+songSearchInput.addEventListener("input", renderSongGrid);
+genreTabs.addEventListener("click", (e) => {
+  const btn = e.target.closest(".genre-tab");
+  if (!btn) return;
+  songbookGenre = btn.dataset.genre;
+  genreTabs.querySelectorAll(".genre-tab").forEach((el) => el.classList.toggle("active", el === btn));
+  renderSongGrid();
+});
 
 async function apiPost(payload) {
   try {
