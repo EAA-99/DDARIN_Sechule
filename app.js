@@ -200,12 +200,34 @@ function albumArtCacheKey(song) {
   return `${song.artist}|${song.title}`.toLowerCase();
 }
 
+function itunesJsonp(url) {
+  return new Promise((resolve, reject) => {
+    const callbackName = `itunesCb${Date.now()}${Math.floor(Math.random() * 1e6)}`;
+    const script = document.createElement("script");
+
+    function cleanup() {
+      delete window[callbackName];
+      script.remove();
+    }
+
+    window[callbackName] = (data) => {
+      cleanup();
+      resolve(data);
+    };
+    script.onerror = () => {
+      cleanup();
+      reject(new Error("jsonp failed"));
+    };
+
+    script.src = `${url}&callback=${callbackName}`;
+    document.body.appendChild(script);
+  });
+}
+
 async function fetchAlbumArtRaw(song, key) {
   try {
     const term = encodeURIComponent(`${song.artist} ${song.title}`);
-    const res = await fetch(`https://itunes.apple.com/search?term=${term}&entity=song&limit=1`);
-    if (!res.ok) throw new Error("art fetch failed");
-    const data = await res.json();
+    const data = await itunesJsonp(`https://itunes.apple.com/search?term=${term}&entity=song&limit=1`);
     const first = data.results && data.results[0];
     const art = first ? first.artworkUrl100.replace("100x100", "300x300") : null;
     albumArtCache[key] = art;
