@@ -455,12 +455,6 @@ async function openSongbook() {
 function closeSongbook() {
   songbookView.classList.add("hidden");
   pageEl.classList.remove("hidden");
-  playerFrame.src = "";
-  playerFrameWrap.classList.add("hidden");
-  playerNoClip.classList.add("hidden");
-  playerEmpty.classList.remove("hidden");
-  playerPlayBtn.disabled = true;
-  currentClipId = null;
 }
 
 songbookBtn.addEventListener("click", openSongbook);
