@@ -57,6 +57,7 @@ const playerNoClipSong = document.getElementById("playerNoClipSong");
 const playerFrameWrap = document.getElementById("playerFrameWrap");
 const playerFrame = document.getElementById("playerFrame");
 const playerCurrentTitle = document.getElementById("playerCurrentTitle");
+const playerPlayBtn = document.getElementById("playerPlayBtn");
 const songGrid = document.getElementById("songGrid");
 let allSongs = null;
 let songbookGenre = "전체";
@@ -334,7 +335,7 @@ async function fetchClipMap() {
         const m = /player\/(\d+)/.exec(link);
         if (!m) return;
         const key = `${artist || ""}|${title}`.toLowerCase();
-        map[key] = `https://vod.sooplive.com/player/${m[1]}/embed?autoPlay=false&showChat=false&mutePlay=false`;
+        map[key] = m[1];
       });
     }
   } catch {
@@ -349,16 +350,24 @@ function ensureClipMap() {
   return clipMapPromise;
 }
 
+function buildEmbedUrl(clipId, autoPlay) {
+  return `https://vod.sooplive.com/player/${clipId}/embed?autoPlay=${autoPlay}&showChat=false&mutePlay=false`;
+}
+
+let currentClipId = null;
+
 async function playSong(song) {
   const map = clipMap || (await ensureClipMap());
   const key = albumArtCacheKey(song);
-  const clipUrl = map[key];
+  const clipId = map[key];
 
   playerEmpty.classList.add("hidden");
+  currentClipId = clipId || null;
 
-  if (!clipUrl) {
+  if (!clipId) {
     playerFrameWrap.classList.add("hidden");
     playerFrame.src = "";
+    playerPlayBtn.disabled = true;
     playerNoClip.classList.remove("hidden");
     playerNoClipSong.textContent = `${song.title} - ${song.artist}`;
     return;
@@ -367,8 +376,14 @@ async function playSong(song) {
   playerNoClip.classList.add("hidden");
   playerFrameWrap.classList.remove("hidden");
   playerCurrentTitle.textContent = `${song.title} - ${song.artist}`;
-  playerFrame.src = clipUrl;
+  playerFrame.src = buildEmbedUrl(clipId, false);
+  playerPlayBtn.disabled = false;
 }
+
+playerPlayBtn.addEventListener("click", () => {
+  if (!currentClipId) return;
+  playerFrame.src = buildEmbedUrl(currentClipId, true);
+});
 
 function renderSongGrid() {
   if (albumArtObserver) albumArtObserver.disconnect();
@@ -444,6 +459,8 @@ function closeSongbook() {
   playerFrameWrap.classList.add("hidden");
   playerNoClip.classList.add("hidden");
   playerEmpty.classList.remove("hidden");
+  playerPlayBtn.disabled = true;
+  currentClipId = null;
 }
 
 songbookBtn.addEventListener("click", openSongbook);

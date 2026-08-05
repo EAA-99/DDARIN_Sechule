@@ -733,6 +733,10 @@ body {
   color: #fff;
 }
 
+.player-btn-play:not(:disabled) {
+  cursor: pointer;
+}
+
 .songbook-main {
   flex: 1;
   min-width: 0;
