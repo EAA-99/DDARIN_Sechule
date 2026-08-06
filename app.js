@@ -189,113 +189,8 @@ function renderGenreTabs(genres) {
   });
 }
 
-const ALBUM_ART_CACHE_KEY = "songbook-album-art-cache";
-let albumArtCache = {};
-try {
-  albumArtCache = JSON.parse(localStorage.getItem(ALBUM_ART_CACHE_KEY)) || {};
-} catch {
-  albumArtCache = {};
-}
-
 function albumArtCacheKey(song) {
   return `${song.artist}|${song.title}`.toLowerCase();
-}
-
-function itunesJsonp(url) {
-  return new Promise((resolve, reject) => {
-    const callbackName = `itunesCb${Date.now()}${Math.floor(Math.random() * 1e6)}`;
-    const script = document.createElement("script");
-
-    function cleanup() {
-      delete window[callbackName];
-      script.remove();
-    }
-
-    window[callbackName] = (data) => {
-      cleanup();
-      resolve(data);
-    };
-    script.onerror = () => {
-      cleanup();
-      reject(new Error("jsonp failed"));
-    };
-
-    script.src = `${url}&callback=${callbackName}`;
-    document.body.appendChild(script);
-  });
-}
-
-async function fetchAlbumArtRaw(song, key) {
-  try {
-    const term = encodeURIComponent(`${song.artist} ${song.title}`);
-    const data = await itunesJsonp(`https://itunes.apple.com/search?term=${term}&entity=song&limit=1`);
-    const first = data.results && data.results[0];
-    const art = first ? first.artworkUrl100.replace("100x100", "300x300") : null;
-    albumArtCache[key] = art;
-    localStorage.setItem(ALBUM_ART_CACHE_KEY, JSON.stringify(albumArtCache));
-    return art;
-  } catch {
-    return null;
-  }
-}
-
-const albumArtQueue = [];
-const albumArtPending = new Map(); // key -> Promise<url|null>
-let albumArtQueueRunning = false;
-
-function getAlbumArt(song, { priority = false } = {}) {
-  const key = albumArtCacheKey(song);
-  if (key in albumArtCache) return Promise.resolve(albumArtCache[key]);
-
-  if (albumArtPending.has(key)) {
-    if (priority) {
-      const idx = albumArtQueue.findIndex((item) => item.key === key);
-      if (idx > 0) albumArtQueue.unshift(albumArtQueue.splice(idx, 1)[0]);
-    }
-    return albumArtPending.get(key);
-  }
-
-  const promise = new Promise((resolve) => {
-    const item = { key, song, resolve };
-    if (priority) albumArtQueue.unshift(item);
-    else albumArtQueue.push(item);
-  });
-  albumArtPending.set(key, promise);
-  runAlbumArtQueue();
-  return promise;
-}
-
-async function runAlbumArtQueue() {
-  if (albumArtQueueRunning) return;
-  albumArtQueueRunning = true;
-  while (albumArtQueue.length) {
-    const { key, song, resolve } = albumArtQueue.shift();
-    const url = await fetchAlbumArtRaw(song, key);
-    albumArtPending.delete(key);
-    resolve(url);
-  }
-  albumArtQueueRunning = false;
-}
-
-let albumArtObserver = null;
-
-function observeAlbumArt(imgEl, song) {
-  if (!albumArtObserver) {
-    albumArtObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          albumArtObserver.unobserve(entry.target);
-          getAlbumArt(entry.target._song, { priority: true }).then((url) => {
-            if (url) entry.target.src = url;
-          });
-        });
-      },
-      { root: songGrid, rootMargin: "300px" }
-    );
-  }
-  imgEl._song = song;
-  albumArtObserver.observe(imgEl);
 }
 
 let songbookSongsPromise = null;
@@ -313,41 +208,46 @@ function ensureSongbookSongs() {
 }
 
 async function prefetchSongbookInBackground() {
-  const songs = await ensureSongbookSongs();
-  ensureClipMap();
-  songs.forEach((song) => getAlbumArt(song));
+  await ensureSongbookSongs();
+  await ensureSongMeta();
+  if (!songbookView.classList.contains("hidden")) renderSongGrid();
 }
 
 let clipMap = null;
-let clipMapPromise = null;
+let artMap = null;
+let songMetaPromise = null;
 
-async function fetchClipMap() {
-  const map = {};
+async function fetchSongMeta() {
+  const clips = {};
+  const art = {};
   try {
-    const range = encodeURIComponent("시트1!A2:C");
+    const range = encodeURIComponent("시트1!A2:D");
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${SONGBOOK_CLIPS_SPREADSHEET_ID}/values/${range}?key=${SHEETS_API_KEY}`;
     const res = await fetch(url);
     if (res.ok) {
       const data = await res.json();
       (data.values || []).forEach((row) => {
-        const [artist, title, link] = row;
-        if (!title || !link) return;
-        const m = /player\/(\d+)/.exec(link);
-        if (!m) return;
+        const [artist, title, link, artUrl] = row;
+        if (!title) return;
         const key = `${artist || ""}|${title}`.toLowerCase();
-        map[key] = m[1];
+        if (link) {
+          const m = /player\/(\d+)/.exec(link);
+          if (m) clips[key] = m[1];
+        }
+        if (artUrl) art[key] = artUrl;
       });
     }
   } catch {
-    // clipMap stays as whatever was parsed so far
+    // clipMap/artMap stay as whatever was parsed so far
   }
-  clipMap = map;
-  return map;
+  clipMap = clips;
+  artMap = art;
+  return { clips, art };
 }
 
-function ensureClipMap() {
-  if (!clipMapPromise) clipMapPromise = fetchClipMap();
-  return clipMapPromise;
+function ensureSongMeta() {
+  if (!songMetaPromise) songMetaPromise = fetchSongMeta();
+  return songMetaPromise;
 }
 
 function buildEmbedUrl(clipId, autoPlay) {
@@ -357,9 +257,9 @@ function buildEmbedUrl(clipId, autoPlay) {
 let currentClipId = null;
 
 async function playSong(song) {
-  const map = clipMap || (await ensureClipMap());
+  if (!clipMap) await ensureSongMeta();
   const key = albumArtCacheKey(song);
-  const clipId = map[key];
+  const clipId = clipMap[key];
 
   playerEmpty.classList.add("hidden");
   currentClipId = clipId || null;
@@ -386,9 +286,6 @@ playerPlayBtn.addEventListener("click", () => {
 });
 
 function renderSongGrid() {
-  if (albumArtObserver) albumArtObserver.disconnect();
-  albumArtQueue.length = 0;
-
   const query = songSearchInput.value.trim().toLowerCase();
 
   const filtered = (allSongs || []).filter((song) => {
@@ -432,11 +329,7 @@ function renderSongGrid() {
     songGrid.appendChild(card);
 
     const key = albumArtCacheKey(song);
-    if (key in albumArtCache) {
-      if (albumArtCache[key]) artEl.src = albumArtCache[key];
-    } else {
-      observeAlbumArt(artEl, song);
-    }
+    if (artMap && artMap[key]) artEl.src = artMap[key];
   });
 }
 
@@ -448,6 +341,7 @@ async function openSongbook() {
     songGrid.innerHTML = `<div class="song-empty">불러오는 중...</div>`;
     await ensureSongbookSongs();
   }
+  if (!clipMap) await ensureSongMeta();
 
   renderSongGrid();
 }
