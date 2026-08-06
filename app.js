@@ -59,6 +59,7 @@ const playerFrame = document.getElementById("playerFrame");
 const playerCurrentTitle = document.getElementById("playerCurrentTitle");
 const playerPlayBtn = document.getElementById("playerPlayBtn");
 const songGrid = document.getElementById("songGrid");
+const songbookLoadingScreen = document.getElementById("songbookLoadingScreen");
 let allSongs = null;
 let songbookGenre = "전체";
 const sheetSettingsBtn = document.getElementById("sheetSettingsBtn");
@@ -256,6 +257,22 @@ function preloadImage(url) {
 async function preloadAllAlbumArt() {
   const urls = Object.values(artMap || {}).filter(Boolean);
   await Promise.all(urls.map(preloadImage));
+  albumArtReady = true;
+}
+
+let albumArtReady = false;
+let albumArtPreloadPromise = null;
+
+function ensureAlbumArtPreloaded() {
+  if (!albumArtPreloadPromise) {
+    albumArtPreloadPromise = ensureSongMeta().then(preloadAllAlbumArt);
+  }
+  return albumArtPreloadPromise;
+}
+
+async function prefetchSongbookInBackground() {
+  await ensureSongbookSongs();
+  await ensureAlbumArtPreloaded();
 }
 
 function buildEmbedUrl(clipId, autoPlay) {
@@ -354,7 +371,12 @@ async function openSongbook() {
     songGrid.innerHTML = `<div class="song-empty">불러오는 중...</div>`;
     await ensureSongbookSongs();
   }
-  if (!clipMap) await ensureSongMeta();
+
+  if (!albumArtReady) {
+    songbookLoadingScreen.classList.remove("hidden");
+    await ensureAlbumArtPreloaded();
+    songbookLoadingScreen.classList.add("hidden");
+  }
 
   renderSongGrid();
 }
@@ -969,14 +991,15 @@ async function init() {
   const today = new Date();
   if (today.getFullYear() === YEAR) currentMonth = today.getMonth();
 
-  await Promise.all([tryAutoUnlock(), initEvents(), ensureSongbookSongs(), ensureSongMeta()]);
-  await preloadAllAlbumArt();
+  await Promise.all([tryAutoUnlock(), initEvents()]);
 
   updateLockUi();
   renderGrid();
   if (window.innerWidth <= 600) setViewMode("card");
 
   loadingScreen.classList.add("hidden");
+
+  prefetchSongbookInBackground();
 }
 init();
 

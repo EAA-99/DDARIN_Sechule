@@ -1,4 +1,4 @@
-const CACHE_NAME = "ddarin-calendar-v3";
+const CACHE_NAME = "ddarin-calendar-v4";
 const ALBUM_ART_CACHE = "ddarin-album-art-v1";
 const ASSETS = [
   "./",
@@ -7,6 +7,7 @@ const ASSETS = [
   "./app.js",
   "./manifest.json",
   "./loading.gif",
+  "./songbook-loading.gif",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
 ];
