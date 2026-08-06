@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>앨범 이미지 일괄 수집</title>
+<style>
+  body { font-family: -apple-system, "Segoe UI", "Malgun Gothic", sans-serif; padding: 24px; max-width: 700px; margin: 0 auto; }
+  textarea { width: 100%; height: 320px; font-family: monospace; font-size: 12px; box-sizing: border-box; }
+  #status { margin: 12px 0; font-weight: bold; }
+  button { padding: 10px 20px; font-size: 14px; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>노래책 앨범 이미지 일괄 수집</h1>
+  <p>이 파일을 열면 자동으로 시작됩니다. 완료되면 아래 "결과 복사하기" 버튼을 누르고, 구글시트 클립 시트의 <b>D2 칸</b>을 클릭한 뒤 붙여넣으세요 (Ctrl+V).</p>
+  <div id="status">준비 중...</div>
+  <button id="copyBtn" disabled>결과 복사하기</button>
+  <textarea id="result" readonly></textarea>
+
+  <script>
+    const SHEETS_API_KEY = "AIzaSyC0RsFfc5y9GmEaE29niGWD9hbSnpIc7rM";
+    const CLIP_SHEET_ID = "17EmfOEPVGesH9FXnh7xsKvBYYIhi2TrerSzY23E2N9A";
+    const statusEl = document.getElementById("status");
+    const resultEl = document.getElementById("result");
+    const copyBtn = document.getElementById("copyBtn");
+
+    async function fetchArt(artist, title) {
+      try {
+        const q = `artist:"${artist.replace(/"/g, "")}" AND recording:"${title.replace(/"/g, "")}"`;
+        const url = `https://musicbrainz.org/ws/2/recording/?query=${encodeURIComponent(q)}&fmt=json&limit=1&inc=releases`;
+        const res = await fetch(url, { headers: { Accept: "application/json" } });
+        if (!res.ok) return "";
+        const data = await res.json();
+        const rec = data.recordings && data.recordings[0];
+        const releaseId = rec && rec.releases && rec.releases[0] && rec.releases[0].id;
+        if (!releaseId) return "";
+        return `https://coverartarchive.org/release/${releaseId}/front-250`;
+      } catch {
+        return "";
+      }
+    }
+
+    async function main() {
+      statusEl.textContent = "곡 목록 불러오는 중...";
+      const range = encodeURIComponent("시트1!A2:B1000");
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${CLIP_SHEET_ID}/values/${range}?key=${SHEETS_API_KEY}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const rows = data.values || [];
+
+      const results = [];
+      let found = 0;
+      for (let i = 0; i < rows.length; i++) {
+        const [artist, title] = rows[i];
+        if (!title) {
+          results.push("");
+          continue;
+        }
+        let art = await fetchArt(artist || "", title);
+        if (!art) {
+          await new Promise((r) => setTimeout(r, 3000));
+          art = await fetchArt(artist || "", title);
+        }
+        if (art) found++;
+        results.push(art);
+        statusEl.textContent = `${i + 1} / ${rows.length} 처리 중... (성공 ${found}개)`;
+        resultEl.value = results.join("\n");
+        await new Promise((r) => setTimeout(r, 1100));
+      }
+
+      statusEl.textContent = `완료! ${rows.length}개 중 ${found}개 이미지를 찾았습니다. 아래 "결과 복사하기"를 누르고 시트 D2부터 붙여넣으세요.`;
+      copyBtn.disabled = false;
+    }
+
+    copyBtn.addEventListener("click", async () => {
+      resultEl.select();
+      try {
+        await navigator.clipboard.writeText(resultEl.value);
+      } catch {
+        document.execCommand("copy");
+      }
+      copyBtn.textContent = "복사됨!";
+    });
+
+    main();
+  </script>
+</body>
+</html>
