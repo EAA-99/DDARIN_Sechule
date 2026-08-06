@@ -207,12 +207,6 @@ function ensureSongbookSongs() {
   return songbookSongsPromise;
 }
 
-async function prefetchSongbookInBackground() {
-  await ensureSongbookSongs();
-  await ensureSongMeta();
-  if (!songbookView.classList.contains("hidden")) renderSongGrid();
-}
-
 let clipMap = null;
 let artMap = null;
 let songMetaPromise = null;
@@ -255,6 +249,7 @@ function buildEmbedUrl(clipId, autoPlay) {
 }
 
 let currentClipId = null;
+let clipPlaying = false;
 
 async function playSong(song) {
   if (!clipMap) await ensureSongMeta();
@@ -263,6 +258,8 @@ async function playSong(song) {
 
   playerEmpty.classList.add("hidden");
   currentClipId = clipId || null;
+  clipPlaying = false;
+  playerPlayBtn.textContent = "▶";
 
   if (!clipId) {
     playerFrameWrap.classList.add("hidden");
@@ -282,7 +279,9 @@ async function playSong(song) {
 
 playerPlayBtn.addEventListener("click", () => {
   if (!currentClipId) return;
-  playerFrame.src = buildEmbedUrl(currentClipId, true);
+  clipPlaying = !clipPlaying;
+  playerFrame.src = buildEmbedUrl(currentClipId, clipPlaying);
+  playerPlayBtn.textContent = clipPlaying ? "⏸" : "▶";
 });
 
 function renderSongGrid() {
@@ -956,15 +955,13 @@ async function init() {
   const today = new Date();
   if (today.getFullYear() === YEAR) currentMonth = today.getMonth();
 
-  await Promise.all([tryAutoUnlock(), initEvents()]);
+  await Promise.all([tryAutoUnlock(), initEvents(), ensureSongbookSongs(), ensureSongMeta()]);
 
   updateLockUi();
   renderGrid();
   if (window.innerWidth <= 600) setViewMode("card");
 
   loadingScreen.classList.add("hidden");
-
-  prefetchSongbookInBackground();
 }
 init();
 
