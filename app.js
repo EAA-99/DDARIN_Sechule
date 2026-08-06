@@ -244,6 +244,20 @@ function ensureSongMeta() {
   return songMetaPromise;
 }
 
+function preloadImage(url) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = resolve;
+    img.onerror = resolve;
+    img.src = url;
+  });
+}
+
+async function preloadAllAlbumArt() {
+  const urls = Object.values(artMap || {}).filter(Boolean);
+  await Promise.all(urls.map(preloadImage));
+}
+
 function buildEmbedUrl(clipId, autoPlay) {
   return `https://vod.sooplive.com/player/${clipId}/embed?type=catch&autoPlay=${autoPlay}&showChat=false&mutePlay=false`;
 }
@@ -956,6 +970,7 @@ async function init() {
   if (today.getFullYear() === YEAR) currentMonth = today.getMonth();
 
   await Promise.all([tryAutoUnlock(), initEvents(), ensureSongbookSongs(), ensureSongMeta()]);
+  await preloadAllAlbumArt();
 
   updateLockUi();
   renderGrid();
