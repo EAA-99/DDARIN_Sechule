@@ -292,6 +292,13 @@ function buildEmbedUrl(clipId, autoPlay) {
   return `https://vod.sooplive.com/player/${clipId}/embed?type=catch&autoPlay=${autoPlay}&showChat=false&mutePlay=false`;
 }
 
+function setPlayerFrameSrc(url) {
+  playerFrame.src = "";
+  requestAnimationFrame(() => {
+    playerFrame.src = url;
+  });
+}
+
 let currentClipId = null;
 let currentSongKey = null;
 let clipPlaying = false;
@@ -336,7 +343,7 @@ async function playSong(song) {
 playerPlayBtn.addEventListener("click", () => {
   if (!currentClipId) return;
   clipPlaying = !clipPlaying;
-  playerFrame.src = buildEmbedUrl(currentClipId, clipPlaying);
+  setPlayerFrameSrc(buildEmbedUrl(currentClipId, clipPlaying));
   playerPlayBtn.textContent = clipPlaying ? "⏸" : "▶";
 
   clearTimeout(autoAdvanceTimer);
@@ -434,7 +441,7 @@ function scheduleAutoAdvance() {
   clearTimeout(autoAdvanceTimer);
   const duration = clipDurationMap[currentSongKey];
   if (!duration) return;
-  const AUTO_ADVANCE_BUFFER_MS = 3000;
+  const AUTO_ADVANCE_BUFFER_MS = 6000;
   autoAdvanceTimer = setTimeout(advanceFavoritesQueue, Math.max(1000, duration - AUTO_ADVANCE_BUFFER_MS));
 }
 
@@ -448,7 +455,7 @@ function advanceFavoritesQueue() {
   playSong(favoritesQueue[nextIndex]).then(() => {
     if (!currentClipId) return;
     clipPlaying = true;
-    playerFrame.src = buildEmbedUrl(currentClipId, true);
+    setPlayerFrameSrc(buildEmbedUrl(currentClipId, true));
     playerPlayBtn.textContent = "⏸";
     scheduleAutoAdvance();
   });
