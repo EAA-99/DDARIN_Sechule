@@ -796,6 +796,10 @@ body {
   background: #fafbff;
 }
 
+.song-grid.no-image-mode .song-card-art {
+  display: none;
+}
+
 .song-card-art {
   width: 100%;
   aspect-ratio: 1;

@@ -54,6 +54,8 @@ const songbookView = document.getElementById("songbookView");
 const songbookBackBtn = document.getElementById("songbookBackBtn");
 const songSearchInput = document.getElementById("songSearchInput");
 const genreTabs = document.getElementById("genreTabs");
+const songNoImageBtn = document.getElementById("songNoImageBtn");
+const songImageBtn = document.getElementById("songImageBtn");
 const playerEmpty = document.getElementById("playerEmpty");
 const playerNoClip = document.getElementById("playerNoClip");
 const playerNoClipSong = document.getElementById("playerNoClipSong");
@@ -316,7 +318,11 @@ playerPlayBtn.addEventListener("click", () => {
   playerPlayBtn.textContent = clipPlaying ? "⏸" : "▶";
 });
 
+let songShowImage = true;
+
 function renderSongGrid() {
+  songGrid.classList.toggle("no-image-mode", !songShowImage);
+
   const query = songSearchInput.value.trim().toLowerCase();
 
   const filtered = (allSongs || []).filter((song) => {
@@ -394,6 +400,20 @@ genreTabs.addEventListener("click", (e) => {
   if (!btn) return;
   songbookGenre = btn.dataset.genre;
   genreTabs.querySelectorAll(".genre-tab").forEach((el) => el.classList.toggle("active", el === btn));
+  renderSongGrid();
+});
+
+songNoImageBtn.addEventListener("click", () => {
+  songShowImage = false;
+  songNoImageBtn.classList.add("active");
+  songImageBtn.classList.remove("active");
+  renderSongGrid();
+});
+
+songImageBtn.addEventListener("click", () => {
+  songShowImage = true;
+  songImageBtn.classList.add("active");
+  songNoImageBtn.classList.remove("active");
   renderSongGrid();
 });
 
