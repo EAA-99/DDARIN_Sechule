@@ -60,12 +60,17 @@ const songImageBtn = document.getElementById("songImageBtn");
 const playerEmpty = document.getElementById("playerEmpty");
 const playerNoClip = document.getElementById("playerNoClip");
 const playerNoClipSong = document.getElementById("playerNoClipSong");
-const playerFrameWrap = document.getElementById("playerFrameWrap");
-const playerFrame = document.getElementById("playerFrame");
-const playerCurrentTitle = document.getElementById("playerCurrentTitle");
 const playerPlayBtn = document.getElementById("playerPlayBtn");
 const playerPrevBtn = document.getElementById("playerPrevBtn");
 const playerNextBtn = document.getElementById("playerNextBtn");
+const songPlayerModalBackdrop = document.getElementById("songPlayerModalBackdrop");
+const songPlayerModalFrame = document.getElementById("songPlayerModalFrame");
+const songPlayerModalClose = document.getElementById("songPlayerModalClose");
+const songPlayerModalTitle = document.getElementById("songPlayerModalTitle");
+const songPlayerModalArtist = document.getElementById("songPlayerModalArtist");
+const songPlayerModalFavBtn = document.getElementById("songPlayerModalFavBtn");
+const songPlayerModalFavIcon = document.getElementById("songPlayerModalFavIcon");
+const songPlayerModalFavLabel = document.getElementById("songPlayerModalFavLabel");
 const songGrid = document.getElementById("songGrid");
 const songbookLoadingScreen = document.getElementById("songbookLoadingScreen");
 const favoritesListEl = document.getElementById("favoritesList");
@@ -294,12 +299,40 @@ function buildClipPageUrl(clipId) {
   return `https://vod.sooplive.com/player/${clipId}/embed?type=catch&autoPlay=true&showChat=false&mutePlay=false`;
 }
 
-function setPlayerFrameSrc(clipId) {
-  playerFrame.src = buildClipPageUrl(clipId);
+function updateSongPlayerModalFavBtn(key) {
+  const active = isSongFavorite(key);
+  songPlayerModalFavIcon.textContent = active ? "★" : "☆";
+  songPlayerModalFavLabel.textContent = active ? "즐겨찾기 해제" : "즐겨찾기 추가";
 }
+
+function openSongPlayerModal(song, clipId) {
+  songPlayerModalFrame.src = buildClipPageUrl(clipId);
+  songPlayerModalTitle.textContent = song.title;
+  songPlayerModalArtist.textContent = song.artist;
+  updateSongPlayerModalFavBtn(albumArtCacheKey(song));
+  songPlayerModalBackdrop.classList.remove("hidden");
+}
+
+function closeSongPlayerModal() {
+  clearTimeout(autoAdvanceTimer);
+  songPlayerModalBackdrop.classList.add("hidden");
+  songPlayerModalFrame.src = "";
+}
+
+songPlayerModalClose.addEventListener("click", closeSongPlayerModal);
+songPlayerModalBackdrop.addEventListener("click", (e) => {
+  if (e.target === songPlayerModalBackdrop) closeSongPlayerModal();
+});
+songPlayerModalFavBtn.addEventListener("click", () => {
+  if (!currentSongKey) return;
+  toggleSongFavorite(currentSongKey);
+  updateSongPlayerModalFavBtn(currentSongKey);
+  renderFavoritesList();
+});
 
 let currentClipId = null;
 let currentSongKey = null;
+let currentSong = null;
 
 async function playSong(song) {
   if (!clipMap) await ensureSongMeta();
@@ -319,23 +352,22 @@ async function playSong(song) {
   playerEmpty.classList.add("hidden");
   currentClipId = clipId || null;
   currentSongKey = key;
+  currentSong = song;
   playerPrevBtn.disabled = !(favoritesQueueActive && favoritesQueueIndex > 0);
   playerNextBtn.disabled = !(favoritesQueueActive && favoritesQueueIndex < favoritesQueue.length - 1);
 
   if (!clipId) {
-    playerFrameWrap.classList.add("hidden");
     playerPlayBtn.disabled = true;
     playerNoClip.classList.remove("hidden");
     playerNoClipSong.textContent = `${song.title} - ${song.artist}`;
+    closeSongPlayerModal();
     return;
   }
 
   playerNoClip.classList.add("hidden");
-  playerFrameWrap.classList.remove("hidden");
-  playerCurrentTitle.textContent = `${song.title} - ${song.artist}`;
   playerPlayBtn.disabled = false;
 
-  setPlayerFrameSrc(clipId);
+  openSongPlayerModal(song, clipId);
   if (favoritesQueueActive) scheduleAutoAdvance();
 }
 
@@ -350,8 +382,8 @@ playerPrevBtn.addEventListener("click", () => goToFavoritesQueueOffset(-1));
 playerNextBtn.addEventListener("click", () => goToFavoritesQueueOffset(1));
 
 playerPlayBtn.addEventListener("click", () => {
-  if (!currentClipId) return;
-  setPlayerFrameSrc(currentClipId);
+  if (!currentClipId || !currentSong) return;
+  openSongPlayerModal(currentSong, currentClipId);
 });
 
 let songShowImage = true;
