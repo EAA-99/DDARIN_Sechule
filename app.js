@@ -260,10 +260,8 @@ function preloadImage(url) {
 async function preloadAllAlbumArt() {
   const urls = Object.values(thumbMap || {}).filter(Boolean);
   await Promise.all(urls.map(preloadImage));
-  albumArtReady = true;
 }
 
-let albumArtReady = false;
 let albumArtPreloadPromise = null;
 
 function ensureAlbumArtPreloaded() {
@@ -375,12 +373,10 @@ async function openSongbook() {
     await ensureSongbookSongs();
   }
 
-  if (!albumArtReady) {
-    songbookLoadingScreen.classList.remove("hidden");
-    const minDelay = new Promise((r) => setTimeout(r, SONGBOOK_LOADING_GIF_MS));
-    await Promise.all([ensureAlbumArtPreloaded(), minDelay]);
-    songbookLoadingScreen.classList.add("hidden");
-  }
+  songbookLoadingScreen.classList.remove("hidden");
+  const minDelay = new Promise((r) => setTimeout(r, SONGBOOK_LOADING_GIF_MS));
+  await Promise.all([ensureAlbumArtPreloaded(), minDelay]);
+  songbookLoadingScreen.classList.add("hidden");
 
   renderSongGrid();
 }
