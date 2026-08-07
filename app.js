@@ -303,7 +303,7 @@ let currentClipId = null;
 let currentSongKey = null;
 let clipPlaying = false;
 
-async function playSong(song) {
+async function playSong(song, { autoPlay = false } = {}) {
   if (!clipMap) await ensureSongMeta();
   const key = albumArtCacheKey(song);
   const clipId = clipMap[key];
@@ -321,8 +321,8 @@ async function playSong(song) {
   playerEmpty.classList.add("hidden");
   currentClipId = clipId || null;
   currentSongKey = key;
-  clipPlaying = false;
-  playerPlayBtn.textContent = "▶";
+  clipPlaying = autoPlay;
+  playerPlayBtn.textContent = autoPlay ? "⏸" : "▶";
 
   if (!clipId) {
     playerFrameWrap.classList.add("hidden");
@@ -336,8 +336,10 @@ async function playSong(song) {
   playerNoClip.classList.add("hidden");
   playerFrameWrap.classList.remove("hidden");
   playerCurrentTitle.textContent = `${song.title} - ${song.artist}`;
-  playerFrame.src = buildEmbedUrl(clipId, false);
+  setPlayerFrameSrc(buildEmbedUrl(clipId, autoPlay));
   playerPlayBtn.disabled = false;
+
+  if (autoPlay) scheduleAutoAdvance();
 }
 
 playerPlayBtn.addEventListener("click", () => {
@@ -437,23 +439,14 @@ let favoritesQueueIndex = -1;
 let favoritesQueueActive = false;
 let autoAdvanceTimer = null;
 
-function stopClipCleanly() {
-  if (!currentClipId) return;
-  clipPlaying = false;
-  playerPlayBtn.textContent = "▶";
-  setPlayerFrameSrc(buildEmbedUrl(currentClipId, false));
-}
-
 function scheduleAutoAdvance() {
   clearTimeout(autoAdvanceTimer);
+  if (!favoritesQueueActive) return;
   const duration = clipDurationMap[currentSongKey];
   if (!duration) return;
   const AUTO_ADVANCE_BUFFER_MS = 20000;
   const fireAt = Math.max(1000, duration - AUTO_ADVANCE_BUFFER_MS);
-  autoAdvanceTimer = setTimeout(() => {
-    if (favoritesQueueActive) advanceFavoritesQueue();
-    else stopClipCleanly();
-  }, fireAt);
+  autoAdvanceTimer = setTimeout(advanceFavoritesQueue, fireAt);
 }
 
 function advanceFavoritesQueue() {
@@ -463,13 +456,7 @@ function advanceFavoritesQueue() {
     favoritesQueueActive = false;
     return;
   }
-  playSong(favoritesQueue[nextIndex]).then(() => {
-    if (!currentClipId) return;
-    clipPlaying = true;
-    setPlayerFrameSrc(buildEmbedUrl(currentClipId, true));
-    playerPlayBtn.textContent = "⏸";
-    scheduleAutoAdvance();
-  });
+  playSong(favoritesQueue[nextIndex], { autoPlay: true });
 }
 
 function buildSongCard(song) {
