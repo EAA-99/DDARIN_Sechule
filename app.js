@@ -434,7 +434,8 @@ function scheduleAutoAdvance() {
   clearTimeout(autoAdvanceTimer);
   const duration = clipDurationMap[currentSongKey];
   if (!duration) return;
-  autoAdvanceTimer = setTimeout(advanceFavoritesQueue, duration);
+  const AUTO_ADVANCE_BUFFER_MS = 3000;
+  autoAdvanceTimer = setTimeout(advanceFavoritesQueue, Math.max(1000, duration - AUTO_ADVANCE_BUFFER_MS));
 }
 
 function advanceFavoritesQueue() {
