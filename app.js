@@ -290,7 +290,7 @@ async function prefetchSongbookInBackground() {
 }
 
 function buildClipPageUrl(clipId) {
-  return `https://vod.sooplive.com/player/${clipId}`;
+  return `https://vod.sooplive.com/player/${clipId}/embed?type=catch&autoPlay=true&showChat=true&mutePlay=false`;
 }
 
 function openSoopPopup(url) {
