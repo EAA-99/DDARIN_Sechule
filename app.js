@@ -347,7 +347,7 @@ playerPlayBtn.addEventListener("click", () => {
   playerPlayBtn.textContent = clipPlaying ? "⏸" : "▶";
 
   clearTimeout(autoAdvanceTimer);
-  if (clipPlaying && favoritesQueueActive) scheduleAutoAdvance();
+  if (clipPlaying) scheduleAutoAdvance();
 });
 
 let songShowImage = true;
@@ -437,12 +437,23 @@ let favoritesQueueIndex = -1;
 let favoritesQueueActive = false;
 let autoAdvanceTimer = null;
 
+function stopClipCleanly() {
+  if (!currentClipId) return;
+  clipPlaying = false;
+  playerPlayBtn.textContent = "▶";
+  setPlayerFrameSrc(buildEmbedUrl(currentClipId, false));
+}
+
 function scheduleAutoAdvance() {
   clearTimeout(autoAdvanceTimer);
   const duration = clipDurationMap[currentSongKey];
   if (!duration) return;
   const AUTO_ADVANCE_BUFFER_MS = 6000;
-  autoAdvanceTimer = setTimeout(advanceFavoritesQueue, Math.max(1000, duration - AUTO_ADVANCE_BUFFER_MS));
+  const fireAt = Math.max(1000, duration - AUTO_ADVANCE_BUFFER_MS);
+  autoAdvanceTimer = setTimeout(() => {
+    if (favoritesQueueActive) advanceFavoritesQueue();
+    else stopClipCleanly();
+  }, fireAt);
 }
 
 function advanceFavoritesQueue() {
