@@ -227,14 +227,15 @@ let songMetaPromise = null;
 async function fetchSongMeta() {
   const clips = {};
   const thumbs = {};
+  const durations = {};
   try {
-    const range = encodeURIComponent("시트1!A2:D");
+    const range = encodeURIComponent("시트1!A2:E");
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${SONGBOOK_CLIPS_SPREADSHEET_ID}/values/${range}?key=${SHEETS_API_KEY}`;
     const res = await fetch(url);
     if (res.ok) {
       const data = await res.json();
       (data.values || []).forEach((row) => {
-        const [artist, title, link, thumbUrl] = row;
+        const [artist, title, link, thumbUrl, durationMs] = row;
         if (!title) return;
         const key = `${artist || ""}|${title}`.toLowerCase();
         if (link) {
@@ -242,6 +243,7 @@ async function fetchSongMeta() {
           if (m) clips[key] = m[1];
         }
         if (thumbUrl) thumbs[key] = thumbUrl;
+        if (durationMs) durations[key] = parseInt(durationMs, 10) || null;
       });
     }
   } catch {
@@ -249,7 +251,8 @@ async function fetchSongMeta() {
   }
   clipMap = clips;
   thumbMap = thumbs;
-  return { clips, thumbs };
+  clipDurationMap = durations;
+  return { clips, thumbs, durations };
 }
 
 function ensureSongMeta() {
@@ -290,15 +293,20 @@ function buildEmbedUrl(clipId, autoPlay) {
 }
 
 let currentClipId = null;
+let currentSongKey = null;
 let clipPlaying = false;
 
-async function playSong(song) {
+async function playSong(song, { fromQueue = false } = {}) {
   if (!clipMap) await ensureSongMeta();
   const key = albumArtCacheKey(song);
   const clipId = clipMap[key];
 
+  clearTimeout(autoAdvanceTimer);
+  if (!fromQueue) favoritesQueueActive = false;
+
   playerEmpty.classList.add("hidden");
   currentClipId = clipId || null;
+  currentSongKey = key;
   clipPlaying = false;
   playerPlayBtn.textContent = "▶";
 
@@ -323,29 +331,39 @@ playerPlayBtn.addEventListener("click", () => {
   clipPlaying = !clipPlaying;
   playerFrame.src = buildEmbedUrl(currentClipId, clipPlaying);
   playerPlayBtn.textContent = clipPlaying ? "⏸" : "▶";
+
+  clearTimeout(autoAdvanceTimer);
+  if (clipPlaying && favoritesQueueActive) scheduleAutoAdvance();
 });
 
 let songShowImage = true;
 let songSortMode = "artist"; // "artist" | "title"
 
 const SONG_FAVORITES_KEY = "songbook-favorites";
-let songFavorites = new Set();
+let songFavoritesOrder = [];
 try {
-  songFavorites = new Set(JSON.parse(localStorage.getItem(SONG_FAVORITES_KEY)) || []);
+  songFavoritesOrder = JSON.parse(localStorage.getItem(SONG_FAVORITES_KEY)) || [];
 } catch {
-  songFavorites = new Set();
+  songFavoritesOrder = [];
+}
+
+function isSongFavorite(key) {
+  return songFavoritesOrder.includes(key);
 }
 
 function toggleSongFavorite(key) {
-  if (songFavorites.has(key)) songFavorites.delete(key);
-  else songFavorites.add(key);
-  localStorage.setItem(SONG_FAVORITES_KEY, JSON.stringify([...songFavorites]));
+  const idx = songFavoritesOrder.indexOf(key);
+  if (idx >= 0) songFavoritesOrder.splice(idx, 1);
+  else songFavoritesOrder.push(key);
+  localStorage.setItem(SONG_FAVORITES_KEY, JSON.stringify(songFavoritesOrder));
 }
+
+let draggedFavKey = null;
 
 function renderFavoritesList() {
   favoritesListEl.innerHTML = "";
 
-  const favSongs = [...songFavorites].map((key) => songByKey[key]).filter(Boolean);
+  const favSongs = songFavoritesOrder.map((key) => songByKey[key]).filter(Boolean);
 
   if (!favSongs.length) {
     const empty = document.createElement("p");
@@ -356,9 +374,12 @@ function renderFavoritesList() {
   }
 
   favSongs.forEach((song) => {
+    const key = albumArtCacheKey(song);
+
     const item = document.createElement("button");
     item.type = "button";
     item.className = "favorite-item";
+    item.draggable = true;
 
     const titleEl = document.createElement("div");
     titleEl.className = "favorite-item-title";
@@ -369,8 +390,72 @@ function renderFavoritesList() {
     artistEl.textContent = song.artist;
 
     item.append(titleEl, artistEl);
-    item.addEventListener("click", () => playSong(song));
+    item.addEventListener("click", () => startFavoritesQueueFrom(key));
+
+    item.addEventListener("dragstart", () => {
+      draggedFavKey = key;
+      item.classList.add("dragging");
+    });
+    item.addEventListener("dragend", () => {
+      draggedFavKey = null;
+      item.classList.remove("dragging");
+    });
+    item.addEventListener("dragover", (e) => e.preventDefault());
+    item.addEventListener("drop", (e) => {
+      e.preventDefault();
+      if (!draggedFavKey || draggedFavKey === key) return;
+      const fromIdx = songFavoritesOrder.indexOf(draggedFavKey);
+      const toIdx = songFavoritesOrder.indexOf(key);
+      if (fromIdx === -1 || toIdx === -1) return;
+      songFavoritesOrder.splice(fromIdx, 1);
+      songFavoritesOrder.splice(toIdx, 0, draggedFavKey);
+      localStorage.setItem(SONG_FAVORITES_KEY, JSON.stringify(songFavoritesOrder));
+      renderFavoritesList();
+    });
+
     favoritesListEl.appendChild(item);
+  });
+}
+
+let clipDurationMap = {};
+let favoritesQueue = [];
+let favoritesQueueIndex = -1;
+let favoritesQueueActive = false;
+let autoAdvanceTimer = null;
+
+function startFavoritesQueueFrom(key) {
+  const queue = songFavoritesOrder
+    .map((k) => songByKey[k])
+    .filter((s) => s && clipMap[albumArtCacheKey(s)]);
+  const startIdx = queue.findIndex((s) => albumArtCacheKey(s) === key);
+  if (startIdx === -1) return;
+
+  favoritesQueue = queue;
+  favoritesQueueIndex = startIdx;
+  favoritesQueueActive = true;
+  playSong(favoritesQueue[favoritesQueueIndex], { fromQueue: true });
+}
+
+function scheduleAutoAdvance() {
+  clearTimeout(autoAdvanceTimer);
+  const duration = clipDurationMap[currentSongKey];
+  if (!duration) return;
+  autoAdvanceTimer = setTimeout(advanceFavoritesQueue, duration);
+}
+
+function advanceFavoritesQueue() {
+  if (!favoritesQueueActive) return;
+  favoritesQueueIndex++;
+  if (favoritesQueueIndex >= favoritesQueue.length) {
+    favoritesQueueActive = false;
+    return;
+  }
+  playSong(favoritesQueue[favoritesQueueIndex], { fromQueue: true }).then(() => {
+    if (!currentClipId) return;
+    clipPlaying = true;
+    playerFrame.src = buildEmbedUrl(currentClipId, true);
+    playerPlayBtn.textContent = "⏸";
+    scheduleAutoAdvance();
   });
 }
 
@@ -386,13 +471,13 @@ function buildSongCard(song) {
 
   const favBtn = document.createElement("button");
   favBtn.type = "button";
-  favBtn.className = "song-card-fav-btn" + (songFavorites.has(key) ? " active" : "");
-  favBtn.textContent = songFavorites.has(key) ? "★" : "☆";
+  favBtn.className = "song-card-fav-btn" + (isSongFavorite(key) ? " active" : "");
+  favBtn.textContent = isSongFavorite(key) ? "★" : "☆";
   favBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     toggleSongFavorite(key);
     favBtn.classList.toggle("active");
-    favBtn.textContent = songFavorites.has(key) ? "★" : "☆";
+    favBtn.textContent = isSongFavorite(key) ? "★" : "☆";
     renderFavoritesList();
   });
 
