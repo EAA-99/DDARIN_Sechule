@@ -66,7 +66,9 @@ const playerCurrentTitle = document.getElementById("playerCurrentTitle");
 const playerPlayBtn = document.getElementById("playerPlayBtn");
 const songGrid = document.getElementById("songGrid");
 const songbookLoadingScreen = document.getElementById("songbookLoadingScreen");
+const favoritesListEl = document.getElementById("favoritesList");
 let allSongs = null;
+let songByKey = {};
 let songbookGenre = "전체";
 const sheetSettingsBtn = document.getElementById("sheetSettingsBtn");
 const sheetModalBackdrop = document.getElementById("sheetModalBackdrop");
@@ -206,6 +208,10 @@ function ensureSongbookSongs() {
   if (!songbookSongsPromise) {
     songbookSongsPromise = fetchSongbookSongs().then((songs) => {
       allSongs = songs;
+      songByKey = {};
+      songs.forEach((song) => {
+        songByKey[albumArtCacheKey(song)] = song;
+      });
       const genres = [...new Set(songs.map((s) => s.genre))];
       renderGenreTabs(genres);
       return songs;
@@ -336,6 +342,38 @@ function toggleSongFavorite(key) {
   localStorage.setItem(SONG_FAVORITES_KEY, JSON.stringify([...songFavorites]));
 }
 
+function renderFavoritesList() {
+  favoritesListEl.innerHTML = "";
+
+  const favSongs = [...songFavorites].map((key) => songByKey[key]).filter(Boolean);
+
+  if (!favSongs.length) {
+    const empty = document.createElement("p");
+    empty.className = "favorites-empty";
+    empty.textContent = "즐겨찾기한 곡이 없습니다.";
+    favoritesListEl.appendChild(empty);
+    return;
+  }
+
+  favSongs.forEach((song) => {
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "favorite-item";
+
+    const titleEl = document.createElement("div");
+    titleEl.className = "favorite-item-title";
+    titleEl.textContent = song.title;
+
+    const artistEl = document.createElement("div");
+    artistEl.className = "favorite-item-artist";
+    artistEl.textContent = song.artist;
+
+    item.append(titleEl, artistEl);
+    item.addEventListener("click", () => playSong(song));
+    favoritesListEl.appendChild(item);
+  });
+}
+
 function buildSongCard(song) {
   const card = document.createElement("div");
   card.className = "song-card";
@@ -355,6 +393,7 @@ function buildSongCard(song) {
     toggleSongFavorite(key);
     favBtn.classList.toggle("active");
     favBtn.textContent = songFavorites.has(key) ? "★" : "☆";
+    renderFavoritesList();
   });
 
   const titleEl = document.createElement("div");
@@ -452,6 +491,7 @@ async function openSongbook() {
   songbookLoadingScreen.classList.add("hidden");
 
   renderSongGrid();
+  renderFavoritesList();
 }
 
 function closeSongbook() {
