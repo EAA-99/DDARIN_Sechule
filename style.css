@@ -635,6 +635,17 @@ body {
   margin-bottom: 20px;
 }
 
+.song-sort-select {
+  margin-left: auto;
+  padding: 8px 14px;
+  border: 1px solid #eee;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  background: #fff;
+  cursor: pointer;
+}
+
 .songbook-header h1 {
   font-size: 1.6rem;
   margin: 0;
@@ -785,11 +796,34 @@ body {
 }
 
 .song-card {
+  position: relative;
   border: 1px solid #eee;
   border-radius: 14px;
   padding: 10px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
   cursor: pointer;
+}
+
+.song-card-fav-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  font-size: 1rem;
+  color: #ccc;
+  cursor: pointer;
+}
+
+.song-card-fav-btn.active {
+  color: #f0b400;
 }
 
 .song-card:hover {

@@ -54,6 +54,7 @@ const songbookView = document.getElementById("songbookView");
 const songbookBackBtn = document.getElementById("songbookBackBtn");
 const songSearchInput = document.getElementById("songSearchInput");
 const genreTabs = document.getElementById("genreTabs");
+const songSortSelect = document.getElementById("songSortSelect");
 const songNoImageBtn = document.getElementById("songNoImageBtn");
 const songImageBtn = document.getElementById("songImageBtn");
 const playerEmpty = document.getElementById("playerEmpty");
@@ -319,6 +320,21 @@ playerPlayBtn.addEventListener("click", () => {
 });
 
 let songShowImage = true;
+let songSortMode = "artist"; // "artist" | "title"
+
+const SONG_FAVORITES_KEY = "songbook-favorites";
+let songFavorites = new Set();
+try {
+  songFavorites = new Set(JSON.parse(localStorage.getItem(SONG_FAVORITES_KEY)) || []);
+} catch {
+  songFavorites = new Set();
+}
+
+function toggleSongFavorite(key) {
+  if (songFavorites.has(key)) songFavorites.delete(key);
+  else songFavorites.add(key);
+  localStorage.setItem(SONG_FAVORITES_KEY, JSON.stringify([...songFavorites]));
+}
 
 function renderSongGrid() {
   songGrid.classList.toggle("no-image-mode", !songShowImage);
@@ -329,6 +345,11 @@ function renderSongGrid() {
     if (songbookGenre !== "전체" && song.genre !== songbookGenre) return false;
     if (query && !song.title.toLowerCase().includes(query) && !song.artist.toLowerCase().includes(query)) return false;
     return true;
+  });
+
+  filtered.sort((a, b) => {
+    const field = songSortMode === "title" ? "title" : "artist";
+    return a[field].localeCompare(b[field], "ko");
   });
 
   songGrid.innerHTML = "";
@@ -345,9 +366,22 @@ function renderSongGrid() {
     const card = document.createElement("div");
     card.className = "song-card";
 
+    const key = albumArtCacheKey(song);
+
     const artEl = document.createElement("img");
     artEl.className = "song-card-art";
     artEl.alt = "";
+
+    const favBtn = document.createElement("button");
+    favBtn.type = "button";
+    favBtn.className = "song-card-fav-btn" + (songFavorites.has(key) ? " active" : "");
+    favBtn.textContent = songFavorites.has(key) ? "★" : "☆";
+    favBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleSongFavorite(key);
+      favBtn.classList.toggle("active");
+      favBtn.textContent = songFavorites.has(key) ? "★" : "☆";
+    });
 
     const titleEl = document.createElement("div");
     titleEl.className = "song-card-title";
@@ -361,11 +395,10 @@ function renderSongGrid() {
     genreEl.className = "song-card-genre";
     genreEl.textContent = song.genre;
 
-    card.append(artEl, titleEl, artistEl, genreEl);
+    card.append(artEl, favBtn, titleEl, artistEl, genreEl);
     card.addEventListener("click", () => playSong(song));
     songGrid.appendChild(card);
 
-    const key = albumArtCacheKey(song);
     if (thumbMap && thumbMap[key]) artEl.src = thumbMap[key];
   });
 }
@@ -414,6 +447,11 @@ songImageBtn.addEventListener("click", () => {
   songShowImage = true;
   songImageBtn.classList.add("active");
   songNoImageBtn.classList.remove("active");
+  renderSongGrid();
+});
+
+songSortSelect.addEventListener("change", () => {
+  songSortMode = songSortSelect.value;
   renderSongGrid();
 });
 
