@@ -54,8 +54,6 @@ const songbookView = document.getElementById("songbookView");
 const songbookBackBtn = document.getElementById("songbookBackBtn");
 const songSearchInput = document.getElementById("songSearchInput");
 const genreTabs = document.getElementById("genreTabs");
-const imageModeThumbBtn = document.getElementById("imageModeThumbBtn");
-const imageModeAlbumBtn = document.getElementById("imageModeAlbumBtn");
 const playerEmpty = document.getElementById("playerEmpty");
 const playerNoClip = document.getElementById("playerNoClip");
 const playerNoClipSong = document.getElementById("playerNoClipSong");
@@ -215,22 +213,19 @@ function ensureSongbookSongs() {
 
 let clipMap = null;
 let thumbMap = null;
-let albumMap = null;
-let imageMode = "thumb"; // "thumb" | "album"
 let songMetaPromise = null;
 
 async function fetchSongMeta() {
   const clips = {};
   const thumbs = {};
-  const albums = {};
   try {
-    const range = encodeURIComponent("시트1!A2:E");
+    const range = encodeURIComponent("시트1!A2:D");
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${SONGBOOK_CLIPS_SPREADSHEET_ID}/values/${range}?key=${SHEETS_API_KEY}`;
     const res = await fetch(url);
     if (res.ok) {
       const data = await res.json();
       (data.values || []).forEach((row) => {
-        const [artist, title, link, thumbUrl, albumUrl] = row;
+        const [artist, title, link, thumbUrl] = row;
         if (!title) return;
         const key = `${artist || ""}|${title}`.toLowerCase();
         if (link) {
@@ -238,7 +233,6 @@ async function fetchSongMeta() {
           if (m) clips[key] = m[1];
         }
         if (thumbUrl) thumbs[key] = thumbUrl;
-        if (albumUrl) albums[key] = albumUrl;
       });
     }
   } catch {
@@ -246,8 +240,7 @@ async function fetchSongMeta() {
   }
   clipMap = clips;
   thumbMap = thumbs;
-  albumMap = albums;
-  return { clips, thumbs, albums };
+  return { clips, thumbs };
 }
 
 function ensureSongMeta() {
@@ -265,7 +258,7 @@ function preloadImage(url) {
 }
 
 async function preloadAllAlbumArt() {
-  const urls = [...Object.values(thumbMap || {}), ...Object.values(albumMap || {})].filter(Boolean);
+  const urls = Object.values(thumbMap || {}).filter(Boolean);
   await Promise.all(urls.map(preloadImage));
   albumArtReady = true;
 }
@@ -369,8 +362,7 @@ function renderSongGrid() {
     songGrid.appendChild(card);
 
     const key = albumArtCacheKey(song);
-    const activeMap = imageMode === "album" ? albumMap : thumbMap;
-    if (activeMap && activeMap[key]) artEl.src = activeMap[key];
+    if (thumbMap && thumbMap[key]) artEl.src = thumbMap[key];
   });
 }
 
@@ -408,16 +400,6 @@ genreTabs.addEventListener("click", (e) => {
   genreTabs.querySelectorAll(".genre-tab").forEach((el) => el.classList.toggle("active", el === btn));
   renderSongGrid();
 });
-
-function setImageMode(mode) {
-  imageMode = mode;
-  imageModeThumbBtn.classList.toggle("active", mode === "thumb");
-  imageModeAlbumBtn.classList.toggle("active", mode === "album");
-  renderSongGrid();
-}
-
-imageModeThumbBtn.addEventListener("click", () => setImageMode("thumb"));
-imageModeAlbumBtn.addEventListener("click", () => setImageMode("album"));
 
 async function apiPost(payload) {
   try {
