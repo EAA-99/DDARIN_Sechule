@@ -61,6 +61,7 @@ const playerEmpty = document.getElementById("playerEmpty");
 const playerNoClip = document.getElementById("playerNoClip");
 const playerNoClipSong = document.getElementById("playerNoClipSong");
 const playerFrameWrap = document.getElementById("playerFrameWrap");
+const playerFrame = document.getElementById("playerFrame");
 const playerCurrentTitle = document.getElementById("playerCurrentTitle");
 const playerPlayBtn = document.getElementById("playerPlayBtn");
 const playerPrevBtn = document.getElementById("playerPrevBtn");
@@ -290,15 +291,11 @@ async function prefetchSongbookInBackground() {
 }
 
 function buildClipPageUrl(clipId) {
-  return `https://vod.sooplive.com/player/${clipId}/embed?type=catch&autoPlay=true&showChat=false&mutePlay=true`;
+  return `https://vod.sooplive.com/player/${clipId}/embed?type=catch&autoPlay=true&showChat=false&mutePlay=false`;
 }
 
-function openSoopPopup(url) {
-  const width = 640;
-  const height = 600;
-  const left = Math.round((window.screen.width - width) / 2);
-  const top = Math.round((window.screen.height - height) / 2);
-  window.open(url, "soopPlayerPopup", `width=${width},height=${height},left=${left},top=${top}`);
+function setPlayerFrameSrc(clipId) {
+  playerFrame.src = buildClipPageUrl(clipId);
 }
 
 let currentClipId = null;
@@ -338,7 +335,7 @@ async function playSong(song) {
   playerCurrentTitle.textContent = `${song.title} - ${song.artist}`;
   playerPlayBtn.disabled = false;
 
-  openSoopPopup(buildClipPageUrl(clipId));
+  setPlayerFrameSrc(clipId);
   if (favoritesQueueActive) scheduleAutoAdvance();
 }
 
@@ -354,7 +351,7 @@ playerNextBtn.addEventListener("click", () => goToFavoritesQueueOffset(1));
 
 playerPlayBtn.addEventListener("click", () => {
   if (!currentClipId) return;
-  openSoopPopup(buildClipPageUrl(currentClipId));
+  setPlayerFrameSrc(currentClipId);
 });
 
 let songShowImage = true;
