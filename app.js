@@ -294,7 +294,7 @@ function buildClipPageUrl(clipId) {
 }
 
 function openSoopPopup(url) {
-  window.open(url, "soopPlayerPopup", "width=900,height=600");
+  window.open(url, "soopPlayerPopup", "width=1100,height=820");
 }
 
 let currentClipId = null;
