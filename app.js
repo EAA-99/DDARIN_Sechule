@@ -296,13 +296,20 @@ let currentClipId = null;
 let currentSongKey = null;
 let clipPlaying = false;
 
-async function playSong(song, { fromQueue = false } = {}) {
+async function playSong(song) {
   if (!clipMap) await ensureSongMeta();
   const key = albumArtCacheKey(song);
   const clipId = clipMap[key];
 
   clearTimeout(autoAdvanceTimer);
-  if (!fromQueue) favoritesQueueActive = false;
+
+  if (isSongFavorite(key)) {
+    favoritesQueue = songFavoritesOrder.map((k) => songByKey[k]).filter((s) => s && clipMap[albumArtCacheKey(s)]);
+    favoritesQueueIndex = favoritesQueue.findIndex((s) => albumArtCacheKey(s) === key);
+    favoritesQueueActive = favoritesQueueIndex !== -1;
+  } else {
+    favoritesQueueActive = false;
+  }
 
   playerEmpty.classList.add("hidden");
   currentClipId = clipId || null;
@@ -390,7 +397,7 @@ function renderFavoritesList() {
     artistEl.textContent = song.artist;
 
     item.append(titleEl, artistEl);
-    item.addEventListener("click", () => startFavoritesQueueFrom(key));
+    item.addEventListener("click", () => playSong(song));
 
     item.addEventListener("dragstart", () => {
       draggedFavKey = key;
@@ -423,19 +430,6 @@ let favoritesQueueIndex = -1;
 let favoritesQueueActive = false;
 let autoAdvanceTimer = null;
 
-function startFavoritesQueueFrom(key) {
-  const queue = songFavoritesOrder
-    .map((k) => songByKey[k])
-    .filter((s) => s && clipMap[albumArtCacheKey(s)]);
-  const startIdx = queue.findIndex((s) => albumArtCacheKey(s) === key);
-  if (startIdx === -1) return;
-
-  favoritesQueue = queue;
-  favoritesQueueIndex = startIdx;
-  favoritesQueueActive = true;
-  playSong(favoritesQueue[favoritesQueueIndex], { fromQueue: true });
-}
-
 function scheduleAutoAdvance() {
   clearTimeout(autoAdvanceTimer);
   const duration = clipDurationMap[currentSongKey];
@@ -445,12 +439,12 @@ function scheduleAutoAdvance() {
 
 function advanceFavoritesQueue() {
   if (!favoritesQueueActive) return;
-  favoritesQueueIndex++;
-  if (favoritesQueueIndex >= favoritesQueue.length) {
+  const nextIndex = favoritesQueueIndex + 1;
+  if (nextIndex >= favoritesQueue.length) {
     favoritesQueueActive = false;
     return;
   }
-  playSong(favoritesQueue[favoritesQueueIndex], { fromQueue: true }).then(() => {
+  playSong(favoritesQueue[nextIndex]).then(() => {
     if (!currentClipId) return;
     clipPlaying = true;
     playerFrame.src = buildEmbedUrl(currentClipId, true);
