@@ -734,11 +734,30 @@ body {
   text-align: center;
 }
 
-.player-frame {
+.player-popup-status {
   width: 100%;
   aspect-ratio: 16 / 9;
-  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #f7f7f7;
   border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+
+.player-popup-status-text {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.player-popup-status-sub {
+  font-size: 0.78rem;
+  color: #999;
+  margin: 0;
 }
 
 .player-controls {

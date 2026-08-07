@@ -61,7 +61,6 @@ const playerEmpty = document.getElementById("playerEmpty");
 const playerNoClip = document.getElementById("playerNoClip");
 const playerNoClipSong = document.getElementById("playerNoClipSong");
 const playerFrameWrap = document.getElementById("playerFrameWrap");
-const playerFrame = document.getElementById("playerFrame");
 const playerCurrentTitle = document.getElementById("playerCurrentTitle");
 const playerPlayBtn = document.getElementById("playerPlayBtn");
 const playerPrevBtn = document.getElementById("playerPrevBtn");
@@ -290,22 +289,18 @@ async function prefetchSongbookInBackground() {
   await ensureAlbumArtPreloaded();
 }
 
-function buildEmbedUrl(clipId, autoPlay) {
-  return `https://vod.sooplive.com/player/${clipId}/embed?type=catch&autoPlay=${autoPlay}&showChat=false&mutePlay=false`;
+function buildClipPageUrl(clipId) {
+  return `https://vod.sooplive.com/player/${clipId}`;
 }
 
-function setPlayerFrameSrc(url) {
-  playerFrame.src = "";
-  requestAnimationFrame(() => {
-    playerFrame.src = url;
-  });
+function openSoopPopup(url) {
+  window.open(url, "soopPlayerPopup", "width=900,height=600");
 }
 
 let currentClipId = null;
 let currentSongKey = null;
-let clipPlaying = false;
 
-async function playSong(song, { autoPlay = false } = {}) {
+async function playSong(song) {
   if (!clipMap) await ensureSongMeta();
   const key = albumArtCacheKey(song);
   const clipId = clipMap[key];
@@ -323,14 +318,11 @@ async function playSong(song, { autoPlay = false } = {}) {
   playerEmpty.classList.add("hidden");
   currentClipId = clipId || null;
   currentSongKey = key;
-  clipPlaying = autoPlay;
-  playerPlayBtn.textContent = autoPlay ? "⏸" : "▶";
   playerPrevBtn.disabled = !(favoritesQueueActive && favoritesQueueIndex > 0);
   playerNextBtn.disabled = !(favoritesQueueActive && favoritesQueueIndex < favoritesQueue.length - 1);
 
   if (!clipId) {
     playerFrameWrap.classList.add("hidden");
-    playerFrame.src = "";
     playerPlayBtn.disabled = true;
     playerNoClip.classList.remove("hidden");
     playerNoClipSong.textContent = `${song.title} - ${song.artist}`;
@@ -340,17 +332,17 @@ async function playSong(song, { autoPlay = false } = {}) {
   playerNoClip.classList.add("hidden");
   playerFrameWrap.classList.remove("hidden");
   playerCurrentTitle.textContent = `${song.title} - ${song.artist}`;
-  setPlayerFrameSrc(buildEmbedUrl(clipId, autoPlay));
   playerPlayBtn.disabled = false;
 
-  if (autoPlay) scheduleAutoAdvance();
+  openSoopPopup(buildClipPageUrl(clipId));
+  if (favoritesQueueActive) scheduleAutoAdvance();
 }
 
 function goToFavoritesQueueOffset(offset) {
   if (!favoritesQueueActive) return;
   const newIndex = favoritesQueueIndex + offset;
   if (newIndex < 0 || newIndex >= favoritesQueue.length) return;
-  playSong(favoritesQueue[newIndex], { autoPlay: clipPlaying });
+  playSong(favoritesQueue[newIndex]);
 }
 
 playerPrevBtn.addEventListener("click", () => goToFavoritesQueueOffset(-1));
@@ -358,12 +350,7 @@ playerNextBtn.addEventListener("click", () => goToFavoritesQueueOffset(1));
 
 playerPlayBtn.addEventListener("click", () => {
   if (!currentClipId) return;
-  clipPlaying = !clipPlaying;
-  setPlayerFrameSrc(buildEmbedUrl(currentClipId, clipPlaying));
-  playerPlayBtn.textContent = clipPlaying ? "⏸" : "▶";
-
-  clearTimeout(autoAdvanceTimer);
-  if (clipPlaying) scheduleAutoAdvance();
+  openSoopPopup(buildClipPageUrl(currentClipId));
 });
 
 let songShowImage = true;
@@ -470,7 +457,7 @@ function advanceFavoritesQueue() {
     favoritesQueueActive = false;
     return;
   }
-  playSong(favoritesQueue[nextIndex], { autoPlay: true });
+  playSong(favoritesQueue[nextIndex]);
 }
 
 function buildSongCard(song) {
