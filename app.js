@@ -290,11 +290,11 @@ async function prefetchSongbookInBackground() {
 }
 
 function buildClipPageUrl(clipId) {
-  return `https://vod.sooplive.com/player/${clipId}/embed?type=catch&autoPlay=true&showChat=true&mutePlay=false`;
+  return `https://vod.sooplive.com/player/${clipId}/embed?type=catch&autoPlay=true&showChat=false&mutePlay=false`;
 }
 
 function openSoopPopup(url) {
-  window.open(url, "soopPlayerPopup", "width=1100,height=820");
+  window.open(url, "soopPlayerPopup", "width=760,height=820");
 }
 
 let currentClipId = null;
