@@ -795,6 +795,30 @@ body {
   padding-right: 4px;
 }
 
+.song-group-header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 14px 4px 6px;
+  border-bottom: 2px solid #eee;
+}
+
+.song-group-header:first-child {
+  padding-top: 0;
+}
+
+.song-group-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #4a7fd6;
+}
+
+.song-group-count {
+  font-size: 0.82rem;
+  color: #999;
+}
+
 .song-card {
   position: relative;
   border: 1px solid #eee;

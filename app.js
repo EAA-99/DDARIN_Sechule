@@ -336,6 +336,47 @@ function toggleSongFavorite(key) {
   localStorage.setItem(SONG_FAVORITES_KEY, JSON.stringify([...songFavorites]));
 }
 
+function buildSongCard(song) {
+  const card = document.createElement("div");
+  card.className = "song-card";
+
+  const key = albumArtCacheKey(song);
+
+  const artEl = document.createElement("img");
+  artEl.className = "song-card-art";
+  artEl.alt = "";
+
+  const favBtn = document.createElement("button");
+  favBtn.type = "button";
+  favBtn.className = "song-card-fav-btn" + (songFavorites.has(key) ? " active" : "");
+  favBtn.textContent = songFavorites.has(key) ? "★" : "☆";
+  favBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleSongFavorite(key);
+    favBtn.classList.toggle("active");
+    favBtn.textContent = songFavorites.has(key) ? "★" : "☆";
+  });
+
+  const titleEl = document.createElement("div");
+  titleEl.className = "song-card-title";
+  titleEl.textContent = song.title;
+
+  const artistEl = document.createElement("div");
+  artistEl.className = "song-card-artist";
+  artistEl.textContent = song.artist;
+
+  const genreEl = document.createElement("span");
+  genreEl.className = "song-card-genre";
+  genreEl.textContent = song.genre;
+
+  card.append(artEl, favBtn, titleEl, artistEl, genreEl);
+  card.addEventListener("click", () => playSong(song));
+
+  if (thumbMap && thumbMap[key]) artEl.src = thumbMap[key];
+
+  return card;
+}
+
 function renderSongGrid() {
   songGrid.classList.toggle("no-image-mode", !songShowImage);
 
@@ -362,44 +403,37 @@ function renderSongGrid() {
     return;
   }
 
+  if (songSortMode !== "artist") {
+    filtered.forEach((song) => songGrid.appendChild(buildSongCard(song)));
+    return;
+  }
+
+  const groups = [];
   filtered.forEach((song) => {
-    const card = document.createElement("div");
-    card.className = "song-card";
+    const lastGroup = groups[groups.length - 1];
+    if (lastGroup && lastGroup.artist === song.artist) {
+      lastGroup.songs.push(song);
+    } else {
+      groups.push({ artist: song.artist, songs: [song] });
+    }
+  });
 
-    const key = albumArtCacheKey(song);
+  groups.forEach((group) => {
+    const header = document.createElement("div");
+    header.className = "song-group-header";
 
-    const artEl = document.createElement("img");
-    artEl.className = "song-card-art";
-    artEl.alt = "";
+    const nameEl = document.createElement("span");
+    nameEl.className = "song-group-name";
+    nameEl.textContent = group.artist;
 
-    const favBtn = document.createElement("button");
-    favBtn.type = "button";
-    favBtn.className = "song-card-fav-btn" + (songFavorites.has(key) ? " active" : "");
-    favBtn.textContent = songFavorites.has(key) ? "★" : "☆";
-    favBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      toggleSongFavorite(key);
-      favBtn.classList.toggle("active");
-      favBtn.textContent = songFavorites.has(key) ? "★" : "☆";
-    });
+    const countEl = document.createElement("span");
+    countEl.className = "song-group-count";
+    countEl.textContent = `${group.songs.length}곡`;
 
-    const titleEl = document.createElement("div");
-    titleEl.className = "song-card-title";
-    titleEl.textContent = song.title;
+    header.append(nameEl, countEl);
+    songGrid.appendChild(header);
 
-    const artistEl = document.createElement("div");
-    artistEl.className = "song-card-artist";
-    artistEl.textContent = song.artist;
-
-    const genreEl = document.createElement("span");
-    genreEl.className = "song-card-genre";
-    genreEl.textContent = song.genre;
-
-    card.append(artEl, favBtn, titleEl, artistEl, genreEl);
-    card.addEventListener("click", () => playSong(song));
-    songGrid.appendChild(card);
-
-    if (thumbMap && thumbMap[key]) artEl.src = thumbMap[key];
+    group.songs.forEach((song) => songGrid.appendChild(buildSongCard(song)));
   });
 }
 
