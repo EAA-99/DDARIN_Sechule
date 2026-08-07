@@ -294,7 +294,11 @@ function buildClipPageUrl(clipId) {
 }
 
 function openSoopPopup(url) {
-  window.open(url, "soopPlayerPopup", "width=760,height=820");
+  const width = 640;
+  const height = 480;
+  const left = Math.round((window.screen.width - width) / 2);
+  const top = Math.round((window.screen.height - height) / 2);
+  window.open(url, "soopPlayerPopup", `width=${width},height=${height},left=${left},top=${top}`);
 }
 
 let currentClipId = null;
