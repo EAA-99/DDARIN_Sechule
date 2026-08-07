@@ -681,9 +681,30 @@ body {
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
+.player-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 24px;
+}
+
 .player-panel h2 {
   font-size: 1.1rem;
-  margin: 0 0 24px;
+  margin: 0;
+}
+
+.soop-login-link {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #4a7fd6;
+  text-decoration: none;
+  border: 1px solid #cfe0f7;
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+.soop-login-link:hover {
+  background: #f0f5fd;
 }
 
 .player-empty {
