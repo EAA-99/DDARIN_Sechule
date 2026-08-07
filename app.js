@@ -64,6 +64,8 @@ const playerFrameWrap = document.getElementById("playerFrameWrap");
 const playerFrame = document.getElementById("playerFrame");
 const playerCurrentTitle = document.getElementById("playerCurrentTitle");
 const playerPlayBtn = document.getElementById("playerPlayBtn");
+const playerPrevBtn = document.getElementById("playerPrevBtn");
+const playerNextBtn = document.getElementById("playerNextBtn");
 const songGrid = document.getElementById("songGrid");
 const songbookLoadingScreen = document.getElementById("songbookLoadingScreen");
 const favoritesListEl = document.getElementById("favoritesList");
@@ -323,6 +325,8 @@ async function playSong(song, { autoPlay = false } = {}) {
   currentSongKey = key;
   clipPlaying = autoPlay;
   playerPlayBtn.textContent = autoPlay ? "⏸" : "▶";
+  playerPrevBtn.disabled = !(favoritesQueueActive && favoritesQueueIndex > 0);
+  playerNextBtn.disabled = !(favoritesQueueActive && favoritesQueueIndex < favoritesQueue.length - 1);
 
   if (!clipId) {
     playerFrameWrap.classList.add("hidden");
@@ -341,6 +345,16 @@ async function playSong(song, { autoPlay = false } = {}) {
 
   if (autoPlay) scheduleAutoAdvance();
 }
+
+function goToFavoritesQueueOffset(offset) {
+  if (!favoritesQueueActive) return;
+  const newIndex = favoritesQueueIndex + offset;
+  if (newIndex < 0 || newIndex >= favoritesQueue.length) return;
+  playSong(favoritesQueue[newIndex], { autoPlay: clipPlaying });
+}
+
+playerPrevBtn.addEventListener("click", () => goToFavoritesQueueOffset(-1));
+playerNextBtn.addEventListener("click", () => goToFavoritesQueueOffset(1));
 
 playerPlayBtn.addEventListener("click", () => {
   if (!currentClipId) return;

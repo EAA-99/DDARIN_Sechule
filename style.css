@@ -792,7 +792,7 @@ body {
   color: #fff;
 }
 
-.player-btn-play:not(:disabled) {
+.player-btn:not(:disabled) {
   cursor: pointer;
 }
 
