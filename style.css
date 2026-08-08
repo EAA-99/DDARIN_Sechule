@@ -316,6 +316,7 @@ body {
 }
 
 .day-cell {
+  position: relative;
   background: #fff;
   height: 210px;
   min-height: 0;
@@ -329,6 +330,29 @@ body {
   border-right: 1px dashed #ddd;
   border-bottom: 1px dashed #ddd;
   transition: background 0.15s;
+}
+
+.day-cell-menu-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  color: #999;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.day-cell-menu-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #555;
 }
 
 .day-cell:hover {
@@ -691,20 +715,6 @@ body {
 .player-panel h2 {
   font-size: 1.1rem;
   margin: 0;
-}
-
-.soop-login-link {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #4a7fd6;
-  text-decoration: none;
-  border: 1px solid #cfe0f7;
-  border-radius: 999px;
-  padding: 4px 10px;
-}
-
-.soop-login-link:hover {
-  background: #f0f5fd;
 }
 
 .player-empty {

@@ -819,6 +819,14 @@ function renderGrid() {
     num.textContent = day;
     cell.appendChild(num);
 
+    const menuBtn = document.createElement("button");
+    menuBtn.type = "button";
+    menuBtn.className = "day-cell-menu-btn";
+    menuBtn.textContent = "⋮";
+    menuBtn.setAttribute("aria-label", "더보기");
+    menuBtn.addEventListener("click", (e) => e.stopPropagation());
+    cell.appendChild(menuBtn);
+
     const dayEvents = events[key] || [];
 
     if (dayEvents.length === 1) {
