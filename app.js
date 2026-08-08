@@ -382,8 +382,12 @@ playerPrevBtn.addEventListener("click", () => goToFavoritesQueueOffset(-1));
 playerNextBtn.addEventListener("click", () => goToFavoritesQueueOffset(1));
 
 playerPlayBtn.addEventListener("click", () => {
-  if (!currentClipId || !currentSong) return;
-  openSongPlayerModal(currentSong, currentClipId);
+  if (currentClipId && currentSong) {
+    openSongPlayerModal(currentSong, currentClipId);
+    return;
+  }
+  const favSongs = songFavoritesOrder.map((k) => songByKey[k]).filter(Boolean);
+  if (favSongs.length) playSong(favSongs[0]);
 });
 
 let songShowImage = true;
@@ -414,6 +418,8 @@ function renderFavoritesList() {
   favoritesListEl.innerHTML = "";
 
   const favSongs = songFavoritesOrder.map((key) => songByKey[key]).filter(Boolean);
+
+  if (!currentClipId) playerPlayBtn.disabled = favSongs.length === 0;
 
   if (!favSongs.length) {
     const empty = document.createElement("p");
