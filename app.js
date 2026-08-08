@@ -44,43 +44,41 @@ function closeDayCellMenu() {
   dayCellMenu.classList.add("hidden");
 }
 
-function openDayCellMenu(anchorEl, dateKeyStr) {
-  dayCellMenuDate = dateKeyStr;
+async function loadDayCellCafePost(dateKeyStr) {
   dayCellCafeUrl = null;
-  dayCellCafeBtnLabel.textContent = "따카오톡";
-
-  const rect = anchorEl.getBoundingClientRect();
-  dayCellMenu.classList.remove("hidden");
-  dayCellMenu.style.top = `${rect.bottom + 4}px`;
-  dayCellMenu.style.left = `${Math.min(rect.left, window.innerWidth - dayCellMenu.offsetWidth - 8)}px`;
-}
-
-dayCellCafeBtn.addEventListener("click", async () => {
-  if (dayCellCafeUrl) {
-    window.open(dayCellCafeUrl, "_blank", "noopener");
-    return;
-  }
-  if (!dayCellMenuDate || !CAFE_API_URL) return;
-
   dayCellCafeBtnLabel.textContent = "불러오는 중...";
+
+  if (!CAFE_API_URL) return;
   try {
-    const res = await fetch(`${CAFE_API_URL}?date=${dayCellMenuDate}`);
+    const res = await fetch(`${CAFE_API_URL}?date=${dateKeyStr}`);
     const posts = await res.json();
+    if (dayCellMenuDate !== dateKeyStr) return; // 그 사이 다른 날짜 메뉴로 바뀜
+
     if (posts && posts.length) {
       dayCellCafeUrl = posts[0].url;
       dayCellCafeBtnLabel.textContent = posts[0].title;
     } else {
       dayCellCafeBtnLabel.textContent = "그 날 글이 없어요";
-      setTimeout(() => {
-        dayCellCafeBtnLabel.textContent = "따카오톡";
-      }, 2000);
     }
   } catch {
+    if (dayCellMenuDate !== dateKeyStr) return;
     dayCellCafeBtnLabel.textContent = "불러오기 실패";
-    setTimeout(() => {
-      dayCellCafeBtnLabel.textContent = "따카오톡";
-    }, 2000);
   }
+}
+
+function openDayCellMenu(anchorEl, dateKeyStr) {
+  dayCellMenuDate = dateKeyStr;
+
+  const rect = anchorEl.getBoundingClientRect();
+  dayCellMenu.classList.remove("hidden");
+  dayCellMenu.style.top = `${rect.bottom + 4}px`;
+  dayCellMenu.style.left = `${Math.min(rect.left, window.innerWidth - dayCellMenu.offsetWidth - 8)}px`;
+
+  loadDayCellCafePost(dateKeyStr);
+}
+
+dayCellCafeBtn.addEventListener("click", () => {
+  if (dayCellCafeUrl) window.open(dayCellCafeUrl, "_blank", "noopener");
 });
 
 document.addEventListener("click", (e) => {
