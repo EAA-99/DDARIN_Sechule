@@ -32,17 +32,56 @@ const cardList = document.getElementById("cardList");
 const weekPrevBtn = document.getElementById("weekPrevBtn");
 const weekNextBtn = document.getElementById("weekNextBtn");
 const dayCellMenu = document.getElementById("dayCellMenu");
+const dayCellCafeBtn = document.getElementById("dayCellCafeBtn");
+const dayCellCafeBtnLabel = document.getElementById("dayCellCafeBtnLabel");
+
+const CAFE_API_URL = "/api/cafe";
+
+let dayCellMenuDate = null;
+let dayCellCafeUrl = null;
 
 function closeDayCellMenu() {
   dayCellMenu.classList.add("hidden");
 }
 
-function openDayCellMenu(anchorEl) {
+function openDayCellMenu(anchorEl, dateKeyStr) {
+  dayCellMenuDate = dateKeyStr;
+  dayCellCafeUrl = null;
+  dayCellCafeBtnLabel.textContent = "따카오톡";
+
   const rect = anchorEl.getBoundingClientRect();
   dayCellMenu.classList.remove("hidden");
   dayCellMenu.style.top = `${rect.bottom + 4}px`;
   dayCellMenu.style.left = `${Math.min(rect.left, window.innerWidth - dayCellMenu.offsetWidth - 8)}px`;
 }
+
+dayCellCafeBtn.addEventListener("click", async () => {
+  if (dayCellCafeUrl) {
+    window.open(dayCellCafeUrl, "_blank", "noopener");
+    return;
+  }
+  if (!dayCellMenuDate || !CAFE_API_URL) return;
+
+  dayCellCafeBtnLabel.textContent = "불러오는 중...";
+  try {
+    const res = await fetch(`${CAFE_API_URL}?date=${dayCellMenuDate}`);
+    const posts = await res.json();
+    if (posts && posts.length) {
+      dayCellCafeUrl = posts[0].url;
+      dayCellCafeBtnLabel.textContent = posts[0].title;
+    } else {
+      dayCellCafeBtnLabel.textContent = "그 날 글이 없어요";
+      setTimeout(() => {
+        dayCellCafeBtnLabel.textContent = "따카오톡";
+      }, 2000);
+    }
+  } catch {
+    dayCellCafeBtnLabel.textContent = "불러오기 실패";
+    setTimeout(() => {
+      dayCellCafeBtnLabel.textContent = "따카오톡";
+    }, 2000);
+  }
+});
 
 document.addEventListener("click", (e) => {
   if (!dayCellMenu.classList.contains("hidden") && !dayCellMenu.contains(e.target) && !e.target.classList.contains("day-cell-menu-btn")) {
@@ -844,7 +883,7 @@ function renderGrid() {
     menuBtn.setAttribute("aria-label", "더보기");
     menuBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      openDayCellMenu(menuBtn);
+      openDayCellMenu(menuBtn, key);
     });
     cell.appendChild(menuBtn);
 
