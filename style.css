@@ -355,6 +355,45 @@ body {
   color: #555;
 }
 
+.day-cell-menu {
+  position: fixed;
+  z-index: 300;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+}
+
+.day-cell-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: none;
+  background: none;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.day-cell-menu-item:hover {
+  background: #f5f5f5;
+}
+
+.day-cell-menu-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  flex-shrink: 0;
+  display: block;
+  object-fit: cover;
+}
+
 .day-cell:hover {
   background: #fafbff;
 }

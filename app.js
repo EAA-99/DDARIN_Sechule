@@ -31,6 +31,24 @@ const cardView = document.getElementById("cardView");
 const cardList = document.getElementById("cardList");
 const weekPrevBtn = document.getElementById("weekPrevBtn");
 const weekNextBtn = document.getElementById("weekNextBtn");
+const dayCellMenu = document.getElementById("dayCellMenu");
+
+function closeDayCellMenu() {
+  dayCellMenu.classList.add("hidden");
+}
+
+function openDayCellMenu(anchorEl) {
+  const rect = anchorEl.getBoundingClientRect();
+  dayCellMenu.classList.remove("hidden");
+  dayCellMenu.style.top = `${rect.bottom + 4}px`;
+  dayCellMenu.style.left = `${Math.min(rect.left, window.innerWidth - dayCellMenu.offsetWidth - 8)}px`;
+}
+
+document.addEventListener("click", (e) => {
+  if (!dayCellMenu.classList.contains("hidden") && !dayCellMenu.contains(e.target) && !e.target.classList.contains("day-cell-menu-btn")) {
+    closeDayCellMenu();
+  }
+});
 let viewMode = "list";
 let cardWeekStart = getMonday(new Date());
 const modalBackdrop = document.getElementById("modalBackdrop");
@@ -824,7 +842,10 @@ function renderGrid() {
     menuBtn.className = "day-cell-menu-btn";
     menuBtn.textContent = "⋮";
     menuBtn.setAttribute("aria-label", "더보기");
-    menuBtn.addEventListener("click", (e) => e.stopPropagation());
+    menuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openDayCellMenu(menuBtn);
+    });
     cell.appendChild(menuBtn);
 
     const dayEvents = events[key] || [];
