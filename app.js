@@ -34,8 +34,10 @@ const weekNextBtn = document.getElementById("weekNextBtn");
 const dayCellMenu = document.getElementById("dayCellMenu");
 const dayCellCafeBtn = document.getElementById("dayCellCafeBtn");
 const dayCellCafeBtnLabel = document.getElementById("dayCellCafeBtnLabel");
+const dayCellSoopSummaryEl = document.getElementById("dayCellSoopSummary");
 
 const CAFE_API_URL = "/api/cafe";
+const BROADCAST_SUMMARY_API_URL = "/api/broadcast-summary";
 
 let dayCellMenuDate = null;
 let dayCellCafeUrl = null;
@@ -66,8 +68,33 @@ async function loadDayCellCafePost(dateKeyStr) {
   }
 }
 
+async function loadDayCellBroadcastSummary(dateKeyStr) {
+  dayCellSoopSummaryEl.textContent = "불러오는 중...";
+  dayCellSoopSummaryEl.classList.remove("hidden");
+
+  try {
+    const res = await fetch(`${BROADCAST_SUMMARY_API_URL}?date=${dateKeyStr}`);
+    const data = await res.json();
+    if (dayCellMenuDate !== dateKeyStr) return;
+
+    if (data.available) {
+      dayCellSoopSummaryEl.textContent = data.summary;
+    } else if (data.reason === "offline") {
+      dayCellSoopSummaryEl.textContent = "지금 방송 중이 아니에요.";
+    } else if (data.reason === "not_today") {
+      dayCellSoopSummaryEl.textContent = "방송 중이거나 방송 직후에만 볼 수 있어요.";
+    } else {
+      dayCellSoopSummaryEl.textContent = "불러오기 실패";
+    }
+  } catch {
+    if (dayCellMenuDate !== dateKeyStr) return;
+    dayCellSoopSummaryEl.textContent = "불러오기 실패";
+  }
+}
+
 function openDayCellMenu(anchorEl, dateKeyStr) {
   dayCellMenuDate = dateKeyStr;
+  dayCellSoopSummaryEl.classList.add("hidden");
 
   const rect = anchorEl.getBoundingClientRect();
   dayCellMenu.classList.remove("hidden");
@@ -79,6 +106,10 @@ function openDayCellMenu(anchorEl, dateKeyStr) {
 
 dayCellCafeBtn.addEventListener("click", () => {
   if (dayCellCafeUrl) window.open(dayCellCafeUrl, "_blank", "noopener");
+});
+
+document.getElementById("dayCellSoopBtn").addEventListener("click", () => {
+  if (dayCellMenuDate) loadDayCellBroadcastSummary(dayCellMenuDate);
 });
 
 document.addEventListener("click", (e) => {

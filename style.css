@@ -385,6 +385,17 @@ body {
   background: #f5f5f5;
 }
 
+.day-cell-summary {
+  max-width: 260px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #444;
+  padding: 8px 10px 4px;
+  white-space: pre-line;
+  border-top: 1px solid #eee;
+  margin-top: 4px;
+}
+
 .day-cell-menu-icon {
   width: 24px;
   height: 24px;
