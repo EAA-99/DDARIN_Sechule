@@ -107,6 +107,8 @@ const songbookView = document.getElementById("songbookView");
 const songbookBackBtn = document.getElementById("songbookBackBtn");
 const songSearchInput = document.getElementById("songSearchInput");
 const genreTabs = document.getElementById("genreTabs");
+const artistList = document.getElementById("artistList");
+let songbookArtist = "전체";
 const songSortSelect = document.getElementById("songSortSelect");
 const songNoImageBtn = document.getElementById("songNoImageBtn");
 const songImageBtn = document.getElementById("songImageBtn");
@@ -255,6 +257,43 @@ function renderGenreTabs(genres) {
     btn.dataset.genre = genre;
     btn.textContent = genre;
     genreTabs.appendChild(btn);
+  });
+}
+
+function renderArtistList() {
+  const inGenre = (allSongs || []).filter(
+    (song) => songbookGenre === "전체" || song.genre === songbookGenre
+  );
+  const artists = [...new Set(inGenre.map((s) => s.artist))].sort((a, b) => a.localeCompare(b, "ko"));
+
+  if (songbookArtist !== "전체" && !artists.includes(songbookArtist)) {
+    songbookArtist = "전체";
+  }
+
+  artistList.innerHTML = "";
+
+  const allBtn = document.createElement("button");
+  allBtn.type = "button";
+  allBtn.className = "artist-list-btn" + (songbookArtist === "전체" ? " active" : "");
+  allBtn.textContent = "All";
+  allBtn.addEventListener("click", () => {
+    songbookArtist = "전체";
+    renderArtistList();
+    renderSongGrid();
+  });
+  artistList.appendChild(allBtn);
+
+  artists.forEach((artist) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "artist-list-btn" + (songbookArtist === artist ? " active" : "");
+    btn.textContent = artist;
+    btn.addEventListener("click", () => {
+      songbookArtist = artist;
+      renderArtistList();
+      renderSongGrid();
+    });
+    artistList.appendChild(btn);
   });
 }
 
@@ -601,6 +640,7 @@ function renderSongGrid() {
 
   const filtered = (allSongs || []).filter((song) => {
     if (songbookGenre !== "전체" && song.genre !== songbookGenre) return false;
+    if (songbookArtist !== "전체" && song.artist !== songbookArtist) return false;
     if (query && !song.title.toLowerCase().includes(query) && !song.artist.toLowerCase().includes(query)) return false;
     return true;
   });
@@ -656,6 +696,7 @@ function renderSongGrid() {
 
 async function openSongbook() {
   pageEl.classList.add("hidden");
+  document.querySelector(".page-top-bar").classList.add("hidden");
   songbookView.classList.remove("hidden");
 
   if (!allSongs) {
@@ -670,11 +711,13 @@ async function openSongbook() {
 
   renderSongGrid();
   renderFavoritesList();
+  renderArtistList();
 }
 
 function closeSongbook() {
   songbookView.classList.add("hidden");
   pageEl.classList.remove("hidden");
+  document.querySelector(".page-top-bar").classList.remove("hidden");
 }
 
 songbookBtn.addEventListener("click", openSongbook);
@@ -685,6 +728,7 @@ genreTabs.addEventListener("click", (e) => {
   if (!btn) return;
   songbookGenre = btn.dataset.genre;
   genreTabs.querySelectorAll(".genre-tab").forEach((el) => el.classList.toggle("active", el === btn));
+  renderArtistList();
   renderSongGrid();
 });
 

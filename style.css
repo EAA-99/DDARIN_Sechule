@@ -1073,6 +1073,45 @@ body {
   overflow-y: auto;
 }
 
+.player-artists {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.player-artists h3 {
+  font-size: 0.95rem;
+  margin: 0 0 10px;
+}
+
+.artist-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.artist-list-btn {
+  border: 1px solid #eee;
+  border-radius: 999px;
+  padding: 8px 10px;
+  background: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.artist-list-btn.active {
+  background: #cfe8fb;
+  border-color: #cfe8fb;
+  color: #1c5fa8;
+}
+
 .favorite-item {
   text-align: left;
   border: none;
