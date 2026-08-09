@@ -11,7 +11,8 @@ export default async function handler(req, res) {
 
       const r = await fetch(url, { headers: { Referer: "https://www.sooplive.com/" } });
       const data = await r.json();
-      const list = data?.contents || [];
+      const pinned = page === 1 ? data?.noticeData || [] : [];
+      const list = [...pinned, ...(data?.contents || [])];
       if (!list.length) break;
 
       let pastTarget = false;
