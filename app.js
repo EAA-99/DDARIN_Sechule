@@ -25,8 +25,6 @@ const grid = document.getElementById("grid");
 const weekdayRow = document.querySelector(".weekday-row");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
-const listViewBtn = document.getElementById("listViewBtn");
-const cardViewBtn = document.getElementById("cardViewBtn");
 const cardView = document.getElementById("cardView");
 const cardList = document.getElementById("cardList");
 const weekPrevBtn = document.getElementById("weekPrevBtn");
@@ -986,20 +984,6 @@ function resetCardWeekToMonth() {
   cardWeekStart = todayWeek >= first && todayWeek <= last ? todayWeek : first;
 }
 
-function setViewMode(mode) {
-  viewMode = mode;
-  const isCard = mode === "card";
-  cardViewBtn.classList.toggle("active", isCard);
-  listViewBtn.classList.toggle("active", !isCard);
-  cardView.classList.toggle("hidden", !isCard);
-  grid.classList.toggle("hidden", isCard);
-  weekdayRow.classList.toggle("hidden", isCard);
-  if (isCard) {
-    resetCardWeekToMonth();
-    renderCardView();
-  }
-}
-
 function selectColor(color) {
   selectedColor = color;
   colorSwatches.forEach((sw) => sw.classList.toggle("selected", sw.dataset.color === color));
@@ -1223,9 +1207,6 @@ nextBtn.addEventListener("click", () => {
   }
 });
 
-listViewBtn.addEventListener("click", () => setViewMode("list"));
-cardViewBtn.addEventListener("click", () => setViewMode("card"));
-
 weekPrevBtn.addEventListener("click", () => {
   cardWeekStart.setDate(cardWeekStart.getDate() - 7);
   renderCardView();
@@ -1444,7 +1425,6 @@ async function init() {
   renderGrid();
   renderTodaySchedule();
   checkLiveStatus();
-  if (window.innerWidth <= 600) setViewMode("card");
 
   loadingScreen.classList.add("hidden");
 
