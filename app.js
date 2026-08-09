@@ -1032,7 +1032,7 @@ function resetForm() {
 function openModal(key) {
   selectedDateKey = key;
   const [, m, d] = key.split("-");
-  modalDate.textContent = `${YEAR}년 ${parseInt(m)}월 ${parseInt(d)}일 일정`;
+  modalDate.textContent = `${YEAR}년 ${parseInt(m)}월 ${parseInt(d)}일`;
   renderEventList();
   resetForm();
   eventForm.classList.toggle("hidden", isReadOnly);
@@ -1080,7 +1080,6 @@ function renderEventList() {
   list.forEach((ev, idx) => {
     const card = document.createElement("div");
     card.className = "event-card";
-    applyEventColor(card, ev);
     if (isReadOnly) card.style.cursor = "default";
     else card.addEventListener("click", () => editEvent(idx));
 
@@ -1106,6 +1105,7 @@ function renderEventList() {
       const badgeEl = document.createElement("div");
       badgeEl.className = "event-card-badge";
       badgeEl.textContent = badgeLabel;
+      applyEventColor(badgeEl, ev);
       card.appendChild(badgeEl);
     }
 
