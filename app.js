@@ -831,6 +831,8 @@ const EVENT_HEX_LABELS = {
   "#ff6d01": "노래관련",
   "#cc0000": "휴방",
   "#e951d0": "커머스",
+  "#8a2be2": "종겜",
+  "#9900ff": "종겜",
 };
 
 function getEventBadgeLabel(ev) {
