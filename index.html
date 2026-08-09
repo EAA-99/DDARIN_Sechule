@@ -147,10 +147,6 @@
   </div>
 
   <div id="dayCellMenu" class="day-cell-menu hidden">
-    <button type="button" id="dayCellCafeBtn" class="day-cell-menu-item">
-      <img class="day-cell-menu-icon" src="cafe-icon.png" alt="">
-      <span id="dayCellCafeBtnLabel">따카오톡</span>
-    </button>
     <button type="button" id="dayCellSoopBtn" class="day-cell-menu-item">
       <img class="day-cell-menu-icon" src="soop-icon.png" alt="">
       <span id="dayCellSoopBtnLabel">방송 요약</span>
@@ -175,6 +171,14 @@
   <div id="modalBackdrop" class="modal-backdrop hidden">
     <div class="modal">
       <h2 id="modalDate">일정</h2>
+
+      <a id="modalCafeNotice" class="modal-cafe-notice hidden" target="_blank" rel="noopener">
+        <div class="modal-cafe-notice-header">
+          <span>공지사항</span>
+          <span class="modal-cafe-notice-goto">바로가기 ↗</span>
+        </div>
+        <div id="modalCafeNoticeTitle" class="modal-cafe-notice-title"></div>
+      </a>
 
       <div id="eventList" class="event-list"></div>
 

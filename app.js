@@ -32,40 +32,15 @@ const cardList = document.getElementById("cardList");
 const weekPrevBtn = document.getElementById("weekPrevBtn");
 const weekNextBtn = document.getElementById("weekNextBtn");
 const dayCellMenu = document.getElementById("dayCellMenu");
-const dayCellCafeBtn = document.getElementById("dayCellCafeBtn");
-const dayCellCafeBtnLabel = document.getElementById("dayCellCafeBtnLabel");
 const dayCellSoopSummaryEl = document.getElementById("dayCellSoopSummary");
 
 const CAFE_API_URL = "/api/cafe";
 const BROADCAST_SUMMARY_API_URL = "/api/broadcast-summary";
 
 let dayCellMenuDate = null;
-let dayCellCafeUrl = null;
 
 function closeDayCellMenu() {
   dayCellMenu.classList.add("hidden");
-}
-
-async function loadDayCellCafePost(dateKeyStr) {
-  dayCellCafeUrl = null;
-  dayCellCafeBtnLabel.textContent = "불러오는 중...";
-
-  if (!CAFE_API_URL) return;
-  try {
-    const res = await fetch(`${CAFE_API_URL}?date=${dateKeyStr}`);
-    const posts = await res.json();
-    if (dayCellMenuDate !== dateKeyStr) return; // 그 사이 다른 날짜 메뉴로 바뀜
-
-    if (posts && posts.length) {
-      dayCellCafeUrl = posts[0].url;
-      dayCellCafeBtnLabel.textContent = posts[0].title;
-    } else {
-      dayCellCafeBtnLabel.textContent = "그 날 글이 없어요";
-    }
-  } catch {
-    if (dayCellMenuDate !== dateKeyStr) return;
-    dayCellCafeBtnLabel.textContent = "불러오기 실패";
-  }
 }
 
 async function loadDayCellBroadcastSummary(dateKeyStr) {
@@ -100,13 +75,7 @@ function openDayCellMenu(anchorEl, dateKeyStr) {
   dayCellMenu.classList.remove("hidden");
   dayCellMenu.style.top = `${rect.bottom + 4}px`;
   dayCellMenu.style.left = `${Math.min(rect.left, window.innerWidth - dayCellMenu.offsetWidth - 8)}px`;
-
-  loadDayCellCafePost(dateKeyStr);
 }
-
-dayCellCafeBtn.addEventListener("click", () => {
-  if (dayCellCafeUrl) window.open(dayCellCafeUrl, "_blank", "noopener");
-});
 
 document.getElementById("dayCellSoopBtn").addEventListener("click", () => {
   if (dayCellMenuDate) loadDayCellBroadcastSummary(dayCellMenuDate);
@@ -1060,6 +1029,25 @@ function resetForm() {
   eventSubmitBtn.textContent = "추가";
 }
 
+const modalCafeNotice = document.getElementById("modalCafeNotice");
+const modalCafeNoticeTitle = document.getElementById("modalCafeNoticeTitle");
+
+async function loadModalCafeNotice(key) {
+  modalCafeNotice.classList.add("hidden");
+  try {
+    const res = await fetch(`${CAFE_API_URL}?date=${key}`);
+    const posts = await res.json();
+    if (selectedDateKey !== key) return;
+    if (posts && posts.length) {
+      modalCafeNoticeTitle.textContent = posts[0].title;
+      modalCafeNotice.href = posts[0].url;
+      modalCafeNotice.classList.remove("hidden");
+    }
+  } catch {
+    // 조용히 무시 (공지사항 없이 표시)
+  }
+}
+
 function openModal(key) {
   selectedDateKey = key;
   const [, m, d] = key.split("-");
@@ -1069,6 +1057,7 @@ function openModal(key) {
   eventForm.classList.toggle("hidden", isReadOnly);
   modalBackdrop.classList.remove("hidden");
   if (!isReadOnly) eventTitleInput.focus();
+  loadModalCafeNotice(key);
 }
 
 function editEvent(idx) {
