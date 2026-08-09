@@ -602,15 +602,15 @@ body {
   vertical-align: middle;
 }
 
-.event-dot.color-blue,   .event-single.color-blue,   .day-card-event.color-blue,   .event-card.color-blue,   .event-card-badge.color-blue   { background: #cfe8fb; color: #1c5fa8; }
-.event-dot.color-gray,   .event-single.color-gray,   .day-card-event.color-gray,   .event-card.color-gray,   .event-card-badge.color-gray   { background: #e2e2e2; color: #555; }
-.event-dot.color-pink,   .event-single.color-pink,   .day-card-event.color-pink,   .event-card.color-pink,   .event-card-badge.color-pink   { background: #fbd7e4; color: #ad3f68; }
-.event-dot.color-green,  .event-single.color-green,  .day-card-event.color-green,  .event-card.color-green,  .event-card-badge.color-green  { background: #d3f3d8; color: #2e7d43; }
-.event-dot.color-purple, .event-single.color-purple, .day-card-event.color-purple, .event-card.color-purple, .event-card-badge.color-purple { background: #e5d9fb; color: #6b4bad; }
-.event-dot.color-orange, .event-single.color-orange, .day-card-event.color-orange, .event-card.color-orange, .event-card-badge.color-orange { background: #fde3c7; color: #b3691a; }
-.event-dot.color-hiatus, .event-single.color-hiatus, .day-card-event.color-hiatus, .event-card.color-hiatus, .event-card-badge.color-hiatus { background: #f5d6db; color: #a1445a; }
-.event-dot.color-collab, .event-single.color-collab, .day-card-event.color-collab, .event-card.color-collab, .event-card-badge.color-collab { background: #d9d2f0; color: #5b4a99; }
-.event-dot.color-yellow, .event-single.color-yellow, .day-card-event.color-yellow, .event-card.color-yellow, .event-card-badge.color-yellow { background: #fbeeaa; color: #8a6d1f; }
+.event-dot.color-blue,   .event-single.color-blue,   .day-card-event.color-blue,   .event-card.color-blue,   .event-card-badge.color-blue,   .today-schedule-item-dot.color-blue   { background: #cfe8fb; color: #1c5fa8; }
+.event-dot.color-gray,   .event-single.color-gray,   .day-card-event.color-gray,   .event-card.color-gray,   .event-card-badge.color-gray,   .today-schedule-item-dot.color-gray   { background: #e2e2e2; color: #555; }
+.event-dot.color-pink,   .event-single.color-pink,   .day-card-event.color-pink,   .event-card.color-pink,   .event-card-badge.color-pink,   .today-schedule-item-dot.color-pink   { background: #fbd7e4; color: #ad3f68; }
+.event-dot.color-green,  .event-single.color-green,  .day-card-event.color-green,  .event-card.color-green,  .event-card-badge.color-green,  .today-schedule-item-dot.color-green  { background: #d3f3d8; color: #2e7d43; }
+.event-dot.color-purple, .event-single.color-purple, .day-card-event.color-purple, .event-card.color-purple, .event-card-badge.color-purple, .today-schedule-item-dot.color-purple { background: #e5d9fb; color: #6b4bad; }
+.event-dot.color-orange, .event-single.color-orange, .day-card-event.color-orange, .event-card.color-orange, .event-card-badge.color-orange, .today-schedule-item-dot.color-orange { background: #fde3c7; color: #b3691a; }
+.event-dot.color-hiatus, .event-single.color-hiatus, .day-card-event.color-hiatus, .event-card.color-hiatus, .event-card-badge.color-hiatus, .today-schedule-item-dot.color-hiatus { background: #f5d6db; color: #a1445a; }
+.event-dot.color-collab, .event-single.color-collab, .day-card-event.color-collab, .event-card.color-collab, .event-card-badge.color-collab, .today-schedule-item-dot.color-collab { background: #d9d2f0; color: #5b4a99; }
+.event-dot.color-yellow, .event-single.color-yellow, .day-card-event.color-yellow, .event-card.color-yellow, .event-card-badge.color-yellow, .today-schedule-item-dot.color-yellow { background: #fbeeaa; color: #8a6d1f; }
 
 .event-more {
   font-size: 0.72rem;
