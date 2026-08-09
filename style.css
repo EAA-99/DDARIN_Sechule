@@ -435,7 +435,7 @@ body {
 .day-cell {
   position: relative;
   background: #fff;
-  min-height: 110px;
+  height: 130px;
   min-width: 0;
   padding: 8px;
   cursor: pointer;
@@ -452,6 +452,8 @@ body {
   flex-direction: column;
   gap: 6px;
   flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .day-cell-menu-btn {
