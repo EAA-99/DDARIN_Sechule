@@ -817,6 +817,20 @@ function mix(rgb, target, ratio) {
   };
 }
 
+const EVENT_COLOR_LABELS = {
+  purple: "합방",
+  collab: "합방",
+  blue: "종겜",
+  hiatus: "휴방",
+  gray: "갠방",
+  yellow: "노래관련",
+};
+
+function formatBadgeDate(key) {
+  const [y, m, d] = key.split("-");
+  return `${y.slice(2)}.${parseInt(m)}.${parseInt(d)}`;
+}
+
 function applyEventColor(el, ev) {
   const info = getColorInfo(ev);
   if (info.hex) {
@@ -1076,6 +1090,14 @@ function renderEventList() {
     titleEl.className = "event-card-title";
     titleEl.textContent = match ? ev.title.slice(0, match.index) : ev.title;
     card.appendChild(titleEl);
+
+    const badgeLabel = EVENT_COLOR_LABELS[getColorInfo(ev).key];
+    if (badgeLabel) {
+      const badgeEl = document.createElement("div");
+      badgeEl.className = "event-card-badge";
+      badgeEl.textContent = `${formatBadgeDate(selectedDateKey)} | ${badgeLabel}`;
+      card.appendChild(badgeEl);
+    }
 
     if (match) {
       const names = match[1].split(/[,、&]/).map((n) => n.trim()).filter(Boolean);

@@ -499,6 +499,7 @@ body {
 .event-dot.color-orange, .event-single.color-orange, .day-card-event.color-orange, .event-card.color-orange { background: #fde3c7; color: #b3691a; }
 .event-dot.color-hiatus, .event-single.color-hiatus, .day-card-event.color-hiatus, .event-card.color-hiatus { background: #f5d6db; color: #a1445a; }
 .event-dot.color-collab, .event-single.color-collab, .day-card-event.color-collab, .event-card.color-collab { background: #d9d2f0; color: #5b4a99; }
+.event-dot.color-yellow, .event-single.color-yellow, .day-card-event.color-yellow, .event-card.color-yellow { background: #fbeeaa; color: #8a6d1f; }
 
 .event-more {
   font-size: 0.72rem;
@@ -525,6 +526,17 @@ body {
   font-size: 1.05rem;
   font-weight: 700;
   color: inherit;
+  margin-bottom: 8px;
+}
+
+.event-card-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.6);
+  color: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 4px 12px;
   margin-bottom: 8px;
 }
 
