@@ -1048,6 +1048,28 @@ async function loadModalCafeNotice(key) {
   }
 }
 
+const SOOP_NOTICE_API_URL = "/api/soop-notice";
+const modalSoopNotice = document.getElementById("modalSoopNotice");
+const modalSoopNoticeTitle = document.getElementById("modalSoopNoticeTitle");
+const modalSoopNoticeContent = document.getElementById("modalSoopNoticeContent");
+
+async function loadModalSoopNotice(key) {
+  modalSoopNotice.classList.add("hidden");
+  try {
+    const res = await fetch(`${SOOP_NOTICE_API_URL}?date=${key}`);
+    const posts = await res.json();
+    if (selectedDateKey !== key) return;
+    if (posts && posts.length) {
+      modalSoopNoticeTitle.textContent = posts[0].title;
+      modalSoopNoticeContent.textContent = posts[0].content;
+      modalSoopNotice.href = posts[0].url;
+      modalSoopNotice.classList.remove("hidden");
+    }
+  } catch {
+    // 조용히 무시 (공지사항 없이 표시)
+  }
+}
+
 function openModal(key) {
   selectedDateKey = key;
   const [, m, d] = key.split("-");
@@ -1058,6 +1080,7 @@ function openModal(key) {
   modalBackdrop.classList.remove("hidden");
   if (!isReadOnly) eventTitleInput.focus();
   loadModalCafeNotice(key);
+  loadModalSoopNotice(key);
 }
 
 function editEvent(idx) {
