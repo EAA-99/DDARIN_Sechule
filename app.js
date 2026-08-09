@@ -911,36 +911,20 @@ function renderGrid() {
 
     const dayEvents = events[key] || [];
 
-    if (dayEvents.length === 1) {
-      const single = document.createElement("div");
-      single.className = "event-single";
-      applyEventColor(single, dayEvents[0]);
-      const singleText = document.createElement("span");
-      singleText.className = "event-single-text";
-      fillEventContent(singleText, dayEvents[0].title);
-      single.appendChild(singleText);
-      cell.appendChild(single);
-    } else if (dayEvents.length > 1) {
-      const dotsWrap = document.createElement("div");
-      dotsWrap.className = "event-dots";
-      const shown = dayEvents.slice(0, 5);
-      shown.forEach((ev) => {
-        const dot = document.createElement("div");
-        dot.className = "event-dot";
-        applyEventColor(dot, ev);
-        const dotText = document.createElement("span");
-        dotText.className = "event-dot-text";
-        fillEventContent(dotText, ev.title);
-        dot.appendChild(dotText);
-        dotsWrap.appendChild(dot);
+    if (dayEvents.length) {
+      const eventsWrap = document.createElement("div");
+      eventsWrap.className = "day-cell-events";
+      dayEvents.forEach((ev) => {
+        const chip = document.createElement("div");
+        chip.className = "event-single";
+        applyEventColor(chip, ev);
+        const chipText = document.createElement("span");
+        chipText.className = "event-single-text";
+        fillEventContent(chipText, ev.title);
+        chip.appendChild(chipText);
+        eventsWrap.appendChild(chip);
       });
-      if (dayEvents.length > shown.length) {
-        const more = document.createElement("div");
-        more.className = "event-more";
-        more.textContent = `+${dayEvents.length - shown.length}`;
-        dotsWrap.appendChild(more);
-      }
-      cell.appendChild(dotsWrap);
+      cell.appendChild(eventsWrap);
     }
 
     cell.addEventListener("click", () => openModal(key));
