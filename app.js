@@ -826,9 +826,17 @@ const EVENT_COLOR_LABELS = {
   yellow: "노래관련",
 };
 
-function formatBadgeDate(key) {
-  const [y, m, d] = key.split("-");
-  return `${y.slice(2)}.${parseInt(m)}.${parseInt(d)}`;
+const EVENT_HEX_LABELS = {
+  "#4285f4": "종겜",
+  "#ff6d01": "노래관련",
+  "#cc0000": "휴방",
+  "#e951d0": "커머스",
+};
+
+function getEventBadgeLabel(ev) {
+  const info = getColorInfo(ev);
+  if (info.hex) return EVENT_HEX_LABELS[info.hex.toLowerCase()] || null;
+  return EVENT_COLOR_LABELS[info.key] || null;
 }
 
 function applyEventColor(el, ev) {
@@ -1091,11 +1099,11 @@ function renderEventList() {
     titleEl.textContent = match ? ev.title.slice(0, match.index) : ev.title;
     card.appendChild(titleEl);
 
-    const badgeLabel = EVENT_COLOR_LABELS[getColorInfo(ev).key];
+    const badgeLabel = getEventBadgeLabel(ev);
     if (badgeLabel) {
       const badgeEl = document.createElement("div");
       badgeEl.className = "event-card-badge";
-      badgeEl.textContent = `${formatBadgeDate(selectedDateKey)} | ${badgeLabel}`;
+      badgeEl.textContent = badgeLabel;
       card.appendChild(badgeEl);
     }
 
