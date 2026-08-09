@@ -111,7 +111,7 @@ body {
 
 .today-schedule-card {
   width: 260px;
-  background: #fff;
+  background: #eaf4fd;
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   padding: 14px;
@@ -134,29 +134,31 @@ body {
 }
 
 .today-schedule-thumb-link {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: block;
+  position: relative;
   margin-bottom: 10px;
-  padding: 6px;
   border-radius: 10px;
-  background: #f7f7f7;
+  overflow: hidden;
   text-decoration: none;
 }
 
 .today-schedule-thumb {
-  width: 56px;
+  width: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
   display: block;
-  flex-shrink: 0;
-  border-radius: 6px;
   background: #eee;
 }
 
 .today-schedule-thumb-title {
-  color: #333;
-  font-size: 0.8rem;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 6px 8px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  color: #fff;
+  font-size: 0.75rem;
   font-weight: 700;
   text-align: left;
   white-space: nowrap;
