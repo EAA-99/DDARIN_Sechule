@@ -97,7 +97,8 @@ body {
 
 .page-top-bar {
   display: flex;
-  justify-content: flex-end;
+  align-items: flex-end;
+  justify-content: space-between;
   max-width: 1500px;
   margin: 0 auto;
   padding: 24px 24px 0;
@@ -109,12 +110,16 @@ body {
   }
 }
 
+.page-top-mascot {
+  max-height: 140px;
+}
+
 .today-schedule-card {
   width: 260px;
-  background: #eaf4fd;
+  background: #fff;
   border-radius: 16px;
+  overflow: hidden;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  padding: 14px;
   text-align: left;
 }
 
@@ -124,7 +129,12 @@ body {
   justify-content: space-between;
   font-size: 0.85rem;
   font-weight: 800;
-  margin-bottom: 10px;
+  padding: 12px 14px;
+  background: #eaf4fd;
+}
+
+.today-schedule-body {
+  padding: 14px;
 }
 
 .today-schedule-live {
