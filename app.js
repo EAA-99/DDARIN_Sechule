@@ -94,7 +94,10 @@ const eventTitleInput = document.getElementById("eventTitle");
 const eventAttendeesInput = document.getElementById("eventAttendees");
 const eventSubmitBtn = document.getElementById("eventSubmitBtn");
 const closeModalBtn = document.getElementById("closeModalBtn");
-const colorPickerSelect = document.getElementById("colorPicker");
+const colorPickerBtn = document.getElementById("colorPickerBtn");
+const colorPickerBtnLabel = document.getElementById("colorPickerBtnLabel");
+const colorPickerList = document.getElementById("colorPickerList");
+const colorPickerOptions = document.querySelectorAll(".color-picker-option");
 let selectedColor = "gray";
 let selectedHex = null;
 let editingIndex = null;
@@ -1031,7 +1034,12 @@ function resetCardWeekToMonth() {
 function selectColor(color, hex) {
   selectedColor = color || null;
   selectedHex = hex || null;
-  colorPickerSelect.value = hex || color || "gray";
+  const value = hex || color || "gray";
+  colorPickerOptions.forEach((opt) => {
+    const matches = opt.dataset.value === value;
+    opt.classList.toggle("selected", matches);
+    if (matches) colorPickerBtnLabel.textContent = opt.textContent;
+  });
 }
 
 function resetForm() {
@@ -1115,10 +1123,24 @@ function editEvent(idx) {
   eventTitleInput.focus();
 }
 
-colorPickerSelect.addEventListener("change", () => {
-  const v = colorPickerSelect.value;
-  if (v.startsWith("#")) selectColor(null, v);
-  else selectColor(v, null);
+colorPickerBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  colorPickerList.classList.toggle("hidden");
+});
+
+colorPickerOptions.forEach((opt) => {
+  opt.addEventListener("click", () => {
+    const v = opt.dataset.value;
+    if (v.startsWith("#")) selectColor(null, v);
+    else selectColor(v, null);
+    colorPickerList.classList.add("hidden");
+  });
+});
+
+document.addEventListener("click", (e) => {
+  if (!colorPickerList.classList.contains("hidden") && !colorPickerList.contains(e.target) && e.target !== colorPickerBtn) {
+    colorPickerList.classList.add("hidden");
+  }
 });
 
 function closeModal() {

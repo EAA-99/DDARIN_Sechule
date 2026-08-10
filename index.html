@@ -196,15 +196,21 @@
 
       <form id="eventForm">
         <input type="text" id="eventTitle" placeholder="일정 제목" required maxlength="100">
-        <select id="colorPicker" class="color-picker-select">
-          <option value="gray">갠방</option>
-          <option value="blue">종겜</option>
-          <option value="purple">합방</option>
-          <option value="yellow">노래관련</option>
-          <option value="#cc0000">휴방</option>
-          <option value="#e951d0">커머스</option>
-          <option value="#000000">시네티</option>
-        </select>
+        <div class="color-picker-dropdown">
+          <button type="button" id="colorPickerBtn" class="color-picker-btn">
+            <span id="colorPickerBtnLabel">갠방</span>
+            <span class="color-picker-arrow">⌄</span>
+          </button>
+          <div id="colorPickerList" class="color-picker-list hidden">
+            <button type="button" class="color-picker-option" data-value="gray">갠방</button>
+            <button type="button" class="color-picker-option" data-value="blue">종겜</button>
+            <button type="button" class="color-picker-option" data-value="purple">합방</button>
+            <button type="button" class="color-picker-option" data-value="yellow">노래관련</button>
+            <button type="button" class="color-picker-option" data-value="#cc0000">휴방</button>
+            <button type="button" class="color-picker-option" data-value="#e951d0">커머스</button>
+            <button type="button" class="color-picker-option" data-value="#000000">시네티</button>
+          </div>
+        </div>
         <div class="attendees-input-row">
           <span class="attendees-icon">👤</span>
           <input type="text" id="eventAttendees" placeholder="참석자 이름 (쉼표로 구분)" maxlength="200">
