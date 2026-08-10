@@ -97,13 +97,13 @@ body {
 
 #todayScheduleCard {
   position: absolute;
-  bottom: calc(100% + 2px);
+  bottom: calc(100% + 4px);
   left: 40px;
 }
 
 .page-top-mascot {
   position: absolute;
-  bottom: calc(100% + 2px);
+  bottom: calc(100% + 4px);
   right: 20px;
   max-height: 140px;
 }
@@ -446,6 +446,18 @@ body {
   border: 1px solid #eee;
   border-radius: 10px;
   transition: background 0.15s;
+}
+
+@media (max-width: 1000px) {
+  .day-cell {
+    height: 110px;
+  }
+}
+
+@media (max-width: 700px) {
+  .day-cell {
+    height: 80px;
+  }
 }
 
 .day-cell-events {
@@ -1340,20 +1352,12 @@ body {
     margin: 4px 0 10px;
   }
 
-  .view-toggle {
+  .sheet-corner-btn {
     display: none;
   }
 
-  .grid,
-  .weekday-row {
-    display: none !important;
-  }
-
-  .card-view {
-    display: flex !important;
-  }
-
-  .sheet-corner-btn {
+  #songNoImageBtn,
+  #songImageBtn {
     display: none;
   }
 }
