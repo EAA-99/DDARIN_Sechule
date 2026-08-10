@@ -752,6 +752,31 @@ function closeSongbook() {
 songbookBtn.addEventListener("click", openSongbook);
 songbookBackBtn.addEventListener("click", closeSongbook);
 document.getElementById("calendarBtn").addEventListener("click", closeSongbook);
+
+const MEMO_KEY = "ddarin-memo-2026";
+const memoBtn = document.getElementById("memoBtn");
+const memoPanel = document.getElementById("memoPanel");
+const memoOverlay = document.getElementById("memoOverlay");
+const memoTextarea = document.getElementById("memoTextarea");
+const closeMemoBtn = document.getElementById("closeMemoBtn");
+
+function openMemoPanel() {
+  memoTextarea.value = localStorage.getItem(MEMO_KEY) || "";
+  memoPanel.classList.remove("hidden");
+  memoOverlay.classList.remove("hidden");
+}
+
+function closeMemoPanel() {
+  memoPanel.classList.add("hidden");
+  memoOverlay.classList.add("hidden");
+}
+
+memoBtn.addEventListener("click", openMemoPanel);
+closeMemoBtn.addEventListener("click", closeMemoPanel);
+memoOverlay.addEventListener("click", closeMemoPanel);
+memoTextarea.addEventListener("input", () => {
+  localStorage.setItem(MEMO_KEY, memoTextarea.value);
+});
 songSearchInput.addEventListener("input", renderSongGrid);
 genreTabs.addEventListener("click", (e) => {
   const btn = e.target.closest(".genre-tab");
