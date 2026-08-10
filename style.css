@@ -870,10 +870,9 @@ body {
 }
 
 .color-picker-option {
-  border: 1px solid #eee;
+  border: 2px solid transparent;
   border-radius: 8px;
   padding: 8px 10px;
-  background: #fff;
   color: #2a2a2a;
   text-align: left;
   font-size: 0.85rem;
@@ -882,13 +881,8 @@ body {
   cursor: pointer;
 }
 
-.color-picker-option:hover {
-  background: #f5f5f5;
-}
-
 .color-picker-option.selected {
   border-color: #4a7fd6;
-  background: #eef4fd;
 }
 
 #eventForm input {
