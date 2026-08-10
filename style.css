@@ -827,16 +827,17 @@ body {
 
 .color-picker {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .color-swatch {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+  border-radius: 999px;
   border: 2px solid transparent;
   cursor: pointer;
-  padding: 0;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
 .color-swatch.selected {

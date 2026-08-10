@@ -95,7 +95,8 @@ const eventAttendeesInput = document.getElementById("eventAttendees");
 const eventSubmitBtn = document.getElementById("eventSubmitBtn");
 const closeModalBtn = document.getElementById("closeModalBtn");
 const colorSwatches = document.querySelectorAll(".color-swatch");
-let selectedColor = "blue";
+let selectedColor = "gray";
+let selectedHex = null;
 let editingIndex = null;
 
 const editLockBtn = document.getElementById("editLockBtn");
@@ -873,6 +874,7 @@ const EVENT_HEX_LABELS = {
   "#e951d0": "커머스",
   "#8a2be2": "종겜",
   "#9900ff": "종겜",
+  "#000000": "시네티",
 };
 
 function getEventBadgeLabel(ev) {
@@ -1026,16 +1028,20 @@ function resetCardWeekToMonth() {
   cardWeekStart = todayWeek >= first && todayWeek <= last ? todayWeek : first;
 }
 
-function selectColor(color) {
-  selectedColor = color;
-  colorSwatches.forEach((sw) => sw.classList.toggle("selected", sw.dataset.color === color));
+function selectColor(color, hex) {
+  selectedColor = color || null;
+  selectedHex = hex || null;
+  colorSwatches.forEach((sw) => {
+    const matches = hex ? sw.dataset.hex === hex : sw.dataset.color === color;
+    sw.classList.toggle("selected", matches);
+  });
 }
 
 function resetForm() {
   editingIndex = null;
   eventTitleInput.value = "";
   eventAttendeesInput.value = "";
-  selectColor("blue");
+  selectColor("gray", null);
   eventSubmitBtn.textContent = "추가";
 }
 
@@ -1103,13 +1109,17 @@ function editEvent(idx) {
   const match = ev.title.match(ATTENDEE_RE);
   eventTitleInput.value = match ? ev.title.slice(0, match.index).trim() : ev.title;
   eventAttendeesInput.value = match ? match[1].trim() : "";
-  selectColor(ev.color || "blue");
+  if (ev.sheetColor) {
+    selectColor(null, ev.sheetColor);
+  } else {
+    selectColor(ev.color || "gray", null);
+  }
   eventSubmitBtn.textContent = "수정";
   eventTitleInput.focus();
 }
 
 colorSwatches.forEach((sw) => {
-  sw.addEventListener("click", () => selectColor(sw.dataset.color));
+  sw.addEventListener("click", () => selectColor(sw.dataset.color || null, sw.dataset.hex || null));
 });
 
 function closeModal() {
@@ -1214,10 +1224,12 @@ eventForm.addEventListener("submit", (e) => {
   const events = loadEvents();
   if (!events[selectedDateKey]) events[selectedDateKey] = [];
 
+  const newEvent = selectedHex ? { title, sheetColor: selectedHex } : { title, color: selectedColor };
+
   if (editingIndex !== null) {
-    events[selectedDateKey][editingIndex] = { title, color: selectedColor };
+    events[selectedDateKey][editingIndex] = newEvent;
   } else {
-    events[selectedDateKey].push({ title, color: selectedColor });
+    events[selectedDateKey].push(newEvent);
   }
   saveEvents(events);
 
