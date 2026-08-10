@@ -14,6 +14,7 @@ const YEAR = 2026;
 const STORAGE_KEY = "calendar-events-2026";
 const SHEET_URL_KEY = "calendar-sheet-url-2026";
 const EDIT_PW_KEY = "calendar-edit-pw-2026";
+const EDIT_USER_KEY = "calendar-edit-user-2026";
 
 let currentMonth = 0; // 0 = January
 let selectedDateKey = null;
@@ -583,7 +584,8 @@ function scheduleAutoAdvance() {
   console.log("[autoAdvance] duration for key:", duration, "clipDurationMap has", Object.keys(clipDurationMap || {}).length, "entries");
   if (!duration) return;
   const AUTO_ADVANCE_BUFFER_MS = 100;
-  const fireAt = Math.max(100, duration - AUTO_ADVANCE_BUFFER_MS);
+  const LOAD_DELAY_COMPENSATION_MS = 2000; // 영상 로딩 시간만큼 타이머를 늦게 발동
+  const fireAt = Math.max(100, duration - AUTO_ADVANCE_BUFFER_MS + LOAD_DELAY_COMPENSATION_MS);
   console.log("[autoAdvance] timer set to fire in", fireAt, "ms");
   autoAdvanceTimer = setTimeout(() => {
     console.log("[autoAdvance] timer fired, advancing queue");
@@ -778,11 +780,13 @@ function saveEvents(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
   const password = localStorage.getItem(EDIT_PW_KEY);
-  if (!password) return;
+  const username = localStorage.getItem(EDIT_USER_KEY);
+  if (!password || !username) return;
 
-  apiPost({ action: "save", events: eventsObjectToFlat(data), password }).then((res) => {
+  apiPost({ action: "save", events: eventsObjectToFlat(data), username, password }).then((res) => {
     if (!res || !res.ok) {
       localStorage.removeItem(EDIT_PW_KEY);
+      localStorage.removeItem(EDIT_USER_KEY);
       isReadOnly = true;
       updateLockUi();
       alert("저장에 실패했습니다. 편집 잠금이 해제되어 다시 비밀번호를 입력해야 합니다.");
@@ -1400,34 +1404,65 @@ function updateLockUi() {
 
 async function tryAutoUnlock() {
   const pw = localStorage.getItem(EDIT_PW_KEY);
-  if (!pw) {
+  const user = localStorage.getItem(EDIT_USER_KEY);
+  if (!pw || !user) {
     isReadOnly = true;
     return;
   }
-  const res = await apiPost({ action: "checkPassword", password: pw });
+  const res = await apiPost({ action: "checkPassword", username: user, password: pw });
   const ok = !!(res && res.ok);
   isReadOnly = !ok;
-  if (!ok) localStorage.removeItem(EDIT_PW_KEY);
+  if (!ok) {
+    localStorage.removeItem(EDIT_PW_KEY);
+    localStorage.removeItem(EDIT_USER_KEY);
+  }
 }
 
-editLockBtn.addEventListener("click", async () => {
+const loginModalBackdrop = document.getElementById("loginModalBackdrop");
+const loginForm = document.getElementById("loginForm");
+const loginUsernameInput = document.getElementById("loginUsernameInput");
+const loginPasswordInput = document.getElementById("loginPasswordInput");
+const loginError = document.getElementById("loginError");
+const closeLoginModalBtn = document.getElementById("closeLoginModalBtn");
+
+editLockBtn.addEventListener("click", () => {
   if (!isReadOnly) {
     localStorage.removeItem(EDIT_PW_KEY);
+    localStorage.removeItem(EDIT_USER_KEY);
     isReadOnly = true;
     updateLockUi();
     return;
   }
 
-  const pw = prompt("편집 비밀번호를 입력하세요");
-  if (pw === null || pw === "") return;
+  loginError.classList.add("hidden");
+  loginUsernameInput.value = "";
+  loginPasswordInput.value = "";
+  loginModalBackdrop.classList.remove("hidden");
+  loginUsernameInput.focus();
+});
 
-  const res = await apiPost({ action: "checkPassword", password: pw });
+closeLoginModalBtn.addEventListener("click", () => {
+  loginModalBackdrop.classList.add("hidden");
+});
+loginModalBackdrop.addEventListener("click", (e) => {
+  if (e.target === loginModalBackdrop) loginModalBackdrop.classList.add("hidden");
+});
+
+loginForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const username = loginUsernameInput.value.trim();
+  const pw = loginPasswordInput.value;
+  if (!username || !pw) return;
+
+  const res = await apiPost({ action: "checkPassword", username, password: pw });
   if (res && res.ok) {
     localStorage.setItem(EDIT_PW_KEY, pw);
+    localStorage.setItem(EDIT_USER_KEY, username);
     isReadOnly = false;
     updateLockUi();
+    loginModalBackdrop.classList.add("hidden");
   } else {
-    alert("비밀번호가 틀렸습니다.");
+    loginError.classList.remove("hidden");
   }
 });
 
