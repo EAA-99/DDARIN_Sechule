@@ -97,14 +97,14 @@ body {
 
 #todayScheduleCard {
   position: absolute;
-  top: -190px;
+  bottom: 100%;
   left: 0;
 }
 
 .page-top-mascot {
   position: absolute;
-  top: -190px;
-  right: 0;
+  bottom: 100%;
+  right: 160px;
   max-height: 140px;
 }
 
