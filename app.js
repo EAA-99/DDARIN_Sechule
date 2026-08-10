@@ -696,7 +696,6 @@ function renderSongGrid() {
 
 async function openSongbook() {
   pageEl.classList.add("hidden");
-  document.querySelector(".page-top-bar").classList.add("hidden");
   songbookView.classList.remove("hidden");
 
   if (!allSongs) {
@@ -717,7 +716,6 @@ async function openSongbook() {
 function closeSongbook() {
   songbookView.classList.add("hidden");
   pageEl.classList.remove("hidden");
-  document.querySelector(".page-top-bar").classList.remove("hidden");
 }
 
 songbookBtn.addEventListener("click", openSongbook);
