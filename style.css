@@ -98,7 +98,6 @@ body {
 .page-top-bar {
   display: flex;
   align-items: flex-end;
-  justify-content: space-between;
   max-width: 1500px;
   margin: 0 auto;
   padding: 24px 24px 0;
@@ -110,8 +109,15 @@ body {
   }
 }
 
+.page-top-spacer {
+  width: 68px;
+  flex-shrink: 0;
+  margin-right: 12px;
+}
+
 .page-top-mascot {
   max-height: 140px;
+  margin-left: auto;
 }
 
 .today-schedule-card {
