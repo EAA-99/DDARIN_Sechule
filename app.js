@@ -836,7 +836,7 @@ const ATTENDEE_RE = /\s+w\.\s*(.+)$/i;
 
 function getColorInfo(ev) {
   if (ev.title.includes("휴방")) return { key: "hiatus" };
-  if (ATTENDEE_RE.test(ev.title) || ev.title.includes("합방")) return { key: "collab" };
+  if (ev.title.includes("합방")) return { key: "collab" };
   if (ev.title.includes("따이봤")) return { key: "gray" };
   if (ev.sheetColor) return { hex: ev.sheetColor };
   return { key: ev.color || "blue" };
