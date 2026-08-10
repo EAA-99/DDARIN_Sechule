@@ -732,6 +732,7 @@ function closeSongbook() {
 
 songbookBtn.addEventListener("click", openSongbook);
 songbookBackBtn.addEventListener("click", closeSongbook);
+document.getElementById("calendarBtn").addEventListener("click", closeSongbook);
 songSearchInput.addEventListener("input", renderSongGrid);
 genreTabs.addEventListener("click", (e) => {
   const btn = e.target.closest(".genre-tab");
