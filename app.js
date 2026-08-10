@@ -94,7 +94,7 @@ const eventTitleInput = document.getElementById("eventTitle");
 const eventAttendeesInput = document.getElementById("eventAttendees");
 const eventSubmitBtn = document.getElementById("eventSubmitBtn");
 const closeModalBtn = document.getElementById("closeModalBtn");
-const colorSwatches = document.querySelectorAll(".color-swatch");
+const colorPickerSelect = document.getElementById("colorPicker");
 let selectedColor = "gray";
 let selectedHex = null;
 let editingIndex = null;
@@ -1031,10 +1031,7 @@ function resetCardWeekToMonth() {
 function selectColor(color, hex) {
   selectedColor = color || null;
   selectedHex = hex || null;
-  colorSwatches.forEach((sw) => {
-    const matches = hex ? sw.dataset.hex === hex : sw.dataset.color === color;
-    sw.classList.toggle("selected", matches);
-  });
+  colorPickerSelect.value = hex || color || "gray";
 }
 
 function resetForm() {
@@ -1118,8 +1115,10 @@ function editEvent(idx) {
   eventTitleInput.focus();
 }
 
-colorSwatches.forEach((sw) => {
-  sw.addEventListener("click", () => selectColor(sw.dataset.color || null, sw.dataset.hex || null));
+colorPickerSelect.addEventListener("change", () => {
+  const v = colorPickerSelect.value;
+  if (v.startsWith("#")) selectColor(null, v);
+  else selectColor(v, null);
 });
 
 function closeModal() {
