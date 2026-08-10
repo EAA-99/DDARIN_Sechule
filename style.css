@@ -79,7 +79,9 @@ body {
 }
 
 .side-nav-icon {
-  font-size: 1.3rem;
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
 }
 
 .side-nav-btn.unlocked {
@@ -892,6 +894,16 @@ body {
   border-radius: 6px;
   font-size: 0.9rem;
   text-align: left;
+}
+
+.login-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  text-align: left;
+  margin-bottom: 10px;
 }
 
 #sheetUrlInput {
