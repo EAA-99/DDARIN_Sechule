@@ -233,8 +233,12 @@
     <div class="modal">
       <h2>로그인</h2>
       <form id="loginForm">
-        <input type="text" id="loginUsernameInput" class="login-input" placeholder="아이디" autocomplete="username" required>
+        <input type="password" id="loginUsernameInput" class="login-input" placeholder="아이디" autocomplete="username" required>
         <input type="password" id="loginPasswordInput" class="login-input" placeholder="비밀번호" autocomplete="current-password" required>
+        <label class="login-remember-row">
+          <input type="checkbox" id="loginRememberInput">
+          로그인 상태 유지
+        </label>
         <div id="loginError" class="sheet-status error hidden">아이디 또는 비밀번호가 틀렸습니다.</div>
         <div class="modal-actions">
           <button type="submit" class="primary-btn">로그인</button>

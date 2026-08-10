@@ -16,6 +16,25 @@ const SHEET_URL_KEY = "calendar-sheet-url-2026";
 const EDIT_PW_KEY = "calendar-edit-pw-2026";
 const EDIT_USER_KEY = "calendar-edit-user-2026";
 
+function getStoredCreds() {
+  const password = localStorage.getItem(EDIT_PW_KEY) || sessionStorage.getItem(EDIT_PW_KEY);
+  const username = localStorage.getItem(EDIT_USER_KEY) || sessionStorage.getItem(EDIT_USER_KEY);
+  return { username, password };
+}
+
+function setStoredCreds(username, password, remember) {
+  const storage = remember ? localStorage : sessionStorage;
+  storage.setItem(EDIT_USER_KEY, username);
+  storage.setItem(EDIT_PW_KEY, password);
+}
+
+function clearStoredCreds() {
+  localStorage.removeItem(EDIT_PW_KEY);
+  localStorage.removeItem(EDIT_USER_KEY);
+  sessionStorage.removeItem(EDIT_PW_KEY);
+  sessionStorage.removeItem(EDIT_USER_KEY);
+}
+
 let currentMonth = 0; // 0 = January
 let selectedDateKey = null;
 let isReadOnly = true;
@@ -780,14 +799,12 @@ function saveEvents(data) {
   eventsCache = data;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
-  const password = localStorage.getItem(EDIT_PW_KEY);
-  const username = localStorage.getItem(EDIT_USER_KEY);
+  const { username, password } = getStoredCreds();
   if (!password || !username) return;
 
   apiPost({ action: "save", events: eventsObjectToFlat(data), username, password }).then((res) => {
     if (!res || !res.ok) {
-      localStorage.removeItem(EDIT_PW_KEY);
-      localStorage.removeItem(EDIT_USER_KEY);
+      clearStoredCreds();
       isReadOnly = true;
       updateLockUi();
       alert("저장에 실패했습니다. 편집 잠금이 해제되어 다시 비밀번호를 입력해야 합니다.");
@@ -1404,8 +1421,7 @@ function updateLockUi() {
 }
 
 async function tryAutoUnlock() {
-  const pw = localStorage.getItem(EDIT_PW_KEY);
-  const user = localStorage.getItem(EDIT_USER_KEY);
+  const { username: user, password: pw } = getStoredCreds();
   if (!pw || !user) {
     isReadOnly = true;
     return;
@@ -1413,23 +1429,20 @@ async function tryAutoUnlock() {
   const res = await apiPost({ action: "checkPassword", username: user, password: pw });
   const ok = !!(res && res.ok);
   isReadOnly = !ok;
-  if (!ok) {
-    localStorage.removeItem(EDIT_PW_KEY);
-    localStorage.removeItem(EDIT_USER_KEY);
-  }
+  if (!ok) clearStoredCreds();
 }
 
 const loginModalBackdrop = document.getElementById("loginModalBackdrop");
 const loginForm = document.getElementById("loginForm");
 const loginUsernameInput = document.getElementById("loginUsernameInput");
 const loginPasswordInput = document.getElementById("loginPasswordInput");
+const loginRememberInput = document.getElementById("loginRememberInput");
 const loginError = document.getElementById("loginError");
 const closeLoginModalBtn = document.getElementById("closeLoginModalBtn");
 
 editLockBtn.addEventListener("click", () => {
   if (!isReadOnly) {
-    localStorage.removeItem(EDIT_PW_KEY);
-    localStorage.removeItem(EDIT_USER_KEY);
+    clearStoredCreds();
     isReadOnly = true;
     updateLockUi();
     return;
@@ -1438,6 +1451,7 @@ editLockBtn.addEventListener("click", () => {
   loginError.classList.add("hidden");
   loginUsernameInput.value = "";
   loginPasswordInput.value = "";
+  loginRememberInput.checked = false;
   loginModalBackdrop.classList.remove("hidden");
   loginUsernameInput.focus();
 });
@@ -1457,8 +1471,7 @@ loginForm.addEventListener("submit", async (e) => {
 
   const res = await apiPost({ action: "checkPassword", username, password: pw });
   if (res && res.ok) {
-    localStorage.setItem(EDIT_PW_KEY, pw);
-    localStorage.setItem(EDIT_USER_KEY, username);
+    setStoredCreds(username, pw, loginRememberInput.checked);
     isReadOnly = false;
     updateLockUi();
     loginModalBackdrop.classList.add("hidden");

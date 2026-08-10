@@ -703,12 +703,12 @@ body {
 #modalBackdrop .modal {
   max-width: 640px;
   background: #fff;
-  border: 3px solid #cfe2f7;
+  border: 6px solid #cfe2f7;
 }
 
 #loginModalBackdrop .modal {
   background: #fff;
-  border: 3px solid #cfe2f7;
+  border: 6px solid #cfe2f7;
 }
 
 #sheetModalBackdrop .modal {
@@ -903,12 +903,23 @@ body {
 
 .login-input {
   width: 100%;
-  padding: 8px 10px;
+  padding: 10px 16px;
   border: 1px solid #ddd;
-  border-radius: 6px;
+  border-radius: 22px;
   font-size: 0.9rem;
   text-align: left;
   margin-bottom: 10px;
+}
+
+.login-remember-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: #666;
+  font-weight: 400;
+  margin-bottom: 10px;
+  cursor: pointer;
 }
 
 #sheetUrlInput {
