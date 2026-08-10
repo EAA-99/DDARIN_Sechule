@@ -52,7 +52,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding-top: 0;
+  margin-top: 190px;
   flex-shrink: 0;
 }
 
