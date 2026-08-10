@@ -64,15 +64,14 @@ body {
   gap: 4px;
   width: 68px;
   padding: 10px 4px;
-  border: none;
+  border: 1px solid #8a6d3b;
   border-radius: 18px;
-  background: #fdf1e0;
+  background: transparent;
   color: #8a6d3b;
   font-weight: 700;
   font-size: 0.78rem;
   text-decoration: none;
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
 .side-nav-btn:hover {
