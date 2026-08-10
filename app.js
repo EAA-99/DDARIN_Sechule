@@ -582,8 +582,8 @@ function scheduleAutoAdvance() {
   const duration = clipDurationMap[currentSongKey];
   console.log("[autoAdvance] duration for key:", duration, "clipDurationMap has", Object.keys(clipDurationMap || {}).length, "entries");
   if (!duration) return;
-  const AUTO_ADVANCE_BUFFER_MS = 1000;
-  const fireAt = Math.max(1000, duration - AUTO_ADVANCE_BUFFER_MS);
+  const AUTO_ADVANCE_BUFFER_MS = 100;
+  const fireAt = Math.max(100, duration - AUTO_ADVANCE_BUFFER_MS);
   console.log("[autoAdvance] timer set to fire in", fireAt, "ms");
   autoAdvanceTimer = setTimeout(() => {
     console.log("[autoAdvance] timer fired, advancing queue");
