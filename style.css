@@ -99,6 +99,7 @@ body {
   position: absolute;
   bottom: 100%;
   left: 0;
+  margin-bottom: -4px;
 }
 
 .page-top-mascot {
@@ -106,6 +107,7 @@ body {
   bottom: 100%;
   right: 160px;
   max-height: 140px;
+  margin-bottom: -4px;
 }
 
 @media (max-width: 900px) {
