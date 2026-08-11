@@ -88,20 +88,38 @@ function renderBroadcastSummaryTimeline(data) {
     dayCellSoopSummaryEl.appendChild(intro);
   }
 
-  if (data.events && data.events.length) {
+  if (data.timeline && data.timeline.length) {
     const timeline = document.createElement("div");
     timeline.className = "day-cell-summary-timeline";
-    data.events.forEach((ev) => {
+    data.timeline.forEach((group) => {
       const item = document.createElement("div");
       item.className = "timeline-item";
+      if (group.highlight) item.classList.add("highlight");
+
+      const head = document.createElement("div");
+      head.className = "timeline-head";
       const time = document.createElement("span");
       time.className = "timeline-time";
-      time.textContent = ev.time;
+      time.textContent = group.time;
       const text = document.createElement("span");
       text.className = "timeline-text";
-      text.textContent = ev.summary;
-      item.appendChild(time);
-      item.appendChild(text);
+      text.textContent = (group.highlight ? "🔥 " : "") + group.summary;
+      head.appendChild(time);
+      head.appendChild(text);
+      item.appendChild(head);
+
+      if (group.details && group.details.length) {
+        const details = document.createElement("div");
+        details.className = "timeline-details";
+        group.details.forEach((d) => {
+          const dItem = document.createElement("div");
+          dItem.className = "timeline-detail-item";
+          dItem.textContent = `[${d.time}] ${d.summary}`;
+          details.appendChild(dItem);
+        });
+        item.appendChild(details);
+      }
+
       timeline.appendChild(item);
     });
     dayCellSoopSummaryEl.appendChild(timeline);

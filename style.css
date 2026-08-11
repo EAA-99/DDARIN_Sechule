@@ -649,7 +649,7 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
 }
 
 .timeline-item::before {
@@ -663,10 +663,45 @@ body {
   background: #4a7fd6;
 }
 
+.timeline-item.highlight::before {
+  background: #e05a5a;
+}
+
 .timeline-time {
   font-size: 0.72rem;
   font-weight: 700;
   color: #4a7fd6;
+}
+
+.timeline-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.timeline-head .timeline-text {
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: #2a2a2a;
+}
+
+.timeline-item.highlight .timeline-head .timeline-text {
+  color: #c23f3f;
+}
+
+.timeline-details {
+  margin-top: 4px;
+  padding-left: 8px;
+  border-left: 2px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.timeline-detail-item {
+  font-size: 0.78rem;
+  color: #666;
+  line-height: 1.4;
 }
 
 .day-cell-menu-icon {

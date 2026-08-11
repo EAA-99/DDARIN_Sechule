@@ -25,7 +25,7 @@ export default async function handler(req, res) {
       return;
     }
 
-    const summaryRes = await fetch(`https://soop-ai-api.sooplive.com/v1.0/broad-summary/kr/${broadNo}`, {
+    const summaryRes = await fetch(`https://soop-ai-api.sooplive.com/v1.1/broad-summary/kr/${broadNo}`, {
       headers: soopHeaders,
     });
     if (!summaryRes.ok) {
@@ -33,20 +33,18 @@ export default async function handler(req, res) {
       return;
     }
 
+    const formatTime = (ts) =>
+      new Date(ts).toLocaleTimeString("ko-KR", { timeZone: "Asia/Seoul", hour: "2-digit", minute: "2-digit" });
+
     const summary = await summaryRes.json();
-    const events = (summary.events || [])
-      .slice()
-      .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
-      .filter((e) => e.summary)
-      .map((e) => ({
-        time: new Date(e.timestamp).toLocaleTimeString("ko-KR", {
-          timeZone: "Asia/Seoul",
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        summary: e.summary,
-      }));
-    res.status(200).json({ available: true, summary: summary.broadSummary || "", events });
+    const timeline = (summary.timeline || []).map((group) => ({
+      time: formatTime(group.timestamp),
+      summary: group.summary,
+      highlight: !!group.highlight,
+      details: (group.details || []).map((d) => ({ time: formatTime(d.timestamp), summary: d.summary })),
+    }));
+
+    res.status(200).json({ available: true, summary: summary.broadSummary || "", timeline });
   } catch {
     res.status(200).json({ available: false, reason: "error" });
   }
