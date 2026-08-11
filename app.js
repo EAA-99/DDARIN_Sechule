@@ -803,11 +803,6 @@ async function loadSharedMemo() {
   }
 }
 
-function updateSharedMemoEditable() {
-  memoTabShared.classList.toggle("hidden", isReadOnly);
-  if (isReadOnly) showMemoTab("personal");
-}
-
 let sharedMemoSaveTimer = null;
 function scheduleSharedMemoSave() {
   clearTimeout(sharedMemoSaveTimer);
@@ -826,8 +821,8 @@ function scheduleSharedMemoSave() {
 
 function openMemoPanel() {
   memoTextarea.value = localStorage.getItem(MEMO_KEY) || "";
-  showMemoTab("personal");
-  updateSharedMemoEditable();
+  memoTabShared.classList.toggle("hidden", isReadOnly);
+  showMemoTab(isReadOnly ? "personal" : "shared");
   loadSharedMemo();
   memoPanel.classList.remove("hidden");
   memoOverlay.classList.remove("hidden");
