@@ -3,12 +3,12 @@ export default async function handler(req, res) {
   const matches = [];
   const yearStart = targetDate.slice(0, 4) + "-01-01"; // 올해 1월 1일까지만 검색
   const BATCH_SIZE = 6;
-  const MAX_PAGES = 30;
+  const MAX_PAGES = 50;
 
   const fetchPage = async (page) => {
     const url =
       `https://api-channel.sooplive.com/v1.1/channel/insome0319/board` +
-      `?perPage=50&startDate=&endDate=&field=title,contents,user_nick,user_id,hashtags` +
+      `?perPage=30&startDate=&endDate=&field=title,contents,user_nick,user_id,hashtags` +
       `&keyword=&type=all&orderBy=reg_date&page=${page}&bbsNo=81075151`;
     const r = await fetch(url, {
       headers: {
