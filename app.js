@@ -932,6 +932,18 @@ menuToggleBtn.addEventListener("click", () => {
   sideNavItems.classList.toggle("hidden");
 });
 
+const etcBtn = document.getElementById("etcBtn");
+const etcSubmenu = document.getElementById("etcSubmenu");
+etcBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  etcSubmenu.classList.toggle("hidden");
+});
+document.addEventListener("click", (e) => {
+  if (!etcSubmenu.classList.contains("hidden") && !e.target.closest(".side-nav-etc-wrap")) {
+    etcSubmenu.classList.add("hidden");
+  }
+});
+
 const MEMO_KEY = "ddarin-memo-2026";
 const memoBtn = document.getElementById("memoBtn");
 const memoPanel = document.getElementById("memoPanel");
