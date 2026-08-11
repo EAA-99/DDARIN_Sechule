@@ -10,7 +10,13 @@ export default async function handler(req, res) {
       `https://api-channel.sooplive.com/v1.1/channel/insome0319/board` +
       `?perPage=50&startDate=&endDate=&field=title,contents,user_nick,user_id,hashtags` +
       `&keyword=&type=all&orderBy=reg_date&page=${page}&bbsNo=81075151`;
-    const r = await fetch(url, { headers: { Referer: "https://www.sooplive.com/" } });
+    const r = await fetch(url, {
+      headers: {
+        Referer: "https://www.sooplive.com/",
+        Origin: "https://www.sooplive.com",
+        Accept: "application/json, text/plain, */*",
+      },
+    });
     const data = await r.json();
     const pinned = page === 1 ? data?.noticeData || [] : [];
     return [...pinned, ...(data?.contents || [])];

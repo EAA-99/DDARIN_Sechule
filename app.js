@@ -1594,7 +1594,9 @@ function renderTodaySchedule() {
 
 async function checkLiveStatus() {
   try {
-    const res = await fetch("https://bjapi.afreecatv.com/api/insome0319/station");
+    const res = await fetch("https://chapi.sooplive.com/api/insome0319/station", {
+      headers: { Accept: "application/json, text/plain, */*" },
+    });
     const data = await res.json();
     const broad = data && data.broad;
     const broadNo = broad && (broad.broad_no || broad.broadNo);
