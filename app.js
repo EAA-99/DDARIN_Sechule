@@ -494,6 +494,7 @@ function closeSongPlayerModal() {
   songPlayerModal.style.margin = "";
   songPlayerModal.style.width = "";
   songPlayerModal.style.height = "";
+  songPlayerModal.style.maxWidth = "";
 }
 
 function minimizeSongPlayerModal() {
@@ -543,6 +544,48 @@ songPlayerModalFavBtn.addEventListener("click", () => {
 
   document.addEventListener("mouseup", () => {
     dragging = false;
+  });
+})();
+
+(function makeSongPlayerResizable() {
+  const MIN_WIDTH = 320;
+
+  document.querySelectorAll(".song-player-resize-handle").forEach((handle) => {
+    handle.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const corner = handle.dataset.corner;
+      const rect = songPlayerModal.getBoundingClientRect();
+      const startX = e.clientX;
+      const startWidth = rect.width;
+      const anchorX = corner.includes("w") ? rect.right : rect.left;
+      const anchorY = corner.includes("n") ? rect.bottom : rect.top;
+
+      songPlayerModal.style.position = "fixed";
+      songPlayerModal.style.margin = "0";
+      songPlayerModal.style.maxWidth = "none";
+
+      function onMove(ev) {
+        const dx = ev.clientX - startX;
+        const newWidth = Math.max(MIN_WIDTH, corner.includes("w") ? startWidth - dx : startWidth + dx);
+        songPlayerModal.style.width = `${newWidth}px`;
+
+        const newHeight = songPlayerModal.offsetHeight;
+        const newLeft = corner.includes("w") ? anchorX - newWidth : anchorX;
+        const newTop = corner.includes("n") ? anchorY - newHeight : anchorY;
+        songPlayerModal.style.left = `${newLeft}px`;
+        songPlayerModal.style.top = `${newTop}px`;
+      }
+
+      function onUp() {
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
+      }
+
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
+    });
   });
 })();
 

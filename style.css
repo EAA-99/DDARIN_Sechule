@@ -1200,7 +1200,7 @@ body {
   text-align: left;
   border: 3px solid #cfe2f7;
   border-radius: 30px;
-  background: #fff;
+  background: #f3f9ff;
 }
 
 .songbook-header {
@@ -1285,33 +1285,38 @@ body {
   position: relative;
   width: 100%;
   max-width: 640px;
-  height: 420px;
   min-width: 320px;
-  min-height: 260px;
   background: #fff;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
-  display: flex;
-  flex-direction: column;
-  resize: both;
 }
 
 .song-player-drag-handle {
   height: 18px;
-  flex-shrink: 0;
   background: rgba(0, 0, 0, 0.05);
   cursor: move;
 }
 
 .song-player-modal-frame {
   width: 100%;
-  flex: 1;
-  min-height: 0;
+  aspect-ratio: 16 / 9;
   border: none;
   background: #000;
   display: block;
 }
+
+.song-player-resize-handle {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  z-index: 2;
+}
+
+.song-player-resize-handle[data-corner="nw"] { top: 0; left: 0; cursor: nwse-resize; }
+.song-player-resize-handle[data-corner="ne"] { top: 0; right: 0; cursor: nesw-resize; }
+.song-player-resize-handle[data-corner="sw"] { bottom: 0; left: 0; cursor: nesw-resize; }
+.song-player-resize-handle[data-corner="se"] { bottom: 0; right: 0; cursor: nwse-resize; }
 
 .song-player-modal-backdrop.minimized {
   background: transparent;
@@ -1323,10 +1328,6 @@ body {
 
 .song-player-modal-backdrop.minimized .song-player-modal {
   width: 280px;
-  max-width: 280px;
-  height: 180px;
-  min-height: 180px;
-  resize: none;
   pointer-events: auto;
   cursor: pointer;
 }
