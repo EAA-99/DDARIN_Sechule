@@ -149,15 +149,24 @@
       <button type="button" class="game-tab" data-game="pinball">핀볼</button>
     </div>
 
-    <div id="ladderPanel" class="game-panel">
-      <div class="game-input-row">
-        <textarea id="ladderNamesInput" class="game-textarea" placeholder="참가자 이름 (줄바꿈으로 구분)"></textarea>
-        <textarea id="ladderResultsInput" class="game-textarea" placeholder="결과 (줄바꿈으로 구분, 참가자 수와 동일)"></textarea>
+    <div id="ladderPanel" class="game-panel ladder-panel">
+      <div class="ladder-toolbar">
+        <div class="ladder-stepper">
+          <button type="button" id="ladderCountMinus" class="ladder-stepper-btn" aria-label="참가자 줄이기">‹</button>
+          <span id="ladderCountLabel">항목 2개</span>
+          <button type="button" id="ladderCountPlus" class="ladder-stepper-btn" aria-label="참가자 늘리기">›</button>
+        </div>
+        <div class="ladder-actions">
+          <button type="button" id="ladderStartBtn" class="ladder-action-btn ladder-start-btn">▷ START</button>
+          <button type="button" id="ladderResultBtn" class="ladder-action-btn">☰ 결과보기</button>
+          <button type="button" id="ladderShuffleBtn" class="ladder-action-btn">사다리 섞기</button>
+        </div>
       </div>
       <div id="ladderError" class="sheet-status error hidden"></div>
-      <button type="button" id="ladderStartBtn" class="game-primary-btn">사다리 만들기</button>
-      <canvas id="ladderCanvas" class="game-canvas hidden"></canvas>
-      <div id="ladderResult" class="game-result"></div>
+      <div id="ladderNamesRow" class="ladder-row"></div>
+      <canvas id="ladderCanvas" class="ladder-canvas"></canvas>
+      <div id="ladderResultsRow" class="ladder-row"></div>
+      <div id="ladderSummary" class="ladder-summary"></div>
     </div>
 
     <div id="roulettePanel" class="game-panel hidden">

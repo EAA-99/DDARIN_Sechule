@@ -944,7 +944,10 @@ async function openSongbook() {
 
 songbookBtn.addEventListener("click", openSongbook);
 document.getElementById("calendarBtn").addEventListener("click", () => showMainView("calendar"));
-document.getElementById("gameBtn").addEventListener("click", () => showMainView("game"));
+document.getElementById("gameBtn").addEventListener("click", () => {
+  showMainView("game");
+  if (typeof redrawLadderCanvas === "function") redrawLadderCanvas();
+});
 
 const menuToggleBtn = document.getElementById("menuToggleBtn");
 const sideNavItems = document.getElementById("sideNavItems");

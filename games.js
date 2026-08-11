@@ -3,6 +3,8 @@ function showGameError(el, msg) {
   el.classList.remove("hidden");
 }
 
+let redrawLadderCanvas = function () {};
+
 document.querySelectorAll(".game-tab").forEach((tab) => {
   tab.addEventListener("click", () => {
     const target = tab.dataset.game;
@@ -10,85 +12,130 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     document.getElementById("ladderPanel").classList.toggle("hidden", target !== "ladder");
     document.getElementById("roulettePanel").classList.toggle("hidden", target !== "roulette");
     document.getElementById("pinballPanel").classList.toggle("hidden", target !== "pinball");
+    if (target === "ladder") redrawLadderCanvas();
   });
 });
 
 // ===== 사다리타기 =====
 (function ladderGame() {
-  const namesInput = document.getElementById("ladderNamesInput");
-  const resultsInput = document.getElementById("ladderResultsInput");
-  const errorEl = document.getElementById("ladderError");
-  const startBtn = document.getElementById("ladderStartBtn");
+  const namesRow = document.getElementById("ladderNamesRow");
+  const resultsRow = document.getElementById("ladderResultsRow");
   const canvas = document.getElementById("ladderCanvas");
-  const resultEl = document.getElementById("ladderResult");
+  const errorEl = document.getElementById("ladderError");
+  const countLabel = document.getElementById("ladderCountLabel");
+  const countMinus = document.getElementById("ladderCountMinus");
+  const countPlus = document.getElementById("ladderCountPlus");
+  const startBtn = document.getElementById("ladderStartBtn");
+  const resultBtn = document.getElementById("ladderResultBtn");
+  const shuffleBtn = document.getElementById("ladderShuffleBtn");
+  const summaryEl = document.getElementById("ladderSummary");
   const ctx = canvas.getContext("2d");
 
   const ROWS = 14;
-  const ROW_H = 28;
-  const COL_GAP = 60;
-  const SIDE_PAD = 30;
-  const TOP_PAD = 40;
-  const BOTTOM_PAD = 40;
+  const MIN_COUNT = 2;
+  const MAX_COUNT = 8;
+  const PATH_COLORS = ["#4a7fd6", "#e05a5a", "#2e9e5b", "#b3691a", "#6b4bad", "#ad3f68", "#1c5fa8", "#8a6d1f"];
 
-  let names = [];
-  let results = [];
+  let count = 2;
   let rungs = [];
 
-  function colX(c) {
-    return SIDE_PAD + c * COL_GAP;
+  function updateCountLabel() {
+    countLabel.textContent = `항목 ${count}개`;
   }
 
-  function drawLadder(highlightPath) {
-    const n = names.length;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  function renderColumns() {
+    namesRow.innerHTML = "";
+    resultsRow.innerHTML = "";
+    for (let i = 0; i < count; i++) {
+      const col = document.createElement("div");
+      col.className = "ladder-col";
+      const avatar = document.createElement("div");
+      avatar.className = "ladder-avatar";
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "ladder-col-input";
+      input.placeholder = `항목${i + 1}`;
+      const arrow = document.createElement("div");
+      arrow.className = "ladder-col-arrow";
+      arrow.textContent = "▼";
+      col.append(avatar, input, arrow);
+      namesRow.appendChild(col);
 
-    ctx.font = "13px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#2a2a2a";
-    for (let c = 0; c < n; c++) {
-      ctx.fillText(names[c], colX(c), TOP_PAD - 14);
-      ctx.fillText(results[c], colX(c), TOP_PAD + ROWS * ROW_H + 26);
+      const rCol = document.createElement("div");
+      rCol.className = "ladder-col";
+      const rInput = document.createElement("input");
+      rInput.type = "text";
+      rInput.className = "ladder-col-input";
+      rInput.placeholder = "결과";
+      rCol.appendChild(rInput);
+      resultsRow.appendChild(rCol);
     }
+  }
+
+  function colX(i) {
+    return (i + 0.5) * (canvas.width / count);
+  }
+
+  function generateRungs() {
+    rungs = Array.from({ length: ROWS }, () => new Set());
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < count - 1; c++) {
+        if (rungs[r].has(c - 1)) continue;
+        if (Math.random() < 0.35) rungs[r].add(c);
+      }
+    }
+  }
+
+  function drawLadder(paths) {
+    canvas.width = namesRow.offsetWidth || 480;
+    canvas.height = 220;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ctx.strokeStyle = "#ccc";
     ctx.lineWidth = 2;
-    for (let c = 0; c < n; c++) {
+    for (let c = 0; c < count; c++) {
       ctx.beginPath();
-      ctx.moveTo(colX(c), TOP_PAD);
-      ctx.lineTo(colX(c), TOP_PAD + ROWS * ROW_H);
+      ctx.moveTo(colX(c), 0);
+      ctx.lineTo(colX(c), canvas.height);
       ctx.stroke();
     }
 
-    ctx.strokeStyle = "#bbb";
-    for (let r = 0; r < ROWS; r++) {
-      const y = TOP_PAD + r * ROW_H + ROW_H / 2;
-      rungs[r].forEach((c) => {
+    if (rungs.length) {
+      ctx.strokeStyle = "#bbb";
+      const rowH = canvas.height / ROWS;
+      for (let r = 0; r < ROWS; r++) {
+        const y = r * rowH + rowH / 2;
+        rungs[r].forEach((c) => {
+          ctx.beginPath();
+          ctx.moveTo(colX(c), y);
+          ctx.lineTo(colX(c + 1), y);
+          ctx.stroke();
+        });
+      }
+    }
+
+    if (paths) {
+      paths.forEach((path, idx) => {
+        ctx.strokeStyle = PATH_COLORS[idx % PATH_COLORS.length];
+        ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.moveTo(colX(c), y);
-        ctx.lineTo(colX(c + 1), y);
+        path.forEach((pt, i) => {
+          if (i === 0) ctx.moveTo(pt.x, pt.y);
+          else ctx.lineTo(pt.x, pt.y);
+        });
         ctx.stroke();
       });
-    }
-
-    if (highlightPath) {
-      ctx.strokeStyle = "#4a7fd6";
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      highlightPath.forEach((pt, i) => {
-        if (i === 0) ctx.moveTo(pt.x, pt.y);
-        else ctx.lineTo(pt.x, pt.y);
-      });
-      ctx.stroke();
     }
   }
 
   function tracePath(startCol) {
+    const rowH = canvas.height / ROWS;
     let col = startCol;
-    const pts = [{ x: colX(col), y: TOP_PAD }];
+    const pts = [{ x: colX(col), y: 0 }];
     for (let r = 0; r < ROWS; r++) {
-      const y1 = TOP_PAD + r * ROW_H;
-      const y2 = y1 + ROW_H;
-      const midY = y1 + ROW_H / 2;
+      const y1 = r * rowH;
+      const y2 = y1 + rowH;
+      const midY = y1 + rowH / 2;
       if (rungs[r].has(col)) {
         pts.push({ x: colX(col), y: midY });
         col += 1;
@@ -103,50 +150,76 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     return { path: pts, endCol: col };
   }
 
-  startBtn.addEventListener("click", () => {
-    names = namesInput.value.split("\n").map((s) => s.trim()).filter(Boolean);
-    results = resultsInput.value.split("\n").map((s) => s.trim()).filter(Boolean);
-    resultEl.textContent = "";
+  function getLabels(row) {
+    return Array.from(row.querySelectorAll(".ladder-col-input")).map((input) => input.value.trim());
+  }
 
-    if (names.length < 2) {
-      showGameError(errorEl, "참가자를 2명 이상 입력해주세요.");
-      canvas.classList.add("hidden");
-      return;
-    }
-    if (names.length !== results.length) {
-      showGameError(errorEl, "참가자 수와 결과 수가 같아야 합니다.");
-      canvas.classList.add("hidden");
+  function resetBoard() {
+    rungs = [];
+    summaryEl.innerHTML = "";
+    errorEl.classList.add("hidden");
+    drawLadder(null);
+  }
+
+  countMinus.addEventListener("click", () => {
+    if (count <= MIN_COUNT) return;
+    count -= 1;
+    updateCountLabel();
+    renderColumns();
+    resetBoard();
+  });
+
+  countPlus.addEventListener("click", () => {
+    if (count >= MAX_COUNT) return;
+    count += 1;
+    updateCountLabel();
+    renderColumns();
+    resetBoard();
+  });
+
+  startBtn.addEventListener("click", () => {
+    generateRungs();
+    summaryEl.innerHTML = "";
+    errorEl.classList.add("hidden");
+    drawLadder(null);
+  });
+
+  shuffleBtn.addEventListener("click", () => {
+    generateRungs();
+    summaryEl.innerHTML = "";
+    errorEl.classList.add("hidden");
+    drawLadder(null);
+  });
+
+  resultBtn.addEventListener("click", () => {
+    if (!rungs.length) {
+      showGameError(errorEl, "먼저 START를 눌러 사다리를 만들어주세요.");
       return;
     }
     errorEl.classList.add("hidden");
 
-    const n = names.length;
-    rungs = Array.from({ length: ROWS }, () => new Set());
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < n - 1; c++) {
-        if (rungs[r].has(c - 1)) continue;
-        if (Math.random() < 0.35) rungs[r].add(c);
-      }
+    const names = getLabels(namesRow).map((v, i) => v || `항목${i + 1}`);
+    const resultLabels = getLabels(resultsRow).map((v) => v || "결과");
+    const paths = [];
+    summaryEl.innerHTML = "";
+    for (let i = 0; i < count; i++) {
+      const { path, endCol } = tracePath(i);
+      paths.push(path);
+      const item = document.createElement("div");
+      item.className = "ladder-summary-item";
+      item.style.color = PATH_COLORS[i % PATH_COLORS.length];
+      item.textContent = `${names[i]} → ${resultLabels[endCol]}`;
+      summaryEl.appendChild(item);
     }
-
-    canvas.width = Math.max(320, n * COL_GAP + SIDE_PAD);
-    canvas.height = TOP_PAD + BOTTOM_PAD + ROWS * ROW_H;
-    canvas.classList.remove("hidden");
-    drawLadder(null);
+    drawLadder(paths);
   });
 
-  canvas.addEventListener("click", (e) => {
-    if (!names.length) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-    const y = (e.clientY - rect.top) * (canvas.height / rect.height);
-    if (y > TOP_PAD) return;
-    let col = Math.round((x - SIDE_PAD) / COL_GAP);
-    col = Math.max(0, Math.min(names.length - 1, col));
-    const { path, endCol } = tracePath(col);
-    drawLadder(path);
-    resultEl.textContent = `${names[col]} → ${results[endCol]}`;
-  });
+  redrawLadderCanvas = () => drawLadder(null);
+  window.addEventListener("resize", () => drawLadder(null));
+
+  updateCountLabel();
+  renderColumns();
+  drawLadder(null);
 })();
 
 // ===== 룰렛 =====
