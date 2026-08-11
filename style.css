@@ -1200,7 +1200,7 @@ body {
   text-align: left;
   border: 3px solid #cfe2f7;
   border-radius: 30px;
-  background: #fff;
+  background: #f3f9ff;
 }
 
 .songbook-header {
@@ -1235,6 +1235,7 @@ body {
 .player-panel {
   flex-shrink: 0;
   width: 260px;
+  background: #fff;
   border: 1px solid #eee;
   border-radius: 16px;
   padding: 20px;
@@ -1293,8 +1294,13 @@ body {
 }
 
 .song-player-drag-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 18px;
-  background: rgba(0, 0, 0, 0.05);
+  z-index: 1;
+  background: transparent;
   cursor: move;
 }
 
@@ -1518,6 +1524,7 @@ body {
 .song-search {
   width: 100%;
   padding: 12px 16px;
+  background: #fff;
   border: 1px solid #eee;
   border-radius: 999px;
   font-size: 0.95rem;
@@ -1555,21 +1562,6 @@ body {
   max-height: 65vh;
   overflow-y: auto;
   padding-right: 4px;
-  scrollbar-color: #cfe2f7 #f3f9ff;
-}
-
-.song-grid::-webkit-scrollbar {
-  width: 10px;
-}
-
-.song-grid::-webkit-scrollbar-track {
-  background: #f3f9ff;
-  border-radius: 10px;
-}
-
-.song-grid::-webkit-scrollbar-thumb {
-  background: #cfe2f7;
-  border-radius: 10px;
 }
 
 .song-group-header {
@@ -1598,6 +1590,7 @@ body {
 
 .song-card {
   position: relative;
+  background: #fff;
   border: 1px solid #eee;
   border-radius: 14px;
   padding: 10px;
