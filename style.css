@@ -230,24 +230,6 @@ body {
   color: #999;
 }
 
-.sheet-corner-btn {
-  position: absolute;
-  top: 20px;
-  right: 24px;
-  border: 1px solid #eee;
-  background: #fff;
-  border-radius: 999px;
-  padding: 10px 18px;
-  font-weight: 700;
-  font-size: 0.9rem;
-  cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-}
-
-.sheet-corner-btn:hover {
-  background: #f7f7f7;
-}
-
 .toolbar {
   position: relative;
   display: flex;
@@ -308,13 +290,6 @@ body {
 
 .nav-btn:not(:disabled):hover {
   color: #4a7fd6;
-}
-
-.sheet-help {
-  font-size: 0.82rem;
-  color: #666;
-  line-height: 1.5;
-  margin: 0 0 12px;
 }
 
 .sheet-status {
@@ -1156,26 +1131,89 @@ body {
   border-radius: 8px;
 }
 
+.roulette-panel {
+  max-width: 900px;
+}
+
+.roulette-settings-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background: #f7f9fc;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.roulette-settings-inputs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.roulette-settings-inputs input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+
+.roulette-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
 .roulette-wheel-wrap {
   position: relative;
-  width: 280px;
-  margin: 0 auto 12px;
+  width: 340px;
+  flex-shrink: 0;
 }
 
 .roulette-canvas {
   display: block;
+  width: 100%;
+  height: auto;
   border-radius: 50%;
   transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
 }
 
 .roulette-pointer {
   position: absolute;
-  top: -8px;
+  top: -10px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 1.6rem;
-  color: #e05a5a;
+  font-size: 1.8rem;
+  color: #8a6d3b;
   line-height: 1;
+}
+
+.roulette-winner-card {
+  width: 220px;
+  flex-shrink: 0;
+  padding: 30px 20px;
+  border-radius: 16px;
+  background: #f7f9fc;
+  text-align: center;
+}
+
+.roulette-winner-label {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #4a7fd6;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+
+.roulette-winner-name {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #2a2a2a;
+  word-break: break-word;
 }
 
 .game-result {
@@ -1190,10 +1228,6 @@ body {
 #loginModalBackdrop .modal {
   background: #fff;
   border: 6px solid #cfe2f7;
-}
-
-#sheetModalBackdrop .modal {
-  max-width: 640px;
 }
 
 .modal h2 {
@@ -1596,29 +1630,6 @@ body {
 .memo-tab.active {
   border-color: #8a6d3b;
   color: #8a6d3b;
-}
-
-#sheetUrlInput {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  text-align: left;
-  margin-bottom: 10px;
-}
-
-#sheetJsonInput {
-  width: 100%;
-  height: 120px;
-  padding: 8px 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-family: monospace;
-  resize: vertical;
-  margin-bottom: 10px;
-  text-align: left;
 }
 
 .modal-actions {
@@ -2141,10 +2152,6 @@ body {
     flex-direction: row;
     padding-top: 0;
     margin: 4px 0 10px;
-  }
-
-  .sheet-corner-btn {
-    display: none;
   }
 
   #songNoImageBtn,

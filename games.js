@@ -37,7 +37,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 
   const ROWS = 14;
   const MIN_COUNT = 2;
-  const MAX_COUNT = 8;
+  const MAX_COUNT = 10;
   const PATH_COLORS = ["#4a7fd6", "#e05a5a", "#2e9e5b", "#b3691a", "#6b4bad", "#ad3f68", "#1c5fa8", "#8a6d1f"];
 
   let count = 2;
@@ -334,29 +334,61 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 
 // ===== 룰렛 =====
 (function rouletteGame() {
-  const optionsInput = document.getElementById("rouletteOptionsInput");
   const errorEl = document.getElementById("rouletteError");
-  const buildBtn = document.getElementById("rouletteBuildBtn");
-  const wheelWrap = document.getElementById("rouletteWheelWrap");
   const canvas = document.getElementById("rouletteCanvas");
-  const spinBtn = document.getElementById("rouletteSpinBtn");
-  const resultEl = document.getElementById("rouletteResult");
+  const countLabel = document.getElementById("rouletteCountLabel");
+  const countMinus = document.getElementById("rouletteCountMinus");
+  const countPlus = document.getElementById("rouletteCountPlus");
+  const settingsBtn = document.getElementById("rouletteSettingsBtn");
+  const settingsPanel = document.getElementById("rouletteSettingsPanel");
+  const settingsInputs = document.getElementById("rouletteSettingsInputs");
+  const settingsCloseBtn = document.getElementById("rouletteSettingsCloseBtn");
+  const startBtn = document.getElementById("rouletteStartBtn");
+  const resetBtn = document.getElementById("rouletteResetBtn");
+  const winnerName = document.getElementById("rouletteWinnerName");
   const ctx = canvas.getContext("2d");
 
-  const COLORS = ["#cfe8fb", "#fbeeaa", "#e5d9fb", "#d3f3d8", "#fde3c7", "#f5d6db", "#e2e2e2", "#fbe0f6"];
-  let options = [];
+  const COLORS = ["#7fd6c8", "#8fd67f", "#f0b95a", "#7fb8e0", "#cfe8fb", "#fbeeaa", "#e5d9fb", "#d3f3d8", "#fde3c7", "#f5d6db"];
+  const MIN_COUNT = 2;
+  const MAX_COUNT = 10;
+
+  let count = 4;
+  let names = ["항목1", "항목2", "항목3", "항목4"];
   let currentRotation = 0;
   let spinning = false;
 
+  function updateCountLabel() {
+    countLabel.textContent = `항목 ${count}개`;
+  }
+
+  function syncNamesLength() {
+    while (names.length < count) names.push(`항목${names.length + 1}`);
+    names.length = count;
+  }
+
+  function renderSettingsInputs() {
+    settingsInputs.innerHTML = "";
+    for (let i = 0; i < count; i++) {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = names[i];
+      input.placeholder = `항목${i + 1}`;
+      input.addEventListener("input", () => {
+        names[i] = input.value.trim() || `항목${i + 1}`;
+        drawWheel();
+      });
+      settingsInputs.appendChild(input);
+    }
+  }
+
   function drawWheel() {
-    const n = options.length;
     const size = canvas.width;
     const cx = size / 2;
     const cy = size / 2;
     const radius = size / 2 - 4;
-    const sliceAngle = (2 * Math.PI) / n;
+    const sliceAngle = (2 * Math.PI) / count;
     ctx.clearRect(0, 0, size, size);
-    for (let i = 0; i < n; i++) {
+    for (let i = 0; i < count; i++) {
       const start = i * sliceAngle - Math.PI / 2;
       const end = start + sliceAngle;
       ctx.beginPath();
@@ -366,46 +398,54 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
       ctx.fillStyle = COLORS[i % COLORS.length];
       ctx.fill();
       ctx.strokeStyle = "#fff";
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 3;
       ctx.stroke();
 
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate(start + sliceAngle / 2);
       ctx.textAlign = "right";
-      ctx.fillStyle = "#333";
-      ctx.font = "bold 13px sans-serif";
-      ctx.fillText(options[i], radius - 10, 4);
+      ctx.fillStyle = "#fff";
+      ctx.font = "bold 16px sans-serif";
+      ctx.fillText(names[i], radius - 20, 6);
       ctx.restore();
     }
   }
 
-  buildBtn.addEventListener("click", () => {
-    options = optionsInput.value.split("\n").map((s) => s.trim()).filter(Boolean);
-    if (options.length < 2) {
-      showGameError(errorEl, "항목을 2개 이상 입력해주세요.");
-      wheelWrap.classList.add("hidden");
-      spinBtn.classList.add("hidden");
-      return;
-    }
-    errorEl.classList.add("hidden");
-    resultEl.textContent = "";
-    canvas.style.transition = "none";
-    canvas.style.transform = "rotate(0deg)";
-    currentRotation = 0;
+  countMinus.addEventListener("click", () => {
+    if (count <= MIN_COUNT) return;
+    count -= 1;
+    updateCountLabel();
+    syncNamesLength();
+    renderSettingsInputs();
     drawWheel();
-    wheelWrap.classList.remove("hidden");
-    spinBtn.classList.remove("hidden");
   });
 
-  spinBtn.addEventListener("click", () => {
-    if (spinning || !options.length) return;
-    spinning = true;
-    resultEl.textContent = "";
+  countPlus.addEventListener("click", () => {
+    if (count >= MAX_COUNT) return;
+    count += 1;
+    updateCountLabel();
+    syncNamesLength();
+    renderSettingsInputs();
+    drawWheel();
+  });
 
-    const n = options.length;
-    const sliceDeg = 360 / n;
-    const targetIndex = Math.floor(Math.random() * n);
+  settingsBtn.addEventListener("click", () => {
+    settingsPanel.classList.toggle("hidden");
+  });
+
+  settingsCloseBtn.addEventListener("click", () => {
+    settingsPanel.classList.add("hidden");
+  });
+
+  startBtn.addEventListener("click", () => {
+    if (spinning) return;
+    spinning = true;
+    errorEl.classList.add("hidden");
+    winnerName.textContent = "...";
+
+    const sliceDeg = 360 / count;
+    const targetIndex = Math.floor(Math.random() * count);
     const sliceCenter = targetIndex * sliceDeg + sliceDeg / 2;
     const targetMod = (360 - sliceCenter + 360) % 360;
     const currentMod = ((currentRotation % 360) + 360) % 360;
@@ -420,9 +460,21 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 
     setTimeout(() => {
       spinning = false;
-      resultEl.textContent = `당첨: ${options[targetIndex]}`;
+      winnerName.textContent = names[targetIndex];
     }, 4100);
   });
+
+  resetBtn.addEventListener("click", () => {
+    spinning = false;
+    canvas.style.transition = "none";
+    canvas.style.transform = "rotate(0deg)";
+    currentRotation = 0;
+    winnerName.textContent = "대기 중";
+  });
+
+  updateCountLabel();
+  renderSettingsInputs();
+  drawWheel();
 })();
 
 // ===== 핀볼 =====

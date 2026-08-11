@@ -39,8 +39,6 @@
     <img src="today-mascot.png" alt="" class="page-top-mascot">
 
     <div class="calendar-header">
-      <button id="sheetSettingsBtn" class="sheet-corner-btn hidden">📄 구글 시트 연동</button>
-
       <header class="toolbar">
         <button id="prevBtn" class="nav-btn" aria-label="이전 달">◀</button>
         <h1 id="monthTitle">1월</h1>
@@ -173,16 +171,36 @@
       <div id="ladderSummary" class="ladder-summary"></div>
     </div>
 
-    <div id="roulettePanel" class="game-panel hidden">
-      <textarea id="rouletteOptionsInput" class="game-textarea" placeholder="항목 (줄바꿈으로 구분, 2개 이상)"></textarea>
-      <div id="rouletteError" class="sheet-status error hidden"></div>
-      <button type="button" id="rouletteBuildBtn" class="game-primary-btn">룰렛 만들기</button>
-      <div id="rouletteWheelWrap" class="roulette-wheel-wrap hidden">
-        <canvas id="rouletteCanvas" class="roulette-canvas" width="280" height="280"></canvas>
-        <div class="roulette-pointer">▼</div>
+    <div id="roulettePanel" class="game-panel roulette-panel hidden">
+      <div class="ladder-toolbar">
+        <div class="ladder-stepper">
+          <button type="button" id="rouletteCountMinus" class="ladder-stepper-btn" aria-label="항목 줄이기">‹</button>
+          <span id="rouletteCountLabel">항목 4개</span>
+          <button type="button" id="rouletteCountPlus" class="ladder-stepper-btn" aria-label="항목 늘리기">›</button>
+        </div>
+        <div class="ladder-actions">
+          <button type="button" id="rouletteSettingsBtn" class="ladder-action-btn">☰ 항목 선택</button>
+          <button type="button" id="rouletteStartBtn" class="ladder-action-btn ladder-start-btn">▷ START</button>
+          <button type="button" id="rouletteResetBtn" class="ladder-action-btn">초기화</button>
+        </div>
       </div>
-      <button type="button" id="rouletteSpinBtn" class="game-primary-btn hidden">돌리기</button>
-      <div id="rouletteResult" class="game-result"></div>
+      <div id="rouletteError" class="sheet-status error hidden"></div>
+
+      <div id="rouletteSettingsPanel" class="roulette-settings-panel hidden">
+        <div id="rouletteSettingsInputs" class="roulette-settings-inputs"></div>
+        <button type="button" id="rouletteSettingsCloseBtn" class="game-primary-btn">확인</button>
+      </div>
+
+      <div class="roulette-body">
+        <div class="roulette-wheel-wrap">
+          <canvas id="rouletteCanvas" class="roulette-canvas" width="420" height="420"></canvas>
+          <div class="roulette-pointer">▼</div>
+        </div>
+        <div class="roulette-winner-card">
+          <div class="roulette-winner-label">WINNER</div>
+          <div id="rouletteWinnerName" class="roulette-winner-name">대기 중</div>
+        </div>
+      </div>
     </div>
 
     <div id="pinballPanel" class="game-panel hidden">
@@ -341,29 +359,6 @@
           <button type="button" id="closeLoginModalBtn">취소</button>
         </div>
       </form>
-    </div>
-  </div>
-
-  <div id="sheetModalBackdrop" class="modal-backdrop hidden">
-    <div class="modal">
-      <h2>구글 시트 연동 (불러오기)</h2>
-
-      <p class="sheet-help">Apps Script 웹앱 URL(<code>/exec</code>로 끝나는 주소)을 입력하면 자동으로 불러옵니다.</p>
-      <input type="url" id="sheetUrlInput" placeholder="https://script.google.com/macros/s/.../exec">
-      <div class="modal-actions" style="justify-content:flex-start; margin-bottom:14px;">
-        <button type="button" id="sheetAutoImportBtn" class="primary-btn">자동 불러오기</button>
-      </div>
-
-      <p class="sheet-help">
-        자동으로 안 될 경우: 위 URL을 새 탭에서 열어 <b>Ctrl+A → Ctrl+C</b>로 전체 복사한 뒤 아래에 붙여넣으세요.
-      </p>
-      <textarea id="sheetJsonInput" placeholder='여기에 [{"date":"2026-08-01","title":"..."}, ...] 형태의 내용을 붙여넣으세요'></textarea>
-
-      <div id="sheetStatus" class="sheet-status"></div>
-      <div class="modal-actions">
-        <button type="button" id="sheetImportBtn" class="primary-btn">붙여넣은 내용 가져오기</button>
-        <button type="button" id="closeSheetModalBtn">닫기</button>
-      </div>
     </div>
   </div>
 

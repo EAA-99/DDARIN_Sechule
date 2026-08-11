@@ -12,7 +12,6 @@ const SONGBOOK_LOADING_GIF_MS = 4470;
 
 const YEAR = 2026;
 const STORAGE_KEY = "calendar-events-2026";
-const SHEET_URL_KEY = "calendar-sheet-url-2026";
 const EDIT_PW_KEY = "calendar-edit-pw-2026";
 const EDIT_USER_KEY = "calendar-edit-user-2026";
 
@@ -231,15 +230,6 @@ const favoritesListEl = document.getElementById("favoritesList");
 let allSongs = null;
 let songByKey = {};
 let songbookGenre = "전체";
-const sheetSettingsBtn = document.getElementById("sheetSettingsBtn");
-const sheetModalBackdrop = document.getElementById("sheetModalBackdrop");
-const sheetUrlInput = document.getElementById("sheetUrlInput");
-const sheetAutoImportBtn = document.getElementById("sheetAutoImportBtn");
-const sheetJsonInput = document.getElementById("sheetJsonInput");
-const sheetStatus = document.getElementById("sheetStatus");
-const sheetImportBtn = document.getElementById("sheetImportBtn");
-const closeSheetModalBtn = document.getElementById("closeSheetModalBtn");
-
 let eventsCache = null;
 
 function loadEvents() {
@@ -1844,92 +1834,9 @@ modalBackdrop.addEventListener("click", (e) => {
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
   if (!modalBackdrop.classList.contains("hidden")) closeModal();
-  if (!sheetModalBackdrop.classList.contains("hidden")) sheetModalBackdrop.classList.add("hidden");
 });
-
-function setSheetStatus(text, kind) {
-  sheetStatus.textContent = text;
-  sheetStatus.className = "sheet-status" + (kind ? ` ${kind}` : "");
-}
-
-function mergeSheetRows(rows) {
-  const events = loadEvents();
-  let added = 0;
-  rows.forEach((row) => {
-    const key = String(row.date || "").trim();
-    const title = String(row.title || "").trim();
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(key) || !title) return;
-    if (!key.startsWith(`${YEAR}-`)) return;
-
-    if (!events[key]) events[key] = [];
-    const sheetColor = row.color || undefined;
-    const existing = events[key].find((ev) => ev.title === title);
-    if (existing) {
-      if (sheetColor) existing.sheetColor = sheetColor;
-    } else {
-      events[key].push({ title, sheetColor });
-      added++;
-    }
-  });
-
-  saveEvents(events);
-  refreshCurrentView();
-  return added;
-}
-
-async function importFromSheetAuto() {
-  const url = sheetUrlInput.value.trim();
-  if (!url) {
-    setSheetStatus("웹앱 URL을 먼저 입력하세요.", "error");
-    return;
-  }
-  localStorage.setItem(SHEET_URL_KEY, url);
-
-  setSheetStatus("불러오는 중...");
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const rows = await res.json();
-    const added = mergeSheetRows(rows);
-    setSheetStatus(`${added}개 일정을 새로 불러왔습니다.`, "success");
-  } catch (err) {
-    setSheetStatus(`자동 불러오기 실패: ${err.message} (아래 붙여넣기 방식을 사용해보세요)`, "error");
-  }
-}
-
-function importFromSheet() {
-  const text = sheetJsonInput.value.trim();
-  if (!text) {
-    setSheetStatus("먼저 내용을 붙여넣으세요.", "error");
-    return;
-  }
-
-  try {
-    const rows = JSON.parse(text);
-    if (!Array.isArray(rows)) throw new Error("배열 형태(JSON)가 아닙니다.");
-    const added = mergeSheetRows(rows);
-    setSheetStatus(`${added}개 일정을 새로 불러왔습니다.`, "success");
-  } catch (err) {
-    setSheetStatus(`불러오기에 실패했습니다: ${err.message}`, "error");
-  }
-}
-
-sheetSettingsBtn.addEventListener("click", () => {
-  sheetUrlInput.value = localStorage.getItem(SHEET_URL_KEY) || "";
-  setSheetStatus("");
-  sheetModalBackdrop.classList.remove("hidden");
-});
-closeSheetModalBtn.addEventListener("click", () => {
-  sheetModalBackdrop.classList.add("hidden");
-});
-sheetModalBackdrop.addEventListener("click", (e) => {
-  if (e.target === sheetModalBackdrop) sheetModalBackdrop.classList.add("hidden");
-});
-sheetImportBtn.addEventListener("click", importFromSheet);
-sheetAutoImportBtn.addEventListener("click", importFromSheetAuto);
 
 function updateLockUi() {
-  sheetSettingsBtn.classList.toggle("hidden", isReadOnly);
   editLockBtn.classList.toggle("unlocked", !isReadOnly);
   const label = isReadOnly ? "로그인 (눌러서 편집 잠금 해제)" : "로그아웃 (눌러서 편집 잠그기)";
   editLockBtn.title = label;
@@ -2088,21 +1995,7 @@ init();
 
 const SYNC_INTERVAL_MS = 60 * 1000; // 1분
 
-async function backgroundSyncSheet() {
-  const url = localStorage.getItem(SHEET_URL_KEY);
-  if (!url || isReadOnly) return;
-  try {
-    const res = await fetch(url);
-    if (!res.ok) return;
-    const rows = await res.json();
-    mergeSheetRows(rows);
-  } catch {
-    // 조용히 실패, 다음 주기에 재시도
-  }
-}
-
 setInterval(() => {
-  backgroundSyncSheet();
   syncEventsFromServer();
   renderTodaySchedule();
   checkLiveStatus();
