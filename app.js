@@ -584,6 +584,9 @@ songPlayerModalFavBtn.addEventListener("click", () => {
       songPlayerModal.style.position = "fixed";
       songPlayerModal.style.margin = "0";
       songPlayerModal.style.maxWidth = "none";
+      songPlayerModal.style.width = `${startWidth}px`;
+      songPlayerModal.style.left = `${rect.left}px`;
+      songPlayerModal.style.top = `${rect.top}px`;
 
       function onMove(ev) {
         const dx = ev.clientX - startX;
