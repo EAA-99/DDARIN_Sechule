@@ -78,6 +78,36 @@ function repositionDayCellMenu() {
   dayCellMenu.style.left = `${Math.min(rect.left, window.innerWidth - dayCellMenu.offsetWidth - 8)}px`;
 }
 
+function renderBroadcastSummaryTimeline(data) {
+  dayCellSoopSummaryEl.innerHTML = "";
+
+  if (data.summary) {
+    const intro = document.createElement("div");
+    intro.className = "day-cell-summary-intro";
+    intro.textContent = data.summary;
+    dayCellSoopSummaryEl.appendChild(intro);
+  }
+
+  if (data.events && data.events.length) {
+    const timeline = document.createElement("div");
+    timeline.className = "day-cell-summary-timeline";
+    data.events.forEach((ev) => {
+      const item = document.createElement("div");
+      item.className = "timeline-item";
+      const time = document.createElement("span");
+      time.className = "timeline-time";
+      time.textContent = ev.time;
+      const text = document.createElement("span");
+      text.className = "timeline-text";
+      text.textContent = ev.summary;
+      item.appendChild(time);
+      item.appendChild(text);
+      timeline.appendChild(item);
+    });
+    dayCellSoopSummaryEl.appendChild(timeline);
+  }
+}
+
 async function loadDayCellBroadcastSummary(dateKeyStr) {
   dayCellSoopSummaryEl.textContent = "불러오는 중...";
   dayCellSoopSummaryEl.classList.remove("hidden");
@@ -89,8 +119,7 @@ async function loadDayCellBroadcastSummary(dateKeyStr) {
     if (dayCellMenuDate !== dateKeyStr) return;
 
     if (data.available) {
-      const parts = [data.summary, ...(data.events || [])].filter(Boolean);
-      dayCellSoopSummaryEl.textContent = parts.join("\n\n");
+      renderBroadcastSummaryTimeline(data);
     } else if (data.reason === "offline") {
       dayCellSoopSummaryEl.textContent = "지금 방송 중이 아니에요.";
     } else if (data.reason === "not_today") {
@@ -778,16 +807,21 @@ const MEMO_KEY = "ddarin-memo-2026";
 const memoBtn = document.getElementById("memoBtn");
 const memoPanel = document.getElementById("memoPanel");
 const memoOverlay = document.getElementById("memoOverlay");
-const memoTextarea = document.getElementById("memoTextarea");
 const closeMemoBtn = document.getElementById("closeMemoBtn");
-const memoSharedTextarea = document.getElementById("memoSharedTextarea");
 const memoSharedHint = document.getElementById("memoSharedHint");
 const memoTabPersonal = document.getElementById("memoTabPersonal");
 const memoTabShared = document.getElementById("memoTabShared");
 const memoPersonalSection = document.getElementById("memoPersonalSection");
 const memoSharedSection = document.getElementById("memoSharedSection");
+const memoPersonalInput = document.getElementById("memoPersonalInput");
+const memoPersonalAddBtn = document.getElementById("memoPersonalAddBtn");
+const memoPersonalList = document.getElementById("memoPersonalList");
+const memoSharedInput = document.getElementById("memoSharedInput");
+const memoSharedAddBtn = document.getElementById("memoSharedAddBtn");
+const memoSharedList = document.getElementById("memoSharedList");
 
 const SHARED_MEMO_API_URL = "/api/memo";
+let sharedMemoItems = [];
 
 function showMemoTab(tab) {
   const showShared = tab === "shared";
@@ -800,39 +834,114 @@ function showMemoTab(tab) {
 memoTabPersonal.addEventListener("click", () => showMemoTab("personal"));
 memoTabShared.addEventListener("click", () => showMemoTab("shared"));
 
-async function loadSharedMemo() {
-  memoSharedTextarea.value = "불러오는 중...";
+function renderMemoCards(listEl, items, canDelete, onDelete) {
+  listEl.innerHTML = "";
+  if (!items.length) {
+    const empty = document.createElement("div");
+    empty.className = "memo-card-empty";
+    empty.textContent = "메모가 없습니다.";
+    listEl.appendChild(empty);
+    return;
+  }
+  items.forEach((item) => {
+    const card = document.createElement("div");
+    card.className = "memo-card";
+    card.textContent = item.text;
+    if (canDelete) {
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "memo-card-delete";
+      delBtn.textContent = "✕";
+      delBtn.addEventListener("click", () => onDelete(item.id));
+      card.appendChild(delBtn);
+    }
+    listEl.appendChild(card);
+  });
+}
+
+function loadPersonalMemoItems() {
   try {
-    const res = await fetch(SHARED_MEMO_API_URL);
-    const data = await res.json();
-    memoSharedTextarea.value = (data && data.text) || "";
+    const raw = JSON.parse(localStorage.getItem(MEMO_KEY) || "[]");
+    return Array.isArray(raw) ? raw : [];
   } catch {
-    memoSharedTextarea.value = "";
+    return [];
   }
 }
 
-let sharedMemoSaveTimer = null;
-function scheduleSharedMemoSave() {
-  clearTimeout(sharedMemoSaveTimer);
-  sharedMemoSaveTimer = setTimeout(async () => {
-    const { username, password } = getStoredCreds();
-    if (!username || !password) return;
-    try {
-      await fetch(SHARED_MEMO_API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, text: memoSharedTextarea.value }),
-      });
-    } catch {}
-  }, 800);
+function savePersonalMemoItems(items) {
+  localStorage.setItem(MEMO_KEY, JSON.stringify(items));
 }
 
+function renderPersonalMemoList() {
+  renderMemoCards(memoPersonalList, loadPersonalMemoItems(), true, (id) => {
+    savePersonalMemoItems(loadPersonalMemoItems().filter((it) => it.id !== id));
+    renderPersonalMemoList();
+  });
+}
+
+memoPersonalAddBtn.addEventListener("click", () => {
+  const text = memoPersonalInput.value.trim();
+  if (!text) return;
+  const items = loadPersonalMemoItems();
+  items.unshift({ id: Date.now(), text });
+  savePersonalMemoItems(items);
+  memoPersonalInput.value = "";
+  renderPersonalMemoList();
+});
+memoPersonalInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") memoPersonalAddBtn.click();
+});
+
+function renderSharedMemoList() {
+  renderMemoCards(memoSharedList, sharedMemoItems, !isReadOnly, async (id) => {
+    const { username, password } = getStoredCreds();
+    if (!username || !password) return;
+    await fetch(SHARED_MEMO_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password, action: "delete", id }),
+    });
+    await loadSharedMemoList();
+  });
+}
+
+async function loadSharedMemoList() {
+  memoSharedList.innerHTML = `<div class="memo-card-empty">불러오는 중...</div>`;
+  try {
+    const res = await fetch(SHARED_MEMO_API_URL);
+    const data = await res.json();
+    sharedMemoItems = (data && data.items) || [];
+  } catch {
+    sharedMemoItems = [];
+  }
+  renderSharedMemoList();
+}
+
+memoSharedAddBtn.addEventListener("click", async () => {
+  if (isReadOnly) return;
+  const text = memoSharedInput.value.trim();
+  if (!text) return;
+  const { username, password } = getStoredCreds();
+  if (!username || !password) return;
+  memoSharedInput.value = "";
+  await fetch(SHARED_MEMO_API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password, action: "add", text }),
+  });
+  await loadSharedMemoList();
+});
+memoSharedInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") memoSharedAddBtn.click();
+});
+
 function openMemoPanel() {
-  memoTextarea.value = localStorage.getItem(MEMO_KEY) || "";
-  memoSharedTextarea.readOnly = isReadOnly;
+  renderPersonalMemoList();
+  memoSharedInput.disabled = isReadOnly;
+  memoSharedAddBtn.disabled = isReadOnly;
   memoSharedHint.classList.toggle("hidden", !isReadOnly);
   showMemoTab("shared");
-  loadSharedMemo();
+  loadSharedMemoList();
   memoPanel.classList.remove("hidden");
   memoOverlay.classList.remove("hidden");
 }
@@ -845,13 +954,6 @@ function closeMemoPanel() {
 memoBtn.addEventListener("click", openMemoPanel);
 closeMemoBtn.addEventListener("click", closeMemoPanel);
 memoOverlay.addEventListener("click", closeMemoPanel);
-memoTextarea.addEventListener("input", () => {
-  localStorage.setItem(MEMO_KEY, memoTextarea.value);
-});
-memoSharedTextarea.addEventListener("input", () => {
-  if (isReadOnly) return;
-  scheduleSharedMemoSave();
-});
 
 (function makeMemoPanelDraggable() {
   const header = document.querySelector(".memo-panel-header");

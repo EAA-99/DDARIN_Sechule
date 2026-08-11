@@ -37,8 +37,15 @@ export default async function handler(req, res) {
     const events = (summary.events || [])
       .slice()
       .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
-      .map((e) => e.summary)
-      .filter(Boolean);
+      .filter((e) => e.summary)
+      .map((e) => ({
+        time: new Date(e.timestamp).toLocaleTimeString("ko-KR", {
+          timeZone: "Asia/Seoul",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        summary: e.summary,
+      }));
     res.status(200).json({ available: true, summary: summary.broadSummary || "", events });
   } catch {
     res.status(200).json({ available: false, reason: "error" });

@@ -13,23 +13,41 @@ async function kvCommand(cmd) {
   return res.json();
 }
 
+async function getItems() {
+  const { result } = await kvCommand(["GET", "shared_memo"]);
+  if (!result) return [];
+  try {
+    const parsed = JSON.parse(result);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json");
 
   if (req.method === "GET") {
-    const { result } = await kvCommand(["GET", "shared_memo"]);
-    res.status(200).json({ text: result || "" });
+    res.status(200).json({ items: await getItems() });
     return;
   }
 
   if (req.method === "POST") {
-    const { username, password, text } = req.body || {};
+    const { username, password, action, text, id } = req.body || {};
     if (username !== process.env.EDIT_USERNAME || password !== process.env.EDIT_PASSWORD) {
       res.status(401).json({ success: false });
       return;
     }
-    await kvCommand(["SET", "shared_memo", text || ""]);
-    res.status(200).json({ success: true });
+
+    let items = await getItems();
+    if (action === "delete") {
+      items = items.filter((it) => it.id !== id);
+    } else {
+      items.unshift({ id: Date.now(), text: text || "" });
+    }
+
+    await kvCommand(["SET", "shared_memo", JSON.stringify(items)]);
+    res.status(200).json({ success: true, items });
     return;
   }
 

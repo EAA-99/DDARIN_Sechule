@@ -281,11 +281,19 @@
       <button type="button" id="memoTabPersonal" class="memo-tab">개인</button>
     </div>
     <div class="memo-section hidden" id="memoPersonalSection">
-      <textarea id="memoTextarea" class="memo-textarea" placeholder="나만 보는 메모를 입력하세요"></textarea>
+      <div class="memo-add-row">
+        <input type="text" id="memoPersonalInput" class="memo-add-input" placeholder="나만 보는 메모를 입력하세요" maxlength="200">
+        <button type="button" id="memoPersonalAddBtn" class="memo-add-btn">추가</button>
+      </div>
+      <div id="memoPersonalList" class="memo-card-list"></div>
     </div>
     <div class="memo-section" id="memoSharedSection">
       <p id="memoSharedHint" class="memo-shared-hint hidden">로그인하면 작성할 수 있어요.</p>
-      <textarea id="memoSharedTextarea" class="memo-textarea" placeholder="모두가 보는 메모입니다"></textarea>
+      <div class="memo-add-row">
+        <input type="text" id="memoSharedInput" class="memo-add-input" placeholder="모두가 보는 메모를 입력하세요" maxlength="200">
+        <button type="button" id="memoSharedAddBtn" class="memo-add-btn">추가</button>
+      </div>
+      <div id="memoSharedList" class="memo-card-list"></div>
     </div>
   </div>
 
