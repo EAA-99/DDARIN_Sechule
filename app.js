@@ -759,9 +759,47 @@ const memoPanel = document.getElementById("memoPanel");
 const memoOverlay = document.getElementById("memoOverlay");
 const memoTextarea = document.getElementById("memoTextarea");
 const closeMemoBtn = document.getElementById("closeMemoBtn");
+const memoSharedTextarea = document.getElementById("memoSharedTextarea");
+const memoSharedHint = document.getElementById("memoSharedHint");
+
+const SHARED_MEMO_API_URL = "/api/memo";
+
+async function loadSharedMemo() {
+  memoSharedTextarea.value = "불러오는 중...";
+  try {
+    const res = await fetch(SHARED_MEMO_API_URL);
+    const data = await res.json();
+    memoSharedTextarea.value = (data && data.text) || "";
+  } catch {
+    memoSharedTextarea.value = "";
+  }
+}
+
+function updateSharedMemoEditable() {
+  memoSharedTextarea.readOnly = isReadOnly;
+  memoSharedHint.classList.toggle("hidden", !isReadOnly);
+}
+
+let sharedMemoSaveTimer = null;
+function scheduleSharedMemoSave() {
+  clearTimeout(sharedMemoSaveTimer);
+  sharedMemoSaveTimer = setTimeout(async () => {
+    const { username, password } = getStoredCreds();
+    if (!username || !password) return;
+    try {
+      await fetch(SHARED_MEMO_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password, text: memoSharedTextarea.value }),
+      });
+    } catch {}
+  }, 800);
+}
 
 function openMemoPanel() {
   memoTextarea.value = localStorage.getItem(MEMO_KEY) || "";
+  updateSharedMemoEditable();
+  loadSharedMemo();
   memoPanel.classList.remove("hidden");
   memoOverlay.classList.remove("hidden");
 }
@@ -776,6 +814,10 @@ closeMemoBtn.addEventListener("click", closeMemoPanel);
 memoOverlay.addEventListener("click", closeMemoPanel);
 memoTextarea.addEventListener("input", () => {
   localStorage.setItem(MEMO_KEY, memoTextarea.value);
+});
+memoSharedTextarea.addEventListener("input", () => {
+  if (isReadOnly) return;
+  scheduleSharedMemoSave();
 });
 songSearchInput.addEventListener("input", renderSongGrid);
 genreTabs.addEventListener("click", (e) => {
