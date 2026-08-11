@@ -545,6 +545,8 @@ songPlayerModalFavBtn.addEventListener("click", () => {
   document.addEventListener("mouseup", () => {
     dragging = false;
   });
+
+  handle.addEventListener("click", (e) => e.stopPropagation());
 })();
 
 (function makeSongPlayerResizable() {
@@ -586,6 +588,8 @@ songPlayerModalFavBtn.addEventListener("click", () => {
       document.addEventListener("mousemove", onMove);
       document.addEventListener("mouseup", onUp);
     });
+
+    handle.addEventListener("click", (e) => e.stopPropagation());
   });
 })();
 
