@@ -760,9 +760,23 @@ const memoOverlay = document.getElementById("memoOverlay");
 const memoTextarea = document.getElementById("memoTextarea");
 const closeMemoBtn = document.getElementById("closeMemoBtn");
 const memoSharedTextarea = document.getElementById("memoSharedTextarea");
-const memoSharedHint = document.getElementById("memoSharedHint");
+const memoTabPersonal = document.getElementById("memoTabPersonal");
+const memoTabShared = document.getElementById("memoTabShared");
+const memoPersonalSection = document.getElementById("memoPersonalSection");
+const memoSharedSection = document.getElementById("memoSharedSection");
 
 const SHARED_MEMO_API_URL = "/api/memo";
+
+function showMemoTab(tab) {
+  const showShared = tab === "shared";
+  memoTabPersonal.classList.toggle("active", !showShared);
+  memoTabShared.classList.toggle("active", showShared);
+  memoPersonalSection.classList.toggle("hidden", showShared);
+  memoSharedSection.classList.toggle("hidden", !showShared);
+}
+
+memoTabPersonal.addEventListener("click", () => showMemoTab("personal"));
+memoTabShared.addEventListener("click", () => showMemoTab("shared"));
 
 async function loadSharedMemo() {
   memoSharedTextarea.value = "불러오는 중...";
@@ -776,8 +790,8 @@ async function loadSharedMemo() {
 }
 
 function updateSharedMemoEditable() {
-  memoSharedTextarea.readOnly = isReadOnly;
-  memoSharedHint.classList.toggle("hidden", !isReadOnly);
+  memoTabShared.classList.toggle("hidden", isReadOnly);
+  if (isReadOnly) showMemoTab("personal");
 }
 
 let sharedMemoSaveTimer = null;
@@ -798,6 +812,7 @@ function scheduleSharedMemoSave() {
 
 function openMemoPanel() {
   memoTextarea.value = localStorage.getItem(MEMO_KEY) || "";
+  showMemoTab("personal");
   updateSharedMemoEditable();
   loadSharedMemo();
   memoPanel.classList.remove("hidden");

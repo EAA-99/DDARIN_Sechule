@@ -33,7 +33,7 @@ body {
   align-items: flex-start;
   justify-content: center;
   gap: 12px;
-  padding-top: 24px;
+  padding-top: 50px;
 }
 
 .app {
@@ -995,28 +995,28 @@ body {
   flex-direction: column;
   flex: 1;
   min-height: 0;
+}
+
+.memo-tabs {
+  display: flex;
+  gap: 8px;
   margin-bottom: 14px;
 }
 
-.memo-section:last-child {
-  margin-bottom: 0;
+.memo-tab {
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #333;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
 }
 
-.memo-section h3 {
-  margin: 0 0 6px;
-  font-size: 0.9rem;
-}
-
-.memo-section-sub {
-  font-size: 0.75rem;
-  font-weight: 400;
-  color: #999;
-}
-
-.memo-shared-hint {
-  font-size: 0.78rem;
-  color: #e0577a;
-  margin: 0 0 6px;
+.memo-tab.active {
+  border-color: #8a6d3b;
+  color: #8a6d3b;
 }
 
 #sheetUrlInput {
