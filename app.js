@@ -488,6 +488,12 @@ function closeSongPlayerModal() {
   songPlayerModalBackdrop.classList.add("hidden");
   songPlayerModalBackdrop.classList.remove("minimized");
   songPlayerModalFrame.src = "";
+  songPlayerModal.style.position = "";
+  songPlayerModal.style.left = "";
+  songPlayerModal.style.top = "";
+  songPlayerModal.style.margin = "";
+  songPlayerModal.style.width = "";
+  songPlayerModal.style.height = "";
 }
 
 function minimizeSongPlayerModal() {
@@ -510,6 +516,35 @@ songPlayerModalFavBtn.addEventListener("click", () => {
   updateSongPlayerModalFavBtn(currentSongKey);
   renderFavoritesList();
 });
+
+(function makeSongPlayerDraggable() {
+  const handle = document.querySelector(".song-player-drag-handle");
+  let dragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  handle.addEventListener("mousedown", (e) => {
+    dragging = true;
+    const rect = songPlayerModal.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    songPlayerModal.style.position = "fixed";
+    songPlayerModal.style.margin = "0";
+    songPlayerModal.style.left = `${rect.left}px`;
+    songPlayerModal.style.top = `${rect.top}px`;
+    e.preventDefault();
+  });
+
+  document.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+    songPlayerModal.style.left = `${e.clientX - offsetX}px`;
+    songPlayerModal.style.top = `${e.clientY - offsetY}px`;
+  });
+
+  document.addEventListener("mouseup", () => {
+    dragging = false;
+  });
+})();
 
 let currentClipId = null;
 let currentSongKey = null;
@@ -827,11 +862,13 @@ const memoBtn = document.getElementById("memoBtn");
 const memoPanel = document.getElementById("memoPanel");
 const memoOverlay = document.getElementById("memoOverlay");
 const closeMemoBtn = document.getElementById("closeMemoBtn");
-const memoSharedHint = document.getElementById("memoSharedHint");
 const memoTabPersonal = document.getElementById("memoTabPersonal");
 const memoTabShared = document.getElementById("memoTabShared");
+const memoAddToggleBtn = document.getElementById("memoAddToggleBtn");
 const memoPersonalSection = document.getElementById("memoPersonalSection");
 const memoSharedSection = document.getElementById("memoSharedSection");
+const memoPersonalAddRow = document.getElementById("memoPersonalAddRow");
+const memoSharedAddRow = document.getElementById("memoSharedAddRow");
 const memoPersonalInput = document.getElementById("memoPersonalInput");
 const memoPersonalAddBtn = document.getElementById("memoPersonalAddBtn");
 const memoPersonalList = document.getElementById("memoPersonalList");
@@ -842,16 +879,31 @@ const memoSharedList = document.getElementById("memoSharedList");
 const SHARED_MEMO_API_URL = "/api/memo";
 let sharedMemoItems = [];
 
+function updateMemoAddToggleState() {
+  const onShared = memoTabShared.classList.contains("active");
+  memoAddToggleBtn.disabled = onShared && isReadOnly;
+}
+
 function showMemoTab(tab) {
   const showShared = tab === "shared";
   memoTabPersonal.classList.toggle("active", !showShared);
   memoTabShared.classList.toggle("active", showShared);
   memoPersonalSection.classList.toggle("hidden", showShared);
   memoSharedSection.classList.toggle("hidden", !showShared);
+  memoPersonalAddRow.classList.add("hidden");
+  memoSharedAddRow.classList.add("hidden");
+  updateMemoAddToggleState();
 }
 
 memoTabPersonal.addEventListener("click", () => showMemoTab("personal"));
 memoTabShared.addEventListener("click", () => showMemoTab("shared"));
+memoAddToggleBtn.addEventListener("click", () => {
+  const onShared = memoTabShared.classList.contains("active");
+  const row = onShared ? memoSharedAddRow : memoPersonalAddRow;
+  const input = onShared ? memoSharedInput : memoPersonalInput;
+  row.classList.toggle("hidden");
+  if (!row.classList.contains("hidden")) input.focus();
+});
 
 function renderMemoCards(listEl, items, canDelete, onDelete) {
   listEl.innerHTML = "";
@@ -905,6 +957,7 @@ memoPersonalAddBtn.addEventListener("click", () => {
   items.unshift({ id: Date.now(), text });
   savePersonalMemoItems(items);
   memoPersonalInput.value = "";
+  memoPersonalAddRow.classList.add("hidden");
   renderPersonalMemoList();
 });
 memoPersonalInput.addEventListener("keydown", (e) => {
@@ -943,6 +996,7 @@ memoSharedAddBtn.addEventListener("click", async () => {
   const { username, password } = getStoredCreds();
   if (!username || !password) return;
   memoSharedInput.value = "";
+  memoSharedAddRow.classList.add("hidden");
   await fetch(SHARED_MEMO_API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -956,9 +1010,6 @@ memoSharedInput.addEventListener("keydown", (e) => {
 
 function openMemoPanel() {
   renderPersonalMemoList();
-  memoSharedInput.disabled = isReadOnly;
-  memoSharedAddBtn.disabled = isReadOnly;
-  memoSharedHint.classList.toggle("hidden", !isReadOnly);
   showMemoTab("shared");
   loadSharedMemoList();
   memoPanel.classList.remove("hidden");

@@ -63,6 +63,7 @@
   </div>
 
   <div id="songbookView" class="songbook-view hidden">
+    <img src="today-mascot.png" alt="" class="page-top-mascot">
     <div id="songbookLoadingScreen" class="loading-screen hidden">
       <img src="songbook-loading.gif" alt="앨범 이미지 불러오는 중" class="loading-gif">
     </div>
@@ -164,6 +165,7 @@
 
   <div id="songPlayerModalBackdrop" class="song-player-modal-backdrop hidden">
     <div id="songPlayerModal" class="song-player-modal">
+      <div class="song-player-drag-handle"></div>
       <button type="button" id="songPlayerModalClose" class="song-player-modal-close" aria-label="닫기">✕</button>
       <iframe id="songPlayerModalFrame" class="song-player-modal-frame" allow="autoplay" allowfullscreen frameborder="0"></iframe>
       <div class="song-player-modal-info">
@@ -279,17 +281,17 @@
     <div class="memo-tabs">
       <button type="button" id="memoTabShared" class="memo-tab">공유</button>
       <button type="button" id="memoTabPersonal" class="memo-tab">개인</button>
+      <button type="button" id="memoAddToggleBtn" class="memo-add-toggle-btn" aria-label="메모 추가">+</button>
     </div>
     <div class="memo-section hidden" id="memoPersonalSection">
-      <div class="memo-add-row">
+      <div class="memo-add-row hidden" id="memoPersonalAddRow">
         <input type="text" id="memoPersonalInput" class="memo-add-input" placeholder="나만 보는 메모를 입력하세요" maxlength="200">
         <button type="button" id="memoPersonalAddBtn" class="memo-add-btn">추가</button>
       </div>
       <div id="memoPersonalList" class="memo-card-list"></div>
     </div>
     <div class="memo-section" id="memoSharedSection">
-      <p id="memoSharedHint" class="memo-shared-hint hidden">로그인하면 작성할 수 있어요.</p>
-      <div class="memo-add-row">
+      <div class="memo-add-row hidden" id="memoSharedAddRow">
         <input type="text" id="memoSharedInput" class="memo-add-input" placeholder="모두가 보는 메모를 입력하세요" maxlength="200">
         <button type="button" id="memoSharedAddBtn" class="memo-add-btn">추가</button>
       </div>

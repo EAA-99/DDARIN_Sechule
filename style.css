@@ -1016,6 +1016,28 @@ body {
   font-size: 0.9rem;
 }
 
+.memo-add-toggle-btn {
+  margin-left: auto;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: #4a7fd6;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.memo-add-toggle-btn:disabled {
+  background: #ccc;
+  cursor: default;
+}
+
 .memo-add-row {
   display: flex;
   gap: 8px;
@@ -1126,12 +1148,6 @@ body {
   color: #8a6d3b;
 }
 
-.memo-shared-hint {
-  font-size: 0.78rem;
-  color: #e0577a;
-  margin: 0 0 6px;
-}
-
 #sheetUrlInput {
   width: 100%;
   padding: 8px 10px;
@@ -1176,6 +1192,7 @@ body {
 }
 
 .songbook-view {
+  position: relative;
   width: 100%;
   max-width: 1500px;
   margin-top: 190px;
@@ -1268,10 +1285,32 @@ body {
   position: relative;
   width: 100%;
   max-width: 640px;
+  height: 420px;
+  min-width: 320px;
+  min-height: 260px;
   background: #fff;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  resize: both;
+}
+
+.song-player-drag-handle {
+  height: 18px;
+  flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.05);
+  cursor: move;
+}
+
+.song-player-modal-frame {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  border: none;
+  background: #000;
+  display: block;
 }
 
 .song-player-modal-backdrop.minimized {
@@ -1285,6 +1324,9 @@ body {
 .song-player-modal-backdrop.minimized .song-player-modal {
   width: 280px;
   max-width: 280px;
+  height: 180px;
+  min-height: 180px;
+  resize: none;
   pointer-events: auto;
   cursor: pointer;
 }
@@ -1311,13 +1353,6 @@ body {
   cursor: pointer;
 }
 
-.song-player-modal-frame {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border: none;
-  background: #000;
-  display: block;
-}
 
 .song-player-modal-info {
   padding: 16px 20px 20px;
