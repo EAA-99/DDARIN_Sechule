@@ -472,23 +472,37 @@ function updateSongPlayerModalFavBtn(key) {
   songPlayerModalFavLabel.textContent = active ? "즐겨찾기 해제" : "즐겨찾기 추가";
 }
 
+const songPlayerModal = document.getElementById("songPlayerModal");
+
 function openSongPlayerModal(song, clipId) {
   songPlayerModalFrame.src = buildClipPageUrl(clipId);
   songPlayerModalTitle.textContent = song.title;
   songPlayerModalArtist.textContent = song.artist;
   updateSongPlayerModalFavBtn(albumArtCacheKey(song));
   songPlayerModalBackdrop.classList.remove("hidden");
+  songPlayerModalBackdrop.classList.remove("minimized");
 }
 
 function closeSongPlayerModal() {
   clearTimeout(autoAdvanceTimer);
   songPlayerModalBackdrop.classList.add("hidden");
+  songPlayerModalBackdrop.classList.remove("minimized");
   songPlayerModalFrame.src = "";
+}
+
+function minimizeSongPlayerModal() {
+  songPlayerModalBackdrop.classList.add("minimized");
 }
 
 songPlayerModalClose.addEventListener("click", closeSongPlayerModal);
 songPlayerModalBackdrop.addEventListener("click", (e) => {
-  if (e.target === songPlayerModalBackdrop) closeSongPlayerModal();
+  if (songPlayerModalBackdrop.classList.contains("minimized")) return;
+  if (e.target === songPlayerModalBackdrop) minimizeSongPlayerModal();
+});
+songPlayerModal.addEventListener("click", (e) => {
+  if (!songPlayerModalBackdrop.classList.contains("minimized")) return;
+  if (e.target.closest(".song-player-modal-close")) return;
+  songPlayerModalBackdrop.classList.remove("minimized");
 });
 songPlayerModalFavBtn.addEventListener("click", () => {
   if (!currentSongKey) return;
@@ -535,7 +549,7 @@ async function playSong(song) {
   playerPlayBtn.disabled = false;
 
   openSongPlayerModal(song, clipId);
-  if (favoritesQueueActive) scheduleAutoAdvance();
+  scheduleAutoAdvance();
 }
 
 function goToFavoritesQueueOffset(offset) {
@@ -551,6 +565,7 @@ playerNextBtn.addEventListener("click", () => goToFavoritesQueueOffset(1));
 playerPlayBtn.addEventListener("click", () => {
   if (currentClipId && currentSong) {
     openSongPlayerModal(currentSong, currentClipId);
+    scheduleAutoAdvance();
     return;
   }
   const favSongs = songFavoritesOrder.map((k) => songByKey[k]).filter(Boolean);
@@ -649,7 +664,6 @@ let autoAdvanceTimer = null;
 function scheduleAutoAdvance() {
   clearTimeout(autoAdvanceTimer);
   console.log("[autoAdvance] scheduleAutoAdvance called. favoritesQueueActive=", favoritesQueueActive, "currentSongKey=", currentSongKey);
-  if (!favoritesQueueActive) return;
   const duration = clipDurationMap[currentSongKey];
   console.log("[autoAdvance] duration for key:", duration, "clipDurationMap has", Object.keys(clipDurationMap || {}).length, "entries");
   if (!duration) return;
@@ -658,8 +672,13 @@ function scheduleAutoAdvance() {
   const fireAt = Math.max(10, duration - AUTO_ADVANCE_BUFFER_MS + LOAD_DELAY_COMPENSATION_MS);
   console.log("[autoAdvance] timer set to fire in", fireAt, "ms");
   autoAdvanceTimer = setTimeout(() => {
-    console.log("[autoAdvance] timer fired, advancing queue");
-    advanceFavoritesQueue();
+    if (favoritesQueueActive) {
+      console.log("[autoAdvance] timer fired, advancing queue");
+      advanceFavoritesQueue();
+    } else {
+      console.log("[autoAdvance] timer fired, stopping clip early");
+      songPlayerModalFrame.src = "";
+    }
   }, fireAt);
 }
 

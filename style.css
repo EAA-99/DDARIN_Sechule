@@ -85,6 +85,11 @@ body {
   object-fit: contain;
 }
 
+#editLockBtn .side-nav-icon {
+  position: relative;
+  left: -5px;
+}
+
 .side-nav-btn.unlocked {
   background: #cfe2f7;
   color: #4a7fd6;
@@ -1172,7 +1177,7 @@ body {
 
 .songbook-view {
   width: 100%;
-  max-width: 1300px;
+  max-width: 1500px;
   margin-top: 190px;
   padding: 24px;
   text-align: left;
@@ -1267,6 +1272,25 @@ body {
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+}
+
+.song-player-modal-backdrop.minimized {
+  background: transparent;
+  backdrop-filter: none;
+  align-items: flex-end;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+.song-player-modal-backdrop.minimized .song-player-modal {
+  width: 280px;
+  max-width: 280px;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.song-player-modal-backdrop.minimized .song-player-modal-info {
+  display: none;
 }
 
 .song-player-modal-close {
