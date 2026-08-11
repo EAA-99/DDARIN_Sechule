@@ -34,7 +34,12 @@ export default async function handler(req, res) {
     }
 
     const summary = await summaryRes.json();
-    res.status(200).json({ available: true, summary: summary.broadSummary || "" });
+    const events = (summary.events || [])
+      .slice()
+      .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+      .map((e) => e.summary)
+      .filter(Boolean);
+    res.status(200).json({ available: true, summary: summary.broadSummary || "", events });
   } catch {
     res.status(200).json({ available: false, reason: "error" });
   }

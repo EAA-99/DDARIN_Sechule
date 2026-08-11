@@ -508,6 +508,8 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 160px;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 .day-cell-menu-item {
@@ -933,24 +935,21 @@ body {
 
 .memo-panel {
   position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
+  top: 80px;
+  right: 24px;
   z-index: 200;
   width: min(360px, 90vw);
+  height: min(70vh, 600px);
+  min-width: 280px;
+  min-height: 220px;
   background: #eaf4fd;
-  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
   padding: 20px;
-  transform: translateX(0);
-  transition: transform 0.25s ease;
-}
-
-.memo-panel.hidden {
-  display: flex !important;
-  transform: translateX(100%);
-  pointer-events: none;
+  resize: both;
+  overflow: auto;
 }
 
 .memo-panel-header {
@@ -958,6 +957,8 @@ body {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 14px;
+  cursor: move;
+  user-select: none;
 }
 
 .memo-panel-header h2 {
@@ -1101,19 +1102,6 @@ body {
 .songbook-header h1 {
   font-size: 1.6rem;
   margin: 0;
-}
-
-.songbook-back-btn {
-  border: none;
-  background: none;
-  padding: 0;
-  font-weight: 700;
-  font-size: 0.85rem;
-  cursor: pointer;
-}
-
-.songbook-back-btn:hover {
-  background: #f7f7f7;
 }
 
 .songbook-body {

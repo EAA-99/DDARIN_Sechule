@@ -89,7 +89,8 @@ async function loadDayCellBroadcastSummary(dateKeyStr) {
     if (dayCellMenuDate !== dateKeyStr) return;
 
     if (data.available) {
-      dayCellSoopSummaryEl.textContent = data.summary;
+      const parts = [data.summary, ...(data.events || [])].filter(Boolean);
+      dayCellSoopSummaryEl.textContent = parts.join("\n\n");
     } else if (data.reason === "offline") {
       dayCellSoopSummaryEl.textContent = "지금 방송 중이 아니에요.";
     } else if (data.reason === "not_today") {
@@ -150,7 +151,6 @@ const loginBtnLabel = document.getElementById("loginBtnLabel");
 const appViewEl = document.querySelector(".app");
 const songbookBtn = document.getElementById("songbookBtn");
 const songbookView = document.getElementById("songbookView");
-const songbookBackBtn = document.getElementById("songbookBackBtn");
 const songSearchInput = document.getElementById("songSearchInput");
 const genreTabs = document.getElementById("genreTabs");
 const artistList = document.getElementById("artistList");
@@ -772,7 +772,6 @@ function closeSongbook() {
 }
 
 songbookBtn.addEventListener("click", openSongbook);
-songbookBackBtn.addEventListener("click", closeSongbook);
 document.getElementById("calendarBtn").addEventListener("click", closeSongbook);
 
 const MEMO_KEY = "ddarin-memo-2026";
@@ -853,6 +852,35 @@ memoSharedTextarea.addEventListener("input", () => {
   if (isReadOnly) return;
   scheduleSharedMemoSave();
 });
+
+(function makeMemoPanelDraggable() {
+  const header = document.querySelector(".memo-panel-header");
+  let dragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  header.addEventListener("mousedown", (e) => {
+    if (e.target.closest(".memo-panel-close")) return;
+    dragging = true;
+    const rect = memoPanel.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    memoPanel.style.right = "auto";
+    memoPanel.style.left = `${rect.left}px`;
+    memoPanel.style.top = `${rect.top}px`;
+    e.preventDefault();
+  });
+
+  document.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+    memoPanel.style.left = `${e.clientX - offsetX}px`;
+    memoPanel.style.top = `${e.clientY - offsetY}px`;
+  });
+
+  document.addEventListener("mouseup", () => {
+    dragging = false;
+  });
+})();
 songSearchInput.addEventListener("input", renderSongGrid);
 genreTabs.addEventListener("click", (e) => {
   const btn = e.target.closest(".genre-tab");
