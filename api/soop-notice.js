@@ -2,8 +2,8 @@ export default async function handler(req, res) {
   const targetDate = String(req.query.date || ""); // "2026-08-08"
   const matches = [];
   const yearStart = targetDate.slice(0, 4) + "-01-01"; // 올해 1월 1일까지만 검색
-  const BATCH_SIZE = 6;
-  const MAX_PAGES = 50;
+  const BATCH_SIZE = 15;
+  const MAX_PAGES = 45;
 
   const fetchPage = async (page) => {
     const url =

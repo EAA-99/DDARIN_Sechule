@@ -5,7 +5,7 @@ export default async function handler(req, res) {
 
   const matches = [];
   const yearStart = targetDate.slice(0, 4) + "0101"; // 올해 1월 1일까지만 검색
-  const BATCH_SIZE = 6;
+  const BATCH_SIZE = 15;
   const MAX_PAGES = 30;
 
   const fetchPage = async (page) => {
