@@ -1063,10 +1063,14 @@ body {
 }
 
 .songbook-view {
+  width: 100%;
   max-width: 1300px;
-  margin: 0 auto;
+  margin-top: 190px;
   padding: 24px;
   text-align: left;
+  border: 3px solid #cfe2f7;
+  border-radius: 30px;
+  background: #f3f9ff;
 }
 
 .songbook-header {

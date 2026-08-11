@@ -61,9 +61,21 @@ function closeDayCellMenu() {
   dayCellMenu.classList.add("hidden");
 }
 
+let dayCellMenuAnchor = null;
+
+function repositionDayCellMenu() {
+  if (!dayCellMenuAnchor) return;
+  const rect = dayCellMenuAnchor.getBoundingClientRect();
+  const maxTop = window.innerHeight - dayCellMenu.offsetHeight - 8;
+  const top = Math.min(rect.bottom + 4, Math.max(8, maxTop));
+  dayCellMenu.style.top = `${top}px`;
+  dayCellMenu.style.left = `${Math.min(rect.left, window.innerWidth - dayCellMenu.offsetWidth - 8)}px`;
+}
+
 async function loadDayCellBroadcastSummary(dateKeyStr) {
   dayCellSoopSummaryEl.textContent = "불러오는 중...";
   dayCellSoopSummaryEl.classList.remove("hidden");
+  repositionDayCellMenu();
 
   try {
     const res = await fetch(`${BROADCAST_SUMMARY_API_URL}?date=${dateKeyStr}`);
@@ -83,10 +95,12 @@ async function loadDayCellBroadcastSummary(dateKeyStr) {
     if (dayCellMenuDate !== dateKeyStr) return;
     dayCellSoopSummaryEl.textContent = "불러오기 실패";
   }
+  repositionDayCellMenu();
 }
 
 function openDayCellMenu(anchorEl, dateKeyStr) {
   dayCellMenuDate = dateKeyStr;
+  dayCellMenuAnchor = anchorEl;
   dayCellSoopSummaryEl.classList.add("hidden");
 
   const rect = anchorEl.getBoundingClientRect();
@@ -125,7 +139,7 @@ let editingIndex = null;
 const editLockBtn = document.getElementById("editLockBtn");
 const loginBtnLabel = document.getElementById("loginBtnLabel");
 
-const pageEl = document.querySelector(".page");
+const appViewEl = document.querySelector(".app");
 const songbookBtn = document.getElementById("songbookBtn");
 const songbookView = document.getElementById("songbookView");
 const songbookBackBtn = document.getElementById("songbookBackBtn");
@@ -726,7 +740,7 @@ function renderSongGrid() {
 }
 
 async function openSongbook() {
-  pageEl.classList.add("hidden");
+  appViewEl.classList.add("hidden");
   songbookView.classList.remove("hidden");
 
   if (!allSongs) {
@@ -746,7 +760,7 @@ async function openSongbook() {
 
 function closeSongbook() {
   songbookView.classList.add("hidden");
-  pageEl.classList.remove("hidden");
+  appViewEl.classList.remove("hidden");
 }
 
 songbookBtn.addEventListener("click", openSongbook);
