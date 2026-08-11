@@ -1,4 +1,4 @@
-const CACHE_NAME = "ddarin-calendar-v90";
+const CACHE_NAME = "ddarin-calendar-v91";
 const ASSETS = [
   "./",
   "./index.html",
@@ -9,6 +9,12 @@ const ASSETS = [
   "./songbook-loading.gif",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
+  "./today-mascot.png",
+  "./일정표.png",
+  "./노래책.png",
+  "./유튜브.png",
+  "./메모.png",
+  "./로그인.png",
 ];
 
 self.addEventListener("install", (e) => {
