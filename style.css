@@ -57,6 +57,12 @@ body {
   flex-shrink: 0;
 }
 
+.side-nav-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .side-nav-btn {
   display: flex;
   flex-direction: column;
@@ -253,7 +259,7 @@ body {
 
 .view-mode-toggle {
   position: absolute;
-  right: 0;
+  right: 100px;
   top: 50%;
   transform: translateY(-50%);
   display: flex;

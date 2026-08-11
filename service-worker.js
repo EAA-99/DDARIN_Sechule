@@ -1,4 +1,4 @@
-const CACHE_NAME = "ddarin-calendar-v109";
+const CACHE_NAME = "ddarin-calendar-v110";
 const ASSETS = [
   "./",
   "./index.html",
@@ -16,6 +16,7 @@ const ASSETS = [
   "./유튜브.png",
   "./메모.png",
   "./로그인.png",
+  "./메뉴판.png",
 ];
 
 self.addEventListener("install", (e) => {

@@ -926,6 +926,12 @@ function closeSongbook() {
 songbookBtn.addEventListener("click", openSongbook);
 document.getElementById("calendarBtn").addEventListener("click", closeSongbook);
 
+const menuToggleBtn = document.getElementById("menuToggleBtn");
+const sideNavItems = document.getElementById("sideNavItems");
+menuToggleBtn.addEventListener("click", () => {
+  sideNavItems.classList.toggle("hidden");
+});
+
 const MEMO_KEY = "ddarin-memo-2026";
 const memoBtn = document.getElementById("memoBtn");
 const memoPanel = document.getElementById("memoPanel");
