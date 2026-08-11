@@ -1616,7 +1616,7 @@ async function init() {
   if (today.getFullYear() === YEAR) currentMonth = today.getMonth();
 
   const minDelay = new Promise((r) => setTimeout(r, LOADING_GIF_MS));
-  await Promise.all([tryAutoUnlock(), initEvents(), minDelay]);
+  await Promise.all([initEvents(), minDelay]);
 
   updateLockUi();
   renderGrid();
@@ -1626,6 +1626,11 @@ async function init() {
   loadingScreen.classList.add("hidden");
 
   prefetchSongbookInBackground();
+
+  tryAutoUnlock().then(() => {
+    updateLockUi();
+    refreshCurrentView();
+  });
 }
 init();
 
