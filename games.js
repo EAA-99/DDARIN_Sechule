@@ -29,6 +29,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const resultBtn = document.getElementById("ladderResultBtn");
   const shuffleBtn = document.getElementById("ladderShuffleBtn");
   const summaryEl = document.getElementById("ladderSummary");
+  const speedSlider = document.getElementById("ladderSpeedSlider");
   const ctx = canvas.getContext("2d");
 
   const ROWS = 14;
@@ -38,9 +39,21 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 
   let count = 2;
   let rungs = [];
+  let started = false;
+  let animationToken = 0;
 
   function updateCountLabel() {
     countLabel.textContent = `항목 ${count}개`;
+  }
+
+  function updateStartButtonState() {
+    const filled = getLabels(namesRow).every(Boolean) && getLabels(resultsRow).every(Boolean);
+    startBtn.disabled = !filled;
+  }
+
+  function setColumnsReadonly(readonly) {
+    namesRow.querySelectorAll(".ladder-col-input").forEach((input) => (input.readOnly = readonly));
+    resultsRow.querySelectorAll(".ladder-col-input").forEach((input) => (input.readOnly = readonly));
   }
 
   function renderColumns() {
@@ -55,10 +68,14 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
       input.type = "text";
       input.className = "ladder-col-input";
       input.placeholder = `항목${i + 1}`;
+      input.addEventListener("input", updateStartButtonState);
       const arrow = document.createElement("div");
       arrow.className = "ladder-col-arrow";
       arrow.textContent = "▼";
       col.append(avatar, input, arrow);
+      col.addEventListener("click", () => {
+        if (started) animateTrace(i);
+      });
       namesRow.appendChild(col);
 
       const rCol = document.createElement("div");
@@ -67,9 +84,11 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
       rInput.type = "text";
       rInput.className = "ladder-col-input";
       rInput.placeholder = "결과";
+      rInput.addEventListener("input", updateStartButtonState);
       rCol.appendChild(rInput);
       resultsRow.appendChild(rCol);
     }
+    updateStartButtonState();
   }
 
   function colX(i) {
@@ -156,9 +175,71 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 
   function resetBoard() {
     rungs = [];
+    started = false;
+    animationToken += 1;
+    setColumnsReadonly(false);
     summaryEl.innerHTML = "";
     errorEl.classList.add("hidden");
+    updateStartButtonState();
     drawLadder(null);
+  }
+
+  function pathLength(path) {
+    let len = 0;
+    for (let i = 1; i < path.length; i++) {
+      len += Math.hypot(path[i].x - path[i - 1].x, path[i].y - path[i - 1].y);
+    }
+    return len;
+  }
+
+  function drawPartialPath(path, progress, color) {
+    const target = pathLength(path) * progress;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(path[0].x, path[0].y);
+    let acc = 0;
+    for (let i = 1; i < path.length; i++) {
+      const segLen = Math.hypot(path[i].x - path[i - 1].x, path[i].y - path[i - 1].y);
+      if (acc + segLen <= target) {
+        ctx.lineTo(path[i].x, path[i].y);
+        acc += segLen;
+      } else {
+        const ratio = segLen === 0 ? 0 : (target - acc) / segLen;
+        ctx.lineTo(path[i - 1].x + (path[i].x - path[i - 1].x) * ratio, path[i - 1].y + (path[i].y - path[i - 1].y) * ratio);
+        break;
+      }
+    }
+    ctx.stroke();
+  }
+
+  function animateTrace(startCol) {
+    const { path, endCol } = tracePath(startCol);
+    const color = PATH_COLORS[startCol % PATH_COLORS.length];
+    const speed = parseInt(speedSlider.value, 10) || 5;
+    const duration = 1700 - speed * 140;
+    const startTime = performance.now();
+    const myToken = ++animationToken;
+
+    function frame(now) {
+      if (myToken !== animationToken) return;
+      const progress = Math.min(1, (now - startTime) / duration);
+      drawLadder(null);
+      drawPartialPath(path, progress, color);
+      if (progress < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        const names = getLabels(namesRow).map((v, i) => v || `항목${i + 1}`);
+        const resultLabels = getLabels(resultsRow).map((v) => v || "결과");
+        summaryEl.innerHTML = "";
+        const item = document.createElement("div");
+        item.className = "ladder-summary-item";
+        item.style.color = color;
+        item.textContent = `${names[startCol]} → ${resultLabels[endCol]}`;
+        summaryEl.appendChild(item);
+      }
+    }
+    requestAnimationFrame(frame);
   }
 
   countMinus.addEventListener("click", () => {
@@ -178,7 +259,11 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   });
 
   startBtn.addEventListener("click", () => {
-    generateRungs();
+    if (startBtn.disabled) return;
+    if (!rungs.length) generateRungs();
+    started = true;
+    animationToken += 1;
+    setColumnsReadonly(true);
     summaryEl.innerHTML = "";
     errorEl.classList.add("hidden");
     drawLadder(null);
@@ -186,6 +271,9 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 
   shuffleBtn.addEventListener("click", () => {
     generateRungs();
+    started = false;
+    animationToken += 1;
+    setColumnsReadonly(false);
     summaryEl.innerHTML = "";
     errorEl.classList.add("hidden");
     drawLadder(null);
@@ -197,6 +285,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
       return;
     }
     errorEl.classList.add("hidden");
+    animationToken += 1;
 
     const names = getLabels(namesRow).map((v, i) => v || `항목${i + 1}`);
     const resultLabels = getLabels(resultsRow).map((v) => v || "결과");

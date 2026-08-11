@@ -1045,6 +1045,24 @@ body {
   cursor: pointer;
 }
 
+.ladder-action-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ladder-speed-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+}
+
+.ladder-speed-label {
+  font-size: 0.78rem;
+  color: #888;
+  font-weight: 700;
+}
+
 .ladder-start-btn {
   background: #4a7fd6;
   color: #fff;

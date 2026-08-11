@@ -157,9 +157,13 @@
           <button type="button" id="ladderCountPlus" class="ladder-stepper-btn" aria-label="참가자 늘리기">›</button>
         </div>
         <div class="ladder-actions">
-          <button type="button" id="ladderStartBtn" class="ladder-action-btn ladder-start-btn">▷ START</button>
+          <button type="button" id="ladderStartBtn" class="ladder-action-btn ladder-start-btn" disabled>▷ START</button>
           <button type="button" id="ladderResultBtn" class="ladder-action-btn">☰ 결과보기</button>
           <button type="button" id="ladderShuffleBtn" class="ladder-action-btn">사다리 섞기</button>
+          <div class="ladder-speed-control">
+            <span class="ladder-speed-label">속도</span>
+            <input type="range" id="ladderSpeedSlider" min="1" max="10" value="5">
+          </div>
         </div>
       </div>
       <div id="ladderError" class="sheet-status error hidden"></div>
