@@ -258,25 +258,34 @@
       </a>
 
       <form id="eventForm">
-        <input type="text" id="eventTitle" placeholder="일정" required maxlength="100">
-        <div class="color-picker-dropdown">
-          <button type="button" id="colorPickerBtn" class="color-picker-btn">
-            <span id="colorPickerBtnLabel">갠방</span>
-            <span class="color-picker-arrow">⌄</span>
-          </button>
-          <div id="colorPickerList" class="color-picker-list hidden">
-            <button type="button" class="color-picker-option" data-value="gray" style="background:#e2e2e2;">갠방</button>
-            <button type="button" class="color-picker-option" data-value="blue" style="background:#cfe8fb;">종겜</button>
-            <button type="button" class="color-picker-option" data-value="purple" style="background:#e5d9fb;">합방</button>
-            <button type="button" class="color-picker-option" data-value="yellow" style="background:#fbeeaa;">노래관련</button>
-            <button type="button" class="color-picker-option" data-value="#cc0000" style="background:#f6d1d1;">휴방</button>
-            <button type="button" class="color-picker-option" data-value="#e951d0" style="background:#fbe0f6;">커머스</button>
-            <button type="button" class="color-picker-option" data-value="#000000" style="background:#d1d1d1;">시네티</button>
+        <div class="event-field">
+          <label class="event-field-label" for="eventTitle">일정 제목</label>
+          <input type="text" id="eventTitle" placeholder="일정" required maxlength="100">
+        </div>
+        <div class="event-field event-field-narrow">
+          <label class="event-field-label">유형</label>
+          <div class="color-picker-dropdown">
+            <button type="button" id="colorPickerBtn" class="color-picker-btn">
+              <span id="colorPickerBtnLabel">갠방</span>
+              <span class="color-picker-arrow">⌄</span>
+            </button>
+            <div id="colorPickerList" class="color-picker-list hidden">
+              <button type="button" class="color-picker-option" data-value="gray" style="background:#e2e2e2;">갠방</button>
+              <button type="button" class="color-picker-option" data-value="blue" style="background:#cfe8fb;">종겜</button>
+              <button type="button" class="color-picker-option" data-value="purple" style="background:#e5d9fb;">합방</button>
+              <button type="button" class="color-picker-option" data-value="yellow" style="background:#fbeeaa;">노래관련</button>
+              <button type="button" class="color-picker-option" data-value="#cc0000" style="background:#f6d1d1;">휴방</button>
+              <button type="button" class="color-picker-option" data-value="#e951d0" style="background:#fbe0f6;">커머스</button>
+              <button type="button" class="color-picker-option" data-value="#000000" style="background:#d1d1d1;">시네티</button>
+            </div>
           </div>
         </div>
-        <div class="attendees-input-row">
-          <span class="attendees-icon">👤</span>
-          <input type="text" id="eventAttendees" placeholder="합방 멤버 (쉼표로 구분)" maxlength="200">
+        <div class="event-field event-field-narrow">
+          <label class="event-field-label" for="eventAttendees">참여 멤버</label>
+          <div class="attendees-input-row">
+            <span class="attendees-icon">👤</span>
+            <input type="text" id="eventAttendees" placeholder="참여 멤버 (쉼표로 구분)" maxlength="200">
+          </div>
         </div>
         <div class="modal-actions">
           <button type="submit" id="eventSubmitBtn" class="primary-btn">추가</button>

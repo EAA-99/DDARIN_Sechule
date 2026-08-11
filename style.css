@@ -1054,12 +1054,27 @@ body {
   gap: 8px;
 }
 
+.event-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.event-field-narrow {
+  width: 60%;
+  margin: 0 auto;
+}
+
+.event-field-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #888;
+}
+
 .attendees-input-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  width: 60%;
-  margin: 0 auto;
 }
 
 .attendees-input-row .attendees-icon {
@@ -1073,8 +1088,6 @@ body {
 
 .color-picker-dropdown {
   position: relative;
-  width: 60%;
-  margin: 0 auto;
 }
 
 .color-picker-btn {
