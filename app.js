@@ -59,13 +59,19 @@ let dayCellMenuDate = null;
 
 function closeDayCellMenu() {
   dayCellMenu.classList.add("hidden");
+  window.removeEventListener("scroll", repositionDayCellMenu, true);
+  window.removeEventListener("resize", repositionDayCellMenu);
 }
 
-let dayCellMenuAnchor = null;
+function getDayCellMenuAnchor() {
+  if (!dayCellMenuDate) return null;
+  return document.querySelector(`.day-cell-menu-btn[data-date="${dayCellMenuDate}"]`);
+}
 
 function repositionDayCellMenu() {
-  if (!dayCellMenuAnchor) return;
-  const rect = dayCellMenuAnchor.getBoundingClientRect();
+  const anchorEl = getDayCellMenuAnchor();
+  if (!anchorEl) return;
+  const rect = anchorEl.getBoundingClientRect();
   const maxTop = window.innerHeight - dayCellMenu.offsetHeight - 8;
   const top = Math.min(rect.bottom + 4, Math.max(8, maxTop));
   dayCellMenu.style.top = `${top}px`;
@@ -100,13 +106,15 @@ async function loadDayCellBroadcastSummary(dateKeyStr) {
 
 function openDayCellMenu(anchorEl, dateKeyStr) {
   dayCellMenuDate = dateKeyStr;
-  dayCellMenuAnchor = anchorEl;
   dayCellSoopSummaryEl.classList.add("hidden");
 
   const rect = anchorEl.getBoundingClientRect();
   dayCellMenu.classList.remove("hidden");
   dayCellMenu.style.top = `${rect.bottom + 4}px`;
   dayCellMenu.style.left = `${Math.min(rect.left, window.innerWidth - dayCellMenu.offsetWidth - 8)}px`;
+
+  window.addEventListener("scroll", repositionDayCellMenu, true);
+  window.addEventListener("resize", repositionDayCellMenu);
 }
 
 document.getElementById("dayCellSoopBtn").addEventListener("click", () => {
@@ -774,6 +782,7 @@ const memoOverlay = document.getElementById("memoOverlay");
 const memoTextarea = document.getElementById("memoTextarea");
 const closeMemoBtn = document.getElementById("closeMemoBtn");
 const memoSharedTextarea = document.getElementById("memoSharedTextarea");
+const memoSharedHint = document.getElementById("memoSharedHint");
 const memoTabPersonal = document.getElementById("memoTabPersonal");
 const memoTabShared = document.getElementById("memoTabShared");
 const memoPersonalSection = document.getElementById("memoPersonalSection");
@@ -821,8 +830,9 @@ function scheduleSharedMemoSave() {
 
 function openMemoPanel() {
   memoTextarea.value = localStorage.getItem(MEMO_KEY) || "";
-  memoTabShared.classList.toggle("hidden", isReadOnly);
-  showMemoTab(isReadOnly ? "personal" : "shared");
+  memoSharedTextarea.readOnly = isReadOnly;
+  memoSharedHint.classList.toggle("hidden", !isReadOnly);
+  showMemoTab("shared");
   loadSharedMemo();
   memoPanel.classList.remove("hidden");
   memoOverlay.classList.remove("hidden");
@@ -1071,6 +1081,7 @@ function renderGrid() {
     menuBtn.className = "day-cell-menu-btn";
     menuBtn.textContent = "⋮";
     menuBtn.setAttribute("aria-label", "더보기");
+    menuBtn.dataset.date = key;
     menuBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       openDayCellMenu(menuBtn, key);

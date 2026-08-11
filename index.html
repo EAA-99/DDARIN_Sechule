@@ -278,13 +278,14 @@
       <button type="button" id="closeMemoBtn" class="memo-panel-close" aria-label="닫기">✕</button>
     </div>
     <div class="memo-tabs">
-      <button type="button" id="memoTabShared" class="memo-tab hidden">공유</button>
+      <button type="button" id="memoTabShared" class="memo-tab">공유</button>
       <button type="button" id="memoTabPersonal" class="memo-tab">개인</button>
     </div>
-    <div class="memo-section" id="memoPersonalSection">
+    <div class="memo-section hidden" id="memoPersonalSection">
       <textarea id="memoTextarea" class="memo-textarea" placeholder="나만 보는 메모를 입력하세요"></textarea>
     </div>
-    <div class="memo-section hidden" id="memoSharedSection">
+    <div class="memo-section" id="memoSharedSection">
+      <p id="memoSharedHint" class="memo-shared-hint hidden">로그인하면 작성할 수 있어요.</p>
       <textarea id="memoSharedTextarea" class="memo-textarea" placeholder="모두가 보는 메모입니다"></textarea>
     </div>
   </div>

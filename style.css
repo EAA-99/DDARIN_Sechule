@@ -1020,6 +1020,12 @@ body {
   color: #8a6d3b;
 }
 
+.memo-shared-hint {
+  font-size: 0.78rem;
+  color: #e0577a;
+  margin: 0 0 6px;
+}
+
 #sheetUrlInput {
   width: 100%;
   padding: 8px 10px;
@@ -1098,14 +1104,12 @@ body {
 }
 
 .songbook-back-btn {
-  border: 1px solid #eee;
-  background: #fff;
-  border-radius: 999px;
-  padding: 8px 16px;
+  border: none;
+  background: none;
+  padding: 0;
   font-weight: 700;
   font-size: 0.85rem;
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
 .songbook-back-btn:hover {
