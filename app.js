@@ -888,8 +888,12 @@ async function syncEventsFromServer() {
   }
 }
 
+function withTimeout(promise, ms) {
+  return Promise.race([promise, new Promise((resolve) => setTimeout(() => resolve(null), ms))]);
+}
+
 async function initEvents() {
-  const flat = await apiGetEvents();
+  const flat = await withTimeout(apiGetEvents(), 5000);
   if (flat && flat.length) {
     eventsCache = flatToEventsObject(flat);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(eventsCache));
