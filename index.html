@@ -277,12 +277,26 @@
       <h2>메모</h2>
       <button type="button" id="closeMemoBtn" class="memo-panel-close" aria-label="닫기">✕</button>
     </div>
-    <textarea id="memoTextarea" class="memo-textarea" placeholder="메모를 입력하세요"></textarea>
+    <div class="memo-section">
+      <h3>개인 메모 <span class="memo-section-sub">(나만 보여요)</span></h3>
+      <textarea id="memoTextarea" class="memo-textarea" placeholder="나만 보는 메모를 입력하세요"></textarea>
+    </div>
+    <div class="memo-section">
+      <h3>공유 메모 <span class="memo-section-sub">(모두에게 보여요)</span></h3>
+      <p id="memoSharedHint" class="memo-shared-hint hidden">로그인하면 작성할 수 있어요.</p>
+      <textarea id="memoSharedTextarea" class="memo-textarea" placeholder="모두가 보는 메모입니다" readonly></textarea>
+    </div>
   </div>
 
   <script src="app.js"></script>
   <script>
     if ("serviceWorker" in navigator) {
+      let swRefreshed = false;
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (swRefreshed) return;
+        swRefreshed = true;
+        location.reload();
+      });
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("service-worker.js").catch(() => {});
       });
