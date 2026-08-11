@@ -30,6 +30,9 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const shuffleBtn = document.getElementById("ladderShuffleBtn");
   const summaryEl = document.getElementById("ladderSummary");
   const speedSlider = document.getElementById("ladderSpeedSlider");
+  const resultModalBackdrop = document.getElementById("ladderResultModalBackdrop");
+  const resultModalList = document.getElementById("ladderResultModalList");
+  const closeResultModalBtn = document.getElementById("closeLadderResultModalBtn");
   const ctx = canvas.getContext("2d");
 
   const ROWS = 14;
@@ -290,17 +293,35 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     const names = getLabels(namesRow).map((v, i) => v || `항목${i + 1}`);
     const resultLabels = getLabels(resultsRow).map((v) => v || "결과");
     const paths = [];
-    summaryEl.innerHTML = "";
+    resultModalList.innerHTML = "";
     for (let i = 0; i < count; i++) {
       const { path, endCol } = tracePath(i);
       paths.push(path);
-      const item = document.createElement("div");
-      item.className = "ladder-summary-item";
-      item.style.color = PATH_COLORS[i % PATH_COLORS.length];
-      item.textContent = `${names[i]} → ${resultLabels[endCol]}`;
-      summaryEl.appendChild(item);
+
+      const row = document.createElement("div");
+      row.className = "ladder-result-row";
+      row.style.color = PATH_COLORS[i % PATH_COLORS.length];
+
+      const fromEl = document.createElement("span");
+      fromEl.textContent = names[i];
+      const arrowEl = document.createElement("span");
+      arrowEl.className = "ladder-result-arrow";
+      arrowEl.textContent = "→";
+      const toEl = document.createElement("span");
+      toEl.textContent = resultLabels[endCol];
+
+      row.append(fromEl, arrowEl, toEl);
+      resultModalList.appendChild(row);
     }
     drawLadder(paths);
+    resultModalBackdrop.classList.remove("hidden");
+  });
+
+  closeResultModalBtn.addEventListener("click", () => {
+    resultModalBackdrop.classList.add("hidden");
+  });
+  resultModalBackdrop.addEventListener("click", (e) => {
+    if (e.target === resultModalBackdrop) resultModalBackdrop.classList.add("hidden");
   });
 
   redrawLadderCanvas = () => drawLadder(null);
