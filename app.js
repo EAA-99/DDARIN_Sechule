@@ -198,6 +198,7 @@ const loginBtnLabel = document.getElementById("loginBtnLabel");
 const appViewEl = document.querySelector(".app");
 const songbookBtn = document.getElementById("songbookBtn");
 const songbookView = document.getElementById("songbookView");
+const gameView = document.getElementById("gameView");
 const songSearchInput = document.getElementById("songSearchInput");
 const genreTabs = document.getElementById("genreTabs");
 const artistList = document.getElementById("artistList");
@@ -917,9 +918,14 @@ function renderSongGrid() {
   });
 }
 
+function showMainView(view) {
+  appViewEl.classList.toggle("hidden", view !== "calendar");
+  songbookView.classList.toggle("hidden", view !== "songbook");
+  gameView.classList.toggle("hidden", view !== "game");
+}
+
 async function openSongbook() {
-  appViewEl.classList.add("hidden");
-  songbookView.classList.remove("hidden");
+  showMainView("songbook");
 
   if (!allSongs) {
     songGrid.innerHTML = `<div class="song-empty">불러오는 중...</div>`;
@@ -936,30 +942,14 @@ async function openSongbook() {
   renderArtistList();
 }
 
-function closeSongbook() {
-  songbookView.classList.add("hidden");
-  appViewEl.classList.remove("hidden");
-}
-
 songbookBtn.addEventListener("click", openSongbook);
-document.getElementById("calendarBtn").addEventListener("click", closeSongbook);
+document.getElementById("calendarBtn").addEventListener("click", () => showMainView("calendar"));
+document.getElementById("gameBtn").addEventListener("click", () => showMainView("game"));
 
 const menuToggleBtn = document.getElementById("menuToggleBtn");
 const sideNavItems = document.getElementById("sideNavItems");
 menuToggleBtn.addEventListener("click", () => {
   sideNavItems.classList.toggle("hidden");
-});
-
-const etcBtn = document.getElementById("etcBtn");
-const etcSubmenu = document.getElementById("etcSubmenu");
-etcBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-  etcSubmenu.classList.toggle("hidden");
-});
-document.addEventListener("click", (e) => {
-  if (!etcSubmenu.classList.contains("hidden") && !e.target.closest(".side-nav-etc-wrap")) {
-    etcSubmenu.classList.add("hidden");
-  }
 });
 
 const MEMO_KEY = "ddarin-memo-2026";

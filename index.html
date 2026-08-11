@@ -142,6 +142,46 @@
     </div>
   </div>
 
+  <div id="gameView" class="songbook-view hidden">
+    <div class="game-tabs">
+      <button type="button" class="game-tab active" data-game="ladder">사다리</button>
+      <button type="button" class="game-tab" data-game="roulette">룰렛</button>
+      <button type="button" class="game-tab" data-game="pinball">핀볼</button>
+    </div>
+
+    <div id="ladderPanel" class="game-panel">
+      <div class="game-input-row">
+        <textarea id="ladderNamesInput" class="game-textarea" placeholder="참가자 이름 (줄바꿈으로 구분)"></textarea>
+        <textarea id="ladderResultsInput" class="game-textarea" placeholder="결과 (줄바꿈으로 구분, 참가자 수와 동일)"></textarea>
+      </div>
+      <div id="ladderError" class="sheet-status error hidden"></div>
+      <button type="button" id="ladderStartBtn" class="game-primary-btn">사다리 만들기</button>
+      <canvas id="ladderCanvas" class="game-canvas hidden"></canvas>
+      <div id="ladderResult" class="game-result"></div>
+    </div>
+
+    <div id="roulettePanel" class="game-panel hidden">
+      <textarea id="rouletteOptionsInput" class="game-textarea" placeholder="항목 (줄바꿈으로 구분, 2개 이상)"></textarea>
+      <div id="rouletteError" class="sheet-status error hidden"></div>
+      <button type="button" id="rouletteBuildBtn" class="game-primary-btn">룰렛 만들기</button>
+      <div id="rouletteWheelWrap" class="roulette-wheel-wrap hidden">
+        <canvas id="rouletteCanvas" class="roulette-canvas" width="280" height="280"></canvas>
+        <div class="roulette-pointer">▼</div>
+      </div>
+      <button type="button" id="rouletteSpinBtn" class="game-primary-btn hidden">돌리기</button>
+      <div id="rouletteResult" class="game-result"></div>
+    </div>
+
+    <div id="pinballPanel" class="game-panel hidden">
+      <textarea id="pinballSlotsInput" class="game-textarea" placeholder="슬롯 이름 (줄바꿈으로 구분, 4~8개 권장)"></textarea>
+      <div id="pinballError" class="sheet-status error hidden"></div>
+      <button type="button" id="pinballBuildBtn" class="game-primary-btn">핀볼판 만들기</button>
+      <canvas id="pinballCanvas" class="game-canvas hidden" width="360" height="380"></canvas>
+      <button type="button" id="pinballDropBtn" class="game-primary-btn hidden">공 떨어뜨리기</button>
+      <div id="pinballResult" class="game-result"></div>
+    </div>
+  </div>
+
   <nav class="side-nav">
     <button type="button" id="menuToggleBtn" class="side-nav-btn" aria-label="메뉴">
       <img class="side-nav-icon" src="메뉴판.png" alt="">
@@ -159,14 +199,7 @@
       <button type="button" id="memoBtn" class="side-nav-btn" aria-label="메모">
         <img class="side-nav-icon" src="메모.png" alt="">메모
       </button>
-      <div class="side-nav-etc-wrap">
-        <button type="button" id="etcBtn" class="side-nav-btn" aria-label="ETC">ETC</button>
-        <div id="etcSubmenu" class="side-nav-submenu hidden">
-          <button type="button" class="side-nav-submenu-btn" data-etc="ladder">사다리</button>
-          <button type="button" class="side-nav-submenu-btn" data-etc="roulette">룰렛</button>
-          <button type="button" class="side-nav-submenu-btn" data-etc="pinball">핀볼</button>
-        </div>
-      </div>
+      <button type="button" id="gameBtn" class="side-nav-btn" aria-label="게임">게임</button>
       <button type="button" id="editLockBtn" class="side-nav-btn" title="로그인" aria-label="로그인">
         <img class="side-nav-icon" src="로그인.png" alt=""><span id="loginBtnLabel">로그인</span>
       </button>
@@ -319,56 +352,6 @@
         <button type="button" id="memoSharedAddBtn" class="memo-add-btn">추가</button>
       </div>
       <div id="memoSharedList" class="memo-card-list"></div>
-    </div>
-  </div>
-
-  <div id="ladderModalBackdrop" class="modal-backdrop hidden">
-    <div class="modal game-modal">
-      <h2>사다리타기</h2>
-      <div class="game-input-row">
-        <textarea id="ladderNamesInput" class="game-textarea" placeholder="참가자 이름 (줄바꿈으로 구분)"></textarea>
-        <textarea id="ladderResultsInput" class="game-textarea" placeholder="결과 (줄바꿈으로 구분, 참가자 수와 동일)"></textarea>
-      </div>
-      <div id="ladderError" class="sheet-status error hidden"></div>
-      <button type="button" id="ladderStartBtn" class="game-primary-btn">사다리 만들기</button>
-      <canvas id="ladderCanvas" class="game-canvas hidden"></canvas>
-      <div id="ladderResult" class="game-result"></div>
-      <div class="modal-actions">
-        <button type="button" id="closeLadderModalBtn">닫기</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="rouletteModalBackdrop" class="modal-backdrop hidden">
-    <div class="modal game-modal">
-      <h2>룰렛</h2>
-      <textarea id="rouletteOptionsInput" class="game-textarea" placeholder="항목 (줄바꿈으로 구분, 2개 이상)"></textarea>
-      <div id="rouletteError" class="sheet-status error hidden"></div>
-      <button type="button" id="rouletteBuildBtn" class="game-primary-btn">룰렛 만들기</button>
-      <div id="rouletteWheelWrap" class="roulette-wheel-wrap hidden">
-        <canvas id="rouletteCanvas" class="roulette-canvas" width="280" height="280"></canvas>
-        <div class="roulette-pointer">▼</div>
-      </div>
-      <button type="button" id="rouletteSpinBtn" class="game-primary-btn hidden">돌리기</button>
-      <div id="rouletteResult" class="game-result"></div>
-      <div class="modal-actions">
-        <button type="button" id="closeRouletteModalBtn">닫기</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="pinballModalBackdrop" class="modal-backdrop hidden">
-    <div class="modal game-modal">
-      <h2>핀볼</h2>
-      <textarea id="pinballSlotsInput" class="game-textarea" placeholder="슬롯 이름 (줄바꿈으로 구분, 4~8개 권장)"></textarea>
-      <div id="pinballError" class="sheet-status error hidden"></div>
-      <button type="button" id="pinballBuildBtn" class="game-primary-btn">핀볼판 만들기</button>
-      <canvas id="pinballCanvas" class="game-canvas hidden" width="360" height="380"></canvas>
-      <button type="button" id="pinballDropBtn" class="game-primary-btn hidden">공 떨어뜨리기</button>
-      <div id="pinballResult" class="game-result"></div>
-      <div class="modal-actions">
-        <button type="button" id="closePinballModalBtn">닫기</button>
-      </div>
     </div>
   </div>
 

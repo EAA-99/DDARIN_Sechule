@@ -3,26 +3,24 @@ function showGameError(el, msg) {
   el.classList.remove("hidden");
 }
 
-document.querySelectorAll(".side-nav-submenu-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    etcSubmenu.classList.add("hidden");
-    if (btn.dataset.etc === "ladder") openLadderModal();
-    if (btn.dataset.etc === "roulette") openRouletteModal();
-    if (btn.dataset.etc === "pinball") openPinballModal();
+document.querySelectorAll(".game-tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    const target = tab.dataset.game;
+    document.querySelectorAll(".game-tab").forEach((t) => t.classList.toggle("active", t === tab));
+    document.getElementById("ladderPanel").classList.toggle("hidden", target !== "ladder");
+    document.getElementById("roulettePanel").classList.toggle("hidden", target !== "roulette");
+    document.getElementById("pinballPanel").classList.toggle("hidden", target !== "pinball");
   });
 });
 
 // ===== 사다리타기 =====
-let openLadderModal, closeLadderModal;
 (function ladderGame() {
-  const backdrop = document.getElementById("ladderModalBackdrop");
   const namesInput = document.getElementById("ladderNamesInput");
   const resultsInput = document.getElementById("ladderResultsInput");
   const errorEl = document.getElementById("ladderError");
   const startBtn = document.getElementById("ladderStartBtn");
   const canvas = document.getElementById("ladderCanvas");
   const resultEl = document.getElementById("ladderResult");
-  const closeBtn = document.getElementById("closeLadderModalBtn");
   const ctx = canvas.getContext("2d");
 
   const ROWS = 14;
@@ -35,17 +33,6 @@ let openLadderModal, closeLadderModal;
   let names = [];
   let results = [];
   let rungs = [];
-
-  openLadderModal = function () {
-    backdrop.classList.remove("hidden");
-  };
-
-  closeLadderModal = function () {
-    backdrop.classList.add("hidden");
-    canvas.classList.add("hidden");
-    errorEl.classList.add("hidden");
-    resultEl.textContent = "";
-  };
 
   function colX(c) {
     return SIDE_PAD + c * COL_GAP;
@@ -160,17 +147,10 @@ let openLadderModal, closeLadderModal;
     drawLadder(path);
     resultEl.textContent = `${names[col]} → ${results[endCol]}`;
   });
-
-  closeBtn.addEventListener("click", closeLadderModal);
-  backdrop.addEventListener("click", (e) => {
-    if (e.target === backdrop) closeLadderModal();
-  });
 })();
 
 // ===== 룰렛 =====
-let openRouletteModal, closeRouletteModal;
 (function rouletteGame() {
-  const backdrop = document.getElementById("rouletteModalBackdrop");
   const optionsInput = document.getElementById("rouletteOptionsInput");
   const errorEl = document.getElementById("rouletteError");
   const buildBtn = document.getElementById("rouletteBuildBtn");
@@ -178,29 +158,12 @@ let openRouletteModal, closeRouletteModal;
   const canvas = document.getElementById("rouletteCanvas");
   const spinBtn = document.getElementById("rouletteSpinBtn");
   const resultEl = document.getElementById("rouletteResult");
-  const closeBtn = document.getElementById("closeRouletteModalBtn");
   const ctx = canvas.getContext("2d");
 
   const COLORS = ["#cfe8fb", "#fbeeaa", "#e5d9fb", "#d3f3d8", "#fde3c7", "#f5d6db", "#e2e2e2", "#fbe0f6"];
   let options = [];
   let currentRotation = 0;
   let spinning = false;
-
-  openRouletteModal = function () {
-    backdrop.classList.remove("hidden");
-  };
-
-  closeRouletteModal = function () {
-    backdrop.classList.add("hidden");
-    wheelWrap.classList.add("hidden");
-    spinBtn.classList.add("hidden");
-    resultEl.textContent = "";
-    errorEl.classList.add("hidden");
-    canvas.style.transition = "none";
-    canvas.style.transform = "rotate(0deg)";
-    currentRotation = 0;
-    spinning = false;
-  };
 
   function drawWheel() {
     const n = options.length;
@@ -277,24 +240,16 @@ let openRouletteModal, closeRouletteModal;
       resultEl.textContent = `당첨: ${options[targetIndex]}`;
     }, 4100);
   });
-
-  closeBtn.addEventListener("click", closeRouletteModal);
-  backdrop.addEventListener("click", (e) => {
-    if (e.target === backdrop) closeRouletteModal();
-  });
 })();
 
 // ===== 핀볼 =====
-let openPinballModal, closePinballModal;
 (function pinballGame() {
-  const backdrop = document.getElementById("pinballModalBackdrop");
   const slotsInput = document.getElementById("pinballSlotsInput");
   const errorEl = document.getElementById("pinballError");
   const buildBtn = document.getElementById("pinballBuildBtn");
   const canvas = document.getElementById("pinballCanvas");
   const dropBtn = document.getElementById("pinballDropBtn");
   const resultEl = document.getElementById("pinballResult");
-  const closeBtn = document.getElementById("closePinballModalBtn");
   const ctx = canvas.getContext("2d");
 
   const W = canvas.width;
@@ -308,19 +263,6 @@ let openPinballModal, closePinballModal;
   let pegs = [];
   let dropping = false;
   let ball = null;
-
-  openPinballModal = function () {
-    backdrop.classList.remove("hidden");
-  };
-
-  closePinballModal = function () {
-    backdrop.classList.add("hidden");
-    canvas.classList.add("hidden");
-    dropBtn.classList.add("hidden");
-    resultEl.textContent = "";
-    errorEl.classList.add("hidden");
-    dropping = false;
-  };
 
   function drawBoard() {
     ctx.clearRect(0, 0, W, H);
@@ -418,10 +360,5 @@ let openPinballModal, closePinballModal;
       }
     }
     requestAnimationFrame(step);
-  });
-
-  closeBtn.addEventListener("click", closePinballModal);
-  backdrop.addEventListener("click", (e) => {
-    if (e.target === backdrop) closePinballModal();
   });
 })();
