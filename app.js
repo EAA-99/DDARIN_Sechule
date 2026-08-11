@@ -1695,6 +1695,24 @@ weekNextBtn.addEventListener("click", () => {
   renderCardView();
 });
 
+const viewModeWeekBtn = document.getElementById("viewModeWeekBtn");
+const viewModeMonthBtn = document.getElementById("viewModeMonthBtn");
+
+function setViewMode(mode) {
+  viewMode = mode;
+  viewModeWeekBtn.classList.toggle("active", mode === "card");
+  viewModeMonthBtn.classList.toggle("active", mode === "list");
+  grid.classList.toggle("hidden", mode === "card");
+  cardView.classList.toggle("hidden", mode !== "card");
+  if (mode === "card") {
+    resetCardWeekToMonth();
+    renderCardView();
+  }
+}
+
+viewModeWeekBtn.addEventListener("click", () => setViewMode("card"));
+viewModeMonthBtn.addEventListener("click", () => setViewMode("list"));
+
 closeModalBtn.addEventListener("click", closeModal);
 modalBackdrop.addEventListener("click", (e) => {
   if (e.target === modalBackdrop) closeModal();
