@@ -1555,6 +1555,21 @@ body {
   max-height: 65vh;
   overflow-y: auto;
   padding-right: 4px;
+  scrollbar-color: #cfe2f7 #f3f9ff;
+}
+
+.song-grid::-webkit-scrollbar {
+  width: 10px;
+}
+
+.song-grid::-webkit-scrollbar-track {
+  background: #f3f9ff;
+  border-radius: 10px;
+}
+
+.song-grid::-webkit-scrollbar-thumb {
+  background: #cfe2f7;
+  border-radius: 10px;
 }
 
 .song-group-header {

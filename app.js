@@ -474,7 +474,18 @@ function updateSongPlayerModalFavBtn(key) {
 
 const songPlayerModal = document.getElementById("songPlayerModal");
 
+function resetSongPlayerModalPosition() {
+  songPlayerModal.style.position = "";
+  songPlayerModal.style.left = "";
+  songPlayerModal.style.top = "";
+  songPlayerModal.style.margin = "";
+  songPlayerModal.style.width = "";
+  songPlayerModal.style.height = "";
+  songPlayerModal.style.maxWidth = "";
+}
+
 function openSongPlayerModal(song, clipId) {
+  resetSongPlayerModalPosition();
   songPlayerModalFrame.src = buildClipPageUrl(clipId);
   songPlayerModalTitle.textContent = song.title;
   songPlayerModalArtist.textContent = song.artist;
@@ -488,25 +499,23 @@ function closeSongPlayerModal() {
   songPlayerModalBackdrop.classList.add("hidden");
   songPlayerModalBackdrop.classList.remove("minimized");
   songPlayerModalFrame.src = "";
-  songPlayerModal.style.position = "";
-  songPlayerModal.style.left = "";
-  songPlayerModal.style.top = "";
-  songPlayerModal.style.margin = "";
-  songPlayerModal.style.width = "";
-  songPlayerModal.style.height = "";
-  songPlayerModal.style.maxWidth = "";
+  resetSongPlayerModalPosition();
 }
 
 function minimizeSongPlayerModal() {
   songPlayerModalBackdrop.classList.add("minimized");
 }
 
+let songPlayerInteracting = false;
+
 songPlayerModalClose.addEventListener("click", closeSongPlayerModal);
 songPlayerModalBackdrop.addEventListener("click", (e) => {
+  if (songPlayerInteracting) return;
   if (songPlayerModalBackdrop.classList.contains("minimized")) return;
   if (e.target === songPlayerModalBackdrop) minimizeSongPlayerModal();
 });
 songPlayerModal.addEventListener("click", (e) => {
+  if (songPlayerInteracting) return;
   if (!songPlayerModalBackdrop.classList.contains("minimized")) return;
   if (e.target.closest(".song-player-modal-close")) return;
   songPlayerModalBackdrop.classList.remove("minimized");
@@ -526,6 +535,7 @@ songPlayerModalFavBtn.addEventListener("click", () => {
 
   handle.addEventListener("mousedown", (e) => {
     dragging = true;
+    songPlayerInteracting = true;
     const rect = songPlayerModal.getBoundingClientRect();
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
@@ -544,6 +554,7 @@ songPlayerModalFavBtn.addEventListener("click", () => {
 
   document.addEventListener("mouseup", () => {
     dragging = false;
+    setTimeout(() => { songPlayerInteracting = false; }, 0);
   });
 
   handle.addEventListener("click", (e) => e.stopPropagation());
@@ -556,6 +567,7 @@ songPlayerModalFavBtn.addEventListener("click", () => {
     handle.addEventListener("mousedown", (e) => {
       e.preventDefault();
       e.stopPropagation();
+      songPlayerInteracting = true;
 
       const corner = handle.dataset.corner;
       const rect = songPlayerModal.getBoundingClientRect();
@@ -583,6 +595,7 @@ songPlayerModalFavBtn.addEventListener("click", () => {
       function onUp() {
         document.removeEventListener("mousemove", onMove);
         document.removeEventListener("mouseup", onUp);
+        setTimeout(() => { songPlayerInteracting = false; }, 0);
       }
 
       document.addEventListener("mousemove", onMove);

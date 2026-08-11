@@ -1,4 +1,4 @@
-const CACHE_NAME = "ddarin-calendar-v104";
+const CACHE_NAME = "ddarin-calendar-v105";
 const ASSETS = [
   "./",
   "./index.html",
@@ -10,6 +10,7 @@ const ASSETS = [
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./today-mascot.png",
+  "./today-mascot2.png",
   "./일정표.png",
   "./노래책.png",
   "./유튜브.png",
