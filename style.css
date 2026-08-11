@@ -1132,23 +1132,18 @@ body {
 }
 
 .roulette-panel {
-  max-width: 900px;
+  max-width: 1000px;
 }
 
-.roulette-settings-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 16px;
-  background: #f7f9fc;
-  border-radius: 12px;
-  margin-bottom: 16px;
+.roulette-settings-modal {
+  max-width: 520px;
 }
 
 .roulette-settings-inputs {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 8px;
+  margin-bottom: 14px;
 }
 
 .roulette-settings-inputs input {
@@ -1164,14 +1159,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 40px;
-  flex-wrap: wrap;
 }
 
 .roulette-wheel-wrap {
   position: relative;
-  width: 340px;
-  flex-shrink: 0;
+  width: 100%;
+  max-width: 520px;
 }
 
 .roulette-canvas {
@@ -1192,28 +1185,12 @@ body {
   line-height: 1;
 }
 
-.roulette-winner-card {
-  width: 220px;
-  flex-shrink: 0;
-  padding: 30px 20px;
-  border-radius: 16px;
-  background: #f7f9fc;
+.roulette-result-modal-name {
   text-align: center;
-}
-
-.roulette-winner-label {
-  font-size: 0.8rem;
+  font-size: 1.6rem;
   font-weight: 800;
   color: #4a7fd6;
-  letter-spacing: 0.05em;
-  margin-bottom: 10px;
-}
-
-.roulette-winner-name {
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: #2a2a2a;
-  word-break: break-word;
+  padding: 20px 0;
 }
 
 .game-result {

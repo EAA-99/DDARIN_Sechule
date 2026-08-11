@@ -340,12 +340,15 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const countMinus = document.getElementById("rouletteCountMinus");
   const countPlus = document.getElementById("rouletteCountPlus");
   const settingsBtn = document.getElementById("rouletteSettingsBtn");
-  const settingsPanel = document.getElementById("rouletteSettingsPanel");
+  const settingsModalBackdrop = document.getElementById("rouletteSettingsModalBackdrop");
   const settingsInputs = document.getElementById("rouletteSettingsInputs");
   const settingsCloseBtn = document.getElementById("rouletteSettingsCloseBtn");
+  const closeSettingsModalBtn = document.getElementById("closeRouletteSettingsModalBtn");
   const startBtn = document.getElementById("rouletteStartBtn");
   const resetBtn = document.getElementById("rouletteResetBtn");
-  const winnerName = document.getElementById("rouletteWinnerName");
+  const resultModalBackdrop = document.getElementById("rouletteResultModalBackdrop");
+  const resultModalName = document.getElementById("rouletteResultModalName");
+  const closeResultModalBtn = document.getElementById("closeRouletteResultModalBtn");
   const ctx = canvas.getContext("2d");
 
   const COLORS = ["#7fd6c8", "#8fd67f", "#f0b95a", "#7fb8e0", "#cfe8fb", "#fbeeaa", "#e5d9fb", "#d3f3d8", "#fde3c7", "#f5d6db"];
@@ -431,18 +434,29 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   });
 
   settingsBtn.addEventListener("click", () => {
-    settingsPanel.classList.toggle("hidden");
+    settingsModalBackdrop.classList.remove("hidden");
   });
 
-  settingsCloseBtn.addEventListener("click", () => {
-    settingsPanel.classList.add("hidden");
+  function closeSettingsModal() {
+    settingsModalBackdrop.classList.add("hidden");
+  }
+  settingsCloseBtn.addEventListener("click", closeSettingsModal);
+  closeSettingsModalBtn.addEventListener("click", closeSettingsModal);
+  settingsModalBackdrop.addEventListener("click", (e) => {
+    if (e.target === settingsModalBackdrop) closeSettingsModal();
+  });
+
+  closeResultModalBtn.addEventListener("click", () => {
+    resultModalBackdrop.classList.add("hidden");
+  });
+  resultModalBackdrop.addEventListener("click", (e) => {
+    if (e.target === resultModalBackdrop) resultModalBackdrop.classList.add("hidden");
   });
 
   startBtn.addEventListener("click", () => {
     if (spinning) return;
     spinning = true;
     errorEl.classList.add("hidden");
-    winnerName.textContent = "...";
 
     const sliceDeg = 360 / count;
     const targetIndex = Math.floor(Math.random() * count);
@@ -460,7 +474,8 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 
     setTimeout(() => {
       spinning = false;
-      winnerName.textContent = names[targetIndex];
+      resultModalName.textContent = names[targetIndex];
+      resultModalBackdrop.classList.remove("hidden");
     }, 4100);
   });
 
@@ -469,7 +484,6 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     canvas.style.transition = "none";
     canvas.style.transform = "rotate(0deg)";
     currentRotation = 0;
-    winnerName.textContent = "대기 중";
   });
 
   updateCountLabel();

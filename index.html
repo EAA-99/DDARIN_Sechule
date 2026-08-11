@@ -186,19 +186,10 @@
       </div>
       <div id="rouletteError" class="sheet-status error hidden"></div>
 
-      <div id="rouletteSettingsPanel" class="roulette-settings-panel hidden">
-        <div id="rouletteSettingsInputs" class="roulette-settings-inputs"></div>
-        <button type="button" id="rouletteSettingsCloseBtn" class="game-primary-btn">확인</button>
-      </div>
-
       <div class="roulette-body">
         <div class="roulette-wheel-wrap">
-          <canvas id="rouletteCanvas" class="roulette-canvas" width="420" height="420"></canvas>
+          <canvas id="rouletteCanvas" class="roulette-canvas" width="560" height="560"></canvas>
           <div class="roulette-pointer">▼</div>
-        </div>
-        <div class="roulette-winner-card">
-          <div class="roulette-winner-label">WINNER</div>
-          <div id="rouletteWinnerName" class="roulette-winner-name">대기 중</div>
         </div>
       </div>
     </div>
@@ -220,6 +211,27 @@
         <button type="button" id="closeLadderResultModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
       </div>
       <div id="ladderResultModalList" class="ladder-result-list"></div>
+    </div>
+  </div>
+
+  <div id="rouletteSettingsModalBackdrop" class="modal-backdrop hidden">
+    <div class="modal roulette-settings-modal">
+      <div class="modal-header-row">
+        <h2>항목 선택</h2>
+        <button type="button" id="closeRouletteSettingsModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
+      </div>
+      <div id="rouletteSettingsInputs" class="roulette-settings-inputs"></div>
+      <button type="button" id="rouletteSettingsCloseBtn" class="game-primary-btn">확인</button>
+    </div>
+  </div>
+
+  <div id="rouletteResultModalBackdrop" class="modal-backdrop hidden">
+    <div class="modal ladder-result-modal">
+      <div class="modal-header-row">
+        <h2>룰렛 결과</h2>
+        <button type="button" id="closeRouletteResultModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
+      </div>
+      <div id="rouletteResultModalName" class="roulette-result-modal-name"></div>
     </div>
   </div>
 
