@@ -245,7 +245,10 @@
 
   <div id="modalBackdrop" class="modal-backdrop hidden">
     <div class="modal">
-      <h2 id="modalDate">일정</h2>
+      <div class="modal-header-row">
+        <h2 id="modalDate">일정</h2>
+        <button type="button" id="closeModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
+      </div>
 
       <div id="eventList" class="event-list"></div>
 
@@ -298,9 +301,13 @@
         </div>
         <div class="modal-actions">
           <button type="submit" id="eventSubmitBtn" class="primary-btn">추가</button>
-          <button type="button" id="closeModalBtn">닫기</button>
         </div>
       </form>
+
+      <div id="modalManageActions" class="modal-manage-actions hidden">
+        <button type="button" id="bulkDeleteBtn" class="modal-manage-btn modal-manage-btn-danger">일괄 삭제</button>
+        <button type="button" id="newEventBtn" class="modal-manage-btn modal-manage-btn-primary">+ 새 일정</button>
+      </div>
     </div>
   </div>
 

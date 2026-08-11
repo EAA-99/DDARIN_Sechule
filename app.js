@@ -188,9 +188,14 @@ const colorPickerBtn = document.getElementById("colorPickerBtn");
 const colorPickerBtnLabel = document.getElementById("colorPickerBtnLabel");
 const colorPickerList = document.getElementById("colorPickerList");
 const colorPickerOptions = document.querySelectorAll(".color-picker-option");
+const modalManageActions = document.getElementById("modalManageActions");
+const bulkDeleteBtn = document.getElementById("bulkDeleteBtn");
+const newEventBtn = document.getElementById("newEventBtn");
 let selectedColor = "gray";
 let selectedHex = null;
 let editingIndex = null;
+let managingMode = false;
+let expandedIndex = null;
 
 const editLockBtn = document.getElementById("editLockBtn");
 const loginBtnLabel = document.getElementById("loginBtnLabel");
@@ -1527,14 +1532,47 @@ function openModal(key) {
   selectedDateKey = key;
   const [, m, d] = key.split("-");
   modalDate.textContent = `${YEAR}년 ${parseInt(m)}월 ${parseInt(d)}일`;
-  renderEventList();
+  modalDate.classList.toggle("clickable", !isReadOnly);
+  managingMode = false;
+  expandedIndex = null;
+  modalManageActions.classList.add("hidden");
   resetForm();
-  eventForm.classList.toggle("hidden", isReadOnly);
+  eventForm.classList.add("hidden");
+  renderEventList();
   modalBackdrop.classList.remove("hidden");
-  if (!isReadOnly) eventTitleInput.focus();
   loadModalCafeNotice(key);
   loadModalSoopNotice(key);
 }
+
+modalDate.addEventListener("click", () => {
+  if (isReadOnly) return;
+  managingMode = !managingMode;
+  expandedIndex = null;
+  eventForm.classList.add("hidden");
+  modalManageActions.classList.toggle("hidden", !managingMode);
+  renderEventList();
+});
+
+newEventBtn.addEventListener("click", () => {
+  if (isReadOnly) return;
+  expandedIndex = -1;
+  resetForm();
+  eventForm.classList.remove("hidden");
+  renderEventList();
+  eventTitleInput.focus();
+});
+
+bulkDeleteBtn.addEventListener("click", () => {
+  if (isReadOnly || !selectedDateKey) return;
+  if (!confirm("이 날짜의 모든 일정을 삭제할까요?")) return;
+  const events = loadEvents();
+  delete events[selectedDateKey];
+  saveEvents(events);
+  expandedIndex = null;
+  eventForm.classList.add("hidden");
+  renderEventList();
+  refreshCurrentView();
+});
 
 function editEvent(idx) {
   if (isReadOnly) return;
@@ -1580,68 +1618,120 @@ function closeModal() {
   selectedDateKey = null;
 }
 
+function buildEventCardContent(container, ev) {
+  const match = ev.title.match(ATTENDEE_RE);
+  const titleEl = document.createElement("div");
+  titleEl.className = "event-card-title";
+  titleEl.textContent = match ? ev.title.slice(0, match.index) : ev.title;
+  container.appendChild(titleEl);
+
+  const badgeLabel = getEventBadgeLabel(ev);
+  if (badgeLabel) {
+    const badgeEl = document.createElement("div");
+    badgeEl.className = "event-card-badge";
+    badgeEl.textContent = badgeLabel;
+    applyEventColor(badgeEl, ev);
+    container.appendChild(badgeEl);
+  }
+
+  if (match) {
+    const names = match[1].split(/[,、&]/).map((n) => n.trim()).filter(Boolean);
+    if (names.length) {
+      const attendeesWrap = document.createElement("div");
+      attendeesWrap.className = "event-card-attendees";
+
+      const icon = document.createElement("span");
+      icon.className = "attendees-icon";
+      icon.textContent = "👤";
+      attendeesWrap.appendChild(icon);
+
+      const namesEl = document.createElement("span");
+      namesEl.textContent = names.join(", ");
+      attendeesWrap.appendChild(namesEl);
+
+      container.appendChild(attendeesWrap);
+    }
+  }
+}
+
 function renderEventList() {
   const events = loadEvents();
   const list = events[selectedDateKey] || [];
+  const manageable = managingMode && !isReadOnly;
 
   eventList.innerHTML = "";
+
+  if (manageable && expandedIndex === -1) {
+    const newCard = document.createElement("div");
+    newCard.className = "event-card manageable";
+    const body = document.createElement("div");
+    body.className = "event-card-body";
+    body.appendChild(eventForm);
+    eventForm.classList.remove("hidden");
+    newCard.appendChild(body);
+    eventList.appendChild(newCard);
+  }
+
   if (!list.length) {
-    const empty = document.createElement("p");
-    empty.className = "event-empty";
-    empty.textContent = "등록된 일정이 없습니다.";
-    eventList.appendChild(empty);
+    if (!(manageable && expandedIndex === -1)) {
+      const empty = document.createElement("p");
+      empty.className = "event-empty";
+      empty.textContent = "등록된 일정이 없습니다.";
+      eventList.appendChild(empty);
+    }
     return;
   }
 
   list.forEach((ev, idx) => {
     const card = document.createElement("div");
     card.className = "event-card";
-    if (isReadOnly) card.style.cursor = "default";
-    else card.addEventListener("click", () => editEvent(idx));
 
-    if (!isReadOnly) {
-      const delBtn = document.createElement("button");
-      delBtn.className = "del-btn";
-      delBtn.textContent = "삭제";
-      delBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        deleteEvent(idx);
-      });
-      card.appendChild(delBtn);
+    if (!manageable) {
+      buildEventCardContent(card, ev);
+      eventList.appendChild(card);
+      return;
     }
 
-    const match = ev.title.match(ATTENDEE_RE);
-    const titleEl = document.createElement("div");
-    titleEl.className = "event-card-title";
-    titleEl.textContent = match ? ev.title.slice(0, match.index) : ev.title;
-    card.appendChild(titleEl);
+    card.classList.add("manageable");
+    const header = document.createElement("div");
+    header.className = "event-card-header";
 
-    const badgeLabel = getEventBadgeLabel(ev);
-    if (badgeLabel) {
-      const badgeEl = document.createElement("div");
-      badgeEl.className = "event-card-badge";
-      badgeEl.textContent = badgeLabel;
-      applyEventColor(badgeEl, ev);
-      card.appendChild(badgeEl);
-    }
+    const chevron = document.createElement("span");
+    chevron.className = "event-card-chevron";
+    chevron.textContent = expandedIndex === idx ? "▾" : "▸";
+    header.appendChild(chevron);
 
-    if (match) {
-      const names = match[1].split(/[,、&]/).map((n) => n.trim()).filter(Boolean);
-      if (names.length) {
-        const attendeesWrap = document.createElement("div");
-        attendeesWrap.className = "event-card-attendees";
+    buildEventCardContent(header, ev);
 
-        const icon = document.createElement("span");
-        icon.className = "attendees-icon";
-        icon.textContent = "👤";
-        attendeesWrap.appendChild(icon);
+    const delBtn = document.createElement("button");
+    delBtn.type = "button";
+    delBtn.className = "event-card-close";
+    delBtn.textContent = "✕";
+    delBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      deleteEvent(idx);
+    });
+    header.appendChild(delBtn);
 
-        const namesEl = document.createElement("span");
-        namesEl.textContent = names.join(", ");
-        attendeesWrap.appendChild(namesEl);
-
-        card.appendChild(attendeesWrap);
+    header.addEventListener("click", () => {
+      if (expandedIndex === idx) {
+        expandedIndex = null;
+        eventForm.classList.add("hidden");
+      } else {
+        expandedIndex = idx;
+        editEvent(idx);
       }
+      renderEventList();
+    });
+
+    card.appendChild(header);
+
+    if (expandedIndex === idx) {
+      const body = document.createElement("div");
+      body.className = "event-card-body";
+      body.appendChild(eventForm);
+      eventForm.classList.remove("hidden");
+      card.appendChild(body);
     }
 
     eventList.appendChild(card);
@@ -1660,7 +1750,11 @@ function deleteEvent(index) {
   list.splice(index, 1);
   if (list.length === 0) delete events[selectedDateKey];
   saveEvents(events);
-  if (editingIndex === index) resetForm();
+  if (editingIndex === index || expandedIndex === index) {
+    resetForm();
+    expandedIndex = null;
+    eventForm.classList.add("hidden");
+  }
   renderEventList();
   refreshCurrentView();
 }
@@ -1686,10 +1780,11 @@ eventForm.addEventListener("submit", (e) => {
   }
   saveEvents(events);
 
+  expandedIndex = null;
+  eventForm.classList.add("hidden");
   resetForm();
   renderEventList();
   refreshCurrentView();
-  eventTitleInput.focus();
 });
 
 prevBtn.addEventListener("click", () => {

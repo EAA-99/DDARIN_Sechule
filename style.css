@@ -765,12 +765,6 @@ body {
   border-bottom: none;
 }
 
-.event-card .del-btn {
-  position: absolute;
-  top: 8px;
-  right: 0;
-}
-
 .event-card-title {
   font-size: 1.2rem;
   font-weight: 700;
@@ -785,6 +779,102 @@ body {
   border-radius: 999px;
   padding: 5px 14px;
   margin-bottom: 10px;
+}
+
+.modal-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.modal-header-row #modalDate {
+  margin: 4px 0;
+  flex: 1;
+}
+
+#modalDate.clickable {
+  cursor: pointer;
+}
+
+.modal-close-x {
+  border: none;
+  background: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #999;
+  flex-shrink: 0;
+}
+
+.event-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+}
+
+.event-card-chevron {
+  flex-shrink: 0;
+  color: #999;
+  font-size: 0.8rem;
+}
+
+.event-card-header .event-card-title {
+  margin-bottom: 0;
+  flex: 1;
+}
+
+.event-card-header .event-card-badge {
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+.event-card-header .event-card-attendees {
+  flex-shrink: 0;
+  justify-content: flex-start;
+}
+
+.event-card-close {
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  color: #bbb;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.event-card-close:hover {
+  color: #e05a5a;
+}
+
+.event-card-body {
+  margin-top: 10px;
+}
+
+.modal-manage-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.modal-manage-btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.modal-manage-btn-danger {
+  background: #fbd7e4;
+  color: #ad3f68;
+}
+
+.modal-manage-btn-primary {
+  background: #cfe8fb;
+  color: #1c5fa8;
 }
 
 .event-card-attendees {
@@ -1071,7 +1161,11 @@ body {
   font-size: 1.3rem;
   font-weight: 800;
   color: #8a6d1f;
-  margin: 4px 0 16px;
+  margin: 4px 0;
+}
+
+.modal-header-row {
+  margin-bottom: 16px;
 }
 
 .modal-cafe-notice {
@@ -1150,14 +1244,6 @@ body {
   list-style: none;
   margin: 0 0 12px;
   padding: 0;
-}
-
-.event-list button.del-btn {
-  border: none;
-  background: none;
-  color: #e05a5a;
-  cursor: pointer;
-  font-size: 0.85rem;
 }
 
 #eventForm {
