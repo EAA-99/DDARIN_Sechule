@@ -1,12 +1,13 @@
 export default async function handler(req, res) {
   const targetDate = String(req.query.date || ""); // "2026-08-08"
   const matches = [];
+  const yearStart = targetDate.slice(0, 4) + "-01-01"; // 올해 1월 1일까지만 검색
 
   if (targetDate) {
-    for (let page = 1; page <= 5; page++) {
+    for (let page = 1; page <= 30; page++) {
       const url =
         `https://api-channel.sooplive.com/v1.1/channel/insome0319/board` +
-        `?perPage=20&startDate=&endDate=&field=title,contents,user_nick,user_id,hashtags` +
+        `?perPage=50&startDate=&endDate=&field=title,contents,user_nick,user_id,hashtags` +
         `&keyword=&type=all&orderBy=reg_date&page=${page}&bbsNo=81075151`;
 
       const r = await fetch(url, { headers: { Referer: "https://www.sooplive.com/" } });
@@ -15,7 +16,7 @@ export default async function handler(req, res) {
       const list = [...pinned, ...(data?.contents || [])];
       if (!list.length) break;
 
-      let pastTarget = false;
+      let stop = false;
       for (const item of list) {
         const d = (item.regDate || "").slice(0, 10);
         if (d === targetDate) {
@@ -26,10 +27,10 @@ export default async function handler(req, res) {
             url: `https://www.sooplive.com/station/insome0319/post/${item.titleNo}`,
           });
         }
-        if (d < targetDate) pastTarget = true;
+        if (d < yearStart) stop = true;
       }
 
-      if (pastTarget || matches.length) break;
+      if (stop || matches.length) break;
     }
   }
 
