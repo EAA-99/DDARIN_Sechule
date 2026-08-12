@@ -40,7 +40,7 @@ body {
   position: relative;
   width: 100%;
   max-width: 1500px;
-  margin-top: 290px;
+  margin-top: 240px;
   padding: 24px;
   border: 3px solid #cfe2f7;
   border-radius: 30px;
@@ -53,7 +53,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-top: 290px;
+  margin-top: 240px;
   flex-shrink: 0;
 }
 
@@ -667,6 +667,10 @@ body {
   align-self: flex-start;
 }
 
+.day-cell.today {
+  border: 2px dashed #4a7fd6;
+}
+
 .day-cell.today .day-num {
   background: #4a7fd6;
   color: #fff;
@@ -998,7 +1002,7 @@ body {
 .ladder-toolbar-top {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
 }
@@ -1697,7 +1701,7 @@ body {
   position: relative;
   width: 100%;
   max-width: 1500px;
-  margin-top: 290px;
+  margin-top: 240px;
   padding: 24px;
   text-align: left;
   border: 3px solid #cfe2f7;

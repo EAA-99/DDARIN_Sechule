@@ -8,7 +8,6 @@ const SONGBOOK_SPREADSHEET_ID = "1NhImCLm5diXM0pA45SkB-g2PARivQiVN8bUKlniiOB8";
 const SONGBOOK_CLIPS_SPREADSHEET_ID = "17EmfOEPVGesH9FXnh7xsKvBYYIhi2TrerSzY23E2N9A";
 
 const LOADING_GIF_MS = 1540;
-const SONGBOOK_LOADING_GIF_MS = 4470;
 
 const YEAR = 2026;
 const STORAGE_KEY = "calendar-events-2026";
@@ -39,6 +38,15 @@ let selectedDateKey = null;
 let isReadOnly = true;
 
 const loadingScreen = document.getElementById("loadingScreen");
+const loadingGifImg = document.getElementById("loadingGifImg");
+const CALENDAR_LOADING_GIFS = [
+  "높은양갈래따린윙크.gif",
+  "단발오잉따린.gif",
+  "단발음뫄.gif",
+  "양갈래하트윙크따린.gif",
+  "키네시스어센트따린.gif",
+];
+loadingGifImg.src = CALENDAR_LOADING_GIFS[Math.floor(Math.random() * CALENDAR_LOADING_GIFS.length)];
 const monthTitle = document.getElementById("monthTitle");
 const grid = document.getElementById("grid");
 const weekdayRow = document.querySelector(".weekday-row");
@@ -225,7 +233,6 @@ const songPlayerModalFavBtn = document.getElementById("songPlayerModalFavBtn");
 const songPlayerModalFavIcon = document.getElementById("songPlayerModalFavIcon");
 const songPlayerModalFavLabel = document.getElementById("songPlayerModalFavLabel");
 const songGrid = document.getElementById("songGrid");
-const songbookLoadingScreen = document.getElementById("songbookLoadingScreen");
 const favoritesListEl = document.getElementById("favoritesList");
 let allSongs = null;
 let songByKey = {};
@@ -927,10 +934,7 @@ async function openSongbook() {
     await ensureSongbookSongs();
   }
 
-  songbookLoadingScreen.classList.remove("hidden");
-  const minDelay = new Promise((r) => setTimeout(r, SONGBOOK_LOADING_GIF_MS));
-  await Promise.all([ensureAlbumArtPreloaded(), minDelay]);
-  songbookLoadingScreen.classList.add("hidden");
+  await ensureAlbumArtPreloaded();
 
   renderSongGrid();
   renderFavoritesList();

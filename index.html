@@ -18,7 +18,7 @@
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen">
-    <img src="loading.gif" alt="불러오는 중" class="loading-gif">
+    <img src="loading.gif" alt="불러오는 중" class="loading-gif" id="loadingGifImg">
   </div>
 
   <div class="page">
@@ -66,9 +66,6 @@
 
   <div id="songbookView" class="songbook-view hidden">
     <img src="today-mascot2.png" alt="" class="page-top-mascot">
-    <div id="songbookLoadingScreen" class="loading-screen hidden">
-      <img src="songbook-loading.gif" alt="앨범 이미지 불러오는 중" class="loading-gif">
-    </div>
 
     <div class="songbook-inner">
     <div class="songbook-header">
@@ -158,6 +155,7 @@
           </div>
           <div class="ladder-actions" id="ladderMainActions">
             <button type="button" id="ladderStartBtn" class="ladder-action-btn ladder-start-btn" disabled>▷ START</button>
+            <button type="button" id="ladderResetBtn" class="ladder-reset-icon-btn" aria-label="초기화">↻</button>
             <button type="button" id="ladderResultBtn" class="ladder-action-btn">☰ 결과보기</button>
             <button type="button" id="ladderShuffleBtn" class="ladder-action-btn">사다리 섞기</button>
           </div>
@@ -168,7 +166,6 @@
             <input type="range" id="ladderSpeedSlider" min="1" max="10" value="5">
           </div>
           <button type="button" id="ladderBlindBtn" class="ladder-action-btn ladder-blind-btn">Blind</button>
-          <button type="button" id="ladderResetBtn" class="ladder-reset-icon-btn" aria-label="초기화">↻</button>
         </div>
       </div>
       <div id="ladderError" class="sheet-status error hidden"></div>
