@@ -951,7 +951,7 @@ function syncGameViewHeight() {
   if (wasHidden) songbookView.classList.remove("hidden");
   const h = songbookView.offsetHeight;
   if (wasHidden) songbookView.classList.add("hidden");
-  if (h > 0) gameView.style.minHeight = `${h}px`;
+  if (h > 0) gameView.style.minHeight = `${Math.max(0, h - 100)}px`;
 }
 
 document.getElementById("gameBtn").addEventListener("click", () => {

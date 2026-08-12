@@ -1,4 +1,4 @@
-const CACHE_NAME = "ddarin-calendar-v135";
+const CACHE_NAME = "ddarin-calendar-v136";
 const ASSETS = [
   "./",
   "./index.html",
@@ -6,7 +6,6 @@ const ASSETS = [
   "./app.js",
   "./games.js",
   "./manifest.json",
-  "./loading.gif",
   "./높은양갈래따린윙크.gif",
   "./단발오잉따린.gif",
   "./단발음뫄.gif",
@@ -22,7 +21,7 @@ const ASSETS = [
   "./유튜브.png",
   "./메모.png",
   "./로그인.png",
-  "./메뉴판.png",
+  "./메뉴판2.png",
   "./게임메뉴.png",
   "./룰렛 꽝 이미지.png",
   "./룰렛 꽝 이미지 2.png",
