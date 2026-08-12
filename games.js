@@ -603,9 +603,8 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   drawWheel();
 })();
 
-// ===== 핀볼 (마블 레이스) =====
+// ===== 핀볼 (마블 레이스) - lazygyu/roulette "Wheel of fortune" 맵 좌표 그대로 이식 =====
 (function pinballGame() {
-  const stage = document.getElementById("pinballStage");
   const slotsInput = document.getElementById("pinballSlotsInput");
   const errorEl = document.getElementById("pinballError");
   const buildBtn = document.getElementById("pinballBuildBtn");
@@ -630,13 +629,59 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   };
   const MARBLE_COLORS = ["#e05a5a", "#4a7fd6", "#2e9e5b", "#b3691a", "#6b4bad", "#ad3f68", "#1c5fa8", "#8a6d1f", "#e0577a", "#3fa796"];
 
-  const PINBALL_HEIGHT = 700;
-  const BALL_RADIUS = 8;
-  const RACE_TIMEOUT_MS = 15000;
+  // lazygyu/roulette src/data/maps.ts 의 'Wheel of fortune' 맵 좌표 (박스2D 유닛).
+  // 위쪽 낙하 구간(-300)은 화면 밖이라 -5로 잘라서 사용.
+  const GOAL_Y = 111;
+  const WHEEL_MAP = {
+    walls: [
+      [[16.5, -5], [9.25, -5], [9.25, 8.5], [2, 19.25], [2, 26], [9.75, 30], [9.75, 33.5], [1.25, 41], [1.25, 53.75], [8.25, 58.75], [8.25, 63], [9.25, 64], [8.25, 65], [8.25, 99.25], [15.1, 106.75], [15.1, 111.75]],
+      [[16.5, -5], [16.5, 9.25], [9.5, 20], [9.5, 22.5], [17.5, 26], [17.5, 33.5], [24, 38.5], [19, 45.5], [19, 55.5], [24, 59.25], [24, 63], [23, 64], [24, 65], [24, 100.5], [16, 106.75], [16, 111.75]],
+      [[12.75, 37.5], [7, 43.5], [7, 49.75], [12.75, 53.75], [12.75, 37.5]],
+      [[14.75, 37.5], [14.75, 43], [17.5, 40.25], [14.75, 37.5]],
+    ],
+    boxes: [
+      { x: 15.5, y: 30, w: 0.2, h: 0.2, angle: -Math.PI / 4 },
+      { x: 15.5, y: 32, w: 0.2, h: 0.2, angle: -Math.PI / 4 },
+      { x: 15.5, y: 28, w: 0.2, h: 0.2, angle: -Math.PI / 4 },
+      { x: 12.5, y: 30, w: 0.2, h: 0.2, angle: -Math.PI / 4 },
+      { x: 12.5, y: 32, w: 0.2, h: 0.2, angle: -Math.PI / 4 },
+      { x: 12.5, y: 28, w: 0.2, h: 0.2, angle: -Math.PI / 4 },
+      ...[9.4, 11.3, 13.2, 15.1, 17, 18.9, 20.7, 22.7].map((x) => ({ x, y: 66.6, w: 0.6, h: 0.1, angle: Math.PI / 4 })),
+      ...[9.4, 11.3, 13.2, 15.1, 17, 18.9, 20.7, 22.7].map((x) => ({ x, y: 69.1, w: 0.6, h: 0.1, angle: -Math.PI / 4 })),
+      ...[9.5, 12.75, 16, 19.25, 22.5].map((x) => ({ x, y: 92, w: 0.25, h: 0.25, angle: Math.PI / 4 })),
+      ...[11, 14.25, 17.5, 20.75].map((x) => ({ x, y: 95, w: 0.25, h: 0.25, angle: Math.PI / 4 })),
+      ...[9.5, 12.75, 16, 19.25, 22.5].map((x) => ({ x, y: 98, w: 0.25, h: 0.25, angle: Math.PI / 4 })),
+    ],
+    wheels: [
+      { x: 8, y: 75, w: 2, h: 0.1, spin: 3.5 },
+      { x: 12, y: 75, w: 2, h: 0.1, spin: -3.5 },
+      { x: 16, y: 75, w: 2, h: 0.1, spin: 3.5 },
+      { x: 20, y: 75, w: 2, h: 0.1, spin: -3.5 },
+      { x: 24, y: 75, w: 2, h: 0.1, spin: 3.5 },
+      { x: 14, y: 106.75, w: 2, h: 0.1, spin: -1.2 },
+    ],
+  };
 
-  let W = 600;
-  let H = PINBALL_HEIGHT;
-  let FINISH_Y = H - 60;
+  const MAP_SCALE = 14;
+  const MAP_MARGIN = 30;
+  const Y_MIN = -5;
+  const Y_MAX = 111.75;
+  const X_MAX = 26;
+
+  function mapToPx(mx, my) {
+    return { x: MAP_MARGIN + mx * MAP_SCALE, y: MAP_MARGIN + (my - Y_MIN) * MAP_SCALE };
+  }
+
+  const CANVAS_W = Math.round(MAP_MARGIN * 2 + X_MAX * MAP_SCALE);
+  const CONTENT_H = Math.round(MAP_MARGIN * 2 + (Y_MAX - Y_MIN) * MAP_SCALE);
+  const VIEWPORT_H = 700;
+  const BALL_RADIUS = 6;
+  const RACE_TIMEOUT_MS = 20000;
+  const FINISH_Y = mapToPx(13, GOAL_Y).y;
+  const START_POINT = mapToPx(12.875, 2);
+
+  let W = CANVAS_W;
+  let H = VIEWPORT_H;
 
   let names = [];
   let engine = null;
@@ -650,86 +695,71 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   let darkMode = true;
   let winnerType = "first";
   let winningRank = 1;
+  let cameraY = 0;
 
-  function resizeCanvas() {
-    W = Math.round(stage.offsetWidth) || 600;
-    H = PINBALL_HEIGHT;
-    FINISH_Y = H - 60;
+  function initCanvasSize() {
+    W = CANVAS_W;
+    H = VIEWPORT_H;
     canvas.width = W;
     canvas.height = H;
   }
 
   function makeObstacle(x, y, w, h, angle, extra) {
-    const body = Bodies.rectangle(x, y, w, h, Object.assign({ isStatic: true, angle, restitution: 0.6, friction: 0.05 }, extra));
+    const body = Bodies.rectangle(x, y, w, h, Object.assign({ isStatic: true, angle, restitution: 0.4, friction: 0.02 }, extra));
     body.renderW = w;
     body.renderH = h;
     return body;
   }
 
-  // "운명의 수레바퀴" 맵: lazygyu/roulette의 Wheel of fortune 맵을 참고해
-  // 회전 사각핀 - 지그재그 디플렉터 - 회전 스피너 - 다이아몬드 핀 4개 층으로 구성
+  function addPolylineWalls(points) {
+    for (let i = 0; i < points.length - 1; i++) {
+      const p1 = mapToPx(points[i][0], points[i][1]);
+      const p2 = mapToPx(points[i + 1][0], points[i + 1][1]);
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const length = Math.hypot(dx, dy);
+      if (length < 1) continue;
+      const angle = Math.atan2(dy, dx);
+      const seg = makeObstacle((p1.x + p2.x) / 2, (p1.y + p2.y) / 2, length, 5, angle, { restitution: 0.1 });
+      obstacles.push(seg);
+    }
+  }
+
   function buildBoard() {
-    resizeCanvas();
+    initCanvasSize();
     engine = Engine.create();
+    engine.gravity.y = 1;
     const world = engine.world;
 
     obstacles = [];
     spinners = [];
 
-    const top = 60;
-    const bottom = FINISH_Y - 40;
-    const span = bottom - top;
+    WHEEL_MAP.walls.forEach(addPolylineWalls);
 
-    const gridCols = Math.max(6, Math.round(W / 70));
-    [0.2, 0.3].forEach((ratio, row) => {
-      const y = top + span * ratio;
-      const offset = row % 2 === 0 ? 0 : W / gridCols / 2;
-      for (let c = 0; c < gridCols; c++) {
-        const x = offset + (c + 0.5) * (W / gridCols);
-        if (x < 10 || x > W - 10) continue;
-        obstacles.push(makeObstacle(x, y, 14, 14, Math.PI / 4));
-      }
+    WHEEL_MAP.boxes.forEach((b) => {
+      const p = mapToPx(b.x, b.y);
+      obstacles.push(makeObstacle(p.x, p.y, b.w * MAP_SCALE, b.h * MAP_SCALE, b.angle));
     });
 
-    const barY = top + span * 0.45;
-    const barCount = Math.max(5, Math.round(W / 110));
-    for (let i = 0; i < barCount; i++) {
-      const x = (i + 0.5) * (W / barCount);
-      const angle = (i % 2 === 0 ? 1 : -1) * (Math.PI / 4);
-      obstacles.push(makeObstacle(x, barY, 70, 10, angle, { restitution: 0.5 }));
-    }
-
-    const spinnerY = top + span * 0.62;
-    const spinnerCount = Math.max(3, Math.round(W / 160));
-    for (let i = 0; i < spinnerCount; i++) {
-      const x = (i + 0.5) * (W / spinnerCount);
-      const length = Math.min(120, W / spinnerCount - 10);
-      const spinner = makeObstacle(x, spinnerY, length, 10, 0, { restitution: 0.7, friction: 0.02 });
-      spinner.spinSpeed = (i % 2 === 0 ? 1 : -1) * 0.03;
+    WHEEL_MAP.wheels.forEach((wd) => {
+      const p = mapToPx(wd.x, wd.y);
+      const spinner = makeObstacle(p.x, p.y, wd.w * MAP_SCALE, wd.h * MAP_SCALE, 0, { restitution: 0.4, friction: 0.02 });
+      spinner.spinSpeed = wd.spin / 60;
       spinners.push(spinner);
       obstacles.push(spinner);
-    }
-
-    const diamondCols = Math.max(7, Math.round(W / 60));
-    [0.8, 0.9].forEach((ratio, row) => {
-      const y = top + span * ratio;
-      const offset = row % 2 === 0 ? 0 : W / diamondCols / 2;
-      for (let c = 0; c < diamondCols; c++) {
-        const x = offset + (c + 0.5) * (W / diamondCols);
-        if (x < 8 || x > W - 8) continue;
-        obstacles.push(makeObstacle(x, y, 12, 12, Math.PI / 4));
-      }
     });
 
+    // 안전망 (맵 좌우/바닥)
     const walls = [
-      Bodies.rectangle(-5, H / 2, 10, H, { isStatic: true }),
-      Bodies.rectangle(W + 5, H / 2, 10, H, { isStatic: true }),
-      Bodies.rectangle(W / 2, H + 5, W, 10, { isStatic: true }),
+      Bodies.rectangle(-10, CONTENT_H / 2, 20, CONTENT_H, { isStatic: true }),
+      Bodies.rectangle(W + 10, CONTENT_H / 2, 20, CONTENT_H, { isStatic: true }),
+      Bodies.rectangle(W / 2, CONTENT_H + 10, W, 20, { isStatic: true }),
     ];
 
     Composite.add(world, obstacles.concat(walls));
     marbles = [];
     finishOrder = [];
+    cameraY = 0;
   }
 
   function updateWinningRankUi() {
@@ -739,11 +769,27 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     winningRankInput.classList.toggle("active", winnerType === "custom");
   }
 
+  function updateCamera() {
+    if (!racing || !marbles.length) {
+      cameraY = 0;
+      return;
+    }
+    let leaderY = START_POINT.y;
+    marbles.forEach((m) => {
+      if (!m.finished) leaderY = Math.max(leaderY, m.body.position.y);
+    });
+    const target = leaderY - H * 0.4;
+    cameraY = Math.max(0, Math.min(CONTENT_H - H, target));
+  }
+
   function drawBoard() {
     const palette = darkMode ? PALETTE.dark : PALETTE.light;
 
     ctx.fillStyle = palette.bg;
     ctx.fillRect(0, 0, W, H);
+
+    ctx.save();
+    ctx.translate(0, -cameraY);
 
     ctx.fillStyle = palette.peg;
     obstacles.forEach((o) => {
@@ -754,17 +800,15 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
       ctx.restore();
     });
 
-    if (obstacles.length) {
-      ctx.strokeStyle = palette.finishLine;
-      ctx.setLineDash([6, 6]);
-      ctx.beginPath();
-      ctx.moveTo(0, FINISH_Y);
-      ctx.lineTo(W, FINISH_Y);
-      ctx.stroke();
-      ctx.setLineDash([]);
-    }
+    ctx.strokeStyle = palette.finishLine;
+    ctx.setLineDash([6, 6]);
+    ctx.beginPath();
+    ctx.moveTo(0, FINISH_Y);
+    ctx.lineTo(W, FINISH_Y);
+    ctx.stroke();
+    ctx.setLineDash([]);
 
-    ctx.font = "bold 11px sans-serif";
+    ctx.font = "bold 10px sans-serif";
     ctx.textAlign = "center";
     marbles.forEach((m) => {
       const pos = m.body.position;
@@ -775,6 +819,8 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
       ctx.fillStyle = palette.label;
       ctx.fillText(m.name, pos.x, pos.y - BALL_RADIUS - 4);
     });
+
+    ctx.restore();
   }
 
   buildBtn.addEventListener("click", () => {
@@ -792,6 +838,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     racing = false;
     marbles = [];
     finishOrder = [];
+    cameraY = 0;
 
     winningRankInput.max = names.length;
     if (winnerType === "last") winningRank = names.length;
@@ -850,11 +897,12 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     finishOrder = [];
     settingsPanel.classList.add("hide");
 
+    const corridorMin = mapToPx(9.5, 2).x;
+    const corridorMax = mapToPx(16, 2).x;
     marbles = names.map((name, i) => {
-      const startX = ((i + 0.5) / names.length) * W + (Math.random() - 0.5) * 10;
-      const clampedX = Math.max(BALL_RADIUS + 2, Math.min(W - BALL_RADIUS - 2, startX));
-      const body = Bodies.circle(clampedX, 20, BALL_RADIUS, {
-        restitution: 0.5,
+      const startX = Math.max(corridorMin, Math.min(corridorMax, START_POINT.x + (Math.random() - 0.5) * (corridorMax - corridorMin)));
+      const body = Bodies.circle(startX, START_POINT.y, BALL_RADIUS, {
+        restitution: 0.4,
         friction: 0.02,
         frictionAir: 0.001,
       });
@@ -868,6 +916,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     function step() {
       spinners.forEach((s) => Body.rotate(s, s.spinSpeed));
       Engine.update(engine, 1000 / 60);
+      updateCamera();
       drawBoard();
 
       marbles.forEach((m) => {
@@ -911,19 +960,9 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   });
 
   redrawPinballCanvas = () => {
-    if (racing) {
-      resizeCanvas();
-      drawBoard();
-      return;
-    }
-    buildBoard();
+    updateCamera();
     drawBoard();
   };
-  window.addEventListener("resize", () => {
-    if (racing) return;
-    buildBoard();
-    drawBoard();
-  });
 
   buildBoard();
   drawBoard();
