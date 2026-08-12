@@ -4,6 +4,7 @@ function showGameError(el, msg) {
 }
 
 let redrawLadderCanvas = function () {};
+let redrawRouletteWheel = function () {};
 
 document.querySelectorAll(".game-tab").forEach((tab) => {
   tab.addEventListener("click", () => {
@@ -13,6 +14,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     document.getElementById("roulettePanel").classList.toggle("hidden", target !== "roulette");
     document.getElementById("pinballPanel").classList.toggle("hidden", target !== "pinball");
     if (target === "ladder") redrawLadderCanvas();
+    if (target === "roulette") redrawRouletteWheel();
   });
 });
 
@@ -336,6 +338,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 (function rouletteGame() {
   const errorEl = document.getElementById("rouletteError");
   const canvas = document.getElementById("rouletteCanvas");
+  const wheelWrap = document.querySelector(".roulette-wheel-wrap");
   const countLabel = document.getElementById("rouletteCountLabel");
   const countMinus = document.getElementById("rouletteCountMinus");
   const countPlus = document.getElementById("rouletteCountPlus");
@@ -389,7 +392,9 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   }
 
   function drawWheel() {
-    const size = canvas.width;
+    const size = Math.round(wheelWrap.offsetWidth) || 520;
+    canvas.width = size;
+    canvas.height = size;
     const cx = size / 2;
     const cy = size / 2;
     const radius = size / 2 - 4;
@@ -489,6 +494,9 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     canvas.style.transform = "rotate(0deg)";
     currentRotation = 0;
   });
+
+  redrawRouletteWheel = drawWheel;
+  window.addEventListener("resize", drawWheel);
 
   updateCountLabel();
   renderSettingsInputs();
