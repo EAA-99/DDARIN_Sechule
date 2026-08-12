@@ -53,6 +53,8 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const resultsRow = document.getElementById("ladderResultsRow");
   const canvas = document.getElementById("ladderCanvas");
   const errorEl = document.getElementById("ladderError");
+  const toolbarEl = document.querySelector("#ladderPanel .ladder-toolbar");
+  const LADDER_TARGET_HEIGHT = 740;
   const countLabel = document.getElementById("ladderCountLabel");
   const countMinus = document.getElementById("ladderCountMinus");
   const countPlus = document.getElementById("ladderCountPlus");
@@ -163,7 +165,13 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 
   function drawLadder(paths) {
     canvas.width = namesRow.offsetWidth || 480;
-    canvas.height = 550;
+    const nonCanvasHeight =
+      toolbarEl.offsetHeight + 20 +
+      errorEl.offsetHeight + (errorEl.offsetHeight > 0 ? 8 : 0) +
+      namesRow.offsetHeight +
+      resultsRow.offsetHeight +
+      12;
+    canvas.height = Math.max(300, LADDER_TARGET_HEIGHT - nonCanvasHeight);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ctx.strokeStyle = "#ccc";
@@ -583,7 +591,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   drawWheel();
 })();
 
-// ===== 핀볼 =====
+// ===== 핀볼 (마블 레이스) =====
 (function pinballGame() {
   const stage = document.getElementById("pinballStage");
   const slotsInput = document.getElementById("pinballSlotsInput");
@@ -597,41 +605,49 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const toggleArrow = toggleSettingsBtn.querySelector(".pinball-toggle-arrow");
   const collapsibleRows = document.getElementById("pinballCollapsibleRows");
   const darkModeToggle = document.getElementById("pinballDarkModeToggle");
+  const firstWinnerBtn = document.getElementById("pinballFirstWinnerBtn");
+  const lastWinnerBtn = document.getElementById("pinballLastWinnerBtn");
+  const winningRankInput = document.getElementById("pinballWinningRankInput");
   const ctx = canvas.getContext("2d");
 
   const { Engine, Bodies, Body, Composite } = Matter;
 
   const PALETTE = {
-    dark: { bg: "#0e1116", peg: "#4a7fd6", divider: "#333", slotBorder: "#444", label: "#cfe2f7", ball: "#ff6d6d" },
-    light: { bg: "#fafafa", peg: "#cfe2f7", divider: "#ddd", slotBorder: "#ddd", label: "#4a7fd6", ball: "#e05a5a" },
+    dark: { bg: "#0e1116", peg: "#4a7fd6", finishLine: "#555", label: "#cfe2f7" },
+    light: { bg: "#fafafa", peg: "#cfe2f7", finishLine: "#ddd", label: "#4a7fd6" },
   };
+  const MARBLE_COLORS = ["#e05a5a", "#4a7fd6", "#2e9e5b", "#b3691a", "#6b4bad", "#ad3f68", "#1c5fa8", "#8a6d1f", "#e0577a", "#3fa796"];
 
   const PINBALL_HEIGHT = 700;
   const ROWS = 8;
-  const PEG_RADIUS = 6;
-  const BALL_RADIUS = 10;
+  const PEG_RADIUS = 5;
+  const BALL_RADIUS = 8;
+  const RACE_TIMEOUT_MS = 15000;
 
   let W = 600;
   let H = PINBALL_HEIGHT;
   let PEG_TOP = 60;
   let PEG_BOTTOM = H - 160;
-  let SLOT_TOP = H - 100;
+  let FINISH_Y = H - 60;
 
-  let slots = [];
+  let names = [];
   let engine = null;
   let pegBodies = [];
-  let ballBody = null;
-  let dropping = false;
-  let settleFrames = 0;
+  let marbles = [];
+  let racing = false;
+  let finishOrder = [];
+  let raceStartTime = 0;
   let rafId = null;
   let darkMode = true;
+  let winnerType = "first";
+  let winningRank = 1;
 
   function resizeCanvas() {
     W = Math.round(stage.offsetWidth) || 600;
     H = PINBALL_HEIGHT;
     PEG_TOP = 60;
     PEG_BOTTOM = H - 160;
-    SLOT_TOP = H - 100;
+    FINISH_Y = H - 60;
     canvas.width = W;
     canvas.height = H;
   }
@@ -664,15 +680,16 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
       Bodies.rectangle(W / 2, H + 5, W, 10, { isStatic: true }),
     ];
 
-    const n = slots.length;
-    const slotW = W / n;
-    for (let i = 1; i < n; i++) {
-      walls.push(
-        Bodies.rectangle(i * slotW, (SLOT_TOP + H) / 2, 3, H - SLOT_TOP, { isStatic: true })
-      );
-    }
-
     Composite.add(world, pegBodies.concat(walls));
+    marbles = [];
+    finishOrder = [];
+  }
+
+  function updateWinningRankUi() {
+    winningRankInput.value = winningRank;
+    firstWinnerBtn.classList.toggle("active", winnerType === "first");
+    lastWinnerBtn.classList.toggle("active", winnerType === "last");
+    winningRankInput.classList.toggle("active", winnerType === "custom");
   }
 
   function drawBoard() {
@@ -688,82 +705,143 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
       ctx.fill();
     });
 
-    const n = slots.length;
-    if (n > 0) {
-      const slotW = W / n;
-      ctx.font = "bold 13px sans-serif";
-      ctx.textAlign = "center";
-      for (let i = 0; i < n; i++) {
-        ctx.strokeStyle = palette.slotBorder;
-        ctx.strokeRect(i * slotW, SLOT_TOP, slotW, H - SLOT_TOP);
-        ctx.fillStyle = palette.label;
-        ctx.fillText(slots[i], i * slotW + slotW / 2, SLOT_TOP + 24);
-      }
+    if (pegBodies.length) {
+      ctx.strokeStyle = palette.finishLine;
+      ctx.setLineDash([6, 6]);
+      ctx.beginPath();
+      ctx.moveTo(0, FINISH_Y);
+      ctx.lineTo(W, FINISH_Y);
+      ctx.stroke();
+      ctx.setLineDash([]);
     }
 
-    if (ballBody) {
+    ctx.font = "bold 11px sans-serif";
+    ctx.textAlign = "center";
+    marbles.forEach((m) => {
+      const pos = m.body.position;
       ctx.beginPath();
-      ctx.fillStyle = palette.ball;
-      ctx.arc(ballBody.position.x, ballBody.position.y, BALL_RADIUS, 0, Math.PI * 2);
+      ctx.fillStyle = m.color;
+      ctx.arc(pos.x, pos.y, BALL_RADIUS, 0, Math.PI * 2);
       ctx.fill();
-    }
+      ctx.fillStyle = palette.label;
+      ctx.fillText(m.name, pos.x, pos.y - BALL_RADIUS - 4);
+    });
   }
 
   buildBtn.addEventListener("click", () => {
-    slots = slotsInput.value.split("\n").map((s) => s.trim()).filter(Boolean);
-    if (slots.length < 2) {
-      showGameError(errorEl, "슬롯을 2개 이상 입력해주세요.");
+    names = slotsInput.value.split("\n").map((s) => s.trim()).filter(Boolean);
+    if (names.length < 2) {
+      showGameError(errorEl, "이름을 2명 이상 입력해주세요.");
       dropBtn.disabled = true;
       return;
     }
     errorEl.classList.add("hidden");
-    resultEl.textContent = "";
+    resultEl.innerHTML = "";
     settingsPanel.classList.remove("hide");
 
     if (rafId) cancelAnimationFrame(rafId);
-    ballBody = null;
-    dropping = false;
+    racing = false;
 
     buildBoard();
+
+    winningRankInput.max = names.length;
+    if (winnerType === "last") winningRank = names.length;
+    if (winningRank > names.length) winningRank = names.length;
+    updateWinningRankUi();
+
+    buildBtn.disabled = false;
     dropBtn.disabled = false;
     drawBoard();
   });
 
+  firstWinnerBtn.addEventListener("click", () => {
+    winnerType = "first";
+    winningRank = 1;
+    updateWinningRankUi();
+  });
+
+  lastWinnerBtn.addEventListener("click", () => {
+    winnerType = "last";
+    winningRank = names.length || 1;
+    updateWinningRankUi();
+  });
+
+  winningRankInput.addEventListener("change", () => {
+    const v = parseInt(winningRankInput.value, 10);
+    winnerType = "custom";
+    winningRank = Math.max(1, Math.min(names.length || 1, isNaN(v) ? 1 : v));
+    updateWinningRankUi();
+  });
+
+  function finishRace() {
+    racing = false;
+    buildBtn.disabled = false;
+    resultEl.innerHTML = "";
+    finishOrder.forEach((m, i) => {
+      const rank = i + 1;
+      const isWinner = rank === winningRank;
+      const row = document.createElement("div");
+      row.className = "pinball-result-row" + (isWinner ? " winner" : "");
+      const rankEl = document.createElement("span");
+      rankEl.className = "pinball-result-rank";
+      rankEl.textContent = `${rank}등`;
+      const labelEl = document.createElement("span");
+      labelEl.textContent = m.name + (isWinner ? " 🏆" : "");
+      row.append(rankEl, labelEl);
+      resultEl.appendChild(row);
+    });
+    setTimeout(() => settingsPanel.classList.remove("hide"), 1200);
+  }
+
   dropBtn.addEventListener("click", () => {
-    if (dropping || !slots.length || !engine) return;
-    dropping = true;
-    resultEl.textContent = "";
-    settleFrames = 0;
+    if (racing || !names.length || !engine) return;
+    racing = true;
+    buildBtn.disabled = true;
+    resultEl.innerHTML = "";
+    finishOrder = [];
     settingsPanel.classList.add("hide");
 
-    const startX = W / 2 + (Math.random() - 0.5) * 20;
-    ballBody = Bodies.circle(startX, 20, BALL_RADIUS, {
-      restitution: 0.5,
-      friction: 0.02,
-      frictionAir: 0.001,
+    marbles = names.map((name, i) => {
+      const startX = ((i + 0.5) / names.length) * W + (Math.random() - 0.5) * 10;
+      const clampedX = Math.max(BALL_RADIUS + 2, Math.min(W - BALL_RADIUS - 2, startX));
+      const body = Bodies.circle(clampedX, 20, BALL_RADIUS, {
+        restitution: 0.5,
+        friction: 0.02,
+        frictionAir: 0.001,
+      });
+      Body.setVelocity(body, { x: (Math.random() - 0.5) * 1.5, y: 0 });
+      Composite.add(engine.world, body);
+      return { name, color: MARBLE_COLORS[i % MARBLE_COLORS.length], body, finished: false };
     });
-    Body.setVelocity(ballBody, { x: (Math.random() - 0.5) * 1.5, y: 0 });
-    Composite.add(engine.world, ballBody);
+
+    raceStartTime = performance.now();
 
     function step() {
       Engine.update(engine, 1000 / 60);
       drawBoard();
 
-      const speed = Math.hypot(ballBody.velocity.x, ballBody.velocity.y);
-      if (ballBody.position.y > SLOT_TOP + 10 && speed < 0.3) {
-        settleFrames += 1;
-      } else {
-        settleFrames = 0;
+      marbles.forEach((m) => {
+        if (m.finished) return;
+        if (m.body.position.y > FINISH_Y) {
+          m.finished = true;
+          finishOrder.push(m);
+        }
+      });
+
+      if (finishOrder.length >= marbles.length) {
+        finishRace();
+        return;
       }
 
-      if (settleFrames > 20) {
-        dropping = false;
-        const n = slots.length;
-        const slotW = W / n;
-        let idx = Math.floor(ballBody.position.x / slotW);
-        idx = Math.max(0, Math.min(n - 1, idx));
-        resultEl.textContent = `당첨: ${slots[idx]}`;
-        setTimeout(() => settingsPanel.classList.remove("hide"), 1200);
+      if (performance.now() - raceStartTime > RACE_TIMEOUT_MS) {
+        marbles
+          .filter((m) => !m.finished)
+          .sort((a, b) => b.body.position.y - a.body.position.y)
+          .forEach((m) => {
+            m.finished = true;
+            finishOrder.push(m);
+          });
+        finishRace();
         return;
       }
 
@@ -787,7 +865,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     drawBoard();
   };
   window.addEventListener("resize", () => {
-    if (dropping) return;
+    if (racing) return;
     resizeCanvas();
     if (engine) buildBoard();
     drawBoard();
