@@ -1718,8 +1718,8 @@ body {
   text-align: left;
 }
 
-#eventTitle,
-#eventAttendees {
+#eventForm input#eventTitle,
+#eventForm input#eventAttendees {
   text-align: center;
 }
 
