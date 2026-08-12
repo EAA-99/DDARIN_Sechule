@@ -159,8 +159,11 @@
           <button type="button" id="ladderResultBtn" class="ladder-action-btn">☰ 결과보기</button>
           <button type="button" id="ladderShuffleBtn" class="ladder-action-btn">사다리 섞기</button>
           <div class="ladder-speed-control">
-            <span class="ladder-speed-label">속도</span>
-            <input type="range" id="ladderSpeedSlider" min="1" max="10" value="5">
+            <div class="ladder-speed-row">
+              <span class="ladder-speed-label">속도</span>
+              <input type="range" id="ladderSpeedSlider" min="1" max="10" value="5">
+            </div>
+            <button type="button" id="ladderBlindBtn" class="ladder-action-btn ladder-blind-btn">Blind</button>
           </div>
         </div>
       </div>
@@ -188,7 +191,9 @@
 
       <div class="roulette-body">
         <div class="roulette-wheel-wrap">
-          <canvas id="rouletteCanvas" class="roulette-canvas" width="560" height="560"></canvas>
+          <div class="roulette-canvas-clip">
+            <canvas id="rouletteCanvas" class="roulette-canvas" width="560" height="560"></canvas>
+          </div>
           <div class="roulette-pointer">▼</div>
         </div>
       </div>

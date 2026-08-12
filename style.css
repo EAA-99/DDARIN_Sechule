@@ -1054,15 +1054,27 @@ body {
 
 .ladder-speed-control {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 6px;
   margin-left: 8px;
+}
+
+.ladder-speed-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .ladder-speed-label {
   font-size: 0.78rem;
   color: #888;
   font-weight: 700;
+}
+
+.ladder-blind-btn.active {
+  background: #8a6d3b;
+  color: #fff;
+  border-color: #8a6d3b;
 }
 
 .ladder-start-btn {
@@ -1167,9 +1179,14 @@ body {
   max-width: 520px;
 }
 
+.roulette-canvas-clip {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 50%;
+}
+
 .roulette-canvas {
   display: block;
-  border-radius: 50%;
   transition: transform 4s cubic-bezier(0.17, 0.84, 0.44, 1);
   transform-origin: 50% 50%;
 }

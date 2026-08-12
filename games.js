@@ -32,6 +32,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const shuffleBtn = document.getElementById("ladderShuffleBtn");
   const summaryEl = document.getElementById("ladderSummary");
   const speedSlider = document.getElementById("ladderSpeedSlider");
+  const blindBtn = document.getElementById("ladderBlindBtn");
   const resultModalBackdrop = document.getElementById("ladderResultModalBackdrop");
   const resultModalList = document.getElementById("ladderResultModalList");
   const closeResultModalBtn = document.getElementById("closeLadderResultModalBtn");
@@ -46,6 +47,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   let rungs = [];
   let started = false;
   let animationToken = 0;
+  let blindMode = false;
 
   function updateCountLabel() {
     countLabel.textContent = `항목 ${count}개`;
@@ -108,6 +110,20 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
         if (Math.random() < 0.35) rungs[r].add(c);
       }
     }
+
+    // 어떤 항목도 줄과 하나도 연결되지 않은 채로 남지 않도록 보정
+    for (let c = 0; c < count - 1; c++) {
+      const hasRung = rungs.some((row) => row.has(c));
+      if (hasRung) continue;
+      const candidateRows = [];
+      for (let r = 0; r < ROWS; r++) {
+        if (!rungs[r].has(c - 1) && !rungs[r].has(c + 1)) candidateRows.push(r);
+      }
+      if (candidateRows.length) {
+        const r = candidateRows[Math.floor(Math.random() * candidateRows.length)];
+        rungs[r].add(c);
+      }
+    }
   }
 
   function drawLadder(paths) {
@@ -124,7 +140,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
       ctx.stroke();
     }
 
-    if (rungs.length) {
+    if (rungs.length && !blindMode) {
       ctx.strokeStyle = "#bbb";
       const rowH = canvas.height / ROWS;
       for (let r = 0; r < ROWS; r++) {
@@ -281,6 +297,12 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     setColumnsReadonly(false);
     summaryEl.innerHTML = "";
     errorEl.classList.add("hidden");
+    drawLadder(null);
+  });
+
+  blindBtn.addEventListener("click", () => {
+    blindMode = !blindMode;
+    blindBtn.classList.toggle("active", blindMode);
     drawLadder(null);
   });
 

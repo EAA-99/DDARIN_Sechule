@@ -1481,7 +1481,8 @@ const modalCafeNotice = document.getElementById("modalCafeNotice");
 const modalCafeNoticeTitle = document.getElementById("modalCafeNoticeTitle");
 
 async function loadModalCafeNotice(key) {
-  modalCafeNotice.classList.add("hidden");
+  modalCafeNoticeTitle.textContent = "불러오는 중...";
+  modalCafeNotice.classList.remove("hidden");
   try {
     const res = await fetch(`${CAFE_API_URL}?date=${key}`);
     const posts = await res.json();
@@ -1489,10 +1490,11 @@ async function loadModalCafeNotice(key) {
     if (posts && posts.length) {
       modalCafeNoticeTitle.textContent = posts[0].title;
       modalCafeNotice.href = posts[0].url;
-      modalCafeNotice.classList.remove("hidden");
+    } else {
+      modalCafeNotice.classList.add("hidden");
     }
   } catch {
-    // 조용히 무시 (공지사항 없이 표시)
+    if (selectedDateKey === key) modalCafeNotice.classList.add("hidden");
   }
 }
 
@@ -1502,7 +1504,9 @@ const modalSoopNoticeTitle = document.getElementById("modalSoopNoticeTitle");
 const modalSoopNoticeContent = document.getElementById("modalSoopNoticeContent");
 
 async function loadModalSoopNotice(key) {
-  modalSoopNotice.classList.add("hidden");
+  modalSoopNoticeTitle.textContent = "불러오는 중...";
+  modalSoopNoticeContent.textContent = "";
+  modalSoopNotice.classList.remove("hidden");
   try {
     const res = await fetch(`${SOOP_NOTICE_API_URL}?date=${key}`);
     const posts = await res.json();
@@ -1511,10 +1515,11 @@ async function loadModalSoopNotice(key) {
       modalSoopNoticeTitle.textContent = posts[0].title;
       modalSoopNoticeContent.textContent = posts[0].content;
       modalSoopNotice.href = posts[0].url;
-      modalSoopNotice.classList.remove("hidden");
+    } else {
+      modalSoopNotice.classList.add("hidden");
     }
   } catch {
-    // 조용히 무시 (공지사항 없이 표시)
+    if (selectedDateKey === key) modalSoopNotice.classList.add("hidden");
   }
 }
 
