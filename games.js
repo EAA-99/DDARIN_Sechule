@@ -356,16 +356,20 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const MAX_COUNT = 10;
 
   let count = 4;
-  let names = ["항목1", "항목2", "항목3", "항목4"];
+  let names = ["", "", "", ""];
   let currentRotation = 0;
   let spinning = false;
+
+  function displayName(i) {
+    return names[i] || `항목${i + 1}`;
+  }
 
   function updateCountLabel() {
     countLabel.textContent = `항목 ${count}개`;
   }
 
   function syncNamesLength() {
-    while (names.length < count) names.push(`항목${names.length + 1}`);
+    while (names.length < count) names.push("");
     names.length = count;
   }
 
@@ -377,7 +381,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
       input.value = names[i];
       input.placeholder = `항목${i + 1}`;
       input.addEventListener("input", () => {
-        names[i] = input.value.trim() || `항목${i + 1}`;
+        names[i] = input.value.trim();
         drawWheel();
       });
       settingsInputs.appendChild(input);
@@ -410,7 +414,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
       ctx.textAlign = "right";
       ctx.fillStyle = "#fff";
       ctx.font = "bold 16px sans-serif";
-      ctx.fillText(names[i], radius - 20, 6);
+      ctx.fillText(displayName(i), radius - 20, 6);
       ctx.restore();
     }
   }
@@ -474,7 +478,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 
     setTimeout(() => {
       spinning = false;
-      resultModalName.textContent = names[targetIndex];
+      resultModalName.textContent = displayName(targetIndex);
       resultModalBackdrop.classList.remove("hidden");
     }, 4100);
   });

@@ -58,9 +58,15 @@ body {
 }
 
 .side-nav-items {
+  position: fixed;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  z-index: 50;
+}
+
+#menuToggleBtn {
+  cursor: grab;
 }
 
 .side-nav-btn {
@@ -1171,8 +1177,12 @@ body {
   display: block;
   width: 100%;
   height: auto;
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
   transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+  transform-origin: 50% 50%;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .roulette-pointer {

@@ -946,9 +946,57 @@ document.getElementById("gameBtn").addEventListener("click", () => {
 
 const menuToggleBtn = document.getElementById("menuToggleBtn");
 const sideNavItems = document.getElementById("sideNavItems");
-menuToggleBtn.addEventListener("click", () => {
-  sideNavItems.classList.toggle("hidden");
-});
+
+function positionSideNavItems() {
+  const rect = menuToggleBtn.getBoundingClientRect();
+  const openLeft = rect.left > window.innerWidth / 2;
+  sideNavItems.style.top = `${rect.top}px`;
+  if (openLeft) {
+    sideNavItems.style.right = `${window.innerWidth - rect.left + 8}px`;
+    sideNavItems.style.left = "auto";
+  } else {
+    sideNavItems.style.left = `${rect.right + 8}px`;
+    sideNavItems.style.right = "auto";
+  }
+}
+
+(function makeMenuButtonDraggable() {
+  let dragging = false;
+  let moved = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  menuToggleBtn.addEventListener("mousedown", (e) => {
+    dragging = true;
+    moved = false;
+    const rect = menuToggleBtn.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+  });
+
+  document.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+    moved = true;
+    menuToggleBtn.style.position = "fixed";
+    menuToggleBtn.style.margin = "0";
+    menuToggleBtn.style.left = `${e.clientX - offsetX}px`;
+    menuToggleBtn.style.top = `${e.clientY - offsetY}px`;
+    if (!sideNavItems.classList.contains("hidden")) positionSideNavItems();
+  });
+
+  document.addEventListener("mouseup", () => {
+    dragging = false;
+  });
+
+  menuToggleBtn.addEventListener("click", () => {
+    if (moved) {
+      moved = false;
+      return;
+    }
+    sideNavItems.classList.toggle("hidden");
+    if (!sideNavItems.classList.contains("hidden")) positionSideNavItems();
+  });
+})();
 
 const MEMO_KEY = "ddarin-memo-2026";
 const memoBtn = document.getElementById("memoBtn");
