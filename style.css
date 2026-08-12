@@ -1067,15 +1067,9 @@ body {
 }
 
 .pinball-toggle-settings {
-  background: none;
-  border: none;
-  color: #fefefe;
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  /* 참고 사이트(lazygyu/roulette)도 데스크톱에서는 이 버튼을 숨기고
+     설정 행을 항상 펼쳐서 보여줌 (모바일 전용 UI) */
+  display: none;
 }
 
 .pinball-collapsible-rows {
@@ -1724,7 +1718,8 @@ body {
   text-align: left;
 }
 
-#eventTitle {
+#eventTitle,
+#eventAttendees {
   text-align: center;
 }
 
