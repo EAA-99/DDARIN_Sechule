@@ -1496,12 +1496,22 @@ function resetForm() {
 const modalCafeNotice = document.getElementById("modalCafeNotice");
 const modalCafeNoticeTitle = document.getElementById("modalCafeNoticeTitle");
 
+const cafeNoticeCache = new Map();
+function fetchCafeNoticeCached(key) {
+  if (!cafeNoticeCache.has(key)) {
+    cafeNoticeCache.set(
+      key,
+      fetch(`${CAFE_API_URL}?date=${key}`).then((res) => res.json())
+    );
+  }
+  return cafeNoticeCache.get(key);
+}
+
 async function loadModalCafeNotice(key) {
   modalCafeNoticeTitle.textContent = "불러오는 중...";
   modalCafeNotice.classList.remove("hidden");
   try {
-    const res = await fetch(`${CAFE_API_URL}?date=${key}`);
-    const posts = await res.json();
+    const posts = await fetchCafeNoticeCached(key);
     if (selectedDateKey !== key) return;
     if (posts && posts.length) {
       modalCafeNoticeTitle.textContent = posts[0].title;
@@ -1510,6 +1520,7 @@ async function loadModalCafeNotice(key) {
       modalCafeNotice.classList.add("hidden");
     }
   } catch {
+    cafeNoticeCache.delete(key);
     if (selectedDateKey === key) modalCafeNotice.classList.add("hidden");
   }
 }
@@ -1519,13 +1530,23 @@ const modalSoopNotice = document.getElementById("modalSoopNotice");
 const modalSoopNoticeTitle = document.getElementById("modalSoopNoticeTitle");
 const modalSoopNoticeContent = document.getElementById("modalSoopNoticeContent");
 
+const soopNoticeCache = new Map();
+function fetchSoopNoticeCached(key) {
+  if (!soopNoticeCache.has(key)) {
+    soopNoticeCache.set(
+      key,
+      fetch(`${SOOP_NOTICE_API_URL}?date=${key}`).then((res) => res.json())
+    );
+  }
+  return soopNoticeCache.get(key);
+}
+
 async function loadModalSoopNotice(key) {
   modalSoopNoticeTitle.textContent = "불러오는 중...";
   modalSoopNoticeContent.textContent = "";
   modalSoopNotice.classList.remove("hidden");
   try {
-    const res = await fetch(`${SOOP_NOTICE_API_URL}?date=${key}`);
-    const posts = await res.json();
+    const posts = await fetchSoopNoticeCached(key);
     if (selectedDateKey !== key) return;
     if (posts && posts.length) {
       modalSoopNoticeTitle.textContent = posts[0].title;
@@ -1535,8 +1556,15 @@ async function loadModalSoopNotice(key) {
       modalSoopNotice.classList.add("hidden");
     }
   } catch {
+    soopNoticeCache.delete(key);
     if (selectedDateKey === key) modalSoopNotice.classList.add("hidden");
   }
+}
+
+function prefetchTodayNotices() {
+  const key = todayKey();
+  fetchCafeNoticeCached(key).catch(() => cafeNoticeCache.delete(key));
+  fetchSoopNoticeCached(key).catch(() => soopNoticeCache.delete(key));
 }
 
 function openModal(key) {
@@ -2005,6 +2033,7 @@ async function init() {
 
   loadingScreen.classList.add("hidden");
 
+  prefetchTodayNotices();
   prefetchSongbookInBackground();
 
   tryAutoUnlock().then(() => {

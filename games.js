@@ -6,6 +6,11 @@ function showGameError(el, msg) {
 const GAME_WIN_IMAGES = ["룰렛 이미지.png", "룰렛 이미지2.png", "룰렛 이미지3.png"];
 const GAME_MISS_IMAGES = ["룰렛 꽝 이미지.png", "룰렛 꽝 이미지 2.png", "룰렛 꽝 이미지3.png"];
 
+GAME_WIN_IMAGES.concat(GAME_MISS_IMAGES).forEach((src) => {
+  const preload = new Image();
+  preload.src = src;
+});
+
 function getResultImages(label) {
   return (label || "").trim() === "꽝" ? GAME_MISS_IMAGES : GAME_WIN_IMAGES;
 }
@@ -371,7 +376,8 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     const names = getLabels(namesRow).map((v, i) => v || `항목${i + 1}`);
     const resultLabels = getLabels(resultsRow).map((v) => v || "결과");
     const paths = [];
-    resultModalList.innerHTML = "";
+    const rowsWrap = document.createElement("div");
+    rowsWrap.className = "ladder-result-rows";
     for (let i = 0; i < count; i++) {
       const { path, endCol } = tracePath(i);
       paths.push(path);
@@ -389,8 +395,10 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
       toEl.textContent = resultLabels[endCol];
 
       row.append(fromEl, arrowEl, toEl);
-      resultModalList.appendChild(buildResultCard(resultLabels[endCol], row));
+      rowsWrap.appendChild(row);
     }
+    resultModalList.innerHTML = "";
+    resultModalList.appendChild(buildResultCard("", rowsWrap));
     drawLadder(paths);
     resultModalBackdrop.classList.remove("hidden");
   });
@@ -741,8 +749,8 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 
     if (rafId) cancelAnimationFrame(rafId);
     racing = false;
-
-    buildBoard();
+    marbles = [];
+    finishOrder = [];
 
     winningRankInput.max = names.length;
     if (winnerType === "last") winningRank = names.length;
@@ -861,16 +869,20 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   });
 
   redrawPinballCanvas = () => {
-    resizeCanvas();
+    if (racing) {
+      resizeCanvas();
+      drawBoard();
+      return;
+    }
+    buildBoard();
     drawBoard();
   };
   window.addEventListener("resize", () => {
     if (racing) return;
-    resizeCanvas();
-    if (engine) buildBoard();
+    buildBoard();
     drawBoard();
   });
 
-  resizeCanvas();
+  buildBoard();
   drawBoard();
 })();
