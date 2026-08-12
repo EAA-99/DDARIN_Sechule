@@ -954,226 +954,36 @@ body {
   background: #3d6bc0;
 }
 
-.pinball-panel {
+.cannon-panel {
   width: 100%;
   max-width: none;
   min-height: 740px;
 }
 
-.pinball-stage {
-  position: relative;
+.cannon-names-input {
   width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.pinball-canvas {
-  display: block;
-  background: #0e1116;
-  border-radius: 16px;
-  cursor: pointer;
-}
-
-.pinball-settings {
-  position: absolute;
-  left: 16px;
-  bottom: 16px;
-  min-width: 50%;
-  z-index: 5;
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  background: #666;
-  border-radius: 10px;
-  padding: 10px;
-  opacity: 1;
-  transition: opacity 0.4s ease;
-}
-
-.pinball-settings.hide {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.pinball-settings-left {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.pinball-settings-title {
-  color: #fefefe;
-  font-size: 1rem;
-  font-weight: 700;
-  margin: 0;
-  padding: 0;
-}
-
-.pinball-names-input {
-  width: 100%;
-  min-height: 80px;
-  resize: vertical;
-  border: none;
-  border-radius: 5px;
-  background: #999;
-  padding: 8px 10px;
-  font-size: 0.95rem;
-  font-family: inherit;
-  color: #fefefe;
-}
-
-.pinball-names-input::placeholder {
-  color: #eee;
-}
-
-.pinball-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.pinball-action-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 5px;
-  background: #222;
-  color: #fefefe;
-  font-weight: 700;
+  min-height: 90px;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
   font-size: 0.85rem;
-  cursor: pointer;
+  font-family: inherit;
+  resize: vertical;
+  margin-bottom: 8px;
 }
 
-.pinball-action-btn:hover {
-  background: #333;
-}
-
-.pinball-action-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.pinball-settings-right {
-  flex-shrink: 0;
+.cannon-actions {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-}
-
-.pinball-toggle-settings {
-  /* 참고 사이트(lazygyu/roulette)도 데스크톱에서는 이 버튼을 숨기고
-     설정 행을 항상 펼쳐서 보여줌 (모바일 전용 UI) */
-  display: none;
-}
-
-.pinball-collapsible-rows {
-  overflow: hidden;
-  max-height: 90px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  transition: max-height 0.3s ease;
-}
-
-.pinball-collapsible-rows.collapsed {
-  max-height: 0;
-}
-
-.pinball-settings-row {
-  display: flex;
-  align-items: center;
-  height: 35px;
   gap: 8px;
+  margin-bottom: 12px;
 }
 
-.pinball-row-label {
-  color: #fefefe;
-  font-size: 0.82rem;
-}
-
-.pinball-btn-group {
-  display: flex;
-  align-items: stretch;
-  height: 25px;
-}
-
-.pinball-winner-btn {
-  border: none;
-  background: #999;
-  color: #fefefe;
-  font-size: 0.78rem;
-  font-weight: 700;
-  padding: 0 10px;
-  cursor: pointer;
-}
-
-.pinball-winner-btn:first-child {
-  border-radius: 10px 0 0 10px;
-}
-
-.pinball-winner-btn.active {
-  background: #333;
-}
-
-#pinballWinningRankInput {
-  width: 44px;
-  border: none;
-  border-radius: 0 10px 10px 0;
-  background: #999;
-  color: #fefefe;
-  text-align: center;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-#pinballWinningRankInput.active {
-  background: #333;
-}
-
-.pinball-toggle-checkbox {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 50px;
-  height: 25px;
-  border-radius: 25px;
-  background: #999;
-  position: relative;
-  cursor: pointer;
-  outline: none;
-  flex-shrink: 0;
-}
-
-.pinball-toggle-checkbox::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 25px;
-  height: 25px;
-  border-radius: 25px;
-  background: #ccc;
-  transition: transform 0.2s;
-}
-
-.pinball-toggle-checkbox:checked {
-  background: #00baff;
-}
-
-.pinball-toggle-checkbox:checked::after {
-  transform: translateX(100%);
-  background: #fff;
-}
-
-.pinball-icon {
-  font-style: normal;
-  font-size: 1.1rem;
-  line-height: 1;
+.cannon-canvas {
+  display: block;
+  width: 100%;
+  height: 560px;
+  background: #eaf4ff;
+  border-radius: 16px;
 }
 
 .ladder-panel {
@@ -1475,38 +1285,6 @@ body {
   line-height: 1;
 }
 
-
-.pinball-result-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 12px;
-}
-
-.pinball-result-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 14px;
-  border-radius: 10px;
-  background: #f3f9ff;
-  font-weight: 700;
-}
-
-.pinball-result-rank {
-  flex-shrink: 0;
-  width: 28px;
-  text-align: center;
-  color: #999;
-}
-
-.pinball-result-row.winner {
-  background: #fbeeaa;
-}
-
-.pinball-result-row.winner .pinball-result-rank {
-  color: #8a6d1f;
-}
 
 #loginModalBackdrop .modal {
   background: #fff;

@@ -37,7 +37,7 @@ function buildResultCard(label, contentEl, winnerText = "WINNER") {
 
 let redrawLadderCanvas = function () {};
 let redrawRouletteWheel = function () {};
-let redrawPinballCanvas = function () {};
+let redrawCannonCanvas = function () {};
 
 document.querySelectorAll(".game-tab").forEach((tab) => {
   tab.addEventListener("click", () => {
@@ -45,10 +45,10 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     document.querySelectorAll(".game-tab").forEach((t) => t.classList.toggle("active", t === tab));
     document.getElementById("ladderPanel").classList.toggle("hidden", target !== "ladder");
     document.getElementById("roulettePanel").classList.toggle("hidden", target !== "roulette");
-    document.getElementById("pinballPanel").classList.toggle("hidden", target !== "pinball");
+    document.getElementById("cannonPanel").classList.toggle("hidden", target !== "cannon");
     if (target === "ladder") redrawLadderCanvas();
     if (target === "roulette") redrawRouletteWheel();
-    if (target === "pinball") redrawPinballCanvas();
+    if (target === "cannon") redrawCannonCanvas();
   });
 });
 
@@ -592,367 +592,187 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   drawWheel();
 })();
 
-// ===== 핀볼 (마블 레이스) - lazygyu/roulette "Wheel of fortune" 맵 좌표 그대로 이식 =====
-(function pinballGame() {
-  const slotsInput = document.getElementById("pinballSlotsInput");
-  const errorEl = document.getElementById("pinballError");
-  const buildBtn = document.getElementById("pinballBuildBtn");
-  const canvas = document.getElementById("pinballCanvas");
-  const dropBtn = document.getElementById("pinballDropBtn");
-  const resultEl = document.getElementById("pinballResult");
-  const settingsPanel = document.getElementById("pinballSettings");
-  const toggleSettingsBtn = document.getElementById("pinballToggleSettingsBtn");
-  const toggleArrow = toggleSettingsBtn.querySelector(".pinball-toggle-arrow");
-  const collapsibleRows = document.getElementById("pinballCollapsibleRows");
-  const darkModeToggle = document.getElementById("pinballDarkModeToggle");
-  const firstWinnerBtn = document.getElementById("pinballFirstWinnerBtn");
-  const lastWinnerBtn = document.getElementById("pinballLastWinnerBtn");
-  const winningRankInput = document.getElementById("pinballWinningRankInput");
+// ===== 대포 =====
+(function cannonGame() {
+  const namesInput = document.getElementById("cannonNamesInput");
+  const errorEl = document.getElementById("cannonError");
+  const buildBtn = document.getElementById("cannonBuildBtn");
+  const canvas = document.getElementById("cannonCanvas");
+  const fireBtn = document.getElementById("cannonFireBtn");
+  const resultModalBackdrop = document.getElementById("cannonResultModalBackdrop");
+  const resultCardWrap = document.getElementById("cannonResultCard");
+  const closeResultModalBtn = document.getElementById("closeCannonResultModalBtn");
   const ctx = canvas.getContext("2d");
 
-  const { Engine, Bodies, Body, Composite } = Matter;
+  const GRAVITY = 900;
+  const CANNON_X = 60;
+  const BALL_RADIUS = 8;
+  const PANEL_HEIGHT = 560;
 
-  const PALETTE = {
-    dark: { bg: "#0e1116", peg: "#4a7fd6", finishLine: "#555", label: "#cfe2f7" },
-    light: { bg: "#fafafa", peg: "#cfe2f7", finishLine: "#ddd", label: "#4a7fd6" },
-  };
-  const MARBLE_COLORS = ["#e05a5a", "#4a7fd6", "#2e9e5b", "#b3691a", "#6b4bad", "#ad3f68", "#1c5fa8", "#8a6d1f", "#e0577a", "#3fa796"];
-
-  // lazygyu/roulette src/data/maps.ts 의 'Wheel of fortune' 맵 좌표 (박스2D 유닛).
-  // 위쪽 낙하 구간(-300)은 화면 밖이라 -5로 잘라서 사용.
-  const GOAL_Y = 111;
-  const WHEEL_MAP = {
-    walls: [
-      [[16.5, -5], [9.25, -5], [9.25, 8.5], [2, 19.25], [2, 26], [9.75, 30], [9.75, 33.5], [1.25, 41], [1.25, 53.75], [8.25, 58.75], [8.25, 63], [9.25, 64], [8.25, 65], [8.25, 99.25], [15.1, 106.75], [15.1, 111.75]],
-      [[16.5, -5], [16.5, 9.25], [9.5, 20], [9.5, 22.5], [17.5, 26], [17.5, 33.5], [24, 38.5], [19, 45.5], [19, 55.5], [24, 59.25], [24, 63], [23, 64], [24, 65], [24, 100.5], [16, 106.75], [16, 111.75]],
-      [[12.75, 37.5], [7, 43.5], [7, 49.75], [12.75, 53.75], [12.75, 37.5]],
-      [[14.75, 37.5], [14.75, 43], [17.5, 40.25], [14.75, 37.5]],
-    ],
-    boxes: [
-      { x: 15.5, y: 30, w: 0.2, h: 0.2, angle: -Math.PI / 4 },
-      { x: 15.5, y: 32, w: 0.2, h: 0.2, angle: -Math.PI / 4 },
-      { x: 15.5, y: 28, w: 0.2, h: 0.2, angle: -Math.PI / 4 },
-      { x: 12.5, y: 30, w: 0.2, h: 0.2, angle: -Math.PI / 4 },
-      { x: 12.5, y: 32, w: 0.2, h: 0.2, angle: -Math.PI / 4 },
-      { x: 12.5, y: 28, w: 0.2, h: 0.2, angle: -Math.PI / 4 },
-      ...[9.4, 11.3, 13.2, 15.1, 17, 18.9, 20.7, 22.7].map((x) => ({ x, y: 66.6, w: 0.6, h: 0.1, angle: Math.PI / 4 })),
-      ...[9.4, 11.3, 13.2, 15.1, 17, 18.9, 20.7, 22.7].map((x) => ({ x, y: 69.1, w: 0.6, h: 0.1, angle: -Math.PI / 4 })),
-      ...[9.5, 12.75, 16, 19.25, 22.5].map((x) => ({ x, y: 92, w: 0.25, h: 0.25, angle: Math.PI / 4 })),
-      ...[11, 14.25, 17.5, 20.75].map((x) => ({ x, y: 95, w: 0.25, h: 0.25, angle: Math.PI / 4 })),
-      ...[9.5, 12.75, 16, 19.25, 22.5].map((x) => ({ x, y: 98, w: 0.25, h: 0.25, angle: Math.PI / 4 })),
-    ],
-    wheels: [
-      { x: 8, y: 75, w: 2, h: 0.1, spin: 3.5 },
-      { x: 12, y: 75, w: 2, h: 0.1, spin: -3.5 },
-      { x: 16, y: 75, w: 2, h: 0.1, spin: 3.5 },
-      { x: 20, y: 75, w: 2, h: 0.1, spin: -3.5 },
-      { x: 24, y: 75, w: 2, h: 0.1, spin: 3.5 },
-      { x: 14, y: 106.75, w: 2, h: 0.1, spin: -1.2 },
-    ],
-  };
-
-  const MAP_SCALE = 14;
-  const MAP_MARGIN = 30;
-  const Y_MIN = -5;
-  const Y_MAX = 111.75;
-  const X_MAX = 26;
-
-  function mapToPx(mx, my) {
-    return { x: MAP_MARGIN + mx * MAP_SCALE, y: MAP_MARGIN + (my - Y_MIN) * MAP_SCALE };
-  }
-
-  const CANVAS_W = Math.round(MAP_MARGIN * 2 + X_MAX * MAP_SCALE);
-  const CONTENT_H = Math.round(MAP_MARGIN * 2 + (Y_MAX - Y_MIN) * MAP_SCALE);
-  const VIEWPORT_H = 700;
-  const BALL_RADIUS = 6;
-  const RACE_TIMEOUT_MS = 20000;
-  const FINISH_Y = mapToPx(13, GOAL_Y).y;
-  const START_POINT = mapToPx(12.875, 2);
-
-  let W = CANVAS_W;
-  let H = VIEWPORT_H;
+  let W = 600;
+  let H = PANEL_HEIGHT;
+  let groundY = H - 70;
 
   let names = [];
-  let engine = null;
-  let obstacles = [];
-  let spinners = [];
-  let marbles = [];
-  let racing = false;
-  let finishOrder = [];
-  let raceStartTime = 0;
+  let targets = [];
+  let firing = false;
+  let ball = null;
   let rafId = null;
-  let darkMode = true;
-  let winnerType = "first";
-  let winningRank = 1;
-  let cameraY = 0;
+  let barrelAngleDeg = -40;
 
-  function initCanvasSize() {
-    W = CANVAS_W;
-    H = VIEWPORT_H;
+  function resizeCanvas() {
+    W = Math.round(canvas.parentElement.offsetWidth) || 600;
+    H = PANEL_HEIGHT;
+    groundY = H - 70;
     canvas.width = W;
     canvas.height = H;
   }
 
-  function makeObstacle(x, y, w, h, angle, extra) {
-    const body = Bodies.rectangle(x, y, w, h, Object.assign({ isStatic: true, angle, restitution: 0.4, friction: 0.02 }, extra));
-    body.renderW = w;
-    body.renderH = h;
-    return body;
+  function layoutTargets() {
+    const startX = 170;
+    const endX = W - 30;
+    const span = Math.max(0, endX - startX);
+    const n = names.length;
+    targets = names.map((name, i) => ({
+      x1: startX + (span / n) * i,
+      x2: startX + (span / n) * (i + 1),
+      name,
+    }));
   }
 
-  function addPolylineWalls(points) {
-    for (let i = 0; i < points.length - 1; i++) {
-      const p1 = mapToPx(points[i][0], points[i][1]);
-      const p2 = mapToPx(points[i + 1][0], points[i + 1][1]);
-      const dx = p2.x - p1.x;
-      const dy = p2.y - p1.y;
-      const length = Math.hypot(dx, dy);
-      if (length < 1) continue;
-      const angle = Math.atan2(dy, dx);
-      const seg = makeObstacle((p1.x + p2.x) / 2, (p1.y + p2.y) / 2, length, 5, angle, { restitution: 0.1 });
-      obstacles.push(seg);
-    }
-  }
-
-  function buildBoard() {
-    initCanvasSize();
-    engine = Engine.create();
-    engine.gravity.y = 1;
-    const world = engine.world;
-
-    obstacles = [];
-    spinners = [];
-
-    WHEEL_MAP.walls.forEach(addPolylineWalls);
-
-    WHEEL_MAP.boxes.forEach((b) => {
-      const p = mapToPx(b.x, b.y);
-      obstacles.push(makeObstacle(p.x, p.y, b.w * MAP_SCALE, b.h * MAP_SCALE, b.angle));
-    });
-
-    WHEEL_MAP.wheels.forEach((wd) => {
-      const p = mapToPx(wd.x, wd.y);
-      const spinner = makeObstacle(p.x, p.y, wd.w * MAP_SCALE, wd.h * MAP_SCALE, 0, { restitution: 0.4, friction: 0.02 });
-      spinner.spinSpeed = wd.spin / 60;
-      spinners.push(spinner);
-      obstacles.push(spinner);
-    });
-
-    // 안전망 (맵 좌우/바닥)
-    const walls = [
-      Bodies.rectangle(-10, CONTENT_H / 2, 20, CONTENT_H, { isStatic: true }),
-      Bodies.rectangle(W + 10, CONTENT_H / 2, 20, CONTENT_H, { isStatic: true }),
-      Bodies.rectangle(W / 2, CONTENT_H + 10, W, 20, { isStatic: true }),
-    ];
-
-    Composite.add(world, obstacles.concat(walls));
-    marbles = [];
-    finishOrder = [];
-    cameraY = 0;
-  }
-
-  function updateWinningRankUi() {
-    winningRankInput.value = winningRank;
-    firstWinnerBtn.classList.toggle("active", winnerType === "first");
-    lastWinnerBtn.classList.toggle("active", winnerType === "last");
-    winningRankInput.classList.toggle("active", winnerType === "custom");
-  }
-
-  function updateCamera() {
-    if (!racing || !marbles.length) {
-      cameraY = 0;
-      return;
-    }
-    let leaderY = START_POINT.y;
-    marbles.forEach((m) => {
-      if (!m.finished) leaderY = Math.max(leaderY, m.body.position.y);
-    });
-    const target = leaderY - H * 0.4;
-    cameraY = Math.max(0, Math.min(CONTENT_H - H, target));
-  }
-
-  function drawBoard() {
-    const palette = darkMode ? PALETTE.dark : PALETTE.light;
-
-    ctx.fillStyle = palette.bg;
+  function drawScene() {
+    ctx.fillStyle = "#eaf4ff";
     ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "#bfe3a8";
+    ctx.fillRect(0, groundY, W, H - groundY);
+
+    ctx.font = "bold 12px sans-serif";
+    ctx.textAlign = "center";
+    targets.forEach((t) => {
+      const cx = (t.x1 + t.x2) / 2;
+      const w = Math.max(30, (t.x2 - t.x1) * 0.7);
+      ctx.fillStyle = "#fff";
+      ctx.strokeStyle = "#4a7fd6";
+      ctx.lineWidth = 2;
+      ctx.fillRect(cx - w / 2, groundY - 44, w, 44);
+      ctx.strokeRect(cx - w / 2, groundY - 44, w, 44);
+      ctx.fillStyle = "#2a2a2a";
+      ctx.fillText(t.name, cx, groundY - 20, w + 20);
+    });
 
     ctx.save();
-    ctx.translate(0, -cameraY);
-
-    ctx.fillStyle = palette.peg;
-    obstacles.forEach((o) => {
-      ctx.save();
-      ctx.translate(o.position.x, o.position.y);
-      ctx.rotate(o.angle);
-      ctx.fillRect(-o.renderW / 2, -o.renderH / 2, o.renderW, o.renderH);
-      ctx.restore();
-    });
-
-    ctx.strokeStyle = palette.finishLine;
-    ctx.setLineDash([6, 6]);
+    ctx.translate(CANNON_X, groundY);
+    ctx.fillStyle = "#666";
     ctx.beginPath();
-    ctx.moveTo(0, FINISH_Y);
-    ctx.lineTo(W, FINISH_Y);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    ctx.font = "bold 10px sans-serif";
-    ctx.textAlign = "center";
-    marbles.forEach((m) => {
-      const pos = m.body.position;
-      ctx.beginPath();
-      ctx.fillStyle = m.color;
-      ctx.arc(pos.x, pos.y, BALL_RADIUS, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = palette.label;
-      ctx.fillText(m.name, pos.x, pos.y - BALL_RADIUS - 4);
-    });
-
+    ctx.arc(0, 0, 20, Math.PI, 0);
+    ctx.fill();
+    ctx.rotate((barrelAngleDeg * Math.PI) / 180);
+    ctx.fillStyle = "#333";
+    ctx.fillRect(0, -7, 44, 14);
     ctx.restore();
+
+    if (ball) {
+      ctx.beginPath();
+      ctx.fillStyle = "#e05a5a";
+      ctx.arc(ball.x, ball.y, BALL_RADIUS, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 
   buildBtn.addEventListener("click", () => {
-    names = slotsInput.value.split("\n").map((s) => s.trim()).filter(Boolean);
+    names = namesInput.value.split("\n").map((s) => s.trim()).filter(Boolean);
     if (names.length < 2) {
-      showGameError(errorEl, "이름을 2명 이상 입력해주세요.");
-      dropBtn.disabled = true;
+      showGameError(errorEl, "이름을 2개 이상 입력해주세요.");
+      fireBtn.disabled = true;
       return;
     }
     errorEl.classList.add("hidden");
-    resultEl.innerHTML = "";
-    settingsPanel.classList.remove("hide");
-
     if (rafId) cancelAnimationFrame(rafId);
-    racing = false;
-    marbles = [];
-    finishOrder = [];
-    cameraY = 0;
-
-    winningRankInput.max = names.length;
-    if (winnerType === "last") winningRank = names.length;
-    if (winningRank > names.length) winningRank = names.length;
-    updateWinningRankUi();
-
-    buildBtn.disabled = false;
-    dropBtn.disabled = false;
-    drawBoard();
+    firing = false;
+    ball = null;
+    resizeCanvas();
+    layoutTargets();
+    fireBtn.disabled = false;
+    drawScene();
   });
 
-  firstWinnerBtn.addEventListener("click", () => {
-    winnerType = "first";
-    winningRank = 1;
-    updateWinningRankUi();
-  });
-
-  lastWinnerBtn.addEventListener("click", () => {
-    winnerType = "last";
-    winningRank = names.length || 1;
-    updateWinningRankUi();
-  });
-
-  winningRankInput.addEventListener("change", () => {
-    const v = parseInt(winningRankInput.value, 10);
-    winnerType = "custom";
-    winningRank = Math.max(1, Math.min(names.length || 1, isNaN(v) ? 1 : v));
-    updateWinningRankUi();
-  });
-
-  function finishRace() {
-    racing = false;
-    buildBtn.disabled = false;
-    resultEl.innerHTML = "";
-    finishOrder.forEach((m, i) => {
-      const rank = i + 1;
-      const isWinner = rank === winningRank;
-      const row = document.createElement("div");
-      row.className = "pinball-result-row" + (isWinner ? " winner" : "");
-      const rankEl = document.createElement("span");
-      rankEl.className = "pinball-result-rank";
-      rankEl.textContent = `${rank}등`;
-      const labelEl = document.createElement("span");
-      labelEl.textContent = m.name + (isWinner ? " 🏆" : "");
-      row.append(rankEl, labelEl);
-      resultEl.appendChild(row);
-    });
-    setTimeout(() => settingsPanel.classList.remove("hide"), 1200);
+  function finishShot() {
+    firing = false;
+    fireBtn.disabled = false;
+    const landX = ball.x;
+    let winner = targets[targets.length - 1];
+    for (const t of targets) {
+      if (landX >= t.x1 && landX < t.x2) {
+        winner = t;
+        break;
+      }
+    }
+    const label = document.createElement("div");
+    label.className = "result-winner-text";
+    label.textContent = winner.name;
+    resultCardWrap.innerHTML = "";
+    resultCardWrap.appendChild(buildResultCard(winner.name, label));
+    resultModalBackdrop.classList.remove("hidden");
   }
 
-  dropBtn.addEventListener("click", () => {
-    if (racing || !names.length || !engine) return;
-    racing = true;
-    buildBtn.disabled = true;
-    resultEl.innerHTML = "";
-    finishOrder = [];
-    settingsPanel.classList.add("hide");
+  fireBtn.addEventListener("click", () => {
+    if (firing || !targets.length) return;
+    firing = true;
+    fireBtn.disabled = true;
 
-    const corridorMin = mapToPx(9.5, 2).x;
-    const corridorMax = mapToPx(16, 2).x;
-    marbles = names.map((name, i) => {
-      const startX = Math.max(corridorMin, Math.min(corridorMax, START_POINT.x + (Math.random() - 0.5) * (corridorMax - corridorMin)));
-      const body = Bodies.circle(startX, START_POINT.y, BALL_RADIUS, {
-        restitution: 0.4,
-        friction: 0.02,
-        frictionAir: 0.001,
-      });
-      Body.setVelocity(body, { x: (Math.random() - 0.5) * 1.5, y: 0 });
-      Composite.add(engine.world, body);
-      return { name, color: MARBLE_COLORS[i % MARBLE_COLORS.length], body, finished: false };
-    });
+    const angleDeg = 25 + Math.random() * 40;
+    const power = 480 + Math.random() * 260;
+    barrelAngleDeg = -angleDeg;
+    const rad = (angleDeg * Math.PI) / 180;
+    ball = {
+      x: CANNON_X,
+      y: groundY,
+      vx: Math.cos(rad) * power,
+      vy: -Math.sin(rad) * power,
+    };
 
-    raceStartTime = performance.now();
+    let lastTime = performance.now();
+    function step(now) {
+      const dt = Math.min(0.032, (now - lastTime) / 1000);
+      lastTime = now;
 
-    function step() {
-      spinners.forEach((s) => Body.rotate(s, s.spinSpeed));
-      Engine.update(engine, 1000 / 60);
-      updateCamera();
-      drawBoard();
+      ball.vy += GRAVITY * dt;
+      ball.x += ball.vx * dt;
+      ball.y += ball.vy * dt;
 
-      marbles.forEach((m) => {
-        if (m.finished) return;
-        if (m.body.position.y > FINISH_Y) {
-          m.finished = true;
-          finishOrder.push(m);
-        }
-      });
-
-      if (finishOrder.length >= marbles.length) {
-        finishRace();
+      if (ball.y >= groundY || ball.x >= W) {
+        ball.x = Math.min(ball.x, W);
+        ball.y = groundY;
+        drawScene();
+        finishShot();
         return;
       }
 
-      if (performance.now() - raceStartTime > RACE_TIMEOUT_MS) {
-        marbles
-          .filter((m) => !m.finished)
-          .sort((a, b) => b.body.position.y - a.body.position.y)
-          .forEach((m) => {
-            m.finished = true;
-            finishOrder.push(m);
-          });
-        finishRace();
-        return;
-      }
-
+      drawScene();
       rafId = requestAnimationFrame(step);
     }
     rafId = requestAnimationFrame(step);
   });
 
-  toggleSettingsBtn.addEventListener("click", () => {
-    collapsibleRows.classList.toggle("collapsed");
-    toggleArrow.textContent = collapsibleRows.classList.contains("collapsed") ? "▲" : "▼";
+  closeResultModalBtn.addEventListener("click", () => {
+    resultModalBackdrop.classList.add("hidden");
+  });
+  resultModalBackdrop.addEventListener("click", (e) => {
+    if (e.target === resultModalBackdrop) resultModalBackdrop.classList.add("hidden");
   });
 
-  darkModeToggle.addEventListener("change", () => {
-    darkMode = darkModeToggle.checked;
-    drawBoard();
-  });
-
-  redrawPinballCanvas = () => {
-    updateCamera();
-    drawBoard();
+  redrawCannonCanvas = () => {
+    resizeCanvas();
+    if (targets.length) layoutTargets();
+    drawScene();
   };
+  window.addEventListener("resize", () => {
+    if (firing) return;
+    resizeCanvas();
+    if (targets.length) layoutTargets();
+    drawScene();
+  });
 
-  buildBoard();
-  drawBoard();
+  resizeCanvas();
+  drawScene();
 })();

@@ -142,7 +142,7 @@
     <div class="game-tabs">
       <button type="button" class="game-tab active" data-game="ladder">사다리</button>
       <button type="button" class="game-tab" data-game="roulette">룰렛</button>
-      <button type="button" class="game-tab" data-game="pinball">핀볼</button>
+      <button type="button" class="game-tab" data-game="cannon">대포</button>
     </div>
 
     <div id="ladderPanel" class="game-panel ladder-panel">
@@ -198,47 +198,14 @@
       </div>
     </div>
 
-    <div id="pinballPanel" class="game-panel pinball-panel hidden">
-      <div id="pinballStage" class="pinball-stage">
-        <canvas id="pinballCanvas" class="pinball-canvas"></canvas>
-        <div id="pinballSettings" class="pinball-settings">
-          <div class="pinball-settings-left">
-            <h3 class="pinball-settings-title">이름을 입력하세요</h3>
-            <textarea id="pinballSlotsInput" class="pinball-names-input" placeholder="이름 (줄바꿈으로 구분, 2명 이상)"></textarea>
-            <div id="pinballError" class="sheet-status error hidden"></div>
-            <div class="pinball-actions">
-              <button type="button" id="pinballBuildBtn" class="pinball-action-btn">
-                <i class="pinball-icon">🔀</i><span>섞기</span>
-              </button>
-              <button type="button" id="pinballDropBtn" class="pinball-action-btn" disabled>
-                <i class="pinball-icon">▶</i><span>시작</span>
-              </button>
-            </div>
-          </div>
-          <div class="pinball-settings-right">
-            <button type="button" id="pinballToggleSettingsBtn" class="pinball-toggle-settings">
-              <span>설정</span><i class="pinball-toggle-arrow">▲</i>
-            </button>
-            <div id="pinballCollapsibleRows" class="pinball-collapsible-rows">
-              <div class="pinball-settings-row">
-                <i class="pinball-icon">🏆</i>
-                <span class="pinball-row-label">우승자</span>
-                <div class="pinball-btn-group">
-                  <button type="button" id="pinballFirstWinnerBtn" class="pinball-winner-btn active">1등</button>
-                  <button type="button" id="pinballLastWinnerBtn" class="pinball-winner-btn">꼴등</button>
-                  <input type="number" id="pinballWinningRankInput" min="1" value="1">
-                </div>
-              </div>
-              <div class="pinball-settings-row">
-                <i class="pinball-icon">☀</i>
-                <input type="checkbox" id="pinballDarkModeToggle" class="pinball-toggle-checkbox" checked>
-                <i class="pinball-icon">🌙</i>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div id="cannonPanel" class="game-panel cannon-panel hidden">
+      <textarea id="cannonNamesInput" class="cannon-names-input" placeholder="이름 (줄바꿈으로 구분, 2명 이상)"></textarea>
+      <div id="cannonError" class="sheet-status error hidden"></div>
+      <div class="cannon-actions">
+        <button type="button" id="cannonBuildBtn" class="ladder-action-btn">타겟 배치</button>
+        <button type="button" id="cannonFireBtn" class="ladder-action-btn ladder-start-btn" disabled>▷ 발사</button>
       </div>
-      <div id="pinballResult" class="pinball-result-list"></div>
+      <canvas id="cannonCanvas" class="cannon-canvas"></canvas>
     </div>
   </div>
 
@@ -270,6 +237,16 @@
         <button type="button" id="closeRouletteResultModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
       </div>
       <div id="rouletteResultCard" class="result-card"></div>
+    </div>
+  </div>
+
+  <div id="cannonResultModalBackdrop" class="modal-backdrop hidden">
+    <div class="modal ladder-result-modal">
+      <div class="modal-header-row">
+        <h2>대포 결과</h2>
+        <button type="button" id="closeCannonResultModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
+      </div>
+      <div id="cannonResultCard" class="result-card"></div>
     </div>
   </div>
 
@@ -443,7 +420,6 @@
     </div>
   </div>
 
-  <script src="matter.min.js"></script>
   <script src="app.js"></script>
   <script src="games.js"></script>
   <script>
