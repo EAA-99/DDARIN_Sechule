@@ -32,6 +32,7 @@ function buildResultCard(label, contentEl) {
 
 let redrawLadderCanvas = function () {};
 let redrawRouletteWheel = function () {};
+let redrawPinballCanvas = function () {};
 
 document.querySelectorAll(".game-tab").forEach((tab) => {
   tab.addEventListener("click", () => {
@@ -42,6 +43,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     document.getElementById("pinballPanel").classList.toggle("hidden", target !== "pinball");
     if (target === "ladder") redrawLadderCanvas();
     if (target === "roulette") redrawRouletteWheel();
+    if (target === "pinball") redrawPinballCanvas();
   });
 });
 
@@ -583,24 +585,37 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 
 // ===== 핀볼 =====
 (function pinballGame() {
+  const stage = document.getElementById("pinballStage");
   const slotsInput = document.getElementById("pinballSlotsInput");
   const errorEl = document.getElementById("pinballError");
   const buildBtn = document.getElementById("pinballBuildBtn");
   const canvas = document.getElementById("pinballCanvas");
   const dropBtn = document.getElementById("pinballDropBtn");
   const resultEl = document.getElementById("pinballResult");
+  const settingsPanel = document.getElementById("pinballSettings");
+  const toggleSettingsBtn = document.getElementById("pinballToggleSettingsBtn");
+  const toggleArrow = toggleSettingsBtn.querySelector(".pinball-toggle-arrow");
+  const collapsibleRows = document.getElementById("pinballCollapsibleRows");
+  const darkModeToggle = document.getElementById("pinballDarkModeToggle");
   const ctx = canvas.getContext("2d");
 
   const { Engine, Bodies, Body, Composite } = Matter;
 
-  const W = canvas.width;
-  const H = canvas.height;
+  const PALETTE = {
+    dark: { bg: "#0e1116", peg: "#4a7fd6", divider: "#333", slotBorder: "#444", label: "#cfe2f7", ball: "#ff6d6d" },
+    light: { bg: "#fafafa", peg: "#cfe2f7", divider: "#ddd", slotBorder: "#ddd", label: "#4a7fd6", ball: "#e05a5a" },
+  };
+
+  const PINBALL_HEIGHT = 700;
   const ROWS = 8;
-  const PEG_TOP = 40;
-  const PEG_BOTTOM = H - 70;
-  const SLOT_TOP = H - 50;
-  const PEG_RADIUS = 4;
-  const BALL_RADIUS = 7;
+  const PEG_RADIUS = 6;
+  const BALL_RADIUS = 10;
+
+  let W = 600;
+  let H = PINBALL_HEIGHT;
+  let PEG_TOP = 60;
+  let PEG_BOTTOM = H - 160;
+  let SLOT_TOP = H - 100;
 
   let slots = [];
   let engine = null;
@@ -609,8 +624,20 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   let dropping = false;
   let settleFrames = 0;
   let rafId = null;
+  let darkMode = true;
+
+  function resizeCanvas() {
+    W = Math.round(stage.offsetWidth) || 600;
+    H = PINBALL_HEIGHT;
+    PEG_TOP = 60;
+    PEG_BOTTOM = H - 160;
+    SLOT_TOP = H - 100;
+    canvas.width = W;
+    canvas.height = H;
+  }
 
   function buildBoard() {
+    resizeCanvas();
     engine = Engine.create();
     const world = engine.world;
 
@@ -649,8 +676,12 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   }
 
   function drawBoard() {
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = "#cfe2f7";
+    const palette = darkMode ? PALETTE.dark : PALETTE.light;
+
+    ctx.fillStyle = palette.bg;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.fillStyle = palette.peg;
     pegBodies.forEach((p) => {
       ctx.beginPath();
       ctx.arc(p.position.x, p.position.y, PEG_RADIUS, 0, Math.PI * 2);
@@ -658,19 +689,21 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     });
 
     const n = slots.length;
-    const slotW = W / n;
-    ctx.font = "bold 11px sans-serif";
-    ctx.textAlign = "center";
-    for (let i = 0; i < n; i++) {
-      ctx.strokeStyle = "#ddd";
-      ctx.strokeRect(i * slotW, SLOT_TOP, slotW, H - SLOT_TOP);
-      ctx.fillStyle = "#4a7fd6";
-      ctx.fillText(slots[i], i * slotW + slotW / 2, SLOT_TOP + 20);
+    if (n > 0) {
+      const slotW = W / n;
+      ctx.font = "bold 13px sans-serif";
+      ctx.textAlign = "center";
+      for (let i = 0; i < n; i++) {
+        ctx.strokeStyle = palette.slotBorder;
+        ctx.strokeRect(i * slotW, SLOT_TOP, slotW, H - SLOT_TOP);
+        ctx.fillStyle = palette.label;
+        ctx.fillText(slots[i], i * slotW + slotW / 2, SLOT_TOP + 24);
+      }
     }
 
     if (ballBody) {
       ctx.beginPath();
-      ctx.fillStyle = "#e05a5a";
+      ctx.fillStyle = palette.ball;
       ctx.arc(ballBody.position.x, ballBody.position.y, BALL_RADIUS, 0, Math.PI * 2);
       ctx.fill();
     }
@@ -680,21 +713,19 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     slots = slotsInput.value.split("\n").map((s) => s.trim()).filter(Boolean);
     if (slots.length < 2) {
       showGameError(errorEl, "슬롯을 2개 이상 입력해주세요.");
-      canvas.classList.add("hidden");
-      dropBtn.classList.add("hidden");
+      dropBtn.disabled = true;
       return;
     }
     errorEl.classList.add("hidden");
     resultEl.textContent = "";
+    settingsPanel.classList.remove("hide");
 
     if (rafId) cancelAnimationFrame(rafId);
     ballBody = null;
     dropping = false;
 
     buildBoard();
-
-    canvas.classList.remove("hidden");
-    dropBtn.classList.remove("hidden");
+    dropBtn.disabled = false;
     drawBoard();
   });
 
@@ -703,9 +734,10 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     dropping = true;
     resultEl.textContent = "";
     settleFrames = 0;
+    settingsPanel.classList.add("hide");
 
     const startX = W / 2 + (Math.random() - 0.5) * 20;
-    ballBody = Bodies.circle(startX, 10, BALL_RADIUS, {
+    ballBody = Bodies.circle(startX, 20, BALL_RADIUS, {
       restitution: 0.5,
       friction: 0.02,
       frictionAir: 0.001,
@@ -731,6 +763,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
         let idx = Math.floor(ballBody.position.x / slotW);
         idx = Math.max(0, Math.min(n - 1, idx));
         resultEl.textContent = `당첨: ${slots[idx]}`;
+        setTimeout(() => settingsPanel.classList.remove("hide"), 1200);
         return;
       }
 
@@ -738,4 +771,28 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     }
     rafId = requestAnimationFrame(step);
   });
+
+  toggleSettingsBtn.addEventListener("click", () => {
+    collapsibleRows.classList.toggle("collapsed");
+    toggleArrow.textContent = collapsibleRows.classList.contains("collapsed") ? "▲" : "▼";
+  });
+
+  darkModeToggle.addEventListener("change", () => {
+    darkMode = darkModeToggle.checked;
+    drawBoard();
+  });
+
+  redrawPinballCanvas = () => {
+    resizeCanvas();
+    drawBoard();
+  };
+  window.addEventListener("resize", () => {
+    if (dropping) return;
+    resizeCanvas();
+    if (engine) buildBoard();
+    drawBoard();
+  });
+
+  resizeCanvas();
+  drawBoard();
 })();

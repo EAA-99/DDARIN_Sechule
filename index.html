@@ -199,12 +199,37 @@
       </div>
     </div>
 
-    <div id="pinballPanel" class="game-panel hidden">
-      <textarea id="pinballSlotsInput" class="game-textarea" placeholder="슬롯 이름 (줄바꿈으로 구분, 4~8개 권장)"></textarea>
-      <div id="pinballError" class="sheet-status error hidden"></div>
-      <button type="button" id="pinballBuildBtn" class="game-primary-btn">핀볼판 만들기</button>
-      <canvas id="pinballCanvas" class="game-canvas hidden" width="360" height="380"></canvas>
-      <button type="button" id="pinballDropBtn" class="game-primary-btn hidden">공 떨어뜨리기</button>
+    <div id="pinballPanel" class="game-panel pinball-panel hidden">
+      <div id="pinballStage" class="pinball-stage">
+        <canvas id="pinballCanvas" class="pinball-canvas"></canvas>
+        <div id="pinballSettings" class="pinball-settings">
+          <div class="pinball-settings-left">
+            <h3 class="pinball-settings-title">슬롯 이름을 입력하세요</h3>
+            <textarea id="pinballSlotsInput" class="pinball-names-input" placeholder="슬롯 이름 (줄바꿈으로 구분, 4~8개 권장)"></textarea>
+            <div id="pinballError" class="sheet-status error hidden"></div>
+            <div class="pinball-actions">
+              <button type="button" id="pinballBuildBtn" class="pinball-action-btn">
+                <i class="pinball-icon">🔀</i><span>핀볼판 만들기</span>
+              </button>
+              <button type="button" id="pinballDropBtn" class="pinball-action-btn pinball-start-btn" disabled>
+                <i class="pinball-icon">▶</i><span>공 떨어뜨리기</span>
+              </button>
+            </div>
+          </div>
+          <div class="pinball-settings-right">
+            <button type="button" id="pinballToggleSettingsBtn" class="pinball-toggle-settings">
+              <span>설정</span><i class="pinball-toggle-arrow">▲</i>
+            </button>
+            <div id="pinballCollapsibleRows" class="pinball-collapsible-rows collapsed">
+              <div class="pinball-theme-row">
+                <i class="pinball-icon">☀</i>
+                <input type="checkbox" id="pinballDarkModeToggle" checked>
+                <i class="pinball-icon">🌙</i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div id="pinballResult" class="game-result"></div>
     </div>
   </div>
