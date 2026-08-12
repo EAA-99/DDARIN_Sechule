@@ -141,6 +141,7 @@
   </div>
 
   <div id="gameView" class="songbook-view hidden">
+    <img src="today-mascot3.png" alt="" class="page-top-mascot">
     <div class="game-tabs">
       <button type="button" class="game-tab active" data-game="ladder">사다리</button>
       <button type="button" class="game-tab" data-game="roulette">룰렛</button>
@@ -148,8 +149,8 @@
     </div>
 
     <div id="ladderPanel" class="game-panel ladder-panel">
-      <div class="ladder-toolbar ladder-toolbar-centered">
-        <div class="ladder-toolbar-main">
+      <div class="ladder-toolbar ladder-toolbar-stacked">
+        <div class="ladder-toolbar-top">
           <div class="ladder-stepper" id="ladderStepperWrap">
             <button type="button" id="ladderCountMinus" class="ladder-stepper-btn" aria-label="참가자 줄이기">‹</button>
             <span id="ladderCountLabel">항목 2개</span>
@@ -157,19 +158,17 @@
           </div>
           <div class="ladder-actions" id="ladderMainActions">
             <button type="button" id="ladderStartBtn" class="ladder-action-btn ladder-start-btn" disabled>▷ START</button>
+            <button type="button" id="ladderResultBtn" class="ladder-action-btn">☰ 결과보기</button>
             <button type="button" id="ladderShuffleBtn" class="ladder-action-btn">사다리 섞기</button>
-            <button type="button" id="ladderResetBtn" class="ladder-reset-icon-btn" aria-label="초기화">↻</button>
           </div>
         </div>
-        <div class="ladder-toolbar-side">
-          <button type="button" id="ladderResultBtn" class="ladder-action-btn">☰ 결과보기</button>
-          <div class="ladder-speed-control">
-            <div class="ladder-speed-row">
-              <span class="ladder-speed-label">속도</span>
-              <input type="range" id="ladderSpeedSlider" min="1" max="10" value="5">
-            </div>
-            <button type="button" id="ladderBlindBtn" class="ladder-action-btn ladder-blind-btn">Blind</button>
+        <div class="ladder-toolbar-bottom">
+          <div class="ladder-speed-row">
+            <span class="ladder-speed-label">속도</span>
+            <input type="range" id="ladderSpeedSlider" min="1" max="10" value="5">
           </div>
+          <button type="button" id="ladderBlindBtn" class="ladder-action-btn ladder-blind-btn">Blind</button>
+          <button type="button" id="ladderResetBtn" class="ladder-reset-icon-btn" aria-label="초기화">↻</button>
         </div>
       </div>
       <div id="ladderError" class="sheet-status error hidden"></div>
@@ -261,7 +260,9 @@
       <button type="button" id="memoBtn" class="side-nav-btn" aria-label="메모">
         <img class="side-nav-icon" src="메모.png" alt="">메모
       </button>
-      <button type="button" id="gameBtn" class="side-nav-btn" aria-label="게임">게임</button>
+      <button type="button" id="gameBtn" class="side-nav-btn" aria-label="게임">
+        <img class="side-nav-icon" src="게임메뉴.png" alt="">게임
+      </button>
       <button type="button" id="editLockBtn" class="side-nav-btn" title="로그인" aria-label="로그인">
         <img class="side-nav-icon" src="로그인.png" alt=""><span id="loginBtnLabel">로그인</span>
       </button>
