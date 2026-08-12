@@ -480,6 +480,9 @@ function ensureAlbumArtPreloaded() {
 
 async function prefetchSongbookInBackground() {
   await ensureSongbookSongs();
+  renderSongGrid();
+  renderFavoritesList();
+  renderArtistList();
   await ensureAlbumArtPreloaded();
 }
 
@@ -943,7 +946,16 @@ async function openSongbook() {
 
 songbookBtn.addEventListener("click", openSongbook);
 document.getElementById("calendarBtn").addEventListener("click", () => showMainView("calendar"));
+function syncGameViewHeight() {
+  const wasHidden = songbookView.classList.contains("hidden");
+  if (wasHidden) songbookView.classList.remove("hidden");
+  const h = songbookView.offsetHeight;
+  if (wasHidden) songbookView.classList.add("hidden");
+  if (h > 0) gameView.style.minHeight = `${h}px`;
+}
+
 document.getElementById("gameBtn").addEventListener("click", () => {
+  syncGameViewHeight();
   showMainView("game");
   if (typeof redrawLadderCanvas === "function") redrawLadderCanvas();
 });

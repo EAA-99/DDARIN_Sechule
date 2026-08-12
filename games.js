@@ -230,6 +230,8 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     started = false;
     animationToken += 1;
     setColumnsReadonly(false);
+    namesRow.querySelectorAll(".ladder-col-input").forEach((input) => (input.value = ""));
+    resultsRow.querySelectorAll(".ladder-col-input").forEach((input) => (input.value = ""));
     errorEl.classList.add("hidden");
     updateStartButtonState();
     drawLadder(null);
@@ -564,6 +566,9 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     canvas.style.transition = "none";
     canvas.style.transform = "rotate(0deg)";
     currentRotation = 0;
+    names = names.map(() => "");
+    renderSettingsInputs();
+    drawWheel();
   });
 
   redrawRouletteWheel = drawWheel;

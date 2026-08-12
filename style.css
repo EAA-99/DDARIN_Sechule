@@ -128,6 +128,10 @@ body {
   max-height: 180px;
 }
 
+#gameView .page-top-mascot {
+  bottom: calc(100% - 17px);
+}
+
 @media (max-width: 900px) {
   #todayScheduleCard,
   .page-top-mascot {
@@ -1707,6 +1711,10 @@ body {
   border: 3px solid #cfe2f7;
   border-radius: 30px;
   background: #f3f9ff;
+}
+
+#gameView {
+  background: #fff;
 }
 
 .songbook-inner {
