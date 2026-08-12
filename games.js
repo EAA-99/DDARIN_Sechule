@@ -154,7 +154,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 
   function drawLadder(paths) {
     canvas.width = namesRow.offsetWidth || 480;
-    canvas.height = 220;
+    canvas.height = 550;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ctx.strokeStyle = "#ccc";

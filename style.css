@@ -905,7 +905,7 @@ body {
 .game-tabs {
   display: flex;
   gap: 8px;
-  margin-top: 50px;
+  margin-top: 150px;
   margin-bottom: 20px;
 }
 
@@ -978,7 +978,7 @@ body {
 .ladder-panel {
   width: 100%;
   max-width: none;
-  min-height: 600px;
+  min-height: 1000px;
 }
 
 .ladder-toolbar {
@@ -1012,8 +1012,8 @@ body {
 }
 
 .result-avatar {
-  width: 150px;
-  height: 150px;
+  width: 240px;
+  height: 240px;
   border-radius: 50%;
   background: #f7f9fc;
   border: 1px solid #eee;
@@ -1139,7 +1139,7 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  min-width: 0;
+  min-width: 90px;
 }
 
 .ladder-avatar {
@@ -1169,14 +1169,14 @@ body {
 .ladder-canvas {
   display: block;
   width: 100%;
-  height: 220px;
+  height: 550px;
   margin: 6px 0;
 }
 
 .roulette-panel {
   width: 100%;
   max-width: none;
-  min-height: 600px;
+  min-height: 1000px;
 }
 
 .roulette-settings-modal {
