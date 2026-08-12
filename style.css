@@ -1162,11 +1162,13 @@ body {
   display: flex;
   justify-content: center;
   gap: 8px;
+  width: 100%;
 }
 
 .ladder-col {
-  flex: 0 0 auto;
-  width: 150px;
+  flex: 1 1 0;
+  max-width: 150px;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1715,6 +1717,7 @@ body {
 
 #gameView {
   background: #fff;
+  padding: 44px;
 }
 
 .songbook-inner {

@@ -128,9 +128,11 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   }
 
   function colX(i) {
-    const contentWidth = count * COL_WIDTH + (count - 1) * COL_GAP;
+    const rawWidth = (canvas.width - (count - 1) * COL_GAP) / count;
+    const colWidth = Math.min(COL_WIDTH, rawWidth);
+    const contentWidth = count * colWidth + (count - 1) * COL_GAP;
     const startX = (canvas.width - contentWidth) / 2;
-    return startX + i * (COL_WIDTH + COL_GAP) + COL_WIDTH / 2;
+    return startX + i * (colWidth + COL_GAP) + colWidth / 2;
   }
 
   function generateRungs() {
@@ -589,24 +591,69 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const resultEl = document.getElementById("pinballResult");
   const ctx = canvas.getContext("2d");
 
+  const { Engine, Bodies, Body, Composite } = Matter;
+
   const W = canvas.width;
   const H = canvas.height;
   const ROWS = 8;
   const PEG_TOP = 40;
   const PEG_BOTTOM = H - 70;
-  const SLOT_Y = H - 50;
+  const SLOT_TOP = H - 50;
+  const PEG_RADIUS = 4;
+  const BALL_RADIUS = 7;
 
   let slots = [];
-  let pegs = [];
+  let engine = null;
+  let pegBodies = [];
+  let ballBody = null;
   let dropping = false;
-  let ball = null;
+  let settleFrames = 0;
+  let rafId = null;
+
+  function buildBoard() {
+    engine = Engine.create();
+    const world = engine.world;
+
+    pegBodies = [];
+    const rowGap = (PEG_BOTTOM - PEG_TOP) / (ROWS - 1);
+    for (let r = 0; r < ROWS; r++) {
+      const count = 4 + r;
+      const y = PEG_TOP + r * rowGap;
+      const colGap = W / (count + 1);
+      for (let c = 1; c <= count; c++) {
+        pegBodies.push(
+          Bodies.circle(c * colGap, y, PEG_RADIUS, {
+            isStatic: true,
+            restitution: 0.6,
+            friction: 0.05,
+          })
+        );
+      }
+    }
+
+    const walls = [
+      Bodies.rectangle(-5, H / 2, 10, H, { isStatic: true }),
+      Bodies.rectangle(W + 5, H / 2, 10, H, { isStatic: true }),
+      Bodies.rectangle(W / 2, H + 5, W, 10, { isStatic: true }),
+    ];
+
+    const n = slots.length;
+    const slotW = W / n;
+    for (let i = 1; i < n; i++) {
+      walls.push(
+        Bodies.rectangle(i * slotW, (SLOT_TOP + H) / 2, 3, H - SLOT_TOP, { isStatic: true })
+      );
+    }
+
+    Composite.add(world, pegBodies.concat(walls));
+  }
 
   function drawBoard() {
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = "#cfe2f7";
-    pegs.forEach((p) => {
+    pegBodies.forEach((p) => {
       ctx.beginPath();
-      ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+      ctx.arc(p.position.x, p.position.y, PEG_RADIUS, 0, Math.PI * 2);
       ctx.fill();
     });
 
@@ -616,15 +663,15 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     ctx.textAlign = "center";
     for (let i = 0; i < n; i++) {
       ctx.strokeStyle = "#ddd";
-      ctx.strokeRect(i * slotW, SLOT_Y, slotW, H - SLOT_Y);
+      ctx.strokeRect(i * slotW, SLOT_TOP, slotW, H - SLOT_TOP);
       ctx.fillStyle = "#4a7fd6";
-      ctx.fillText(slots[i], i * slotW + slotW / 2, SLOT_Y + 20);
+      ctx.fillText(slots[i], i * slotW + slotW / 2, SLOT_TOP + 20);
     }
 
-    if (ball) {
+    if (ballBody) {
       ctx.beginPath();
       ctx.fillStyle = "#e05a5a";
-      ctx.arc(ball.x, ball.y, 6, 0, Math.PI * 2);
+      ctx.arc(ballBody.position.x, ballBody.position.y, BALL_RADIUS, 0, Math.PI * 2);
       ctx.fill();
     }
   }
@@ -640,62 +687,55 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     errorEl.classList.add("hidden");
     resultEl.textContent = "";
 
-    pegs = [];
-    const rowGap = (PEG_BOTTOM - PEG_TOP) / (ROWS - 1);
-    for (let r = 0; r < ROWS; r++) {
-      const count = 4 + r;
-      const y = PEG_TOP + r * rowGap;
-      const colGap = W / (count + 1);
-      for (let c = 1; c <= count; c++) {
-        pegs.push({ x: c * colGap, y });
-      }
-    }
+    if (rafId) cancelAnimationFrame(rafId);
+    ballBody = null;
+    dropping = false;
 
-    ball = null;
+    buildBoard();
+
     canvas.classList.remove("hidden");
     dropBtn.classList.remove("hidden");
     drawBoard();
   });
 
   dropBtn.addEventListener("click", () => {
-    if (dropping || !slots.length) return;
+    if (dropping || !slots.length || !engine) return;
     dropping = true;
     resultEl.textContent = "";
-    ball = { x: W / 2, y: 10, vy: 2 };
-    let lastRow = -1;
-    const rowGap = (PEG_BOTTOM - PEG_TOP) / (ROWS - 1);
+    settleFrames = 0;
+
+    const startX = W / 2 + (Math.random() - 0.5) * 20;
+    ballBody = Bodies.circle(startX, 10, BALL_RADIUS, {
+      restitution: 0.5,
+      friction: 0.02,
+      frictionAir: 0.001,
+    });
+    Body.setVelocity(ballBody, { x: (Math.random() - 0.5) * 1.5, y: 0 });
+    Composite.add(engine.world, ballBody);
 
     function step() {
-      ball.y += ball.vy;
-      ball.vy = Math.min(ball.vy + 0.15, 6);
-
-      const rowIndex = Math.round((ball.y - PEG_TOP) / rowGap);
-      if (
-        rowIndex >= 0 &&
-        rowIndex < ROWS &&
-        rowIndex !== lastRow &&
-        Math.abs(ball.y - (PEG_TOP + rowIndex * rowGap)) < 2
-      ) {
-        lastRow = rowIndex;
-        ball.x += (Math.random() < 0.5 ? -1 : 1) * (W / (ROWS * 6));
-        ball.x = Math.max(10, Math.min(W - 10, ball.x));
-      }
-
+      Engine.update(engine, 1000 / 60);
       drawBoard();
 
-      if (ball.y < SLOT_Y) {
-        requestAnimationFrame(step);
+      const speed = Math.hypot(ballBody.velocity.x, ballBody.velocity.y);
+      if (ballBody.position.y > SLOT_TOP + 10 && speed < 0.3) {
+        settleFrames += 1;
       } else {
-        ball.y = SLOT_Y + 15;
-        drawBoard();
+        settleFrames = 0;
+      }
+
+      if (settleFrames > 20) {
+        dropping = false;
         const n = slots.length;
         const slotW = W / n;
-        let idx = Math.floor(ball.x / slotW);
+        let idx = Math.floor(ballBody.position.x / slotW);
         idx = Math.max(0, Math.min(n - 1, idx));
-        dropping = false;
         resultEl.textContent = `당첨: ${slots[idx]}`;
+        return;
       }
+
+      rafId = requestAnimationFrame(step);
     }
-    requestAnimationFrame(step);
+    rafId = requestAnimationFrame(step);
   });
 })();
