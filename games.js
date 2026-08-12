@@ -67,6 +67,8 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const ROWS = 14;
   const MIN_COUNT = 2;
   const MAX_COUNT = 10;
+  const COL_WIDTH = 130;
+  const COL_GAP = 8;
   const PATH_COLORS = ["#4a7fd6", "#e05a5a", "#2e9e5b", "#b3691a", "#6b4bad", "#ad3f68", "#1c5fa8", "#8a6d1f"];
 
   let count = 2;
@@ -125,7 +127,9 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   }
 
   function colX(i) {
-    return (i + 0.5) * (canvas.width / count);
+    const contentWidth = count * COL_WIDTH + (count - 1) * COL_GAP;
+    const startX = (canvas.width - contentWidth) / 2;
+    return startX + i * (COL_WIDTH + COL_GAP) + COL_WIDTH / 2;
   }
 
   function generateRungs() {
