@@ -211,7 +211,7 @@
               <button type="button" id="pinballBuildBtn" class="pinball-action-btn">
                 <i class="pinball-icon">🔀</i><span>섞기</span>
               </button>
-              <button type="button" id="pinballDropBtn" class="pinball-action-btn pinball-start-btn" disabled>
+              <button type="button" id="pinballDropBtn" class="pinball-action-btn" disabled>
                 <i class="pinball-icon">▶</i><span>시작</span>
               </button>
             </div>
@@ -221,17 +221,18 @@
               <span>설정</span><i class="pinball-toggle-arrow">▲</i>
             </button>
             <div id="pinballCollapsibleRows" class="pinball-collapsible-rows collapsed">
-              <div class="pinball-winner-row">
+              <div class="pinball-settings-row">
                 <i class="pinball-icon">🏆</i>
+                <span class="pinball-row-label">우승자</span>
                 <div class="pinball-btn-group">
                   <button type="button" id="pinballFirstWinnerBtn" class="pinball-winner-btn active">1등</button>
                   <button type="button" id="pinballLastWinnerBtn" class="pinball-winner-btn">꼴등</button>
                   <input type="number" id="pinballWinningRankInput" min="1" value="1">
                 </div>
               </div>
-              <div class="pinball-theme-row">
+              <div class="pinball-settings-row">
                 <i class="pinball-icon">☀</i>
-                <input type="checkbox" id="pinballDarkModeToggle" checked>
+                <input type="checkbox" id="pinballDarkModeToggle" class="pinball-toggle-checkbox" checked>
                 <i class="pinball-icon">🌙</i>
               </div>
             </div>
