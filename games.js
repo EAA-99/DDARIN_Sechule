@@ -57,6 +57,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const startBtn = document.getElementById("ladderStartBtn");
   const resultBtn = document.getElementById("ladderResultBtn");
   const shuffleBtn = document.getElementById("ladderShuffleBtn");
+  const resetIconBtn = document.getElementById("ladderResetBtn");
   const speedSlider = document.getElementById("ladderSpeedSlider");
   const blindBtn = document.getElementById("ladderBlindBtn");
   const resultModalBackdrop = document.getElementById("ladderResultModalBackdrop");
@@ -67,7 +68,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const ROWS = 14;
   const MIN_COUNT = 2;
   const MAX_COUNT = 10;
-  const COL_WIDTH = 130;
+  const COL_WIDTH = 150;
   const COL_GAP = 8;
   const PATH_COLORS = ["#4a7fd6", "#e05a5a", "#2e9e5b", "#b3691a", "#6b4bad", "#ad3f68", "#1c5fa8", "#8a6d1f"];
 
@@ -342,6 +343,8 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     blindBtn.classList.toggle("active", blindMode);
     drawLadder(null);
   });
+
+  resetIconBtn.addEventListener("click", resetBoard);
 
   resultBtn.addEventListener("click", () => {
     if (!rungs.length) {
