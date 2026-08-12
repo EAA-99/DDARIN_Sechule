@@ -974,6 +974,18 @@ body {
   cursor: pointer;
 }
 
+.pinball-map-title {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 4;
+  color: #fefefe;
+  font-weight: 800;
+  font-size: 1rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
 .pinball-settings {
   position: absolute;
   left: 16px;
@@ -1290,11 +1302,20 @@ body {
 .ladder-result-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 12px 16px;
   border-radius: 10px;
   background: #f3f9ff;
   font-weight: 700;
+}
+
+.ladder-result-from {
+  flex: 1;
+  text-align: right;
+}
+
+.ladder-result-to {
+  flex: 1;
+  text-align: left;
 }
 
 .ladder-result-row .ladder-result-arrow {

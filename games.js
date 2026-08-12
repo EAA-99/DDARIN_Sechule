@@ -15,7 +15,7 @@ function getResultImages(label) {
   return (label || "").trim() === "꽝" ? GAME_MISS_IMAGES : GAME_WIN_IMAGES;
 }
 
-function buildResultCard(label, contentEl) {
+function buildResultCard(label, contentEl, winnerText = "WINNER") {
   const card = document.createElement("div");
   card.className = "result-card";
 
@@ -29,7 +29,7 @@ function buildResultCard(label, contentEl) {
 
   const winnerLabel = document.createElement("div");
   winnerLabel.className = "result-winner-label";
-  winnerLabel.textContent = "WINNER";
+  winnerLabel.textContent = winnerText;
 
   card.append(avatar, winnerLabel, contentEl);
   return card;
@@ -306,11 +306,13 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
         row.className = "ladder-result-row";
         row.style.color = color;
         const fromEl = document.createElement("span");
+        fromEl.className = "ladder-result-from";
         fromEl.textContent = names[startCol];
         const arrowEl = document.createElement("span");
         arrowEl.className = "ladder-result-arrow";
         arrowEl.textContent = "→";
         const toEl = document.createElement("span");
+        toEl.className = "ladder-result-to";
         toEl.textContent = resultLabels[endCol];
         row.append(fromEl, arrowEl, toEl);
 
@@ -387,18 +389,20 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
       row.style.color = PATH_COLORS[i % PATH_COLORS.length];
 
       const fromEl = document.createElement("span");
+      fromEl.className = "ladder-result-from";
       fromEl.textContent = names[i];
       const arrowEl = document.createElement("span");
       arrowEl.className = "ladder-result-arrow";
       arrowEl.textContent = "→";
       const toEl = document.createElement("span");
+      toEl.className = "ladder-result-to";
       toEl.textContent = resultLabels[endCol];
 
       row.append(fromEl, arrowEl, toEl);
       rowsWrap.appendChild(row);
     }
     resultModalList.innerHTML = "";
-    resultModalList.appendChild(buildResultCard("", rowsWrap));
+    resultModalList.appendChild(buildResultCard("", rowsWrap, "결과가 나왔어요"));
     drawLadder(paths);
     resultModalBackdrop.classList.remove("hidden");
   });
