@@ -10,17 +10,24 @@ function getResultImages(label) {
   return (label || "").trim() === "꽝" ? GAME_MISS_IMAGES : GAME_WIN_IMAGES;
 }
 
-function buildResultImagesRow(label) {
+function buildResultCard(label, contentEl) {
+  const card = document.createElement("div");
+  card.className = "result-card";
+
+  const avatar = document.createElement("div");
+  avatar.className = "result-avatar";
   const options = getResultImages(label);
-  const src = options[Math.floor(Math.random() * options.length)];
-  const wrap = document.createElement("div");
-  wrap.className = "result-images";
   const img = document.createElement("img");
-  img.src = src;
+  img.src = options[Math.floor(Math.random() * options.length)];
   img.alt = "";
-  img.className = "result-image";
-  wrap.appendChild(img);
-  return wrap;
+  avatar.appendChild(img);
+
+  const winnerLabel = document.createElement("div");
+  winnerLabel.className = "result-winner-label";
+  winnerLabel.textContent = "WINNER";
+
+  card.append(avatar, winnerLabel, contentEl);
+  return card;
 }
 
 let redrawLadderCanvas = function () {};
@@ -283,13 +290,8 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
         toEl.textContent = resultLabels[endCol];
         row.append(fromEl, arrowEl, toEl);
 
-        const rowWrap = document.createElement("div");
-        rowWrap.className = "ladder-result-row-wrap";
-        rowWrap.appendChild(row);
-        rowWrap.appendChild(buildResultImagesRow(resultLabels[endCol]));
-
         resultModalList.innerHTML = "";
-        resultModalList.appendChild(rowWrap);
+        resultModalList.appendChild(buildResultCard(resultLabels[endCol], row));
         resultModalBackdrop.classList.remove("hidden");
       }
     }
@@ -366,12 +368,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
       toEl.textContent = resultLabels[endCol];
 
       row.append(fromEl, arrowEl, toEl);
-
-      const rowWrap = document.createElement("div");
-      rowWrap.className = "ladder-result-row-wrap";
-      rowWrap.appendChild(row);
-      rowWrap.appendChild(buildResultImagesRow(resultLabels[endCol]));
-      resultModalList.appendChild(rowWrap);
+      resultModalList.appendChild(buildResultCard(resultLabels[endCol], row));
     }
     drawLadder(paths);
     resultModalBackdrop.classList.remove("hidden");
@@ -408,8 +405,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const startBtn = document.getElementById("rouletteStartBtn");
   const resetBtn = document.getElementById("rouletteResetBtn");
   const resultModalBackdrop = document.getElementById("rouletteResultModalBackdrop");
-  const resultModalName = document.getElementById("rouletteResultModalName");
-  const resultModalImages = document.getElementById("rouletteResultImages");
+  const resultCardWrap = document.getElementById("rouletteResultCard");
   const closeResultModalBtn = document.getElementById("closeRouletteResultModalBtn");
   const ctx = canvas.getContext("2d");
 
@@ -543,9 +539,11 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     setTimeout(() => {
       spinning = false;
       const winnerLabel = displayName(targetIndex);
-      resultModalName.textContent = winnerLabel;
-      resultModalImages.innerHTML = "";
-      resultModalImages.appendChild(buildResultImagesRow(winnerLabel));
+      const nameEl = document.createElement("div");
+      nameEl.className = "result-winner-text";
+      nameEl.textContent = winnerLabel;
+      resultCardWrap.innerHTML = "";
+      resultCardWrap.appendChild(buildResultCard(winnerLabel, nameEl));
       resultModalBackdrop.classList.remove("hidden");
     }, 4100);
   });

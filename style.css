@@ -905,6 +905,7 @@ body {
 .game-tabs {
   display: flex;
   gap: 8px;
+  margin-top: 50px;
   margin-bottom: 20px;
 }
 
@@ -975,7 +976,9 @@ body {
 }
 
 .ladder-panel {
-  max-width: 900px;
+  width: 100%;
+  max-width: none;
+  min-height: 600px;
 }
 
 .ladder-toolbar {
@@ -1000,23 +1003,44 @@ body {
   overflow-y: auto;
 }
 
-.ladder-result-row-wrap {
+.result-card {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 8px;
+  padding: 12px 0;
 }
 
-.result-images {
+.result-avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: #f7f9fc;
+  border: 1px solid #eee;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
-.result-image {
-  height: 140px;
-  width: auto;
+.result-avatar img {
+  width: 80%;
+  height: 80%;
   object-fit: contain;
+}
+
+.result-winner-label {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #2e9e5b;
+  letter-spacing: 0.05em;
+}
+
+.result-winner-text {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #2a2a2a;
 }
 
 .ladder-result-row {
@@ -1119,8 +1143,8 @@ body {
 }
 
 .ladder-avatar {
-  width: 44px;
-  height: 44px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   background: #f3f9ff;
   border: 1px solid #cfe2f7;
@@ -1130,10 +1154,10 @@ body {
 .ladder-col-input {
   width: 100%;
   text-align: center;
-  padding: 8px 4px;
+  padding: 10px 8px;
   border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 0.8rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
   font-family: inherit;
 }
 
@@ -1150,7 +1174,9 @@ body {
 }
 
 .roulette-panel {
-  max-width: 1000px;
+  width: 100%;
+  max-width: none;
+  min-height: 600px;
 }
 
 .roulette-settings-modal {
@@ -1207,13 +1233,6 @@ body {
   line-height: 1;
 }
 
-.roulette-result-modal-name {
-  text-align: center;
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: #4a7fd6;
-  padding: 20px 0;
-}
 
 .game-result {
   text-align: center;
