@@ -64,7 +64,6 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const countMinus = document.getElementById("ladderCountMinus");
   const countPlus = document.getElementById("ladderCountPlus");
   const startBtn = document.getElementById("ladderStartBtn");
-  const resultBtn = document.getElementById("ladderResultBtn");
   const shuffleBtn = document.getElementById("ladderShuffleBtn");
   const resetIconBtn = document.getElementById("ladderResetBtn");
   const speedSlider = document.getElementById("ladderSpeedSlider");
@@ -347,33 +346,6 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     animationToken += 1;
     setColumnsReadonly(true);
     errorEl.classList.add("hidden");
-    drawLadder(null);
-  });
-
-  shuffleBtn.addEventListener("click", () => {
-    generateRungs();
-    started = false;
-    animationToken += 1;
-    setColumnsReadonly(false);
-    errorEl.classList.add("hidden");
-    drawLadder(null);
-  });
-
-  blindBtn.addEventListener("click", () => {
-    blindMode = !blindMode;
-    blindBtn.classList.toggle("active", blindMode);
-    drawLadder(null);
-  });
-
-  resetIconBtn.addEventListener("click", resetBoard);
-
-  resultBtn.addEventListener("click", () => {
-    if (!rungs.length) {
-      showGameError(errorEl, "먼저 START를 눌러 사다리를 만들어주세요.");
-      return;
-    }
-    errorEl.classList.add("hidden");
-    animationToken += 1;
 
     const names = getLabels(namesRow).map((v, i) => v || `항목${i + 1}`);
     const resultLabels = getLabels(resultsRow).map((v) => v || "결과");
@@ -406,6 +378,23 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     drawLadder(paths);
     resultModalBackdrop.classList.remove("hidden");
   });
+
+  shuffleBtn.addEventListener("click", () => {
+    generateRungs();
+    started = false;
+    animationToken += 1;
+    setColumnsReadonly(false);
+    errorEl.classList.add("hidden");
+    drawLadder(null);
+  });
+
+  blindBtn.addEventListener("click", () => {
+    blindMode = !blindMode;
+    blindBtn.classList.toggle("active", blindMode);
+    drawLadder(null);
+  });
+
+  resetIconBtn.addEventListener("click", resetBoard);
 
   closeResultModalBtn.addEventListener("click", () => {
     resultModalBackdrop.classList.add("hidden");
