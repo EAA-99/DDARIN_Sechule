@@ -3,6 +3,26 @@ function showGameError(el, msg) {
   el.classList.remove("hidden");
 }
 
+const GAME_WIN_IMAGES = ["룰렛 이미지.png", "룰렛 이미지2.png", "룰렛 이미지3.png"];
+const GAME_MISS_IMAGES = ["룰렛 꽝 이미지.png", "룰렛 꽝 이미지 2.png", "룰렛 꽝 이미지3.png"];
+
+function getResultImages(label) {
+  return (label || "").trim() === "꽝" ? GAME_MISS_IMAGES : GAME_WIN_IMAGES;
+}
+
+function buildResultImagesRow(label) {
+  const options = getResultImages(label);
+  const src = options[Math.floor(Math.random() * options.length)];
+  const wrap = document.createElement("div");
+  wrap.className = "result-images";
+  const img = document.createElement("img");
+  img.src = src;
+  img.alt = "";
+  img.className = "result-image";
+  wrap.appendChild(img);
+  return wrap;
+}
+
 let redrawLadderCanvas = function () {};
 let redrawRouletteWheel = function () {};
 
@@ -30,7 +50,6 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const startBtn = document.getElementById("ladderStartBtn");
   const resultBtn = document.getElementById("ladderResultBtn");
   const shuffleBtn = document.getElementById("ladderShuffleBtn");
-  const summaryEl = document.getElementById("ladderSummary");
   const speedSlider = document.getElementById("ladderSpeedSlider");
   const blindBtn = document.getElementById("ladderBlindBtn");
   const resultModalBackdrop = document.getElementById("ladderResultModalBackdrop");
@@ -199,7 +218,6 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     started = false;
     animationToken += 1;
     setColumnsReadonly(false);
-    summaryEl.innerHTML = "";
     errorEl.classList.add("hidden");
     updateStartButtonState();
     drawLadder(null);
@@ -252,12 +270,27 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
       } else {
         const names = getLabels(namesRow).map((v, i) => v || `항목${i + 1}`);
         const resultLabels = getLabels(resultsRow).map((v) => v || "결과");
-        summaryEl.innerHTML = "";
-        const item = document.createElement("div");
-        item.className = "ladder-summary-item";
-        item.style.color = color;
-        item.textContent = `${names[startCol]} → ${resultLabels[endCol]}`;
-        summaryEl.appendChild(item);
+
+        const row = document.createElement("div");
+        row.className = "ladder-result-row";
+        row.style.color = color;
+        const fromEl = document.createElement("span");
+        fromEl.textContent = names[startCol];
+        const arrowEl = document.createElement("span");
+        arrowEl.className = "ladder-result-arrow";
+        arrowEl.textContent = "→";
+        const toEl = document.createElement("span");
+        toEl.textContent = resultLabels[endCol];
+        row.append(fromEl, arrowEl, toEl);
+
+        const rowWrap = document.createElement("div");
+        rowWrap.className = "ladder-result-row-wrap";
+        rowWrap.appendChild(row);
+        rowWrap.appendChild(buildResultImagesRow(resultLabels[endCol]));
+
+        resultModalList.innerHTML = "";
+        resultModalList.appendChild(rowWrap);
+        resultModalBackdrop.classList.remove("hidden");
       }
     }
     requestAnimationFrame(frame);
@@ -285,7 +318,6 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     started = true;
     animationToken += 1;
     setColumnsReadonly(true);
-    summaryEl.innerHTML = "";
     errorEl.classList.add("hidden");
     drawLadder(null);
   });
@@ -295,7 +327,6 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     started = false;
     animationToken += 1;
     setColumnsReadonly(false);
-    summaryEl.innerHTML = "";
     errorEl.classList.add("hidden");
     drawLadder(null);
   });
@@ -335,7 +366,12 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
       toEl.textContent = resultLabels[endCol];
 
       row.append(fromEl, arrowEl, toEl);
-      resultModalList.appendChild(row);
+
+      const rowWrap = document.createElement("div");
+      rowWrap.className = "ladder-result-row-wrap";
+      rowWrap.appendChild(row);
+      rowWrap.appendChild(buildResultImagesRow(resultLabels[endCol]));
+      resultModalList.appendChild(rowWrap);
     }
     drawLadder(paths);
     resultModalBackdrop.classList.remove("hidden");
@@ -373,6 +409,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const resetBtn = document.getElementById("rouletteResetBtn");
   const resultModalBackdrop = document.getElementById("rouletteResultModalBackdrop");
   const resultModalName = document.getElementById("rouletteResultModalName");
+  const resultModalImages = document.getElementById("rouletteResultImages");
   const closeResultModalBtn = document.getElementById("closeRouletteResultModalBtn");
   const ctx = canvas.getContext("2d");
 
@@ -505,7 +542,10 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 
     setTimeout(() => {
       spinning = false;
-      resultModalName.textContent = displayName(targetIndex);
+      const winnerLabel = displayName(targetIndex);
+      resultModalName.textContent = winnerLabel;
+      resultModalImages.innerHTML = "";
+      resultModalImages.appendChild(buildResultImagesRow(winnerLabel));
       resultModalBackdrop.classList.remove("hidden");
     }, 4100);
   });
