@@ -1665,7 +1665,8 @@ body {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 6px;
   padding: 8px 10px;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -1721,6 +1722,10 @@ body {
   border-radius: 6px;
   font-size: 0.9rem;
   text-align: left;
+}
+
+#eventTitle {
+  text-align: center;
 }
 
 .login-input {
