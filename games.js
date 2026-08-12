@@ -58,6 +58,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const resultBtn = document.getElementById("ladderResultBtn");
   const shuffleBtn = document.getElementById("ladderShuffleBtn");
   const resetIconBtn = document.getElementById("ladderResetBtn");
+  const stepperWrap = document.getElementById("ladderStepperWrap");
   const speedSlider = document.getElementById("ladderSpeedSlider");
   const blindBtn = document.getElementById("ladderBlindBtn");
   const resultModalBackdrop = document.getElementById("ladderResultModalBackdrop");
@@ -388,8 +389,20 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     if (e.target === resultModalBackdrop) resultModalBackdrop.classList.add("hidden");
   });
 
-  redrawLadderCanvas = () => drawLadder(null);
-  window.addEventListener("resize", () => drawLadder(null));
+  function syncStepperWidth() {
+    const gap = 8;
+    const width = startBtn.offsetWidth + gap + resetIconBtn.offsetWidth;
+    if (width > 0) stepperWrap.style.width = `${width}px`;
+  }
+
+  redrawLadderCanvas = () => {
+    drawLadder(null);
+    syncStepperWidth();
+  };
+  window.addEventListener("resize", () => {
+    drawLadder(null);
+    syncStepperWidth();
+  });
 
   updateCountLabel();
   renderColumns();

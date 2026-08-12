@@ -149,17 +149,19 @@
 
     <div id="ladderPanel" class="game-panel ladder-panel">
       <div class="ladder-toolbar ladder-toolbar-centered">
-        <div class="ladder-stepper">
-          <button type="button" id="ladderCountMinus" class="ladder-stepper-btn" aria-label="참가자 줄이기">‹</button>
-          <span id="ladderCountLabel">항목 2개</span>
-          <button type="button" id="ladderCountPlus" class="ladder-stepper-btn" aria-label="참가자 늘리기">›</button>
+        <div class="ladder-toolbar-main">
+          <div class="ladder-stepper" id="ladderStepperWrap">
+            <button type="button" id="ladderCountMinus" class="ladder-stepper-btn" aria-label="참가자 줄이기">‹</button>
+            <span id="ladderCountLabel">항목 2개</span>
+            <button type="button" id="ladderCountPlus" class="ladder-stepper-btn" aria-label="참가자 늘리기">›</button>
+          </div>
+          <div class="ladder-actions" id="ladderMainActions">
+            <button type="button" id="ladderStartBtn" class="ladder-action-btn ladder-start-btn" disabled>▷ START</button>
+            <button type="button" id="ladderShuffleBtn" class="ladder-action-btn">사다리 섞기</button>
+            <button type="button" id="ladderResetBtn" class="ladder-reset-icon-btn" aria-label="초기화">↻</button>
+          </div>
         </div>
-        <div class="ladder-actions">
-          <button type="button" id="ladderStartBtn" class="ladder-action-btn ladder-start-btn" disabled>▷ START</button>
-          <button type="button" id="ladderShuffleBtn" class="ladder-action-btn">사다리 섞기</button>
-          <button type="button" id="ladderResetBtn" class="ladder-reset-icon-btn" aria-label="초기화">↻</button>
-        </div>
-        <div class="ladder-actions">
+        <div class="ladder-toolbar-side">
           <button type="button" id="ladderResultBtn" class="ladder-action-btn">☰ 결과보기</button>
           <div class="ladder-speed-control">
             <div class="ladder-speed-row">
