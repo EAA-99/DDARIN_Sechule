@@ -1170,7 +1170,7 @@ body {
 .roulette-canvas {
   display: block;
   border-radius: 50%;
-  transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+  transition: transform 4s cubic-bezier(0.17, 0.84, 0.44, 1);
   transform-origin: 50% 50%;
 }
 

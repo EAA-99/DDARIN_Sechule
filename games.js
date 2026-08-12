@@ -477,7 +477,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     const extraSpins = 5 + Math.floor(Math.random() * 3);
     const finalRotation = currentRotation + delta + extraSpins * 360;
 
-    canvas.style.transition = "transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)";
+    canvas.style.transition = "transform 4s cubic-bezier(0.17, 0.84, 0.44, 1)";
     canvas.style.transform = `rotate(${finalRotation}deg)`;
     currentRotation = finalRotation;
 
