@@ -631,20 +631,17 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const MARBLE_COLORS = ["#e05a5a", "#4a7fd6", "#2e9e5b", "#b3691a", "#6b4bad", "#ad3f68", "#1c5fa8", "#8a6d1f", "#e0577a", "#3fa796"];
 
   const PINBALL_HEIGHT = 700;
-  const ROWS = 8;
-  const PEG_RADIUS = 5;
   const BALL_RADIUS = 8;
   const RACE_TIMEOUT_MS = 15000;
 
   let W = 600;
   let H = PINBALL_HEIGHT;
-  let PEG_TOP = 60;
-  let PEG_BOTTOM = H - 160;
   let FINISH_Y = H - 60;
 
   let names = [];
   let engine = null;
-  let pegBodies = [];
+  let obstacles = [];
+  let spinners = [];
   let marbles = [];
   let racing = false;
   let finishOrder = [];
@@ -657,34 +654,72 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   function resizeCanvas() {
     W = Math.round(stage.offsetWidth) || 600;
     H = PINBALL_HEIGHT;
-    PEG_TOP = 60;
-    PEG_BOTTOM = H - 160;
     FINISH_Y = H - 60;
     canvas.width = W;
     canvas.height = H;
   }
 
+  function makeObstacle(x, y, w, h, angle, extra) {
+    const body = Bodies.rectangle(x, y, w, h, Object.assign({ isStatic: true, angle, restitution: 0.6, friction: 0.05 }, extra));
+    body.renderW = w;
+    body.renderH = h;
+    return body;
+  }
+
+  // "운명의 수레바퀴" 맵: lazygyu/roulette의 Wheel of fortune 맵을 참고해
+  // 회전 사각핀 - 지그재그 디플렉터 - 회전 스피너 - 다이아몬드 핀 4개 층으로 구성
   function buildBoard() {
     resizeCanvas();
     engine = Engine.create();
     const world = engine.world;
 
-    pegBodies = [];
-    const rowGap = (PEG_BOTTOM - PEG_TOP) / (ROWS - 1);
-    for (let r = 0; r < ROWS; r++) {
-      const count = 4 + r;
-      const y = PEG_TOP + r * rowGap;
-      const colGap = W / (count + 1);
-      for (let c = 1; c <= count; c++) {
-        pegBodies.push(
-          Bodies.circle(c * colGap, y, PEG_RADIUS, {
-            isStatic: true,
-            restitution: 0.6,
-            friction: 0.05,
-          })
-        );
+    obstacles = [];
+    spinners = [];
+
+    const top = 60;
+    const bottom = FINISH_Y - 40;
+    const span = bottom - top;
+
+    const gridCols = Math.max(6, Math.round(W / 70));
+    [0.2, 0.3].forEach((ratio, row) => {
+      const y = top + span * ratio;
+      const offset = row % 2 === 0 ? 0 : W / gridCols / 2;
+      for (let c = 0; c < gridCols; c++) {
+        const x = offset + (c + 0.5) * (W / gridCols);
+        if (x < 10 || x > W - 10) continue;
+        obstacles.push(makeObstacle(x, y, 14, 14, Math.PI / 4));
       }
+    });
+
+    const barY = top + span * 0.45;
+    const barCount = Math.max(5, Math.round(W / 110));
+    for (let i = 0; i < barCount; i++) {
+      const x = (i + 0.5) * (W / barCount);
+      const angle = (i % 2 === 0 ? 1 : -1) * (Math.PI / 4);
+      obstacles.push(makeObstacle(x, barY, 70, 10, angle, { restitution: 0.5 }));
     }
+
+    const spinnerY = top + span * 0.62;
+    const spinnerCount = Math.max(3, Math.round(W / 160));
+    for (let i = 0; i < spinnerCount; i++) {
+      const x = (i + 0.5) * (W / spinnerCount);
+      const length = Math.min(120, W / spinnerCount - 10);
+      const spinner = makeObstacle(x, spinnerY, length, 10, 0, { restitution: 0.7, friction: 0.02 });
+      spinner.spinSpeed = (i % 2 === 0 ? 1 : -1) * 0.03;
+      spinners.push(spinner);
+      obstacles.push(spinner);
+    }
+
+    const diamondCols = Math.max(7, Math.round(W / 60));
+    [0.8, 0.9].forEach((ratio, row) => {
+      const y = top + span * ratio;
+      const offset = row % 2 === 0 ? 0 : W / diamondCols / 2;
+      for (let c = 0; c < diamondCols; c++) {
+        const x = offset + (c + 0.5) * (W / diamondCols);
+        if (x < 8 || x > W - 8) continue;
+        obstacles.push(makeObstacle(x, y, 12, 12, Math.PI / 4));
+      }
+    });
 
     const walls = [
       Bodies.rectangle(-5, H / 2, 10, H, { isStatic: true }),
@@ -692,7 +727,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
       Bodies.rectangle(W / 2, H + 5, W, 10, { isStatic: true }),
     ];
 
-    Composite.add(world, pegBodies.concat(walls));
+    Composite.add(world, obstacles.concat(walls));
     marbles = [];
     finishOrder = [];
   }
@@ -711,13 +746,15 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     ctx.fillRect(0, 0, W, H);
 
     ctx.fillStyle = palette.peg;
-    pegBodies.forEach((p) => {
-      ctx.beginPath();
-      ctx.arc(p.position.x, p.position.y, PEG_RADIUS, 0, Math.PI * 2);
-      ctx.fill();
+    obstacles.forEach((o) => {
+      ctx.save();
+      ctx.translate(o.position.x, o.position.y);
+      ctx.rotate(o.angle);
+      ctx.fillRect(-o.renderW / 2, -o.renderH / 2, o.renderW, o.renderH);
+      ctx.restore();
     });
 
-    if (pegBodies.length) {
+    if (obstacles.length) {
       ctx.strokeStyle = palette.finishLine;
       ctx.setLineDash([6, 6]);
       ctx.beginPath();
@@ -829,6 +866,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     raceStartTime = performance.now();
 
     function step() {
+      spinners.forEach((s) => Body.rotate(s, s.spinSpeed));
       Engine.update(engine, 1000 / 60);
       drawBoard();
 

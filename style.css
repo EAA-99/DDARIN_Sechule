@@ -974,18 +974,6 @@ body {
   cursor: pointer;
 }
 
-.pinball-map-title {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  z-index: 4;
-  color: #fefefe;
-  font-weight: 800;
-  font-size: 1rem;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
-  pointer-events: none;
-}
-
 .pinball-settings {
   position: absolute;
   left: 16px;
@@ -1638,9 +1626,14 @@ body {
   gap: 4px;
 }
 
-.event-field-narrow {
-  width: 60%;
-  margin: 0 auto;
+.event-field-row {
+  display: flex;
+  gap: 12px;
+}
+
+.event-field-half {
+  flex: 1;
+  min-width: 0;
 }
 
 .event-field-label {
@@ -1877,6 +1870,22 @@ body {
   font-weight: 700;
   font-size: 0.88rem;
   word-break: break-word;
+  cursor: pointer;
+}
+
+.memo-card-text {
+  display: block;
+}
+
+.memo-card-edit-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: inherit;
+  background: transparent;
 }
 
 .memo-card-delete {

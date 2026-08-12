@@ -42,6 +42,8 @@ export default async function handler(req, res) {
     let items = await getItems();
     if (action === "delete") {
       items = items.filter((it) => it.id !== id);
+    } else if (action === "edit") {
+      items = items.map((it) => (it.id === id ? { ...it, text: text || "" } : it));
     } else {
       items.unshift({ id: Date.now(), text: text || "" });
     }

@@ -1014,7 +1014,7 @@ memoAddToggleBtn.addEventListener("click", () => {
   if (!row.classList.contains("hidden")) input.focus();
 });
 
-function renderMemoCards(listEl, items, canDelete, onDelete) {
+function renderMemoCards(listEl, items, canDelete, onDelete, onEdit) {
   listEl.innerHTML = "";
   if (!items.length) {
     const empty = document.createElement("div");
@@ -1026,13 +1026,53 @@ function renderMemoCards(listEl, items, canDelete, onDelete) {
   items.forEach((item) => {
     const card = document.createElement("div");
     card.className = "memo-card";
-    card.textContent = item.text;
+
+    const textEl = document.createElement("span");
+    textEl.className = "memo-card-text";
+    textEl.textContent = item.text;
+    card.appendChild(textEl);
+
+    if (onEdit) {
+      card.addEventListener("dblclick", () => {
+        if (card.classList.contains("editing")) return;
+        card.classList.add("editing");
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "memo-card-edit-input";
+        input.value = item.text;
+        textEl.replaceWith(input);
+        input.focus();
+        input.select();
+
+        const finish = (save) => {
+          if (save) {
+            const newText = input.value.trim();
+            if (newText && newText !== item.text) {
+              onEdit(item.id, newText);
+              return;
+            }
+          }
+          input.replaceWith(textEl);
+          card.classList.remove("editing");
+        };
+
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") { e.preventDefault(); finish(true); }
+          if (e.key === "Escape") { e.preventDefault(); finish(false); }
+        });
+        input.addEventListener("blur", () => finish(true));
+      });
+    }
+
     if (canDelete) {
       const delBtn = document.createElement("button");
       delBtn.type = "button";
       delBtn.className = "memo-card-delete";
       delBtn.textContent = "✕";
-      delBtn.addEventListener("click", () => onDelete(item.id));
+      delBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        onDelete(item.id);
+      });
       card.appendChild(delBtn);
     }
     listEl.appendChild(card);
@@ -1053,10 +1093,20 @@ function savePersonalMemoItems(items) {
 }
 
 function renderPersonalMemoList() {
-  renderMemoCards(memoPersonalList, loadPersonalMemoItems(), true, (id) => {
-    savePersonalMemoItems(loadPersonalMemoItems().filter((it) => it.id !== id));
-    renderPersonalMemoList();
-  });
+  renderMemoCards(
+    memoPersonalList,
+    loadPersonalMemoItems(),
+    true,
+    (id) => {
+      savePersonalMemoItems(loadPersonalMemoItems().filter((it) => it.id !== id));
+      renderPersonalMemoList();
+    },
+    (id, newText) => {
+      const items = loadPersonalMemoItems().map((it) => (it.id === id ? { ...it, text: newText } : it));
+      savePersonalMemoItems(items);
+      renderPersonalMemoList();
+    }
+  );
 }
 
 memoPersonalAddBtn.addEventListener("click", () => {
@@ -1074,16 +1124,33 @@ memoPersonalInput.addEventListener("keydown", (e) => {
 });
 
 function renderSharedMemoList() {
-  renderMemoCards(memoSharedList, sharedMemoItems, !isReadOnly, async (id) => {
-    const { username, password } = getStoredCreds();
-    if (!username || !password) return;
-    await fetch(SHARED_MEMO_API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password, action: "delete", id }),
-    });
-    await loadSharedMemoList();
-  });
+  renderMemoCards(
+    memoSharedList,
+    sharedMemoItems,
+    !isReadOnly,
+    async (id) => {
+      const { username, password } = getStoredCreds();
+      if (!username || !password) return;
+      await fetch(SHARED_MEMO_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password, action: "delete", id }),
+      });
+      await loadSharedMemoList();
+    },
+    isReadOnly
+      ? null
+      : async (id, newText) => {
+          const { username, password } = getStoredCreds();
+          if (!username || !password) return;
+          await fetch(SHARED_MEMO_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password, action: "edit", id, text: newText }),
+          });
+          await loadSharedMemoList();
+        }
+  );
 }
 
 async function loadSharedMemoList() {
