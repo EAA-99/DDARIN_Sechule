@@ -486,8 +486,8 @@ let clipPopupWindow = null;
 
 function openSoopClipWindow(clipId) {
   const url = buildClipPageUrl(clipId);
-  const width = 420;
-  const height = Math.round((width * 9) / 16);
+  const width = 630;
+  const height = 530;
   const left = Math.round((screen.availWidth - width) / 2);
   const top = Math.round((screen.availHeight - height) / 2);
   if (clipPopupWindow && !clipPopupWindow.closed) {
