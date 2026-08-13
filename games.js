@@ -602,7 +602,49 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const resultModalBackdrop = document.getElementById("cannonResultModalBackdrop");
   const resultCardWrap = document.getElementById("cannonResultCard");
   const closeResultModalBtn = document.getElementById("closeCannonResultModalBtn");
+  const countLabel = document.getElementById("cannonCountLabel");
+  const addItemBtn = document.getElementById("cannonAddItemBtn");
+  const rangeStartInput = document.getElementById("cannonRangeStart");
+  const rangeEndInput = document.getElementById("cannonRangeEnd");
+  const fillNumbersBtn = document.getElementById("cannonFillNumbersBtn");
+  const toolbarResetBtn = document.getElementById("cannonToolbarResetBtn");
   const ctx = canvas.getContext("2d");
+
+  function currentLines() {
+    return namesInput.value.split("\n").map((s) => s.trim()).filter(Boolean);
+  }
+
+  function updateCountLabel() {
+    countLabel.textContent = `항목 ${currentLines().length}개`;
+  }
+
+  namesInput.addEventListener("input", updateCountLabel);
+
+  addItemBtn.addEventListener("click", () => {
+    const lines = currentLines();
+    const next = lines.length + 1;
+    lines.push(`항목${next}`);
+    namesInput.value = lines.join("\n");
+    updateCountLabel();
+  });
+
+  fillNumbersBtn.addEventListener("click", () => {
+    const start = parseInt(rangeStartInput.value, 10) || 1;
+    const end = parseInt(rangeEndInput.value, 10) || 100;
+    const lo = Math.min(start, end);
+    const hi = Math.max(start, end);
+    const nums = [];
+    for (let n = lo; n <= hi; n++) nums.push(String(n));
+    namesInput.value = nums.join("\n");
+    updateCountLabel();
+  });
+
+  toolbarResetBtn.addEventListener("click", () => {
+    namesInput.value = "";
+    rangeStartInput.value = "";
+    rangeEndInput.value = "";
+    updateCountLabel();
+  });
 
   const GRAVITY = 900;
   const CANNON_X = 60;
@@ -662,13 +704,60 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 
     ctx.save();
     ctx.translate(CANNON_X, groundY);
-    ctx.fillStyle = "#666";
+
+    // 바퀴
+    [-8, 18].forEach((wx) => {
+      ctx.fillStyle = "#3a3a3a";
+      ctx.beginPath();
+      ctx.arc(wx, 6, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#888";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      for (let a = 0; a < 4; a++) {
+        const rad = (a * 45 * Math.PI) / 180;
+        ctx.beginPath();
+        ctx.moveTo(wx, 6);
+        ctx.lineTo(wx + Math.cos(rad) * 10, 6 + Math.sin(rad) * 10);
+        ctx.stroke();
+      }
+    });
+
+    // 받침대
+    ctx.fillStyle = "#7a5a3a";
     ctx.beginPath();
-    ctx.arc(0, 0, 20, Math.PI, 0);
+    ctx.moveTo(-20, 0);
+    ctx.lineTo(28, 0);
+    ctx.lineTo(20, -14);
+    ctx.lineTo(-12, -14);
+    ctx.closePath();
     ctx.fill();
+
+    // 회전축
+    ctx.fillStyle = "#4a4a4a";
+    ctx.beginPath();
+    ctx.arc(4, -14, 9, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 회전하는 포신
+    ctx.save();
+    ctx.translate(4, -14);
     ctx.rotate((barrelAngleDeg * Math.PI) / 180);
-    ctx.fillStyle = "#333";
-    ctx.fillRect(0, -7, 44, 14);
+    const barrelGrad = ctx.createLinearGradient(0, -9, 0, 9);
+    barrelGrad.addColorStop(0, "#606060");
+    barrelGrad.addColorStop(0.5, "#2a2a2a");
+    barrelGrad.addColorStop(1, "#606060");
+    ctx.fillStyle = barrelGrad;
+    ctx.fillRect(0, -9, 50, 18);
+    ctx.fillStyle = "#8a6d1f";
+    ctx.fillRect(10, -10, 5, 20);
+    ctx.fillRect(34, -10, 5, 20);
+    ctx.fillStyle = "#111";
+    ctx.beginPath();
+    ctx.arc(50, 0, 9, -Math.PI / 2, Math.PI / 2);
+    ctx.fill();
+    ctx.restore();
+
     ctx.restore();
 
     if (ball) {

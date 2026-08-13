@@ -207,6 +207,19 @@
     </div>
 
     <div id="cannonPanel" class="game-panel cannon-panel hidden">
+      <div class="cannon-toolbar">
+        <div id="cannonCountLabel" class="cannon-count-pill">항목 0개</div>
+        <div class="cannon-toolbar-row">
+          <button type="button" id="cannonAddItemBtn" class="ladder-action-btn">+ 항목 추가</button>
+          <div class="cannon-range-row">
+            <input type="number" id="cannonRangeStart" class="cannon-range-input" placeholder="1" min="1">
+            <span>~</span>
+            <input type="number" id="cannonRangeEnd" class="cannon-range-input" placeholder="100" min="1">
+          </div>
+          <button type="button" id="cannonFillNumbersBtn" class="ladder-action-btn">번호 채우기</button>
+          <button type="button" id="cannonToolbarResetBtn" class="ladder-reset-icon-btn" aria-label="초기화">↻</button>
+        </div>
+      </div>
       <textarea id="cannonNamesInput" class="cannon-names-input" placeholder="이름 (줄바꿈으로 구분, 2명 이상)"></textarea>
       <div id="cannonError" class="sheet-status error hidden"></div>
       <div class="cannon-actions">

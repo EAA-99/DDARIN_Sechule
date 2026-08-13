@@ -988,6 +988,53 @@ body {
   min-height: 740px;
 }
 
+.cannon-toolbar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.cannon-count-pill {
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  padding: 8px 20px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  background: #fff7ea;
+  color: #8a6d3b;
+}
+
+.cannon-toolbar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.cannon-range-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  padding: 6px 12px;
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.cannon-range-input {
+  width: 48px;
+  border: none;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: inherit;
+  color: #2a2a2a;
+}
+
 .cannon-names-input {
   width: 100%;
   min-height: 90px;
