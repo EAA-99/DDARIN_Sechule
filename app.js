@@ -226,6 +226,7 @@ const playerPrevBtn = document.getElementById("playerPrevBtn");
 const playerNextBtn = document.getElementById("playerNextBtn");
 const songPlayerModalBackdrop = document.getElementById("songPlayerModalBackdrop");
 const songPlayerModalFrame = document.getElementById("songPlayerModalFrame");
+const songPlayerModalThumb = document.getElementById("songPlayerModalThumb");
 const songPlayerModalClose = document.getElementById("songPlayerModalClose");
 const songPlayerModalTitle = document.getElementById("songPlayerModalTitle");
 const songPlayerModalArtist = document.getElementById("songPlayerModalArtist");
@@ -487,7 +488,7 @@ async function prefetchSongbookInBackground() {
 }
 
 function buildClipPageUrl(clipId) {
-  return `https://vod.sooplive.com/player/${clipId}/embed?type=catch&autoPlay=true&showChat=false&mutePlay=false`;
+  return `https://vod.sooplive.com/player/${clipId}?type=catch`;
 }
 
 function updateSongPlayerModalFavBtn(key) {
@@ -497,6 +498,17 @@ function updateSongPlayerModalFavBtn(key) {
 }
 
 const songPlayerModal = document.getElementById("songPlayerModal");
+let clipPopupWindow = null;
+
+function openSoopClipWindow(clipId) {
+  const url = buildClipPageUrl(clipId);
+  if (clipPopupWindow && !clipPopupWindow.closed) {
+    clipPopupWindow.location.href = url;
+    clipPopupWindow.focus();
+  } else {
+    clipPopupWindow = window.open(url, "soopClipPlayer", "width=960,height=640");
+  }
+}
 
 function resetSongPlayerModalPosition() {
   songPlayerModal.style.position = "";
@@ -506,24 +518,31 @@ function resetSongPlayerModalPosition() {
   songPlayerModal.style.width = "";
   songPlayerModal.style.height = "";
   songPlayerModal.style.maxWidth = "";
-  songPlayerModalFrame.style.pointerEvents = "";
 }
 
 function openSongPlayerModal(song, clipId) {
   resetSongPlayerModalPosition();
-  songPlayerModalFrame.src = buildClipPageUrl(clipId);
+  const key = albumArtCacheKey(song);
+  songPlayerModalThumb.src = (thumbMap && thumbMap[key]) || "";
+  songPlayerModalFrame.href = buildClipPageUrl(clipId);
+  songPlayerModalFrame.onclick = (e) => {
+    e.preventDefault();
+    openSoopClipWindow(clipId);
+  };
   songPlayerModalTitle.textContent = song.title;
   songPlayerModalArtist.textContent = song.artist;
-  updateSongPlayerModalFavBtn(albumArtCacheKey(song));
+  updateSongPlayerModalFavBtn(key);
   songPlayerModalBackdrop.classList.remove("hidden");
   songPlayerModalBackdrop.classList.remove("minimized");
+  openSoopClipWindow(clipId);
 }
 
 function closeSongPlayerModal() {
   clearTimeout(autoAdvanceTimer);
   songPlayerModalBackdrop.classList.add("hidden");
   songPlayerModalBackdrop.classList.remove("minimized");
-  songPlayerModalFrame.src = "";
+  if (clipPopupWindow && !clipPopupWindow.closed) clipPopupWindow.close();
+  clipPopupWindow = null;
   resetSongPlayerModalPosition();
 }
 
@@ -561,7 +580,6 @@ songPlayerModalFavBtn.addEventListener("click", () => {
   handle.addEventListener("mousedown", (e) => {
     dragging = true;
     songPlayerInteracting = true;
-    songPlayerModalFrame.style.pointerEvents = "none";
     const rect = songPlayerModal.getBoundingClientRect();
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
@@ -581,7 +599,6 @@ songPlayerModalFavBtn.addEventListener("click", () => {
   document.addEventListener("mouseup", () => {
     if (!dragging) return;
     dragging = false;
-    songPlayerModalFrame.style.pointerEvents = "";
     setTimeout(() => { songPlayerInteracting = false; }, 0);
   });
 
@@ -596,7 +613,6 @@ songPlayerModalFavBtn.addEventListener("click", () => {
       e.preventDefault();
       e.stopPropagation();
       songPlayerInteracting = true;
-      songPlayerModalFrame.style.pointerEvents = "none";
 
       const corner = handle.dataset.corner;
       const rect = songPlayerModal.getBoundingClientRect();
@@ -627,7 +643,6 @@ songPlayerModalFavBtn.addEventListener("click", () => {
       function onUp() {
         document.removeEventListener("mousemove", onMove);
         document.removeEventListener("mouseup", onUp);
-        songPlayerModalFrame.style.pointerEvents = "";
         setTimeout(() => { songPlayerInteracting = false; }, 0);
       }
 
@@ -805,7 +820,8 @@ function scheduleAutoAdvance() {
       advanceFavoritesQueue();
     } else {
       console.log("[autoAdvance] timer fired, stopping clip early");
-      songPlayerModalFrame.src = "";
+      if (clipPopupWindow && !clipPopupWindow.closed) clipPopupWindow.close();
+      clipPopupWindow = null;
     }
   }, fireAt);
 }

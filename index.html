@@ -314,7 +314,10 @@
       <span class="song-player-resize-handle" data-corner="sw"></span>
       <span class="song-player-resize-handle" data-corner="se"></span>
       <button type="button" id="songPlayerModalClose" class="song-player-modal-close" aria-label="닫기">✕</button>
-      <iframe id="songPlayerModalFrame" class="song-player-modal-frame" allow="autoplay" allowfullscreen frameborder="0"></iframe>
+      <a id="songPlayerModalFrame" class="song-player-modal-frame" target="_blank" rel="noopener">
+        <img id="songPlayerModalThumb" class="song-player-modal-thumb" alt="">
+        <span class="song-player-modal-play-overlay">▶ SOOP 클립 창 다시 열기</span>
+      </a>
       <div class="song-player-modal-info">
         <h3 id="songPlayerModalTitle" class="song-player-modal-title"></h3>
         <span id="songPlayerModalArtist" class="song-player-modal-artist"></span>

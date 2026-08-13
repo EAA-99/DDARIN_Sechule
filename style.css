@@ -1949,11 +1949,35 @@ body {
 }
 
 .song-player-modal-frame {
+  position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
   border: none;
   background: #000;
   display: block;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.song-player-modal-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  background: #111;
+}
+
+.song-player-modal-play-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 10px 14px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: left;
 }
 
 .song-player-resize-handle {
