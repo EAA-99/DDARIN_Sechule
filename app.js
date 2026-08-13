@@ -2151,9 +2151,8 @@ function positionTodayMemoCard() {
   const appRect = appViewEl.getBoundingClientRect();
   const cardRect = todayMemoCard.getBoundingClientRect();
   if (!titleRect.width || !appRect.width) return;
-  const centerX = titleRect.left + titleRect.width / 2;
+  const centerX = titleRect.left + titleRect.width / 2 - appRect.left;
   todayMemoCard.style.left = `${centerX - cardRect.width / 2}px`;
-  todayMemoCard.style.top = `${appRect.top - cardRect.height + 2}px`;
 }
 
 function renderTodayMemo() {
@@ -2199,18 +2198,20 @@ function renderTodayMemo() {
     dragging = true;
     todayMemoCardMoved = true;
     const rect = todayMemoCard.getBoundingClientRect();
+    const appRect = appViewEl.getBoundingClientRect();
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
-    todayMemoCard.style.transform = "none";
-    todayMemoCard.style.left = `${rect.left}px`;
-    todayMemoCard.style.top = `${rect.top}px`;
+    todayMemoCard.style.bottom = "auto";
+    todayMemoCard.style.left = `${rect.left - appRect.left}px`;
+    todayMemoCard.style.top = `${rect.top - appRect.top}px`;
     e.preventDefault();
   });
 
   document.addEventListener("mousemove", (e) => {
     if (!dragging) return;
-    todayMemoCard.style.left = `${e.clientX - offsetX}px`;
-    todayMemoCard.style.top = `${e.clientY - offsetY}px`;
+    const appRect = appViewEl.getBoundingClientRect();
+    todayMemoCard.style.left = `${e.clientX - offsetX - appRect.left}px`;
+    todayMemoCard.style.top = `${e.clientY - offsetY - appRect.top}px`;
   });
 
   document.addEventListener("mouseup", () => {
