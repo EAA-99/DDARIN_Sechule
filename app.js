@@ -1041,7 +1041,7 @@ memoAddForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const date = memoAddDateInput.value;
   const text = memoAddTitleInput.value.trim();
-  if (!date || !text) return;
+  if (!text) return;
 
   if (editingMemoId !== null) {
     const id = editingMemoId;
