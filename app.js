@@ -2,7 +2,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwuOrjG9SZxN4CtkXb9EW2H
 
 const SPREADSHEET_ID = "1gCvMJMK52QUyo1M4FbFzWsJ_NZp3MUqgrDa0obhNIbY";
 const SHEETS_API_KEY = "AIzaSyC0RsFfc5y9GmEaE29niGWD9hbSnpIc7rM";
-const SHEETS_API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/AppEvents!A2:D?key=${SHEETS_API_KEY}`;
+const SHEETS_API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/AppEvents!A2:E?key=${SHEETS_API_KEY}`;
 
 const SONGBOOK_SPREADSHEET_ID = "1NhImCLm5diXM0pA45SkB-g2PARivQiVN8bUKlniiOB8";
 const SONGBOOK_CLIPS_SPREADSHEET_ID = "17EmfOEPVGesH9FXnh7xsKvBYYIhi2TrerSzY23E2N9A";
@@ -255,6 +255,7 @@ function flatToEventsObject(flat) {
     const ev = { title: row.title };
     if (row.color) ev.color = row.color;
     if (row.sheetColor) ev.sheetColor = row.sheetColor;
+    if (row.source) ev.source = row.source;
     if (!events[date]) events[date] = [];
     events[date].push(ev);
   });
@@ -271,11 +272,12 @@ async function apiGetEventsDirect() {
     if (!data.values) return [];
     return data.values
       .map((row) => {
-        const [date, title, color, sheetColor] = row;
+        const [date, title, color, sheetColor, source] = row;
         if (!date || !title) return null;
         const item = { date: String(date), title: String(title) };
         if (color) item.color = String(color);
         if (sheetColor) item.sheetColor = String(sheetColor);
+        if (source) item.source = String(source);
         return item;
       })
       .filter(Boolean);
@@ -1850,6 +1852,8 @@ eventForm.addEventListener("submit", (e) => {
   const newEvent = selectedHex ? { title, sheetColor: selectedHex } : { title, color: selectedColor };
 
   if (editingIndex !== null) {
+    const prevEvent = events[selectedDateKey][editingIndex];
+    if (prevEvent && prevEvent.source) newEvent.source = prevEvent.source;
     events[selectedDateKey][editingIndex] = newEvent;
   } else {
     events[selectedDateKey].push(newEvent);
