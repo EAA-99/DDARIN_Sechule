@@ -1051,6 +1051,38 @@ body {
   border-radius: 16px;
 }
 
+.cannon-drawn {
+  margin-top: 14px;
+}
+
+.cannon-drawn-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #666;
+  margin: 0 0 8px;
+}
+
+.cannon-drawn-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 36px;
+}
+
+.cannon-drawn-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #4a7fd6;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
 .ladder-panel {
   width: 100%;
   max-width: none;

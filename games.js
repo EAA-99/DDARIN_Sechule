@@ -603,15 +603,28 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const closeResultModalBtn = document.getElementById("closeCannonResultModalBtn");
   const ballCountInput = document.getElementById("cannonBallCountInput");
   const allowDupToggle = document.getElementById("cannonAllowDupToggle");
+  const resetBtn = document.getElementById("cannonResetBtn");
+  const drawnListEl = document.getElementById("cannonDrawnList");
   const ctx = canvas.getContext("2d");
 
   let allowDuplicates = false;
+  let drawnNumbers = [];
 
   allowDupToggle.addEventListener("click", () => {
     allowDuplicates = !allowDuplicates;
     allowDupToggle.classList.toggle("active", allowDuplicates);
     allowDupToggle.setAttribute("aria-pressed", String(allowDuplicates));
   });
+
+  function renderDrawnList() {
+    drawnListEl.innerHTML = "";
+    drawnNumbers.forEach((n) => {
+      const chip = document.createElement("span");
+      chip.className = "cannon-drawn-chip";
+      chip.textContent = n;
+      drawnListEl.appendChild(chip);
+    });
+  }
 
   const GRAVITY = 900;
   const CANNON_X = 60;
@@ -737,12 +750,14 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 
   buildBtn.addEventListener("click", () => {
     const count = parseInt(ballCountInput.value, 10) || 100;
-    if (count < 2) {
-      showGameError(errorEl, "공 갯수를 2개 이상 입력해주세요.");
+    if (count < 3 || count > 10000) {
+      showGameError(errorEl, "공 갯수는 3~10000 사이로 입력해주세요.");
       fireBtn.disabled = true;
       return;
     }
     names = Array.from({ length: count }, (_, i) => String(i + 1));
+    drawnNumbers = [];
+    renderDrawnList();
     errorEl.classList.add("hidden");
     if (rafId) cancelAnimationFrame(rafId);
     firing = false;
@@ -750,6 +765,19 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     resizeCanvas();
     layoutTargets();
     fireBtn.disabled = false;
+    drawScene();
+  });
+
+  resetBtn.addEventListener("click", () => {
+    if (rafId) cancelAnimationFrame(rafId);
+    firing = false;
+    ball = null;
+    names = [];
+    targets = [];
+    drawnNumbers = [];
+    renderDrawnList();
+    fireBtn.disabled = true;
+    errorEl.classList.add("hidden");
     drawScene();
   });
 
@@ -769,6 +797,9 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     resultCardWrap.innerHTML = "";
     resultCardWrap.appendChild(buildResultCard(winner.name, label));
     resultModalBackdrop.classList.remove("hidden");
+
+    drawnNumbers.push(winner.name);
+    renderDrawnList();
 
     if (!allowDuplicates) {
       names = names.filter((n) => n !== winner.name);
