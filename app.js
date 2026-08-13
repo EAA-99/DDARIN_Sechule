@@ -591,6 +591,7 @@ async function playSong(song) {
   playerPlayBtn.disabled = false;
 
   openSongPlayerModal(song, clipId);
+  openSoopClipWindow(clipId);
   scheduleAutoAdvance();
 }
 
