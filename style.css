@@ -116,7 +116,7 @@ body {
   left: 40px;
 }
 
-#todayMemoCard {
+#todayYoutubeCard {
   position: absolute;
   bottom: calc(100% - 2px);
   z-index: 60;
@@ -128,7 +128,7 @@ body {
   cursor: default;
 }
 
-#todayMemoCard .today-schedule-header {
+#todayYoutubeCard .today-schedule-header {
   cursor: move;
 }
 
@@ -150,7 +150,7 @@ body {
 
 @media (max-width: 900px) {
   #todayScheduleCard,
-  #todayMemoCard,
+  #todayYoutubeCard,
   .page-top-mascot {
     display: none !important;
   }
@@ -165,7 +165,7 @@ body {
   text-align: left;
 }
 
-.today-memo-card {
+.today-youtube-card {
   border: 2px solid #cfe2f7;
 }
 
@@ -235,6 +235,8 @@ body {
   font-size: 0.82rem;
   cursor: pointer;
   text-align: left;
+  text-decoration: none;
+  color: inherit;
 }
 
 .today-schedule-item-dot {

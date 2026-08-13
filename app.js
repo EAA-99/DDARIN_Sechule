@@ -927,7 +927,7 @@ function showMainView(view) {
   appViewEl.classList.toggle("hidden", view !== "calendar");
   songbookView.classList.toggle("hidden", view !== "songbook");
   gameView.classList.toggle("hidden", view !== "game");
-  if (view === "calendar" && typeof positionTodayMemoCard === "function") positionTodayMemoCard();
+  if (view === "calendar" && typeof positionTodayYoutubeCard === "function") positionTodayYoutubeCard();
 }
 
 async function openSongbook() {
@@ -1223,7 +1223,6 @@ function renderPersonalMemoList() {
     },
     (item) => openMemoEditModal(item, false)
   );
-  renderTodayMemo();
 }
 
 function renderSharedMemoList() {
@@ -1245,7 +1244,6 @@ function renderSharedMemoList() {
     },
     isReadOnly ? null : (item) => openMemoEditModal(item, true)
   );
-  renderTodayMemo();
 }
 
 async function loadSharedMemoList() {
@@ -2142,84 +2140,93 @@ function renderTodaySchedule() {
   todayScheduleCard.classList.remove("hidden");
 }
 
-const todayMemoCard = document.getElementById("todayMemoCard");
-const todayMemoList = document.getElementById("todayMemoList");
-let todayMemoCardMoved = false;
+const todayYoutubeCard = document.getElementById("todayYoutubeCard");
+const todayYoutubeList = document.getElementById("todayYoutubeList");
+const TODAY_YOUTUBE_API_URL = "/api/youtube-today";
+let todayYoutubeCardMoved = false;
 
-function positionTodayMemoCard() {
-  if (todayMemoCardMoved || appViewEl.classList.contains("hidden")) return;
+function positionTodayYoutubeCard() {
+  if (todayYoutubeCardMoved || appViewEl.classList.contains("hidden")) return;
   const titleRect = monthTitle.getBoundingClientRect();
   const appRect = appViewEl.getBoundingClientRect();
-  const cardRect = todayMemoCard.getBoundingClientRect();
+  const cardRect = todayYoutubeCard.getBoundingClientRect();
   if (!titleRect.width || !appRect.width) return;
   const centerX = titleRect.left + titleRect.width / 2 - appRect.left;
-  todayMemoCard.style.left = `${centerX - cardRect.width / 2}px`;
+  todayYoutubeCard.style.left = `${centerX - cardRect.width / 2}px`;
 }
 
-function renderTodayMemo() {
-  const key = todayKey();
-  const personal = loadPersonalMemoItems().filter((it) => it.date === key);
-  const shared = sharedMemoItems.filter((it) => it.date === key);
-  const combined = [...shared, ...personal];
+async function loadTodayYoutube() {
+  try {
+    const res = await fetch(`${TODAY_YOUTUBE_API_URL}?date=${todayKey()}`);
+    const videos = await res.json();
+    renderTodayYoutube(Array.isArray(videos) ? videos : []);
+  } catch {
+    renderTodayYoutube([]);
+  }
+}
 
-  if (!combined.length) {
-    todayMemoCard.classList.add("hidden");
+function renderTodayYoutube(videos) {
+  if (!videos.length) {
+    todayYoutubeCard.classList.add("hidden");
     return;
   }
 
-  todayMemoList.innerHTML = "";
-  combined.forEach((item) => {
-    const row = document.createElement("div");
+  todayYoutubeList.innerHTML = "";
+  videos.forEach((video) => {
+    const row = document.createElement("a");
     row.className = "today-schedule-item";
+    row.href = video.url;
+    row.target = "_blank";
+    row.rel = "noopener";
 
     const dot = document.createElement("span");
     dot.className = "today-schedule-item-dot";
-    dot.style.background = "#4a7fd6";
+    dot.style.background = "#e05a5a";
     row.appendChild(dot);
 
     const titleEl = document.createElement("span");
     titleEl.className = "today-schedule-item-title";
-    titleEl.textContent = item.text;
+    titleEl.textContent = video.title;
     row.appendChild(titleEl);
 
-    todayMemoList.appendChild(row);
+    todayYoutubeList.appendChild(row);
   });
 
-  todayMemoCard.classList.remove("hidden");
-  positionTodayMemoCard();
+  todayYoutubeCard.classList.remove("hidden");
+  positionTodayYoutubeCard();
 }
 
-(function makeTodayMemoCardDraggable() {
-  const header = todayMemoCard.querySelector(".today-schedule-header");
+(function makeTodayYoutubeCardDraggable() {
+  const header = todayYoutubeCard.querySelector(".today-schedule-header");
   let dragging = false;
   let offsetX = 0;
   let offsetY = 0;
 
   header.addEventListener("mousedown", (e) => {
     dragging = true;
-    todayMemoCardMoved = true;
-    const rect = todayMemoCard.getBoundingClientRect();
+    todayYoutubeCardMoved = true;
+    const rect = todayYoutubeCard.getBoundingClientRect();
     const appRect = appViewEl.getBoundingClientRect();
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
-    todayMemoCard.style.bottom = "auto";
-    todayMemoCard.style.left = `${rect.left - appRect.left}px`;
-    todayMemoCard.style.top = `${rect.top - appRect.top}px`;
+    todayYoutubeCard.style.bottom = "auto";
+    todayYoutubeCard.style.left = `${rect.left - appRect.left}px`;
+    todayYoutubeCard.style.top = `${rect.top - appRect.top}px`;
     e.preventDefault();
   });
 
   document.addEventListener("mousemove", (e) => {
     if (!dragging) return;
     const appRect = appViewEl.getBoundingClientRect();
-    todayMemoCard.style.left = `${e.clientX - offsetX - appRect.left}px`;
-    todayMemoCard.style.top = `${e.clientY - offsetY - appRect.top}px`;
+    todayYoutubeCard.style.left = `${e.clientX - offsetX - appRect.left}px`;
+    todayYoutubeCard.style.top = `${e.clientY - offsetY - appRect.top}px`;
   });
 
   document.addEventListener("mouseup", () => {
     dragging = false;
   });
 
-  window.addEventListener("resize", positionTodayMemoCard);
+  window.addEventListener("resize", positionTodayYoutubeCard);
 })();
 
 async function checkLiveStatus() {
@@ -2257,7 +2264,7 @@ async function init() {
   updateLockUi();
   renderGrid();
   renderTodaySchedule();
-  renderTodayMemo();
+  loadTodayYoutube();
   checkLiveStatus();
 
   loadingScreen.classList.add("hidden");
