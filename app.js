@@ -1157,6 +1157,7 @@ function renderPersonalMemoList() {
     },
     (item) => openMemoEditModal(item, false)
   );
+  renderTodayMemo();
 }
 
 function renderSharedMemoList() {
@@ -1178,6 +1179,7 @@ function renderSharedMemoList() {
     },
     isReadOnly ? null : (item) => openMemoEditModal(item, true)
   );
+  renderTodayMemo();
 }
 
 async function loadSharedMemoList() {
@@ -2073,6 +2075,41 @@ function renderTodaySchedule() {
   todayScheduleCard.classList.remove("hidden");
 }
 
+const todayMemoCard = document.getElementById("todayMemoCard");
+const todayMemoList = document.getElementById("todayMemoList");
+
+function renderTodayMemo() {
+  const key = todayKey();
+  const personal = loadPersonalMemoItems().filter((it) => it.date === key);
+  const shared = sharedMemoItems.filter((it) => it.date === key);
+  const combined = [...shared, ...personal];
+
+  if (!combined.length) {
+    todayMemoCard.classList.add("hidden");
+    return;
+  }
+
+  todayMemoList.innerHTML = "";
+  combined.forEach((item) => {
+    const row = document.createElement("div");
+    row.className = "today-schedule-item";
+
+    const dot = document.createElement("span");
+    dot.className = "today-schedule-item-dot";
+    dot.style.background = "#4a7fd6";
+    row.appendChild(dot);
+
+    const titleEl = document.createElement("span");
+    titleEl.className = "today-schedule-item-title";
+    titleEl.textContent = item.text;
+    row.appendChild(titleEl);
+
+    todayMemoList.appendChild(row);
+  });
+
+  todayMemoCard.classList.remove("hidden");
+}
+
 async function checkLiveStatus() {
   try {
     const res = await fetch("https://chapi.sooplive.com/api/insome0319/station", {
@@ -2108,12 +2145,14 @@ async function init() {
   updateLockUi();
   renderGrid();
   renderTodaySchedule();
+  renderTodayMemo();
   checkLiveStatus();
 
   loadingScreen.classList.add("hidden");
 
   prefetchTodayNotices();
   prefetchSongbookInBackground();
+  loadSharedMemoList();
 
   tryAutoUnlock().then(() => {
     updateLockUi();

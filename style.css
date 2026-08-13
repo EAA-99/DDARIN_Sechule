@@ -116,6 +116,12 @@ body {
   left: 40px;
 }
 
+#todayMemoCard {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 312px;
+}
+
 .page-top-mascot {
   position: absolute;
   bottom: calc(100% + 3px);
@@ -134,6 +140,7 @@ body {
 
 @media (max-width: 900px) {
   #todayScheduleCard,
+  #todayMemoCard,
   .page-top-mascot {
     display: none !important;
   }
@@ -146,6 +153,10 @@ body {
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   text-align: left;
+}
+
+.today-memo-card {
+  border: 2px solid #cfe2f7;
 }
 
 .today-schedule-header {
