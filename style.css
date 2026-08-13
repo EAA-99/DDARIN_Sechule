@@ -118,8 +118,6 @@ body {
 
 #todayMemoCard {
   position: fixed;
-  top: 150px;
-  left: 50%;
   z-index: 60;
   min-width: 220px;
   min-height: 110px;

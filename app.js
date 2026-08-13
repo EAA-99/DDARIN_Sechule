@@ -927,6 +927,7 @@ function showMainView(view) {
   appViewEl.classList.toggle("hidden", view !== "calendar");
   songbookView.classList.toggle("hidden", view !== "songbook");
   gameView.classList.toggle("hidden", view !== "game");
+  if (view === "calendar" && typeof positionTodayMemoCard === "function") positionTodayMemoCard();
 }
 
 async function openSongbook() {
@@ -2123,6 +2124,18 @@ function renderTodaySchedule() {
 
 const todayMemoCard = document.getElementById("todayMemoCard");
 const todayMemoList = document.getElementById("todayMemoList");
+let todayMemoCardMoved = false;
+
+function positionTodayMemoCard() {
+  if (todayMemoCardMoved || appViewEl.classList.contains("hidden")) return;
+  const titleRect = monthTitle.getBoundingClientRect();
+  const appRect = appViewEl.getBoundingClientRect();
+  const cardRect = todayMemoCard.getBoundingClientRect();
+  if (!titleRect.width || !appRect.width) return;
+  const centerX = titleRect.left + titleRect.width / 2;
+  todayMemoCard.style.left = `${centerX - cardRect.width / 2}px`;
+  todayMemoCard.style.top = `${appRect.top - cardRect.height - 8}px`;
+}
 
 function renderTodayMemo() {
   const key = todayKey();
@@ -2154,6 +2167,7 @@ function renderTodayMemo() {
   });
 
   todayMemoCard.classList.remove("hidden");
+  positionTodayMemoCard();
 }
 
 (function makeTodayMemoCardDraggable() {
@@ -2164,6 +2178,7 @@ function renderTodayMemo() {
 
   header.addEventListener("mousedown", (e) => {
     dragging = true;
+    todayMemoCardMoved = true;
     const rect = todayMemoCard.getBoundingClientRect();
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
@@ -2182,6 +2197,8 @@ function renderTodayMemo() {
   document.addEventListener("mouseup", () => {
     dragging = false;
   });
+
+  window.addEventListener("resize", positionTodayMemoCard);
 })();
 
 async function checkLiveStatus() {
