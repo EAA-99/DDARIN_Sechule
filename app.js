@@ -984,13 +984,17 @@ const memoAddModalTitle = document.getElementById("memoAddModalTitle");
 const memoAddForm = document.getElementById("memoAddForm");
 const memoAddDateInput = document.getElementById("memoAddDateInput");
 const memoAddTitleInput = document.getElementById("memoAddTitleInput");
-const memoAddExtraTitles = document.getElementById("memoAddExtraTitles");
+const memoAddFieldsGrid = document.getElementById("memoAddFieldsGrid");
 const memoAddMoreBtn = document.getElementById("memoAddMoreBtn");
 const closeMemoAddModalBtn = document.getElementById("closeMemoAddModalBtn");
 
+function clearMemoExtraTitleRows() {
+  memoAddFieldsGrid.querySelectorAll(".memo-add-extra-input, .memo-add-extra-remove, .memo-add-extra-spacer").forEach((el) => el.remove());
+}
+
 function addMemoExtraTitleRow() {
-  const row = document.createElement("div");
-  row.className = "memo-add-extra-row";
+  const spacer = document.createElement("span");
+  spacer.className = "memo-add-extra-spacer";
 
   const input = document.createElement("input");
   input.type = "text";
@@ -1002,10 +1006,13 @@ function addMemoExtraTitleRow() {
   removeBtn.type = "button";
   removeBtn.className = "memo-add-extra-remove";
   removeBtn.textContent = "✕";
-  removeBtn.addEventListener("click", () => row.remove());
+  removeBtn.addEventListener("click", () => {
+    spacer.remove();
+    input.remove();
+    removeBtn.remove();
+  });
 
-  row.append(input, removeBtn);
-  memoAddExtraTitles.appendChild(row);
+  memoAddFieldsGrid.append(spacer, input, removeBtn);
   input.focus();
 }
 
@@ -1022,7 +1029,7 @@ function openMemoEditModal(item, isShared) {
   memoAddModalTitle.textContent = "메모 수정";
   memoAddDateInput.value = item.date || "";
   memoAddTitleInput.value = item.text || "";
-  memoAddExtraTitles.innerHTML = "";
+  clearMemoExtraTitleRows();
   memoAddModalBackdrop.classList.remove("hidden");
   memoAddTitleInput.focus();
 }
@@ -1077,7 +1084,7 @@ memoAddToggleBtn.addEventListener("click", () => {
   memoAddModalTitle.textContent = "메모 추가";
   memoAddDateInput.value = todayKey();
   memoAddTitleInput.value = "";
-  memoAddExtraTitles.innerHTML = "";
+  clearMemoExtraTitleRows();
   memoAddModalBackdrop.classList.remove("hidden");
   memoAddTitleInput.focus();
 });
@@ -1093,7 +1100,7 @@ memoAddForm.addEventListener("submit", async (e) => {
   const text = memoAddTitleInput.value.trim();
   if (!text) return;
 
-  const extraTexts = Array.from(memoAddExtraTitles.querySelectorAll(".memo-add-extra-input"))
+  const extraTexts = Array.from(memoAddFieldsGrid.querySelectorAll(".memo-add-extra-input"))
     .map((el) => el.value.trim())
     .filter(Boolean);
 
@@ -2134,7 +2141,7 @@ function positionTodayMemoCard() {
   if (!titleRect.width || !appRect.width) return;
   const centerX = titleRect.left + titleRect.width / 2;
   todayMemoCard.style.left = `${centerX - cardRect.width / 2}px`;
-  todayMemoCard.style.top = `${appRect.top - cardRect.height - 8}px`;
+  todayMemoCard.style.top = `${appRect.top - cardRect.height + 2}px`;
 }
 
 function renderTodayMemo() {

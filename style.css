@@ -1619,11 +1619,12 @@ body {
   cursor: default;
 }
 
-.memo-add-field-row {
-  display: flex;
-  justify-content: center;
+.memo-add-fields-grid {
+  display: grid;
+  grid-template-columns: auto auto auto;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  gap: 10px 8px;
   margin-bottom: 16px;
 }
 
@@ -1636,9 +1637,9 @@ body {
   text-align: center;
 }
 
-#memoAddTitleInput {
-  flex: 1;
-  max-width: 240px;
+#memoAddTitleInput,
+.memo-add-extra-input {
+  width: 200px;
 }
 
 .memo-card-list {
@@ -1738,34 +1739,17 @@ body {
   justify-content: space-between;
 }
 
-.memo-add-more-btn {
+.modal-actions .memo-add-more-btn {
   width: 32px;
   height: 32px;
+  padding: 0;
   border: none;
   border-radius: 50%;
   background: #4a7fd6;
   color: #fff;
   font-size: 1.1rem;
+  line-height: 1;
   cursor: pointer;
-}
-
-.memo-add-extra-titles {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin: 8px 0 16px;
-}
-
-.memo-add-extra-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-}
-
-.memo-add-extra-input {
-  flex: 1;
-  max-width: 240px;
 }
 
 .memo-add-extra-remove {

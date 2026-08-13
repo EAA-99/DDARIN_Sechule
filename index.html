@@ -427,11 +427,10 @@
         <button type="button" id="closeMemoAddModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
       </div>
       <form id="memoAddForm">
-        <div class="memo-add-field-row">
+        <div id="memoAddFieldsGrid" class="memo-add-fields-grid">
           <input type="date" id="memoAddDateInput" class="memo-add-modal-input">
           <input type="text" id="memoAddTitleInput" class="memo-add-modal-input" placeholder="메모 제목" maxlength="200" required>
         </div>
-        <div id="memoAddExtraTitles" class="memo-add-extra-titles"></div>
         <div class="modal-actions">
           <button type="button" id="memoAddMoreBtn" class="memo-add-more-btn" aria-label="입력칸 추가">+</button>
           <button type="submit" class="primary-btn">추가</button>
