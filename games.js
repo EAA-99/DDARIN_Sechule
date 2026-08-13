@@ -604,6 +604,8 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const allowDupToggle = document.getElementById("cannonAllowDupToggle");
   const resetBtn = document.getElementById("cannonResetBtn");
   const drawnListEl = document.getElementById("cannonDrawnList");
+  const drawnTitleEl = document.getElementById("cannonDrawnTitle");
+  const drawnPlaceholderEl = document.getElementById("cannonDrawnPlaceholder");
   const ctx = canvas.getContext("2d");
 
   let allowDuplicates = false;
@@ -616,6 +618,8 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   });
 
   function renderDrawnList() {
+    drawnTitleEl.classList.toggle("hidden", !drawnNumbers.length);
+    drawnPlaceholderEl.classList.toggle("hidden", !!drawnNumbers.length);
     drawnListEl.innerHTML = "";
     drawnNumbers.forEach((n) => {
       const chip = document.createElement("span");
@@ -628,9 +632,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const GRAVITY = 900;
   const CANNON_X_RATIO = 0.42;
   const BALL_RADIUS = 8;
-  const PANEL_HEIGHT = 560;
-  const CANNON_IMG_WIDTH = 110;
-  const CANNON_IMG_HEIGHT = 90;
+  const PANEL_HEIGHT = 190;
 
   let W = 600;
   let H = PANEL_HEIGHT;
@@ -643,82 +645,61 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   let rafId = null;
 
   function resizeCanvas() {
-    W = Math.round(canvas.parentElement.offsetWidth) || 600;
-    H = PANEL_HEIGHT;
-    baseY = H - 60;
+    W = Math.round(canvas.offsetWidth) || 240;
+    H = Math.round(canvas.offsetHeight) || PANEL_HEIGHT;
+    baseY = H - 30;
     cannonX = W * CANNON_X_RATIO;
     canvas.width = W;
     canvas.height = H;
   }
 
-  function positionFireBtn() {
-    const btnSize = 64;
-    fireBtn.style.left = `${cannonX - btnSize / 2}px`;
-    fireBtn.style.top = `${baseY - CANNON_IMG_HEIGHT / 2 - btnSize / 2}px`;
-  }
-
   function drawCannonShape() {
-    const width = CANNON_IMG_WIDTH;
-    const height = CANNON_IMG_HEIGHT;
-    const left = cannonX - width / 2;
-    const top = baseY - height;
+    const bodyW = Math.min(W * 0.6, 90);
+    const bodyH = 46;
+    const wheelR = 13;
+    const bodyBottom = baseY - wheelR * 0.6;
+    const bodyTop = bodyBottom - bodyH;
 
-    const bodyGrad = ctx.createLinearGradient(left, 0, left + width, 0);
-    bodyGrad.addColorStop(0, "#c9720f");
-    bodyGrad.addColorStop(0.5, "#f5a623");
-    bodyGrad.addColorStop(1, "#c9720f");
-    ctx.fillStyle = bodyGrad;
+    ctx.fillStyle = "#6b4a36";
+    [cannonX - bodyW * 0.28, cannonX + bodyW * 0.28].forEach((wx) => {
+      ctx.beginPath();
+      ctx.arc(wx, baseY - wheelR, wheelR, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.fillStyle = "#4a3226";
+    [cannonX - bodyW * 0.28, cannonX + bodyW * 0.28].forEach((wx) => {
+      ctx.beginPath();
+      ctx.arc(wx, baseY - wheelR, wheelR * 0.4, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    ctx.fillStyle = "#f6c9a0";
     ctx.beginPath();
-    ctx.moveTo(left, top + 14);
-    ctx.quadraticCurveTo(left, top, cannonX, top);
-    ctx.quadraticCurveTo(left + width, top, left + width, top + 14);
-    ctx.lineTo(left + width, baseY);
-    ctx.lineTo(left, baseY);
+    ctx.moveTo(cannonX - bodyW / 2, bodyBottom);
+    ctx.quadraticCurveTo(cannonX - bodyW / 2, bodyTop, cannonX - bodyW / 2 + 14, bodyTop);
+    ctx.lineTo(cannonX + bodyW * 0.15, bodyTop);
+    ctx.quadraticCurveTo(cannonX + bodyW / 2, bodyTop, cannonX + bodyW / 2, bodyTop + 14);
+    ctx.lineTo(cannonX + bodyW / 2, bodyBottom);
     ctx.closePath();
     ctx.fill();
 
-    ctx.fillStyle = "#ffd24d";
-    ctx.fillRect(cannonX - width * 0.08, top + 10, width * 0.16, height - 10);
-
-    ctx.strokeStyle = "#a85e0c";
-    ctx.lineWidth = 3;
+    const barrelH = 22;
+    const barrelLen = bodyW * 0.75;
+    const barrelY = bodyTop + bodyH * 0.32;
+    ctx.fillStyle = "#c98a5e";
     ctx.beginPath();
-    ctx.ellipse(cannonX, top + 8, width / 2, 8, 0, 0, Math.PI * 2);
-    ctx.stroke();
+    ctx.roundRect(cannonX + bodyW * 0.1, barrelY, barrelLen, barrelH, barrelH / 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#8a5a38";
+    ctx.beginPath();
+    ctx.ellipse(cannonX + bodyW * 0.1 + barrelLen, barrelY + barrelH / 2, barrelH / 2.4, barrelH / 2, 0, 0, Math.PI * 2);
+    ctx.fill();
   }
 
   function drawScene() {
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
-    skyGrad.addColorStop(0, "#4a7fd6");
-    skyGrad.addColorStop(1, "#d9e8fb");
-    ctx.fillStyle = skyGrad;
+    ctx.fillStyle = "#fdf3e4";
     ctx.fillRect(0, 0, W, H);
-
-    // 왼쪽 언덕 (진한 초록)
-    const leftGrad = ctx.createLinearGradient(0, baseY - 150, 0, H);
-    leftGrad.addColorStop(0, "#2f9e44");
-    leftGrad.addColorStop(1, "#1b6e2c");
-    ctx.fillStyle = leftGrad;
-    ctx.beginPath();
-    ctx.moveTo(0, baseY - 90);
-    ctx.quadraticCurveTo(cannonX * 0.55, baseY - 30, cannonX, baseY);
-    ctx.lineTo(cannonX, H);
-    ctx.lineTo(0, H);
-    ctx.closePath();
-    ctx.fill();
-
-    // 오른쪽 언덕 (연한 초록)
-    const rightGrad = ctx.createLinearGradient(0, baseY - 150, 0, H);
-    rightGrad.addColorStop(0, "#8ce050");
-    rightGrad.addColorStop(1, "#5cb82f");
-    ctx.fillStyle = rightGrad;
-    ctx.beginPath();
-    ctx.moveTo(cannonX, baseY);
-    ctx.quadraticCurveTo(cannonX + (W - cannonX) * 0.55, baseY - 90, W, baseY - 130);
-    ctx.lineTo(W, H);
-    ctx.lineTo(cannonX, H);
-    ctx.closePath();
-    ctx.fill();
 
     drawCannonShape();
 
@@ -728,8 +709,6 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
       ctx.arc(ball.x, ball.y, BALL_RADIUS, 0, Math.PI * 2);
       ctx.fill();
     }
-
-    positionFireBtn();
   }
 
   function buildPool() {
@@ -789,14 +768,13 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     firing = true;
     fireBtn.disabled = true;
 
-    const angleDeg = 78 + Math.random() * 10; // 수직에 가깝게 발사
-    const power = 480 + Math.random() * 200;
+    const angleDeg = 15 + Math.random() * 20; // 오른쪽으로 낮게 발사
+    const power = 380 + Math.random() * 160;
     const rad = (angleDeg * Math.PI) / 180;
-    const dir = Math.random() < 0.5 ? -1 : 1;
     ball = {
       x: cannonX,
-      y: baseY - CANNON_IMG_HEIGHT,
-      vx: dir * Math.cos(rad) * power,
+      y: baseY - 40,
+      vx: Math.cos(rad) * power,
       vy: -Math.sin(rad) * power,
     };
 
