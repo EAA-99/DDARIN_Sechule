@@ -594,7 +594,6 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 
 // ===== 대포 =====
 (function cannonGame() {
-  const namesInput = document.getElementById("cannonNamesInput");
   const errorEl = document.getElementById("cannonError");
   const buildBtn = document.getElementById("cannonBuildBtn");
   const canvas = document.getElementById("cannonCanvas");
@@ -602,48 +601,16 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const resultModalBackdrop = document.getElementById("cannonResultModalBackdrop");
   const resultCardWrap = document.getElementById("cannonResultCard");
   const closeResultModalBtn = document.getElementById("closeCannonResultModalBtn");
-  const countLabel = document.getElementById("cannonCountLabel");
-  const addItemBtn = document.getElementById("cannonAddItemBtn");
-  const rangeStartInput = document.getElementById("cannonRangeStart");
-  const rangeEndInput = document.getElementById("cannonRangeEnd");
-  const fillNumbersBtn = document.getElementById("cannonFillNumbersBtn");
-  const toolbarResetBtn = document.getElementById("cannonToolbarResetBtn");
+  const ballCountInput = document.getElementById("cannonBallCountInput");
+  const allowDupToggle = document.getElementById("cannonAllowDupToggle");
   const ctx = canvas.getContext("2d");
 
-  function currentLines() {
-    return namesInput.value.split("\n").map((s) => s.trim()).filter(Boolean);
-  }
+  let allowDuplicates = false;
 
-  function updateCountLabel() {
-    countLabel.textContent = `항목 ${currentLines().length}개`;
-  }
-
-  namesInput.addEventListener("input", updateCountLabel);
-
-  addItemBtn.addEventListener("click", () => {
-    const lines = currentLines();
-    const next = lines.length + 1;
-    lines.push(`항목${next}`);
-    namesInput.value = lines.join("\n");
-    updateCountLabel();
-  });
-
-  fillNumbersBtn.addEventListener("click", () => {
-    const start = parseInt(rangeStartInput.value, 10) || 1;
-    const end = parseInt(rangeEndInput.value, 10) || 100;
-    const lo = Math.min(start, end);
-    const hi = Math.max(start, end);
-    const nums = [];
-    for (let n = lo; n <= hi; n++) nums.push(String(n));
-    namesInput.value = nums.join("\n");
-    updateCountLabel();
-  });
-
-  toolbarResetBtn.addEventListener("click", () => {
-    namesInput.value = "";
-    rangeStartInput.value = "";
-    rangeEndInput.value = "";
-    updateCountLabel();
+  allowDupToggle.addEventListener("click", () => {
+    allowDuplicates = !allowDuplicates;
+    allowDupToggle.classList.toggle("active", allowDuplicates);
+    allowDupToggle.setAttribute("aria-pressed", String(allowDuplicates));
   });
 
   const GRAVITY = 900;
@@ -769,12 +736,13 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   }
 
   buildBtn.addEventListener("click", () => {
-    names = namesInput.value.split("\n").map((s) => s.trim()).filter(Boolean);
-    if (names.length < 2) {
-      showGameError(errorEl, "이름을 2개 이상 입력해주세요.");
+    const count = parseInt(ballCountInput.value, 10) || 100;
+    if (count < 2) {
+      showGameError(errorEl, "공 갯수를 2개 이상 입력해주세요.");
       fireBtn.disabled = true;
       return;
     }
+    names = Array.from({ length: count }, (_, i) => String(i + 1));
     errorEl.classList.add("hidden");
     if (rafId) cancelAnimationFrame(rafId);
     firing = false;
@@ -787,7 +755,6 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 
   function finishShot() {
     firing = false;
-    fireBtn.disabled = false;
     const landX = ball.x;
     let winner = targets[targets.length - 1];
     for (const t of targets) {
@@ -802,6 +769,20 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     resultCardWrap.innerHTML = "";
     resultCardWrap.appendChild(buildResultCard(winner.name, label));
     resultModalBackdrop.classList.remove("hidden");
+
+    if (!allowDuplicates) {
+      names = names.filter((n) => n !== winner.name);
+      if (names.length) {
+        layoutTargets();
+        drawScene();
+        fireBtn.disabled = false;
+      } else {
+        showGameError(errorEl, "모든 번호를 뽑았습니다. 타겟 배치로 다시 시작해주세요.");
+        fireBtn.disabled = true;
+      }
+    } else {
+      fireBtn.disabled = false;
+    }
   }
 
   fireBtn.addEventListener("click", () => {

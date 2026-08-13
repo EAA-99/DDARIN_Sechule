@@ -988,63 +988,53 @@ body {
   min-height: 740px;
 }
 
-.cannon-toolbar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
+.cannon-settings {
   margin-bottom: 14px;
 }
 
-.cannon-count-pill {
-  border: 1px solid #ddd;
-  border-radius: 999px;
-  padding: 8px 20px;
+.cannon-settings-title {
+  font-size: 1.1rem;
   font-weight: 700;
-  font-size: 0.85rem;
-  background: #fff7ea;
-  color: #8a6d3b;
+  text-decoration: underline;
+  margin: 0 0 16px;
 }
 
-.cannon-toolbar-row {
+.cannon-settings-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
+  justify-content: space-between;
+  padding: 10px 0;
 }
 
-.cannon-range-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid #ddd;
-  border-radius: 999px;
-  padding: 6px 12px;
-  color: #999;
-  font-size: 0.85rem;
-}
-
-.cannon-range-input {
-  width: 48px;
-  border: none;
-  text-align: center;
-  font-size: 0.85rem;
+.cannon-settings-label {
   font-weight: 700;
-  font-family: inherit;
+  font-size: 0.9rem;
   color: #2a2a2a;
 }
 
-.cannon-names-input {
-  width: 100%;
-  min-height: 90px;
-  padding: 10px 12px;
-  border: 1px solid #ddd;
+.cannon-settings-input {
+  width: 160px;
+  border: 1px solid #ccc;
   border-radius: 8px;
-  font-size: 0.85rem;
+  padding: 8px 12px;
+  font-size: 0.9rem;
   font-family: inherit;
-  resize: vertical;
-  margin-bottom: 8px;
+  text-align: right;
+}
+
+.cannon-settings-toggle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  background: #fff;
+  cursor: pointer;
+  padding: 0;
+}
+
+.cannon-settings-toggle.active {
+  border-color: #4a7fd6;
+  background: #4a7fd6;
 }
 
 .cannon-actions {
