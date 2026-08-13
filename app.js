@@ -302,7 +302,11 @@ async function apiGetEventsAppsScript() {
 async function apiGetEvents() {
   const direct = await apiGetEventsDirect();
   if (direct) {
-    console.log("[events] using direct source, count=", direct.length, direct.filter((e) => e.date === "2026-08-16"));
+    console.log("[events] using direct source, count=", direct.length, direct.filter((e) => e.date === "2026-08-15"));
+    const perDateCount = {};
+    direct.forEach((e) => { perDateCount[e.date] = (perDateCount[e.date] || 0) + 1; });
+    const dupes = Object.entries(perDateCount).filter(([, n]) => n > 1);
+    console.log("[events] dates with >1 row in raw sheet data:", dupes);
     return direct;
   }
   const fallback = await apiGetEventsAppsScript();
@@ -1274,7 +1278,7 @@ async function initEvents() {
     console.log("[events] initEvents FELL BACK to stale localStorage cache. flat=", flat);
     eventsCache = loadEvents();
   }
-  console.log("[events] final 2026-08-16 entries=", (eventsCache["2026-08-16"] || []).length, eventsCache["2026-08-16"]);
+  console.log("[events] final 2026-08-15 entries=", (eventsCache["2026-08-15"] || []).length, eventsCache["2026-08-15"]);
 }
 
 function dateKey(year, monthIndex, day) {
