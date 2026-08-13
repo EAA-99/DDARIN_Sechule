@@ -1594,40 +1594,26 @@ body {
   cursor: default;
 }
 
-.memo-add-row {
+.memo-add-field-row {
   display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
-.memo-add-input {
-  flex: 1;
-  padding: 10px 12px;
+.memo-add-modal-input {
+  padding: 8px 10px;
   border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 0.85rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
   font-family: inherit;
+  text-align: center;
 }
 
-.memo-add-input:disabled {
-  background: #f7f7f7;
-  color: #999;
-}
-
-.memo-add-btn {
-  padding: 0 16px;
-  border: none;
-  border-radius: 8px;
-  background: #4a7fd6;
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.85rem;
-  cursor: pointer;
-}
-
-.memo-add-btn:disabled {
-  background: #ccc;
-  cursor: default;
+#memoAddTitleInput {
+  flex: 1;
+  max-width: 240px;
 }
 
 .memo-card-list {
@@ -1649,6 +1635,14 @@ body {
   font-size: 0.88rem;
   word-break: break-word;
   cursor: pointer;
+}
+
+.memo-card-date {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #4a7fd6;
+  margin-bottom: 4px;
 }
 
 .memo-card-text {

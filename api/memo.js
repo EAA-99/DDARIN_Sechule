@@ -33,7 +33,7 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    const { username, password, action, text, id } = req.body || {};
+    const { username, password, action, text, id, date } = req.body || {};
     if (username !== process.env.EDIT_USERNAME || password !== process.env.EDIT_PASSWORD) {
       res.status(401).json({ success: false });
       return;
@@ -45,7 +45,7 @@ export default async function handler(req, res) {
     } else if (action === "edit") {
       items = items.map((it) => (it.id === id ? { ...it, text: text || "" } : it));
     } else {
-      items.unshift({ id: Date.now(), text: text || "" });
+      items.unshift({ id: Date.now(), text: text || "", date: date || "" });
     }
 
     await kvCommand(["SET", "shared_memo", JSON.stringify(items)]);

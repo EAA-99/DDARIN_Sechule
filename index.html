@@ -405,18 +405,28 @@
       <button type="button" id="memoAddToggleBtn" class="memo-add-toggle-btn" aria-label="메모 추가">+</button>
     </div>
     <div class="memo-section hidden" id="memoPersonalSection">
-      <div class="memo-add-row hidden" id="memoPersonalAddRow">
-        <input type="text" id="memoPersonalInput" class="memo-add-input" placeholder="나만 보는 메모를 입력하세요" maxlength="200">
-        <button type="button" id="memoPersonalAddBtn" class="memo-add-btn">추가</button>
-      </div>
       <div id="memoPersonalList" class="memo-card-list"></div>
     </div>
     <div class="memo-section" id="memoSharedSection">
-      <div class="memo-add-row hidden" id="memoSharedAddRow">
-        <input type="text" id="memoSharedInput" class="memo-add-input" placeholder="모두가 보는 메모를 입력하세요" maxlength="200">
-        <button type="button" id="memoSharedAddBtn" class="memo-add-btn">추가</button>
-      </div>
       <div id="memoSharedList" class="memo-card-list"></div>
+    </div>
+  </div>
+
+  <div id="memoAddModalBackdrop" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-header-row">
+        <h2>메모 추가</h2>
+        <button type="button" id="closeMemoAddModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
+      </div>
+      <form id="memoAddForm">
+        <div class="memo-add-field-row">
+          <input type="date" id="memoAddDateInput" class="memo-add-modal-input" required>
+          <input type="text" id="memoAddTitleInput" class="memo-add-modal-input" placeholder="메모 제목" maxlength="200" required>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="primary-btn">추가</button>
+        </div>
+      </form>
     </div>
   </div>
 
