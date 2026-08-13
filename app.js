@@ -983,7 +983,32 @@ const memoAddModalTitle = document.getElementById("memoAddModalTitle");
 const memoAddForm = document.getElementById("memoAddForm");
 const memoAddDateInput = document.getElementById("memoAddDateInput");
 const memoAddTitleInput = document.getElementById("memoAddTitleInput");
+const memoAddExtraTitles = document.getElementById("memoAddExtraTitles");
+const memoAddMoreBtn = document.getElementById("memoAddMoreBtn");
 const closeMemoAddModalBtn = document.getElementById("closeMemoAddModalBtn");
+
+function addMemoExtraTitleRow() {
+  const row = document.createElement("div");
+  row.className = "memo-add-extra-row";
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "memo-add-modal-input memo-add-extra-input";
+  input.placeholder = "메모 제목";
+  input.maxLength = 200;
+
+  const removeBtn = document.createElement("button");
+  removeBtn.type = "button";
+  removeBtn.className = "memo-add-extra-remove";
+  removeBtn.textContent = "✕";
+  removeBtn.addEventListener("click", () => row.remove());
+
+  row.append(input, removeBtn);
+  memoAddExtraTitles.appendChild(row);
+  input.focus();
+}
+
+memoAddMoreBtn.addEventListener("click", addMemoExtraTitleRow);
 
 const SHARED_MEMO_API_URL = "/api/memo";
 let sharedMemoItems = [];
@@ -996,8 +1021,31 @@ function openMemoEditModal(item, isShared) {
   memoAddModalTitle.textContent = "메모 수정";
   memoAddDateInput.value = item.date || "";
   memoAddTitleInput.value = item.text || "";
+  memoAddExtraTitles.innerHTML = "";
   memoAddModalBackdrop.classList.remove("hidden");
   memoAddTitleInput.focus();
+}
+
+async function addSharedMemoTexts(texts, date) {
+  const { username, password } = getStoredCreds();
+  if (!username || !password) return;
+  for (const t of texts) {
+    const res = await fetch(SHARED_MEMO_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password, action: "add", text: t, date }),
+    });
+    const data = await res.json().catch(() => null);
+    if (data && data.items) sharedMemoItems = data.items;
+  }
+  renderSharedMemoList();
+}
+
+function addPersonalMemoTexts(texts, date) {
+  const items = loadPersonalMemoItems();
+  texts.forEach((t, i) => items.unshift({ id: Date.now() + i, text: t, date }));
+  savePersonalMemoItems(items);
+  renderPersonalMemoList();
 }
 
 function closeMemoAddModal() {
@@ -1028,6 +1076,7 @@ memoAddToggleBtn.addEventListener("click", () => {
   memoAddModalTitle.textContent = "메모 추가";
   memoAddDateInput.value = todayKey();
   memoAddTitleInput.value = "";
+  memoAddExtraTitles.innerHTML = "";
   memoAddModalBackdrop.classList.remove("hidden");
   memoAddTitleInput.focus();
 });
@@ -1043,6 +1092,10 @@ memoAddForm.addEventListener("submit", async (e) => {
   const text = memoAddTitleInput.value.trim();
   if (!text) return;
 
+  const extraTexts = Array.from(memoAddExtraTitles.querySelectorAll(".memo-add-extra-input"))
+    .map((el) => el.value.trim())
+    .filter(Boolean);
+
   if (editingMemoId !== null) {
     const id = editingMemoId;
     const isShared = editingMemoIsShared;
@@ -1057,35 +1110,28 @@ memoAddForm.addEventListener("submit", async (e) => {
       });
       const data = await res.json().catch(() => null);
       if (data && data.items) sharedMemoItems = data.items;
-      renderSharedMemoList();
+      if (extraTexts.length) await addSharedMemoTexts(extraTexts, date);
+      else renderSharedMemoList();
     } else {
       const items = loadPersonalMemoItems().map((it) => (it.id === id ? { ...it, text, date } : it));
       savePersonalMemoItems(items);
-      renderPersonalMemoList();
+      if (extraTexts.length) addPersonalMemoTexts(extraTexts, date);
+      else renderPersonalMemoList();
     }
     return;
   }
 
+  const allTexts = [text, ...extraTexts];
   const onShared = memoTabShared.classList.contains("active");
   if (onShared) {
     if (isReadOnly) return;
     const { username, password } = getStoredCreds();
     if (!username || !password) return;
     closeMemoAddModal();
-    const res = await fetch(SHARED_MEMO_API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password, action: "add", text, date }),
-    });
-    const data = await res.json().catch(() => null);
-    if (data && data.items) sharedMemoItems = data.items;
-    renderSharedMemoList();
+    await addSharedMemoTexts(allTexts, date);
   } else {
-    const items = loadPersonalMemoItems();
-    items.unshift({ id: Date.now(), text, date });
-    savePersonalMemoItems(items);
     closeMemoAddModal();
-    renderPersonalMemoList();
+    addPersonalMemoTexts(allTexts, date);
   }
 });
 
@@ -2109,6 +2155,34 @@ function renderTodayMemo() {
 
   todayMemoCard.classList.remove("hidden");
 }
+
+(function makeTodayMemoCardDraggable() {
+  const header = todayMemoCard.querySelector(".today-schedule-header");
+  let dragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  header.addEventListener("mousedown", (e) => {
+    dragging = true;
+    const rect = todayMemoCard.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    todayMemoCard.style.transform = "none";
+    todayMemoCard.style.left = `${rect.left}px`;
+    todayMemoCard.style.top = `${rect.top}px`;
+    e.preventDefault();
+  });
+
+  document.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+    todayMemoCard.style.left = `${e.clientX - offsetX}px`;
+    todayMemoCard.style.top = `${e.clientY - offsetY}px`;
+  });
+
+  document.addEventListener("mouseup", () => {
+    dragging = false;
+  });
+})();
 
 async function checkLiveStatus() {
   try {

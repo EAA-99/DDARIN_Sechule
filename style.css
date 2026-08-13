@@ -117,9 +117,20 @@ body {
 }
 
 #todayMemoCard {
-  position: absolute;
-  bottom: calc(100% + 4px);
-  left: 312px;
+  position: fixed;
+  top: 150px;
+  left: 50%;
+  z-index: 60;
+  min-width: 220px;
+  min-height: 110px;
+  max-width: 90vw;
+  resize: both;
+  overflow: auto;
+  cursor: default;
+}
+
+#todayMemoCard .today-schedule-header {
+  cursor: move;
 }
 
 .page-top-mascot {
@@ -1723,6 +1734,48 @@ body {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+}
+
+#memoAddForm .modal-actions {
+  justify-content: space-between;
+}
+
+.memo-add-more-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: #4a7fd6;
+  color: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.memo-add-extra-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0 16px;
+}
+
+.memo-add-extra-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.memo-add-extra-input {
+  flex: 1;
+  max-width: 240px;
+}
+
+.memo-add-extra-remove {
+  border: none;
+  background: none;
+  color: #bbb;
+  cursor: pointer;
+  font-size: 0.85rem;
 }
 
 .modal-actions button {
