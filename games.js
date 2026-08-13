@@ -626,11 +626,11 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   }
 
   const GRAVITY = 900;
-  const CANNON_X = 60;
+  const CANNON_X_RATIO = 0.42;
   const BALL_RADIUS = 8;
   const PANEL_HEIGHT = 560;
-  const CANNON_IMG_WIDTH = 100;
-  const CANNON_IMG_HEIGHT = 70;
+  const CANNON_IMG_WIDTH = 110;
+  const CANNON_IMG_HEIGHT = 90;
 
   const cannonImg = new Image();
   cannonImg.src = "대포.png";
@@ -638,7 +638,8 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 
   let W = 600;
   let H = PANEL_HEIGHT;
-  let groundY = H - 70;
+  let baseY = H - 60;
+  let cannonX = W * CANNON_X_RATIO;
 
   let names = [];
   let firing = false;
@@ -648,22 +649,56 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   function resizeCanvas() {
     W = Math.round(canvas.parentElement.offsetWidth) || 600;
     H = PANEL_HEIGHT;
-    groundY = H - 70;
+    baseY = H - 60;
+    cannonX = W * CANNON_X_RATIO;
     canvas.width = W;
     canvas.height = H;
   }
 
+  function positionFireBtn() {
+    const btnSize = 64;
+    fireBtn.style.left = `${cannonX - btnSize / 2}px`;
+    fireBtn.style.top = `${baseY - CANNON_IMG_HEIGHT / 2 - btnSize / 2}px`;
+  }
+
   function drawScene() {
-    ctx.fillStyle = "#eaf4ff";
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+    skyGrad.addColorStop(0, "#4a7fd6");
+    skyGrad.addColorStop(1, "#d9e8fb");
+    ctx.fillStyle = skyGrad;
     ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = "#bfe3a8";
-    ctx.fillRect(0, groundY, W, H - groundY);
+
+    // 왼쪽 언덕 (진한 초록)
+    const leftGrad = ctx.createLinearGradient(0, baseY - 150, 0, H);
+    leftGrad.addColorStop(0, "#2f9e44");
+    leftGrad.addColorStop(1, "#1b6e2c");
+    ctx.fillStyle = leftGrad;
+    ctx.beginPath();
+    ctx.moveTo(0, baseY - 90);
+    ctx.quadraticCurveTo(cannonX * 0.55, baseY - 30, cannonX, baseY);
+    ctx.lineTo(cannonX, H);
+    ctx.lineTo(0, H);
+    ctx.closePath();
+    ctx.fill();
+
+    // 오른쪽 언덕 (연한 초록)
+    const rightGrad = ctx.createLinearGradient(0, baseY - 150, 0, H);
+    rightGrad.addColorStop(0, "#8ce050");
+    rightGrad.addColorStop(1, "#5cb82f");
+    ctx.fillStyle = rightGrad;
+    ctx.beginPath();
+    ctx.moveTo(cannonX, baseY);
+    ctx.quadraticCurveTo(cannonX + (W - cannonX) * 0.55, baseY - 90, W, baseY - 130);
+    ctx.lineTo(W, H);
+    ctx.lineTo(cannonX, H);
+    ctx.closePath();
+    ctx.fill();
 
     if (cannonImg.complete && cannonImg.naturalWidth) {
       ctx.drawImage(
         cannonImg,
-        CANNON_X - CANNON_IMG_WIDTH / 2,
-        groundY - CANNON_IMG_HEIGHT,
+        cannonX - CANNON_IMG_WIDTH / 2,
+        baseY - CANNON_IMG_HEIGHT,
         CANNON_IMG_WIDTH,
         CANNON_IMG_HEIGHT
       );
@@ -675,6 +710,8 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
       ctx.arc(ball.x, ball.y, BALL_RADIUS, 0, Math.PI * 2);
       ctx.fill();
     }
+
+    positionFireBtn();
   }
 
   function buildPool() {
@@ -734,13 +771,14 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     firing = true;
     fireBtn.disabled = true;
 
-    const angleDeg = 25 + Math.random() * 40;
-    const power = 480 + Math.random() * 260;
+    const angleDeg = 78 + Math.random() * 10; // 수직에 가깝게 발사
+    const power = 480 + Math.random() * 200;
     const rad = (angleDeg * Math.PI) / 180;
+    const dir = Math.random() < 0.5 ? -1 : 1;
     ball = {
-      x: CANNON_X,
-      y: groundY,
-      vx: Math.cos(rad) * power,
+      x: cannonX,
+      y: baseY - CANNON_IMG_HEIGHT,
+      vx: dir * Math.cos(rad) * power,
       vy: -Math.sin(rad) * power,
     };
 
@@ -753,9 +791,9 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
       ball.x += ball.vx * dt;
       ball.y += ball.vy * dt;
 
-      if (ball.y >= groundY || ball.x >= W) {
-        ball.x = Math.min(ball.x, W);
-        ball.y = groundY;
+      if (ball.y >= baseY || ball.x <= 0 || ball.x >= W) {
+        ball.x = Math.min(Math.max(ball.x, 0), W);
+        ball.y = baseY;
         drawScene();
         finishShot();
         return;

@@ -221,14 +221,16 @@
         </div>
       </div>
       <div id="cannonError" class="sheet-status error hidden"></div>
-      <div class="cannon-actions">
-        <button type="button" id="cannonFireBtn" class="ladder-action-btn ladder-start-btn">▷ 발사</button>
-        <button type="button" id="cannonResetBtn" class="ladder-action-btn">↻ 다시</button>
+      <div class="cannon-stage">
+        <canvas id="cannonCanvas" class="cannon-canvas"></canvas>
+        <button type="button" id="cannonFireBtn" class="cannon-fire-btn">발사</button>
+        <div class="cannon-drawn-panel">
+          <h4 class="cannon-drawn-title">최근 나온 번호</h4>
+          <div id="cannonDrawnList" class="cannon-drawn-list"></div>
+        </div>
       </div>
-      <canvas id="cannonCanvas" class="cannon-canvas"></canvas>
-      <div class="cannon-drawn">
-        <h4 class="cannon-drawn-title">최근 나온 번호</h4>
-        <div id="cannonDrawnList" class="cannon-drawn-list"></div>
+      <div class="cannon-actions">
+        <button type="button" id="cannonResetBtn" class="ladder-action-btn">↻ 다시</button>
       </div>
     </div>
   </div>
