@@ -224,15 +224,6 @@ const playerNoClipSong = document.getElementById("playerNoClipSong");
 const playerPlayBtn = document.getElementById("playerPlayBtn");
 const playerPrevBtn = document.getElementById("playerPrevBtn");
 const playerNextBtn = document.getElementById("playerNextBtn");
-const songPlayerModalBackdrop = document.getElementById("songPlayerModalBackdrop");
-const songPlayerModalFrame = document.getElementById("songPlayerModalFrame");
-const songPlayerModalThumb = document.getElementById("songPlayerModalThumb");
-const songPlayerModalClose = document.getElementById("songPlayerModalClose");
-const songPlayerModalTitle = document.getElementById("songPlayerModalTitle");
-const songPlayerModalArtist = document.getElementById("songPlayerModalArtist");
-const songPlayerModalFavBtn = document.getElementById("songPlayerModalFavBtn");
-const songPlayerModalFavIcon = document.getElementById("songPlayerModalFavIcon");
-const songPlayerModalFavLabel = document.getElementById("songPlayerModalFavLabel");
 const songGrid = document.getElementById("songGrid");
 const favoritesListEl = document.getElementById("favoritesList");
 let allSongs = null;
@@ -491,13 +482,6 @@ function buildClipPageUrl(clipId) {
   return `https://vod.sooplive.com/player/${clipId}?type=catch`;
 }
 
-function updateSongPlayerModalFavBtn(key) {
-  const active = isSongFavorite(key);
-  songPlayerModalFavIcon.textContent = active ? "★" : "☆";
-  songPlayerModalFavLabel.textContent = active ? "즐겨찾기 해제" : "즐겨찾기 추가";
-}
-
-const songPlayerModal = document.getElementById("songPlayerModal");
 let clipPopupWindow = null;
 
 function openSoopClipWindow(clipId) {
@@ -506,153 +490,23 @@ function openSoopClipWindow(clipId) {
     clipPopupWindow.location.href = url;
     clipPopupWindow.focus();
   } else {
-    clipPopupWindow = window.open(url, "soopClipPlayer", "width=960,height=640");
+    const width = 960;
+    const height = Math.round((width * 9) / 16);
+    const left = Math.round((screen.availWidth - width) / 2);
+    const top = Math.round((screen.availHeight - height) / 2);
+    clipPopupWindow = window.open(
+      url,
+      "soopClipPlayer",
+      `width=${width},height=${height},left=${left},top=${top}`
+    );
   }
 }
 
-function resetSongPlayerModalPosition() {
-  songPlayerModal.style.position = "";
-  songPlayerModal.style.left = "";
-  songPlayerModal.style.top = "";
-  songPlayerModal.style.margin = "";
-  songPlayerModal.style.width = "";
-  songPlayerModal.style.height = "";
-  songPlayerModal.style.maxWidth = "";
-}
-
-function openSongPlayerModal(song, clipId) {
-  resetSongPlayerModalPosition();
-  const key = albumArtCacheKey(song);
-  songPlayerModalThumb.src = (thumbMap && thumbMap[key]) || "";
-  songPlayerModalFrame.href = buildClipPageUrl(clipId);
-  songPlayerModalFrame.onclick = (e) => {
-    e.preventDefault();
-    openSoopClipWindow(clipId);
-  };
-  songPlayerModalTitle.textContent = song.title;
-  songPlayerModalArtist.textContent = song.artist;
-  updateSongPlayerModalFavBtn(key);
-  songPlayerModalBackdrop.classList.remove("hidden");
-  songPlayerModalBackdrop.classList.remove("minimized");
-  openSoopClipWindow(clipId);
-}
-
-function closeSongPlayerModal() {
+function closeSoopClipWindow() {
   clearTimeout(autoAdvanceTimer);
-  songPlayerModalBackdrop.classList.add("hidden");
-  songPlayerModalBackdrop.classList.remove("minimized");
   if (clipPopupWindow && !clipPopupWindow.closed) clipPopupWindow.close();
   clipPopupWindow = null;
-  resetSongPlayerModalPosition();
 }
-
-function minimizeSongPlayerModal() {
-  songPlayerModalBackdrop.classList.add("minimized");
-}
-
-let songPlayerInteracting = false;
-
-songPlayerModalClose.addEventListener("click", closeSongPlayerModal);
-songPlayerModalBackdrop.addEventListener("click", (e) => {
-  if (songPlayerInteracting) return;
-  if (songPlayerModalBackdrop.classList.contains("minimized")) return;
-  if (e.target === songPlayerModalBackdrop) minimizeSongPlayerModal();
-});
-songPlayerModal.addEventListener("click", (e) => {
-  if (songPlayerInteracting) return;
-  if (!songPlayerModalBackdrop.classList.contains("minimized")) return;
-  if (e.target.closest(".song-player-modal-close")) return;
-  songPlayerModalBackdrop.classList.remove("minimized");
-});
-songPlayerModalFavBtn.addEventListener("click", () => {
-  if (!currentSongKey) return;
-  toggleSongFavorite(currentSongKey);
-  updateSongPlayerModalFavBtn(currentSongKey);
-  renderFavoritesList();
-});
-
-(function makeSongPlayerDraggable() {
-  const handle = document.querySelector(".song-player-drag-handle");
-  let dragging = false;
-  let offsetX = 0;
-  let offsetY = 0;
-
-  handle.addEventListener("mousedown", (e) => {
-    dragging = true;
-    songPlayerInteracting = true;
-    const rect = songPlayerModal.getBoundingClientRect();
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
-    songPlayerModal.style.position = "fixed";
-    songPlayerModal.style.margin = "0";
-    songPlayerModal.style.left = `${rect.left}px`;
-    songPlayerModal.style.top = `${rect.top}px`;
-    e.preventDefault();
-  });
-
-  document.addEventListener("mousemove", (e) => {
-    if (!dragging) return;
-    songPlayerModal.style.left = `${e.clientX - offsetX}px`;
-    songPlayerModal.style.top = `${e.clientY - offsetY}px`;
-  });
-
-  document.addEventListener("mouseup", () => {
-    if (!dragging) return;
-    dragging = false;
-    setTimeout(() => { songPlayerInteracting = false; }, 0);
-  });
-
-  handle.addEventListener("click", (e) => e.stopPropagation());
-})();
-
-(function makeSongPlayerResizable() {
-  const MIN_WIDTH = 320;
-
-  document.querySelectorAll(".song-player-resize-handle").forEach((handle) => {
-    handle.addEventListener("mousedown", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      songPlayerInteracting = true;
-
-      const corner = handle.dataset.corner;
-      const rect = songPlayerModal.getBoundingClientRect();
-      const startX = e.clientX;
-      const startWidth = rect.width;
-      const anchorX = corner.includes("w") ? rect.right : rect.left;
-      const anchorY = corner.includes("n") ? rect.bottom : rect.top;
-
-      songPlayerModal.style.position = "fixed";
-      songPlayerModal.style.margin = "0";
-      songPlayerModal.style.maxWidth = "none";
-      songPlayerModal.style.width = `${startWidth}px`;
-      songPlayerModal.style.left = `${rect.left}px`;
-      songPlayerModal.style.top = `${rect.top}px`;
-
-      function onMove(ev) {
-        const dx = ev.clientX - startX;
-        const newWidth = Math.max(MIN_WIDTH, corner.includes("w") ? startWidth - dx : startWidth + dx);
-        songPlayerModal.style.width = `${newWidth}px`;
-
-        const newHeight = songPlayerModal.offsetHeight;
-        const newLeft = corner.includes("w") ? anchorX - newWidth : anchorX;
-        const newTop = corner.includes("n") ? anchorY - newHeight : anchorY;
-        songPlayerModal.style.left = `${newLeft}px`;
-        songPlayerModal.style.top = `${newTop}px`;
-      }
-
-      function onUp() {
-        document.removeEventListener("mousemove", onMove);
-        document.removeEventListener("mouseup", onUp);
-        setTimeout(() => { songPlayerInteracting = false; }, 0);
-      }
-
-      document.addEventListener("mousemove", onMove);
-      document.addEventListener("mouseup", onUp);
-    });
-
-    handle.addEventListener("click", (e) => e.stopPropagation());
-  });
-})();
 
 let currentClipId = null;
 let currentSongKey = null;
@@ -684,14 +538,14 @@ async function playSong(song) {
     playerPlayBtn.disabled = true;
     playerNoClip.classList.remove("hidden");
     playerNoClipSong.textContent = `${song.title} - ${song.artist}`;
-    closeSongPlayerModal();
+    closeSoopClipWindow();
     return;
   }
 
   playerNoClip.classList.add("hidden");
   playerPlayBtn.disabled = false;
 
-  openSongPlayerModal(song, clipId);
+  openSoopClipWindow(clipId);
   scheduleAutoAdvance();
 }
 
@@ -707,7 +561,7 @@ playerNextBtn.addEventListener("click", () => goToFavoritesQueueOffset(1));
 
 playerPlayBtn.addEventListener("click", () => {
   if (currentClipId && currentSong) {
-    openSongPlayerModal(currentSong, currentClipId);
+    openSoopClipWindow(currentClipId);
     scheduleAutoAdvance();
     return;
   }
