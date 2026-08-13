@@ -1654,17 +1654,6 @@ body {
   display: block;
 }
 
-.memo-card-edit-input {
-  width: 100%;
-  border: none;
-  outline: none;
-  padding: 0;
-  font: inherit;
-  font-weight: 700;
-  color: inherit;
-  background: transparent;
-}
-
 .memo-card-delete {
   position: absolute;
   top: 8px;

@@ -979,6 +979,7 @@ const memoSharedSection = document.getElementById("memoSharedSection");
 const memoPersonalList = document.getElementById("memoPersonalList");
 const memoSharedList = document.getElementById("memoSharedList");
 const memoAddModalBackdrop = document.getElementById("memoAddModalBackdrop");
+const memoAddModalTitle = document.getElementById("memoAddModalTitle");
 const memoAddForm = document.getElementById("memoAddForm");
 const memoAddDateInput = document.getElementById("memoAddDateInput");
 const memoAddTitleInput = document.getElementById("memoAddTitleInput");
@@ -986,6 +987,23 @@ const closeMemoAddModalBtn = document.getElementById("closeMemoAddModalBtn");
 
 const SHARED_MEMO_API_URL = "/api/memo";
 let sharedMemoItems = [];
+let editingMemoId = null;
+let editingMemoIsShared = false;
+
+function openMemoEditModal(item, isShared) {
+  editingMemoId = item.id;
+  editingMemoIsShared = isShared;
+  memoAddModalTitle.textContent = "메모 수정";
+  memoAddDateInput.value = item.date || "";
+  memoAddTitleInput.value = item.text || "";
+  memoAddModalBackdrop.classList.remove("hidden");
+  memoAddTitleInput.focus();
+}
+
+function closeMemoAddModal() {
+  memoAddModalBackdrop.classList.add("hidden");
+  editingMemoId = null;
+}
 
 function updateMemoAddToggleState() {
   const onShared = memoTabShared.classList.contains("active");
@@ -1006,17 +1024,17 @@ memoTabShared.addEventListener("click", () => showMemoTab("shared"));
 
 memoAddToggleBtn.addEventListener("click", () => {
   if (memoAddToggleBtn.disabled) return;
+  editingMemoId = null;
+  memoAddModalTitle.textContent = "메모 추가";
   memoAddDateInput.value = todayKey();
   memoAddTitleInput.value = "";
   memoAddModalBackdrop.classList.remove("hidden");
   memoAddTitleInput.focus();
 });
 
-closeMemoAddModalBtn.addEventListener("click", () => {
-  memoAddModalBackdrop.classList.add("hidden");
-});
+closeMemoAddModalBtn.addEventListener("click", closeMemoAddModal);
 memoAddModalBackdrop.addEventListener("click", (e) => {
-  if (e.target === memoAddModalBackdrop) memoAddModalBackdrop.classList.add("hidden");
+  if (e.target === memoAddModalBackdrop) closeMemoAddModal();
 });
 
 memoAddForm.addEventListener("submit", async (e) => {
@@ -1025,12 +1043,35 @@ memoAddForm.addEventListener("submit", async (e) => {
   const text = memoAddTitleInput.value.trim();
   if (!date || !text) return;
 
+  if (editingMemoId !== null) {
+    const id = editingMemoId;
+    const isShared = editingMemoIsShared;
+    closeMemoAddModal();
+    if (isShared) {
+      const { username, password } = getStoredCreds();
+      if (!username || !password) return;
+      const res = await fetch(SHARED_MEMO_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password, action: "edit", id, text, date }),
+      });
+      const data = await res.json().catch(() => null);
+      if (data && data.items) sharedMemoItems = data.items;
+      renderSharedMemoList();
+    } else {
+      const items = loadPersonalMemoItems().map((it) => (it.id === id ? { ...it, text, date } : it));
+      savePersonalMemoItems(items);
+      renderPersonalMemoList();
+    }
+    return;
+  }
+
   const onShared = memoTabShared.classList.contains("active");
   if (onShared) {
     if (isReadOnly) return;
     const { username, password } = getStoredCreds();
     if (!username || !password) return;
-    memoAddModalBackdrop.classList.add("hidden");
+    closeMemoAddModal();
     const res = await fetch(SHARED_MEMO_API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1043,7 +1084,7 @@ memoAddForm.addEventListener("submit", async (e) => {
     const items = loadPersonalMemoItems();
     items.unshift({ id: Date.now(), text, date });
     savePersonalMemoItems(items);
-    memoAddModalBackdrop.classList.add("hidden");
+    closeMemoAddModal();
     renderPersonalMemoList();
   }
 });
@@ -1074,35 +1115,7 @@ function renderMemoCards(listEl, items, canDelete, onDelete, onEdit) {
     card.appendChild(textEl);
 
     if (onEdit) {
-      card.addEventListener("dblclick", () => {
-        if (card.classList.contains("editing")) return;
-        card.classList.add("editing");
-        const input = document.createElement("input");
-        input.type = "text";
-        input.className = "memo-card-edit-input";
-        input.value = item.text;
-        textEl.replaceWith(input);
-        input.focus();
-        input.select();
-
-        const finish = (save) => {
-          if (save) {
-            const newText = input.value.trim();
-            if (newText && newText !== item.text) {
-              onEdit(item.id, newText);
-              return;
-            }
-          }
-          input.replaceWith(textEl);
-          card.classList.remove("editing");
-        };
-
-        input.addEventListener("keydown", (e) => {
-          if (e.key === "Enter") { e.preventDefault(); finish(true); }
-          if (e.key === "Escape") { e.preventDefault(); finish(false); }
-        });
-        input.addEventListener("blur", () => finish(true));
-      });
+      card.addEventListener("dblclick", () => onEdit(item));
     }
 
     if (canDelete) {
@@ -1142,11 +1155,7 @@ function renderPersonalMemoList() {
       savePersonalMemoItems(loadPersonalMemoItems().filter((it) => it.id !== id));
       renderPersonalMemoList();
     },
-    (id, newText) => {
-      const items = loadPersonalMemoItems().map((it) => (it.id === id ? { ...it, text: newText } : it));
-      savePersonalMemoItems(items);
-      renderPersonalMemoList();
-    }
+    (item) => openMemoEditModal(item, false)
   );
 }
 
@@ -1167,20 +1176,7 @@ function renderSharedMemoList() {
       if (data && data.items) sharedMemoItems = data.items;
       renderSharedMemoList();
     },
-    isReadOnly
-      ? null
-      : async (id, newText) => {
-          const { username, password } = getStoredCreds();
-          if (!username || !password) return;
-          const res = await fetch(SHARED_MEMO_API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password, action: "edit", id, text: newText }),
-          });
-          const data = await res.json().catch(() => null);
-          if (data && data.items) sharedMemoItems = data.items;
-          renderSharedMemoList();
-        }
+    isReadOnly ? null : (item) => openMemoEditModal(item, true)
   );
 }
 

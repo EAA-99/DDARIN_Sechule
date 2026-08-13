@@ -43,7 +43,7 @@ export default async function handler(req, res) {
     if (action === "delete") {
       items = items.filter((it) => it.id !== id);
     } else if (action === "edit") {
-      items = items.map((it) => (it.id === id ? { ...it, text: text || "" } : it));
+      items = items.map((it) => (it.id === id ? { ...it, text: text || "", date: date || it.date || "" } : it));
     } else {
       items.unshift({ id: Date.now(), text: text || "", date: date || "" });
     }
