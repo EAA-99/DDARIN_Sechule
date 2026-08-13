@@ -225,6 +225,15 @@ const playerPlayBtn = document.getElementById("playerPlayBtn");
 const playerPrevBtn = document.getElementById("playerPrevBtn");
 const playerNextBtn = document.getElementById("playerNextBtn");
 const songGrid = document.getElementById("songGrid");
+const songPlayerModalBackdrop = document.getElementById("songPlayerModalBackdrop");
+const songPlayerModalFrame = document.getElementById("songPlayerModalFrame");
+const songPlayerModalThumb = document.getElementById("songPlayerModalThumb");
+const songPlayerModalClose = document.getElementById("songPlayerModalClose");
+const songPlayerModalTitle = document.getElementById("songPlayerModalTitle");
+const songPlayerModalArtist = document.getElementById("songPlayerModalArtist");
+const songPlayerModalFavBtn = document.getElementById("songPlayerModalFavBtn");
+const songPlayerModalFavIcon = document.getElementById("songPlayerModalFavIcon");
+const songPlayerModalFavLabel = document.getElementById("songPlayerModalFavLabel");
 const favoritesListEl = document.getElementById("favoritesList");
 let allSongs = null;
 let songByKey = {};
@@ -512,6 +521,41 @@ let currentClipId = null;
 let currentSongKey = null;
 let currentSong = null;
 
+function updateSongPlayerModalFavBtn(key) {
+  const fav = isSongFavorite(key);
+  songPlayerModalFavIcon.textContent = fav ? "★" : "☆";
+  songPlayerModalFavLabel.textContent = fav ? "즐겨찾기 해제" : "즐겨찾기 추가";
+}
+
+function openSongPlayerModal(song, clipId) {
+  const key = albumArtCacheKey(song);
+  songPlayerModalThumb.src = (thumbMap && thumbMap[key]) || "";
+  songPlayerModalFrame.href = buildClipPageUrl(clipId);
+  songPlayerModalTitle.textContent = song.title;
+  songPlayerModalArtist.textContent = song.artist;
+  updateSongPlayerModalFavBtn(key);
+  songPlayerModalBackdrop.classList.remove("hidden");
+}
+
+function closeSongPlayerModal() {
+  songPlayerModalBackdrop.classList.add("hidden");
+}
+
+songPlayerModalClose.addEventListener("click", closeSongPlayerModal);
+songPlayerModalBackdrop.addEventListener("click", (e) => {
+  if (e.target === songPlayerModalBackdrop) closeSongPlayerModal();
+});
+songPlayerModalFrame.addEventListener("click", (e) => {
+  e.preventDefault();
+  if (currentClipId) openSoopClipWindow(currentClipId);
+});
+songPlayerModalFavBtn.addEventListener("click", () => {
+  if (!currentSongKey) return;
+  toggleSongFavorite(currentSongKey);
+  updateSongPlayerModalFavBtn(currentSongKey);
+  renderFavoritesList();
+});
+
 async function playSong(song) {
   if (!clipMap) await ensureSongMeta();
   const key = albumArtCacheKey(song);
@@ -538,6 +582,7 @@ async function playSong(song) {
     playerPlayBtn.disabled = true;
     playerNoClip.classList.remove("hidden");
     playerNoClipSong.textContent = `${song.title} - ${song.artist}`;
+    closeSongPlayerModal();
     closeSoopClipWindow();
     return;
   }
@@ -545,7 +590,7 @@ async function playSong(song) {
   playerNoClip.classList.add("hidden");
   playerPlayBtn.disabled = false;
 
-  openSoopClipWindow(clipId);
+  openSongPlayerModal(song, clipId);
   scheduleAutoAdvance();
 }
 

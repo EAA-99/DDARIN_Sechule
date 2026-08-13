@@ -306,6 +306,23 @@
     <div id="dayCellSoopSummary" class="day-cell-summary hidden"></div>
   </div>
 
+  <div id="songPlayerModalBackdrop" class="song-player-modal-backdrop hidden">
+    <div id="songPlayerModal" class="song-player-modal">
+      <button type="button" id="songPlayerModalClose" class="song-player-modal-close" aria-label="닫기">✕</button>
+      <a id="songPlayerModalFrame" class="song-player-modal-frame" target="_blank" rel="noopener">
+        <img id="songPlayerModalThumb" class="song-player-modal-thumb" alt="">
+        <span class="song-player-modal-play-overlay">▶ SOOP 클립 창 열기</span>
+      </a>
+      <div class="song-player-modal-info">
+        <h3 id="songPlayerModalTitle" class="song-player-modal-title"></h3>
+        <span id="songPlayerModalArtist" class="song-player-modal-artist"></span>
+        <button type="button" id="songPlayerModalFavBtn" class="song-player-modal-fav-btn">
+          <span id="songPlayerModalFavIcon">☆</span> <span id="songPlayerModalFavLabel">즐겨찾기 추가</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
 
   <div id="modalBackdrop" class="modal-backdrop hidden">
     <div class="modal">
