@@ -309,6 +309,25 @@
     <div id="dayCellSoopSummary" class="day-cell-summary hidden"></div>
   </div>
 
+  <div id="songPlayerModalBackdrop" class="song-player-modal-backdrop hidden">
+    <div id="songPlayerModal" class="song-player-modal">
+      <div class="song-player-drag-handle"></div>
+      <span class="song-player-resize-handle" data-corner="nw"></span>
+      <span class="song-player-resize-handle" data-corner="ne"></span>
+      <span class="song-player-resize-handle" data-corner="sw"></span>
+      <span class="song-player-resize-handle" data-corner="se"></span>
+      <button type="button" id="songPlayerModalClose" class="song-player-modal-close" aria-label="닫기">✕</button>
+      <iframe id="songPlayerModalFrame" class="song-player-modal-frame" allow="autoplay" allowfullscreen frameborder="0"></iframe>
+      <div class="song-player-modal-info">
+        <h3 id="songPlayerModalTitle" class="song-player-modal-title"></h3>
+        <span id="songPlayerModalArtist" class="song-player-modal-artist"></span>
+        <button type="button" id="songPlayerModalFavBtn" class="song-player-modal-fav-btn">
+          <span id="songPlayerModalFavIcon">☆</span> <span id="songPlayerModalFavLabel">즐겨찾기 추가</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
 
   <div id="modalBackdrop" class="modal-backdrop hidden">
     <div class="modal">

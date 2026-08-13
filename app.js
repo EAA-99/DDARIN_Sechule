@@ -225,6 +225,15 @@ const playerPlayBtn = document.getElementById("playerPlayBtn");
 const playerPrevBtn = document.getElementById("playerPrevBtn");
 const playerNextBtn = document.getElementById("playerNextBtn");
 const songGrid = document.getElementById("songGrid");
+const songPlayerModalBackdrop = document.getElementById("songPlayerModalBackdrop");
+const songPlayerModal = document.getElementById("songPlayerModal");
+const songPlayerModalFrame = document.getElementById("songPlayerModalFrame");
+const songPlayerModalClose = document.getElementById("songPlayerModalClose");
+const songPlayerModalTitle = document.getElementById("songPlayerModalTitle");
+const songPlayerModalArtist = document.getElementById("songPlayerModalArtist");
+const songPlayerModalFavBtn = document.getElementById("songPlayerModalFavBtn");
+const songPlayerModalFavIcon = document.getElementById("songPlayerModalFavIcon");
+const songPlayerModalFavLabel = document.getElementById("songPlayerModalFavLabel");
 const favoritesListEl = document.getElementById("favoritesList");
 let allSongs = null;
 let songByKey = {};
@@ -497,36 +506,161 @@ async function prefetchSongbookInBackground() {
 }
 
 function buildClipPageUrl(clipId) {
-  return `https://vod.sooplive.com/player/${clipId}?type=catch&showChat=false&showInfo=false&autoNext=false&related=false`;
+  return `https://vod.sooplive.com/embed/${clipId}?type=catch&autoPlay=true&showChat=false&mutePlay=false`;
 }
 
-let clipPopupWindow = null;
-
-function openSoopClipWindow(clipId) {
-  const url = buildClipPageUrl(clipId);
-  const width = 480;
-  const height = 360;
-  const left = Math.round((screen.availWidth - width) / 2);
-  const top = Math.round((screen.availHeight - height) / 2);
-  if (clipPopupWindow && !clipPopupWindow.closed) {
-    clipPopupWindow.location.href = url;
-    clipPopupWindow.resizeTo(width, height);
-    clipPopupWindow.moveTo(left, top);
-    clipPopupWindow.focus();
-  } else {
-    clipPopupWindow = window.open(
-      url,
-      "soopClipPlayer",
-      `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,location=no,status=no,scrollbars=no`
-    );
-  }
+function updateSongPlayerModalFavBtn(key) {
+  const fav = isSongFavorite(key);
+  songPlayerModalFavIcon.textContent = fav ? "★" : "☆";
+  songPlayerModalFavLabel.textContent = fav ? "즐겨찾기 해제" : "즐겨찾기 추가";
 }
 
-function closeSoopClipWindow() {
+function resetSongPlayerModalPosition() {
+  songPlayerModal.style.position = "";
+  songPlayerModal.style.left = "";
+  songPlayerModal.style.top = "";
+  songPlayerModal.style.width = "";
+  songPlayerModal.style.margin = "";
+  songPlayerModalBackdrop.classList.remove("minimized");
+}
+
+function openSongPlayerModal(song, clipId) {
+  const key = albumArtCacheKey(song);
+  songPlayerModalFrame.src = buildClipPageUrl(clipId);
+  songPlayerModalTitle.textContent = song.title;
+  songPlayerModalArtist.textContent = song.artist;
+  updateSongPlayerModalFavBtn(key);
+  resetSongPlayerModalPosition();
+  songPlayerModalBackdrop.classList.remove("hidden");
+}
+
+function closeSongPlayerModal() {
   clearTimeout(autoAdvanceTimer);
-  if (clipPopupWindow && !clipPopupWindow.closed) clipPopupWindow.close();
-  clipPopupWindow = null;
+  songPlayerModalBackdrop.classList.add("hidden");
+  songPlayerModalFrame.src = "";
 }
+
+function minimizeSongPlayerModal() {
+  songPlayerModalBackdrop.classList.add("minimized");
+}
+
+let songPlayerInteracting = false;
+
+songPlayerModalClose.addEventListener("click", closeSongPlayerModal);
+
+songPlayerModalBackdrop.addEventListener("click", (e) => {
+  if (songPlayerInteracting) return;
+  if (e.target !== songPlayerModalBackdrop) return;
+  minimizeSongPlayerModal();
+});
+
+songPlayerModal.addEventListener("click", () => {
+  if (songPlayerInteracting) return;
+  if (songPlayerModalBackdrop.classList.contains("minimized")) {
+    songPlayerModalBackdrop.classList.remove("minimized");
+  }
+});
+
+songPlayerModalFavBtn.addEventListener("click", () => {
+  if (!currentSongKey) return;
+  toggleSongFavorite(currentSongKey);
+  updateSongPlayerModalFavBtn(currentSongKey);
+  renderFavoritesList();
+});
+
+(function makeSongPlayerDraggable() {
+  const handle = document.querySelector(".song-player-drag-handle");
+  let dragging = false;
+  let startX = 0;
+  let startY = 0;
+  let startLeft = 0;
+  let startTop = 0;
+
+  handle.addEventListener("mousedown", (e) => {
+    dragging = true;
+    songPlayerInteracting = true;
+    const rect = songPlayerModal.getBoundingClientRect();
+    songPlayerModal.style.position = "fixed";
+    songPlayerModal.style.margin = "0";
+    songPlayerModal.style.left = `${rect.left}px`;
+    songPlayerModal.style.top = `${rect.top}px`;
+    startX = e.clientX;
+    startY = e.clientY;
+    startLeft = rect.left;
+    startTop = rect.top;
+    e.preventDefault();
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    const rect = songPlayerModal.getBoundingClientRect();
+    let left = Math.min(Math.max(startLeft + dx, 0), window.innerWidth - rect.width);
+    let top = Math.min(Math.max(startTop + dy, 0), window.innerHeight - rect.height);
+    songPlayerModal.style.left = `${left}px`;
+    songPlayerModal.style.top = `${top}px`;
+  });
+
+  window.addEventListener("mouseup", () => {
+    if (!dragging) return;
+    dragging = false;
+    setTimeout(() => { songPlayerInteracting = false; }, 0);
+  });
+})();
+
+(function makeSongPlayerResizable() {
+  const handles = document.querySelectorAll(".song-player-resize-handle");
+  let resizing = false;
+  let corner = null;
+  let startX = 0;
+  let startWidth = 0;
+  let startLeft = 0;
+
+  handles.forEach((handleEl) => {
+    handleEl.addEventListener("mousedown", (e) => {
+      resizing = true;
+      songPlayerInteracting = true;
+      corner = handleEl.dataset.corner;
+      const rect = songPlayerModal.getBoundingClientRect();
+      songPlayerModal.style.position = "fixed";
+      songPlayerModal.style.margin = "0";
+      songPlayerModal.style.left = `${rect.left}px`;
+      songPlayerModal.style.top = `${rect.top}px`;
+      startX = e.clientX;
+      startWidth = rect.width;
+      startLeft = rect.left;
+      e.preventDefault();
+      e.stopPropagation();
+    });
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (!resizing) return;
+    const dx = e.clientX - startX;
+    let newWidth;
+    let newLeft = startLeft;
+
+    if (corner === "ne" || corner === "se") {
+      newWidth = startWidth + dx;
+    } else {
+      newWidth = startWidth - dx;
+    }
+    newWidth = Math.min(Math.max(newWidth, 320), window.innerWidth - 20);
+    if (corner === "nw" || corner === "sw") {
+      newLeft = startLeft + (startWidth - newWidth);
+    }
+    songPlayerModal.style.width = `${newWidth}px`;
+    songPlayerModal.style.left = `${newLeft}px`;
+  });
+
+  window.addEventListener("mouseup", () => {
+    if (!resizing) return;
+    resizing = false;
+    corner = null;
+    setTimeout(() => { songPlayerInteracting = false; }, 0);
+  });
+})();
 
 let currentClipId = null;
 let currentSongKey = null;
@@ -558,14 +692,14 @@ async function playSong(song) {
     playerPlayBtn.disabled = true;
     playerNoClip.classList.remove("hidden");
     playerNoClipSong.textContent = `${song.title} - ${song.artist}`;
-    closeSoopClipWindow();
+    closeSongPlayerModal();
     return;
   }
 
   playerNoClip.classList.add("hidden");
   playerPlayBtn.disabled = false;
 
-  openSoopClipWindow(clipId);
+  openSongPlayerModal(song, clipId);
   scheduleAutoAdvance();
 }
 
@@ -581,7 +715,7 @@ playerNextBtn.addEventListener("click", () => goToFavoritesQueueOffset(1));
 
 playerPlayBtn.addEventListener("click", () => {
   if (currentClipId && currentSong) {
-    openSoopClipWindow(currentClipId);
+    openSongPlayerModal(currentSong, currentClipId);
     scheduleAutoAdvance();
     return;
   }
@@ -694,8 +828,7 @@ function scheduleAutoAdvance() {
       advanceFavoritesQueue();
     } else {
       console.log("[autoAdvance] timer fired, stopping clip early");
-      if (clipPopupWindow && !clipPopupWindow.closed) clipPopupWindow.close();
-      clipPopupWindow = null;
+      songPlayerModalFrame.src = "";
     }
   }, fireAt);
 }
