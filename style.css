@@ -892,6 +892,11 @@ body {
   padding: 16px;
 }
 
+#memoAddModalBackdrop {
+  /* 메모 패널(z-index 200)이 열려있는 상태에서도 위에 떠야 하므로 더 높게 지정 */
+  z-index: 250;
+}
+
 .modal-backdrop.hidden {
   display: none;
 }
