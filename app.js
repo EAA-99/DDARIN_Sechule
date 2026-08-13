@@ -1031,12 +1031,14 @@ memoAddForm.addEventListener("submit", async (e) => {
     const { username, password } = getStoredCreds();
     if (!username || !password) return;
     memoAddModalBackdrop.classList.add("hidden");
-    await fetch(SHARED_MEMO_API_URL, {
+    const res = await fetch(SHARED_MEMO_API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password, action: "add", text, date }),
     });
-    await loadSharedMemoList();
+    const data = await res.json().catch(() => null);
+    if (data && data.items) sharedMemoItems = data.items;
+    renderSharedMemoList();
   } else {
     const items = loadPersonalMemoItems();
     items.unshift({ id: Date.now(), text, date });
@@ -1156,36 +1158,44 @@ function renderSharedMemoList() {
     async (id) => {
       const { username, password } = getStoredCreds();
       if (!username || !password) return;
-      await fetch(SHARED_MEMO_API_URL, {
+      const res = await fetch(SHARED_MEMO_API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password, action: "delete", id }),
       });
-      await loadSharedMemoList();
+      const data = await res.json().catch(() => null);
+      if (data && data.items) sharedMemoItems = data.items;
+      renderSharedMemoList();
     },
     isReadOnly
       ? null
       : async (id, newText) => {
           const { username, password } = getStoredCreds();
           if (!username || !password) return;
-          await fetch(SHARED_MEMO_API_URL, {
+          const res = await fetch(SHARED_MEMO_API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password, action: "edit", id, text: newText }),
           });
-          await loadSharedMemoList();
+          const data = await res.json().catch(() => null);
+          if (data && data.items) sharedMemoItems = data.items;
+          renderSharedMemoList();
         }
   );
 }
 
 async function loadSharedMemoList() {
-  memoSharedList.innerHTML = `<div class="memo-card-empty">불러오는 중...</div>`;
+  if (sharedMemoItems.length) {
+    renderSharedMemoList();
+  } else {
+    memoSharedList.innerHTML = `<div class="memo-card-empty">불러오는 중...</div>`;
+  }
   try {
     const res = await fetch(SHARED_MEMO_API_URL);
     const data = await res.json();
     sharedMemoItems = (data && data.items) || [];
   } catch {
-    sharedMemoItems = [];
+    if (!sharedMemoItems.length) sharedMemoItems = [];
   }
   renderSharedMemoList();
 }
