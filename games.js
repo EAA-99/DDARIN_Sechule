@@ -629,17 +629,21 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const CANNON_X = 60;
   const BALL_RADIUS = 8;
   const PANEL_HEIGHT = 560;
+  const CANNON_IMG_WIDTH = 100;
+  const CANNON_IMG_HEIGHT = 70;
+
+  const cannonImg = new Image();
+  cannonImg.src = "대포.png";
+  cannonImg.onload = () => drawScene();
 
   let W = 600;
   let H = PANEL_HEIGHT;
   let groundY = H - 70;
 
   let names = [];
-  let targets = [];
   let firing = false;
   let ball = null;
   let rafId = null;
-  let barrelAngleDeg = -40;
 
   function resizeCanvas() {
     W = Math.round(canvas.parentElement.offsetWidth) || 600;
@@ -649,95 +653,21 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     canvas.height = H;
   }
 
-  function layoutTargets() {
-    const startX = 170;
-    const endX = W - 30;
-    const span = Math.max(0, endX - startX);
-    const n = names.length;
-    targets = names.map((name, i) => ({
-      x1: startX + (span / n) * i,
-      x2: startX + (span / n) * (i + 1),
-      name,
-    }));
-  }
-
   function drawScene() {
     ctx.fillStyle = "#eaf4ff";
     ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = "#bfe3a8";
     ctx.fillRect(0, groundY, W, H - groundY);
 
-    ctx.font = "bold 12px sans-serif";
-    ctx.textAlign = "center";
-    targets.forEach((t) => {
-      const cx = (t.x1 + t.x2) / 2;
-      const w = Math.max(30, (t.x2 - t.x1) * 0.7);
-      ctx.fillStyle = "#fff";
-      ctx.strokeStyle = "#4a7fd6";
-      ctx.lineWidth = 2;
-      ctx.fillRect(cx - w / 2, groundY - 44, w, 44);
-      ctx.strokeRect(cx - w / 2, groundY - 44, w, 44);
-      ctx.fillStyle = "#2a2a2a";
-      ctx.fillText(t.name, cx, groundY - 20, w + 20);
-    });
-
-    ctx.save();
-    ctx.translate(CANNON_X, groundY);
-
-    // 바퀴
-    [-8, 18].forEach((wx) => {
-      ctx.fillStyle = "#3a3a3a";
-      ctx.beginPath();
-      ctx.arc(wx, 6, 14, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = "#888";
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-      for (let a = 0; a < 4; a++) {
-        const rad = (a * 45 * Math.PI) / 180;
-        ctx.beginPath();
-        ctx.moveTo(wx, 6);
-        ctx.lineTo(wx + Math.cos(rad) * 10, 6 + Math.sin(rad) * 10);
-        ctx.stroke();
-      }
-    });
-
-    // 받침대
-    ctx.fillStyle = "#7a5a3a";
-    ctx.beginPath();
-    ctx.moveTo(-20, 0);
-    ctx.lineTo(28, 0);
-    ctx.lineTo(20, -14);
-    ctx.lineTo(-12, -14);
-    ctx.closePath();
-    ctx.fill();
-
-    // 회전축
-    ctx.fillStyle = "#4a4a4a";
-    ctx.beginPath();
-    ctx.arc(4, -14, 9, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 회전하는 포신
-    ctx.save();
-    ctx.translate(4, -14);
-    ctx.rotate((barrelAngleDeg * Math.PI) / 180);
-    const barrelGrad = ctx.createLinearGradient(0, -9, 0, 9);
-    barrelGrad.addColorStop(0, "#606060");
-    barrelGrad.addColorStop(0.5, "#2a2a2a");
-    barrelGrad.addColorStop(1, "#606060");
-    ctx.fillStyle = barrelGrad;
-    ctx.fillRect(0, -9, 50, 18);
-    ctx.fillStyle = "#8a6d1f";
-    ctx.fillRect(10, -10, 5, 20);
-    ctx.fillRect(34, -10, 5, 20);
-    ctx.fillStyle = "#111";
-    ctx.beginPath();
-    ctx.arc(50, 0, 9, -Math.PI / 2, Math.PI / 2);
-    ctx.fill();
-    ctx.restore();
-
-    ctx.restore();
+    if (cannonImg.complete && cannonImg.naturalWidth) {
+      ctx.drawImage(
+        cannonImg,
+        CANNON_X - CANNON_IMG_WIDTH / 2,
+        groundY - CANNON_IMG_HEIGHT,
+        CANNON_IMG_WIDTH,
+        CANNON_IMG_HEIGHT
+      );
+    }
 
     if (ball) {
       ctx.beginPath();
@@ -758,7 +688,6 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     renderDrawnList();
     errorEl.classList.add("hidden");
     resizeCanvas();
-    layoutTargets();
     drawScene();
     return true;
   }
@@ -768,7 +697,6 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     firing = false;
     ball = null;
     names = [];
-    targets = [];
     drawnNumbers = [];
     renderDrawnList();
     errorEl.classList.add("hidden");
@@ -778,32 +706,23 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 
   function finishShot() {
     firing = false;
-    const landX = ball.x;
-    let winner = targets[targets.length - 1];
-    for (const t of targets) {
-      if (landX >= t.x1 && landX < t.x2) {
-        winner = t;
-        break;
-      }
-    }
+    const winner = names[Math.floor(Math.random() * names.length)];
+
     const label = document.createElement("div");
     label.className = "result-winner-text";
-    label.textContent = winner.name;
+    label.textContent = winner;
     resultCardWrap.innerHTML = "";
-    resultCardWrap.appendChild(buildResultCard(winner.name, label));
+    resultCardWrap.appendChild(buildResultCard(winner, label));
     resultModalBackdrop.classList.remove("hidden");
 
-    drawnNumbers.push(winner.name);
+    drawnNumbers.push(winner);
     renderDrawnList();
 
     fireBtn.disabled = false;
 
     if (!allowDuplicates) {
-      names = names.filter((n) => n !== winner.name);
-      if (names.length) {
-        layoutTargets();
-        drawScene();
-      } else {
+      names = names.filter((n) => n !== winner);
+      if (!names.length) {
         showGameError(errorEl, "모든 번호를 뽑았습니다. 다시 발사하면 새로 시작합니다.");
       }
     }
@@ -811,13 +730,12 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 
   fireBtn.addEventListener("click", () => {
     if (firing) return;
-    if (!targets.length && !buildPool()) return;
+    if (!names.length && !buildPool()) return;
     firing = true;
     fireBtn.disabled = true;
 
     const angleDeg = 25 + Math.random() * 40;
     const power = 480 + Math.random() * 260;
-    barrelAngleDeg = -angleDeg;
     const rad = (angleDeg * Math.PI) / 180;
     ball = {
       x: CANNON_X,
@@ -858,13 +776,11 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 
   redrawCannonCanvas = () => {
     resizeCanvas();
-    if (targets.length) layoutTargets();
     drawScene();
   };
   window.addEventListener("resize", () => {
     if (firing) return;
     resizeCanvas();
-    if (targets.length) layoutTargets();
     drawScene();
   });
 
