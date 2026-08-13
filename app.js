@@ -666,9 +666,9 @@ function scheduleAutoAdvance() {
   const duration = clipDurationMap[currentSongKey];
   console.log("[autoAdvance] duration for key:", duration, "clipDurationMap has", Object.keys(clipDurationMap || {}).length, "entries");
   if (!duration) return;
-  const AUTO_ADVANCE_BUFFER_MS = 0.1;
+  const EARLY_STOP_MS = 3000; // SOOP 추천영상이 뜨기 전에 미리 끊기 위한 여유분
   const LOAD_DELAY_COMPENSATION_MS = 2000; // 영상 로딩 시간만큼 타이머를 늦게 발동
-  const fireAt = Math.max(10, duration - AUTO_ADVANCE_BUFFER_MS + LOAD_DELAY_COMPENSATION_MS);
+  const fireAt = Math.max(10, duration - EARLY_STOP_MS + LOAD_DELAY_COMPENSATION_MS);
   console.log("[autoAdvance] timer set to fire in", fireAt, "ms");
   autoAdvanceTimer = setTimeout(() => {
     if (favoritesQueueActive) {
