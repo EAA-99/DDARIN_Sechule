@@ -632,10 +632,6 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const CANNON_IMG_WIDTH = 110;
   const CANNON_IMG_HEIGHT = 90;
 
-  const cannonImg = new Image();
-  cannonImg.src = "대포.png";
-  cannonImg.onload = () => drawScene();
-
   let W = 600;
   let H = PANEL_HEIGHT;
   let baseY = H - 60;
@@ -659,6 +655,36 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     const btnSize = 64;
     fireBtn.style.left = `${cannonX - btnSize / 2}px`;
     fireBtn.style.top = `${baseY - CANNON_IMG_HEIGHT / 2 - btnSize / 2}px`;
+  }
+
+  function drawCannonShape() {
+    const width = CANNON_IMG_WIDTH;
+    const height = CANNON_IMG_HEIGHT;
+    const left = cannonX - width / 2;
+    const top = baseY - height;
+
+    const bodyGrad = ctx.createLinearGradient(left, 0, left + width, 0);
+    bodyGrad.addColorStop(0, "#c9720f");
+    bodyGrad.addColorStop(0.5, "#f5a623");
+    bodyGrad.addColorStop(1, "#c9720f");
+    ctx.fillStyle = bodyGrad;
+    ctx.beginPath();
+    ctx.moveTo(left, top + 14);
+    ctx.quadraticCurveTo(left, top, cannonX, top);
+    ctx.quadraticCurveTo(left + width, top, left + width, top + 14);
+    ctx.lineTo(left + width, baseY);
+    ctx.lineTo(left, baseY);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = "#ffd24d";
+    ctx.fillRect(cannonX - width * 0.08, top + 10, width * 0.16, height - 10);
+
+    ctx.strokeStyle = "#a85e0c";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(cannonX, top + 8, width / 2, 8, 0, 0, Math.PI * 2);
+    ctx.stroke();
   }
 
   function drawScene() {
@@ -694,15 +720,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     ctx.closePath();
     ctx.fill();
 
-    if (cannonImg.complete && cannonImg.naturalWidth) {
-      ctx.drawImage(
-        cannonImg,
-        cannonX - CANNON_IMG_WIDTH / 2,
-        baseY - CANNON_IMG_HEIGHT,
-        CANNON_IMG_WIDTH,
-        CANNON_IMG_HEIGHT
-      );
-    }
+    drawCannonShape();
 
     if (ball) {
       ctx.beginPath();
