@@ -988,24 +988,36 @@ const memoAddFieldsGrid = document.getElementById("memoAddFieldsGrid");
 const memoAddMoreBtn = document.getElementById("memoAddMoreBtn");
 const closeMemoAddModalBtn = document.getElementById("closeMemoAddModalBtn");
 
+let memoAddExtraRowCount = 0;
+
 function clearMemoExtraTitleRows() {
   memoAddFieldsGrid.querySelectorAll(".memo-add-extra-input, .memo-add-extra-remove, .memo-add-extra-spacer").forEach((el) => el.remove());
+  memoAddExtraRowCount = 0;
 }
 
 function addMemoExtraTitleRow() {
+  memoAddExtraRowCount += 1;
+  const row = memoAddExtraRowCount + 1; // row 1 = 날짜/제목 기본 행
+
   const spacer = document.createElement("span");
   spacer.className = "memo-add-extra-spacer";
+  spacer.style.gridColumn = "1";
+  spacer.style.gridRow = String(row);
 
   const input = document.createElement("input");
   input.type = "text";
   input.className = "memo-add-modal-input memo-add-extra-input";
   input.placeholder = "메모 제목";
   input.maxLength = 200;
+  input.style.gridColumn = "2";
+  input.style.gridRow = String(row);
 
   const removeBtn = document.createElement("button");
   removeBtn.type = "button";
   removeBtn.className = "memo-add-extra-remove";
   removeBtn.textContent = "✕";
+  removeBtn.style.gridColumn = "3";
+  removeBtn.style.gridRow = String(row);
   removeBtn.addEventListener("click", () => {
     spacer.remove();
     input.remove();

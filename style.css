@@ -1745,9 +1745,9 @@ body {
   padding: 0;
   border: none;
   border-radius: 50%;
-  background: #4a7fd6;
-  color: #fff;
-  font-size: 1.1rem;
+  background: none;
+  color: #a9c9ef;
+  font-size: 1.4rem;
   line-height: 1;
   cursor: pointer;
 }
