@@ -1457,6 +1457,7 @@ const EVENT_COLOR_LABELS = {
   hiatus: "휴방",
   gray: "갠방",
   yellow: "노래관련",
+  green: "게임 출시",
 };
 
 const EVENT_HEX_LABELS = {
