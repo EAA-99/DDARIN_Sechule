@@ -595,7 +595,6 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
 // ===== 대포 =====
 (function cannonGame() {
   const errorEl = document.getElementById("cannonError");
-  const buildBtn = document.getElementById("cannonBuildBtn");
   const canvas = document.getElementById("cannonCanvas");
   const fireBtn = document.getElementById("cannonFireBtn");
   const resultModalBackdrop = document.getElementById("cannonResultModalBackdrop");
@@ -748,25 +747,21 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     }
   }
 
-  buildBtn.addEventListener("click", () => {
+  function buildPool() {
     const count = parseInt(ballCountInput.value, 10) || 100;
     if (count < 3 || count > 10000) {
       showGameError(errorEl, "공 갯수는 3~10000 사이로 입력해주세요.");
-      fireBtn.disabled = true;
-      return;
+      return false;
     }
     names = Array.from({ length: count }, (_, i) => String(i + 1));
     drawnNumbers = [];
     renderDrawnList();
     errorEl.classList.add("hidden");
-    if (rafId) cancelAnimationFrame(rafId);
-    firing = false;
-    ball = null;
     resizeCanvas();
     layoutTargets();
-    fireBtn.disabled = false;
     drawScene();
-  });
+    return true;
+  }
 
   resetBtn.addEventListener("click", () => {
     if (rafId) cancelAnimationFrame(rafId);
@@ -776,8 +771,8 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     targets = [];
     drawnNumbers = [];
     renderDrawnList();
-    fireBtn.disabled = true;
     errorEl.classList.add("hidden");
+    resizeCanvas();
     drawScene();
   });
 
@@ -801,23 +796,22 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
     drawnNumbers.push(winner.name);
     renderDrawnList();
 
+    fireBtn.disabled = false;
+
     if (!allowDuplicates) {
       names = names.filter((n) => n !== winner.name);
       if (names.length) {
         layoutTargets();
         drawScene();
-        fireBtn.disabled = false;
       } else {
-        showGameError(errorEl, "모든 번호를 뽑았습니다. 타겟 배치로 다시 시작해주세요.");
-        fireBtn.disabled = true;
+        showGameError(errorEl, "모든 번호를 뽑았습니다. 다시 발사하면 새로 시작합니다.");
       }
-    } else {
-      fireBtn.disabled = false;
     }
   }
 
   fireBtn.addEventListener("click", () => {
-    if (firing || !targets.length) return;
+    if (firing) return;
+    if (!targets.length && !buildPool()) return;
     firing = true;
     fireBtn.disabled = true;
 

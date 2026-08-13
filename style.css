@@ -1002,8 +1002,15 @@ body {
 .cannon-settings-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 28px;
+  flex-wrap: wrap;
   padding: 10px 0;
+}
+
+.cannon-settings-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .cannon-settings-label {
@@ -1013,7 +1020,7 @@ body {
 }
 
 .cannon-settings-input {
-  width: 160px;
+  width: 100px;
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 8px 12px;
