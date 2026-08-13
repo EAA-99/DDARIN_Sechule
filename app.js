@@ -264,8 +264,10 @@ function flatToEventsObject(flat) {
 async function apiGetEventsDirect() {
   try {
     const res = await fetch(SHEETS_API_URL);
+    console.log("[events] direct fetch res.ok=", res.ok, "status=", res.status);
     if (!res.ok) return null;
     const data = await res.json();
+    console.log("[events] direct raw values=", data.values);
     if (!data.values) return [];
     return data.values
       .map((row) => {
@@ -277,7 +279,8 @@ async function apiGetEventsDirect() {
         return item;
       })
       .filter(Boolean);
-  } catch {
+  } catch (err) {
+    console.log("[events] direct fetch threw", err);
     return null;
   }
 }
@@ -285,17 +288,26 @@ async function apiGetEventsDirect() {
 async function apiGetEventsAppsScript() {
   try {
     const res = await fetch(`${API_URL}?data=events`);
+    console.log("[events] apps-script fetch res.ok=", res.ok, "status=", res.status);
     if (!res.ok) return null;
-    return await res.json();
-  } catch {
+    const json = await res.json();
+    console.log("[events] apps-script data=", json);
+    return json;
+  } catch (err) {
+    console.log("[events] apps-script fetch threw", err);
     return null;
   }
 }
 
 async function apiGetEvents() {
   const direct = await apiGetEventsDirect();
-  if (direct) return direct;
-  return apiGetEventsAppsScript();
+  if (direct) {
+    console.log("[events] using direct source, count=", direct.length, direct.filter((e) => e.date === "2026-08-16"));
+    return direct;
+  }
+  const fallback = await apiGetEventsAppsScript();
+  console.log("[events] using apps-script fallback, count=", fallback && fallback.length);
+  return fallback;
 }
 
 async function fetchSongbookGenres() {
@@ -1255,11 +1267,14 @@ function withTimeout(promise, ms) {
 async function initEvents() {
   const flat = await withTimeout(apiGetEvents(), 5000);
   if (flat && flat.length) {
+    console.log("[events] initEvents using fresh fetch, total rows=", flat.length);
     eventsCache = flatToEventsObject(flat);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(eventsCache));
   } else {
+    console.log("[events] initEvents FELL BACK to stale localStorage cache. flat=", flat);
     eventsCache = loadEvents();
   }
+  console.log("[events] final 2026-08-16 entries=", (eventsCache["2026-08-16"] || []).length, eventsCache["2026-08-16"]);
 }
 
 function dateKey(year, monthIndex, day) {
