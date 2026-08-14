@@ -199,8 +199,8 @@ body {
     display: none !important;
   }
 
-  #todayScheduleCard .today-schedule-list {
-    transform: translateX(-30px);
+  #todayScheduleCard .today-schedule-body {
+    padding-left: 20px;
   }
 
   .view-mode-toggle {
