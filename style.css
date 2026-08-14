@@ -2428,12 +2428,18 @@ body {
   }
 
   .song-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
     gap: 8px;
+    width: 100%;
   }
 
   .song-card {
     padding: 6px;
+    min-width: 0;
+  }
+
+  .song-card-art {
+    width: 100%;
   }
 
   .song-card-title {
