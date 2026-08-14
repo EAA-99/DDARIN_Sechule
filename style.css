@@ -483,11 +483,6 @@ body {
   cursor: pointer;
 }
 
-.day-card.today {
-  border: 2px dashed #4a7fd6;
-  border-radius: 14px;
-  padding: 6px;
-}
 
 .day-card-date {
   flex-shrink: 0;
@@ -513,7 +508,8 @@ body {
 }
 
 .day-card.today .day-card-date {
-  border-color: #4a7fd6;
+  background: #cfe2f7;
+  border-color: #cfe2f7;
 }
 
 .day-card-body {
