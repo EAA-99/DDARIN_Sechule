@@ -169,8 +169,16 @@ body {
     bottom: auto;
     width: 100%;
     margin-bottom: 14px;
-    background: #eaf4fd;
+    background: #fff;
     border: 2px solid #cfe2f7;
+  }
+
+  #todayScheduleCard .today-schedule-header {
+    background: #eaf4fd;
+  }
+
+  #todayScheduleCard .today-schedule-body {
+    background: #fff;
   }
 
   .calendar-header {
@@ -2349,6 +2357,10 @@ body {
 
   .ladder-toolbar-bottom {
     transform: translateX(-30px);
+  }
+
+  #roulettePanel .ladder-toolbar {
+    justify-content: center;
   }
 }
 
