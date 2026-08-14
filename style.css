@@ -164,10 +164,17 @@ body {
   #todayScheduleCard {
     display: block !important;
     position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
     width: 100%;
     margin-bottom: 14px;
     background: #eaf4fd;
     border: 2px solid #cfe2f7;
+  }
+
+  .calendar-header {
+    background: transparent;
   }
 
   #todayScheduleLive {
