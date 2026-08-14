@@ -196,6 +196,10 @@ body {
     transform: translateX(-30px);
   }
 
+  .view-mode-toggle {
+    display: none !important;
+  }
+
   .page {
     padding-top: 12px;
   }
@@ -2220,7 +2224,6 @@ body {
 .song-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  grid-auto-flow: row dense;
   gap: 12px;
   max-height: 65vh;
   overflow-y: auto;
