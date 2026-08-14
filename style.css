@@ -163,17 +163,17 @@ body {
     border: 2px solid #cfe2f7;
   }
 
-  #todayScheduleCard::after {
-    content: "";
-    position: absolute;
-    top: -22px;
-    right: 10px;
-    width: 56px;
-    height: 56px;
-    background-image: url("today-mascot.png");
-    background-size: contain;
-    background-repeat: no-repeat;
-    pointer-events: none;
+  #todayScheduleLive {
+    display: none !important;
+  }
+
+  #todayScheduleHeaderLabel {
+    font-size: 0;
+  }
+
+  #todayScheduleHeaderLabel::before {
+    content: "TODAY";
+    font-size: 0.9rem;
   }
 
   .page {
@@ -2284,15 +2284,18 @@ body {
 .song-card-title {
   font-weight: 700;
   font-size: 0.95rem;
+  line-height: 1.2;
+  min-height: 1.2em;
   margin-bottom: 4px;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .song-card-artist {
   font-size: 0.82rem;
+  line-height: 1.2;
+  min-height: 1.2em;
   color: #777;
   margin-bottom: 8px;
   white-space: nowrap;
