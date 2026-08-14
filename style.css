@@ -800,7 +800,7 @@ body {
 .event-single.color-orange, .day-card-event.color-orange, .event-card.color-orange, .event-card-badge.color-orange, .today-schedule-item-dot.color-orange { background: #fde3c7; color: #b3691a; }
 .event-single.color-hiatus, .day-card-event.color-hiatus, .event-card.color-hiatus, .event-card-badge.color-hiatus, .today-schedule-item-dot.color-hiatus { background: #f5d6db; color: #a1445a; }
 .event-single.color-collab, .day-card-event.color-collab, .event-card.color-collab, .event-card-badge.color-collab, .today-schedule-item-dot.color-collab { background: #d9d2f0; color: #5b4a99; }
-.event-single.color-yellow, .day-card-event.color-yellow, .event-card.color-yellow, .event-card-badge.color-yellow, .today-schedule-item-dot.color-yellow { background: #fbeeaa; color: #8a6d1f; }
+.event-single.color-yellow, .day-card-event.color-yellow, .event-card.color-yellow, .event-card-badge.color-yellow, .today-schedule-item-dot.color-yellow { background: #fff6b0; color: #8a6d1f; }
 
 .event-card {
   position: relative;

@@ -1374,6 +1374,13 @@ async function apiPost(payload) {
 }
 
 function saveEvents(data) {
+  const hadData = Object.keys(eventsCache || {}).some((k) => (eventsCache[k] || []).length > 0);
+  const hasData = Object.keys(data || {}).some((k) => (data[k] || []).length > 0);
+  if (hadData && !hasData) {
+    const proceed = confirm("모든 일정이 사라진 상태로 저장하려고 합니다. 정말 이대로 저장할까요?");
+    if (!proceed) return;
+  }
+
   eventsCache = data;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
@@ -1381,6 +1388,10 @@ function saveEvents(data) {
   if (!password || !username) return;
 
   apiPost({ action: "save", events: eventsObjectToFlat(data), username, password }).then((res) => {
+    if (res && res.error === "refused_empty_overwrite") {
+      alert("서버가 빈 데이터로 전체 덮어쓰기를 거부했습니다. 새로고침 후 다시 시도해주세요.");
+      return;
+    }
     if (!res || !res.ok) {
       clearStoredCreds();
       isReadOnly = true;
@@ -1392,11 +1403,17 @@ function saveEvents(data) {
 
 async function syncEventsFromServer() {
   const flat = await apiGetEvents();
-  if (flat) {
-    eventsCache = flatToEventsObject(flat);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(eventsCache));
-    refreshCurrentView();
+  if (!flat) return;
+
+  const hadData = Object.keys(eventsCache || {}).length > 0;
+  if (flat.length === 0 && hadData) {
+    // 네트워크 오류 등으로 빈 응답이 온 것으로 보고, 기존 캐시를 지우지 않음
+    return;
   }
+
+  eventsCache = flatToEventsObject(flat);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(eventsCache));
+  refreshCurrentView();
 }
 
 function withTimeout(promise, ms) {
@@ -1492,6 +1509,7 @@ const EVENT_HEX_LABELS = {
   "#8a2be2": "종겜",
   "#9900ff": "종겜",
   "#000000": "시네티",
+  "#5c4fd6": "같이보기",
 };
 
 function getEventBadgeLabel(ev) {
