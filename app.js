@@ -1509,7 +1509,7 @@ const EVENT_HEX_LABELS = {
   "#8a2be2": "종겜",
   "#9900ff": "종겜",
   "#000000": "시네티",
-  "#5c4fd6": "같이보기",
+  "#ff6f00": "같이보기",
 };
 
 function getEventBadgeLabel(ev) {
