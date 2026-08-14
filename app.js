@@ -880,7 +880,7 @@ function buildSongCard(song) {
   card.append(artEl, favBtn, titleEl, artistEl, genreEl);
   card.addEventListener("click", () => playSong(song));
 
-  if (thumbMap && thumbMap[key]) artEl.src = thumbMap[key];
+  artEl.src = (thumbMap && thumbMap[key]) || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E";
 
   return card;
 }
@@ -1648,7 +1648,11 @@ function renderCardView() {
 
     const dateBox = document.createElement("div");
     dateBox.className = "day-card-date";
-    dateBox.innerHTML = `<div class="day-card-weekday">${WEEKDAY_LABELS[i]}</div><div class="day-card-num">${d.getDate()}</div>`;
+    if (key === today) {
+      dateBox.innerHTML = `<div class="day-card-today-label">TODAY</div>`;
+    } else {
+      dateBox.innerHTML = `<div class="day-card-weekday">${WEEKDAY_LABELS[i]}</div><div class="day-card-num">${d.getDate()}</div>`;
+    }
     card.appendChild(dateBox);
 
     const body = document.createElement("div");
