@@ -164,7 +164,7 @@ body {
   }
 
   .songbook-view {
-    margin-top: 0;
+    margin-top: 0 !important;
   }
 
   .side-nav {
@@ -2281,6 +2281,20 @@ body {
 }
 
 @media (max-width: 600px) {
+  .songbook-view {
+    padding: 12px;
+  }
+
+  .songbook-inner {
+    padding: 10px;
+  }
+
+  .songbook-body,
+  .song-grid,
+  .player-panel {
+    min-width: 0;
+  }
+
   .songbook-body {
     flex-direction: column;
   }
