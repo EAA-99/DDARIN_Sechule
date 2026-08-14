@@ -2172,6 +2172,7 @@ body {
 .song-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-auto-flow: row dense;
   gap: 12px;
   max-height: 65vh;
   overflow-y: auto;
@@ -2284,6 +2285,10 @@ body {
   .ladder-panel,
   .roulette-panel {
     min-height: 540px;
+  }
+
+  .ladder-toolbar-top {
+    justify-content: center;
   }
 
   .ladder-toolbar-bottom {
