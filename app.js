@@ -2050,6 +2050,18 @@ function setViewMode(mode) {
 viewModeWeekBtn.addEventListener("click", () => setViewMode("card"));
 viewModeMonthBtn.addEventListener("click", () => setViewMode("list"));
 
+const mobileViewQuery = window.matchMedia("(max-width: 700px)");
+const viewModeToggleEl = document.querySelector(".view-mode-toggle");
+
+function applyMobileViewLock() {
+  const isMobile = mobileViewQuery.matches;
+  viewModeToggleEl.classList.toggle("hidden", isMobile);
+  if (isMobile && viewMode !== "card") setViewMode("card");
+}
+
+mobileViewQuery.addEventListener("change", applyMobileViewLock);
+applyMobileViewLock();
+
 closeModalBtn.addEventListener("click", closeModal);
 modalBackdrop.addEventListener("click", (e) => {
   if (e.target === modalBackdrop) closeModal();

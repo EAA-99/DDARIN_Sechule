@@ -522,6 +522,37 @@ body {
   .day-cell {
     height: 80px;
   }
+
+  .weekday-row {
+    display: none;
+  }
+
+  .card-list {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    min-height: 0;
+  }
+
+  .day-card {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .day-card-date {
+    flex-direction: column;
+    justify-content: center;
+    min-width: 52px;
+  }
+
+  .day-card-body {
+    flex-direction: column;
+  }
+
+  .day-card-event {
+    justify-content: flex-start;
+    text-align: left;
+  }
 }
 
 .day-cell-events {
@@ -980,143 +1011,6 @@ body {
 
 .game-primary-btn:hover {
   background: #3d6bc0;
-}
-
-.cannon-panel {
-  width: 100%;
-  max-width: none;
-  min-height: 740px;
-}
-
-.cannon-settings {
-  margin-bottom: 14px;
-}
-
-.cannon-settings-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  text-decoration: underline;
-  margin: 0 0 16px;
-}
-
-.cannon-settings-row {
-  display: flex;
-  align-items: center;
-  gap: 28px;
-  flex-wrap: wrap;
-  padding: 10px 0;
-}
-
-.cannon-settings-field {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.cannon-settings-label {
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: #2a2a2a;
-}
-
-.cannon-settings-input {
-  width: 100px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 0.9rem;
-  font-family: inherit;
-  text-align: right;
-}
-
-.cannon-settings-toggle {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 2px solid #ccc;
-  background: #fff;
-  cursor: pointer;
-  padding: 0;
-}
-
-.cannon-settings-toggle.active {
-  border-color: #4a7fd6;
-  background: #4a7fd6;
-}
-
-.cannon-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.cannon-stage {
-  position: relative;
-  width: 100%;
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-.cannon-canvas {
-  display: block;
-  width: 40%;
-  height: 190px;
-  background: #fdf3e4;
-}
-
-.cannon-drawn-panel {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  bottom: 12px;
-  left: 42%;
-  background: #fffaf1;
-  border: 1.5px solid #f0ddc0;
-  border-radius: 28px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  overflow-y: auto;
-}
-
-.cannon-drawn-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #8a6d3b;
-  text-align: center;
-  margin: 0 0 12px;
-}
-
-.cannon-drawn-placeholder {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: #c98a5e;
-  text-align: center;
-  line-height: 1.6;
-  margin: 0;
-}
-
-.cannon-drawn-list {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-}
-
-.cannon-drawn-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 32px;
-  height: 32px;
-  padding: 0 10px;
-  border-radius: 999px;
-  background: #f0a35f;
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.85rem;
 }
 
 .ladder-panel {

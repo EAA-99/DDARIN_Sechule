@@ -150,7 +150,6 @@
     <div class="game-tabs">
       <button type="button" class="game-tab active" data-game="ladder">사다리</button>
       <button type="button" class="game-tab" data-game="roulette">룰렛</button>
-      <button type="button" class="game-tab" data-game="cannon">대포</button>
     </div>
 
     <div id="ladderPanel" class="game-panel ladder-panel">
@@ -206,34 +205,6 @@
       </div>
     </div>
 
-    <div id="cannonPanel" class="game-panel cannon-panel hidden">
-      <div class="cannon-settings">
-        <h3 class="cannon-settings-title">설정</h3>
-        <div class="cannon-settings-row">
-          <div class="cannon-settings-field">
-            <span class="cannon-settings-label">공 갯수</span>
-            <input type="number" id="cannonBallCountInput" class="cannon-settings-input" placeholder="100" min="3" max="10000">
-          </div>
-          <div class="cannon-settings-field">
-            <span class="cannon-settings-label">중복번호 허용</span>
-            <button type="button" id="cannonAllowDupToggle" class="cannon-settings-toggle" aria-pressed="false"></button>
-          </div>
-        </div>
-      </div>
-      <div id="cannonError" class="sheet-status error hidden"></div>
-      <div class="cannon-stage">
-        <canvas id="cannonCanvas" class="cannon-canvas"></canvas>
-        <div class="cannon-drawn-panel">
-          <h4 id="cannonDrawnTitle" class="cannon-drawn-title hidden">최근 나온 번호</h4>
-          <p id="cannonDrawnPlaceholder" class="cannon-drawn-placeholder">뽑기를 누르면<br>대포가 발사돼요! 💥</p>
-          <div id="cannonDrawnList" class="cannon-drawn-list"></div>
-        </div>
-      </div>
-      <div class="cannon-actions">
-        <button type="button" id="cannonFireBtn" class="ladder-action-btn ladder-start-btn">▷ 뽑기</button>
-        <button type="button" id="cannonResetBtn" class="ladder-action-btn">↻ 다시</button>
-      </div>
-    </div>
   </div>
 
   <div id="ladderResultModalBackdrop" class="modal-backdrop hidden">
@@ -264,16 +235,6 @@
         <button type="button" id="closeRouletteResultModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
       </div>
       <div id="rouletteResultCard" class="result-card"></div>
-    </div>
-  </div>
-
-  <div id="cannonResultModalBackdrop" class="modal-backdrop hidden">
-    <div class="modal ladder-result-modal">
-      <div class="modal-header-row">
-        <h2>대포 결과</h2>
-        <button type="button" id="closeCannonResultModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
-      </div>
-      <div id="cannonResultCard" class="result-card"></div>
     </div>
   </div>
 
