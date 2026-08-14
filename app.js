@@ -1677,6 +1677,10 @@ function renderCardView() {
 
   weekPrevBtn.disabled = cardWeekStart <= firstWeekOfMonth(currentMonth);
   weekNextBtn.disabled = cardWeekStart >= lastWeekOfMonth(currentMonth);
+
+  const diffDays = Math.round((cardWeekStart - firstWeekOfMonth(currentMonth)) / 86400000);
+  const weekNum = Math.floor(diffDays / 7) + 1;
+  monthTitle.textContent = `${currentMonth + 1}월 ${weekNum}째주`;
 }
 
 function resetCardWeekToMonth() {
