@@ -2283,6 +2283,11 @@ body {
     margin: 4px 0 10px;
   }
 
+  .side-nav-items {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
   #songNoImageBtn,
   #songImageBtn {
     display: none;
