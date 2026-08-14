@@ -1384,10 +1384,16 @@ function saveEvents(data) {
   eventsCache = data;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
+  console.log("[saveEvents] saving. sample date 2026-07-26 =", data["2026-07-26"]);
+
   const { username, password } = getStoredCreds();
-  if (!password || !username) return;
+  if (!password || !username) {
+    console.log("[saveEvents] NOT logged in (no stored creds) — save skipped, local only");
+    return;
+  }
 
   apiPost({ action: "save", events: eventsObjectToFlat(data), username, password }).then((res) => {
+    console.log("[saveEvents] server response:", res);
     if (res && res.error === "refused_empty_overwrite") {
       alert("서버가 빈 데이터로 전체 덮어쓰기를 거부했습니다. 새로고침 후 다시 시도해주세요.");
       return;
@@ -2000,6 +2006,7 @@ eventForm.addEventListener("submit", (e) => {
   if (!events[selectedDateKey]) events[selectedDateKey] = [];
 
   const newEvent = selectedHex ? { title, sheetColor: selectedHex } : { title, color: selectedColor };
+  console.log("[eventForm submit] selectedDateKey=", selectedDateKey, "editingIndex=", editingIndex, "newEvent=", newEvent);
 
   if (editingIndex !== null) {
     // 앱에서 직접 수정한 일정은 "app" 소유로 승격되어, 이후 월별 탭 동기화가 덮어쓰지 않음
