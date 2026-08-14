@@ -330,7 +330,9 @@ async function fetchSongbookGenres() {
   const res = await fetch(url);
   if (!res.ok) return [];
   const data = await res.json();
-  return (data.sheets || []).map((s) => s.properties.title);
+  return (data.sheets || [])
+    .map((s) => s.properties.title)
+    .filter((title) => !/^시트\d+$/.test(title));
 }
 
 async function fetchSongbookSongs() {
