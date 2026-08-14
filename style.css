@@ -188,6 +188,14 @@ body {
     font-weight: 800;
   }
 
+  #todayScheduleThumbLink {
+    display: none !important;
+  }
+
+  #todayScheduleCard .today-schedule-list {
+    transform: translateX(-30px);
+  }
+
   .page {
     padding-top: 12px;
   }
