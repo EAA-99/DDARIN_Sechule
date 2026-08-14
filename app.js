@@ -506,7 +506,7 @@ async function prefetchSongbookInBackground() {
 }
 
 function buildClipPageUrl(clipId) {
-  return `https://vod.sooplive.co.kr/player/${clipId}/embed?type=catch&autoPlay=true&showChat=false&mutePlay=false`;
+  return `https://vod.sooplive.com/player/${clipId}/embed?type=catch&autoPlay=true&showChat=false&mutePlay=false`;
 }
 
 function updateSongPlayerModalFavBtn(key) {

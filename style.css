@@ -163,6 +163,10 @@ body {
     margin-top: 0;
   }
 
+  .songbook-view {
+    margin-top: 0;
+  }
+
   .side-nav {
     margin-top: 0;
   }
@@ -977,6 +981,8 @@ body {
 
 #modalBackdrop .modal {
   max-width: 640px;
+  max-height: 90vh;
+  overflow-y: auto;
   background: #fff;
   border: 6px solid #cfe2f7;
 }
@@ -2303,5 +2309,27 @@ body {
   #songNoImageBtn,
   #songImageBtn {
     display: none;
+  }
+
+  .song-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .song-card {
+    padding: 6px;
+  }
+
+  .song-card-title {
+    font-size: 0.82rem;
+  }
+
+  .song-card-artist {
+    font-size: 0.72rem;
+    margin-bottom: 4px;
+  }
+
+  .song-card-genre {
+    font-size: 0.65rem;
   }
 }
