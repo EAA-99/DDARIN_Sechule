@@ -1650,11 +1650,7 @@ function renderCardView() {
 
     const dateBox = document.createElement("div");
     dateBox.className = "day-card-date";
-    if (key === today) {
-      dateBox.innerHTML = `<div class="day-card-today-label">TODAY</div>`;
-    } else {
-      dateBox.innerHTML = `<div class="day-card-weekday">${WEEKDAY_LABELS[i]}</div><div class="day-card-num">${d.getDate()}</div>`;
-    }
+    dateBox.innerHTML = `<div class="day-card-weekday">${WEEKDAY_LABELS[i]}</div><div class="day-card-num">${d.getDate()}</div>`;
     card.appendChild(dateBox);
 
     const body = document.createElement("div");
