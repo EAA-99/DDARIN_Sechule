@@ -56,7 +56,9 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
   const canvas = document.getElementById("ladderCanvas");
   const errorEl = document.getElementById("ladderError");
   const toolbarEl = document.querySelector("#ladderPanel .ladder-toolbar");
-  const LADDER_TARGET_HEIGHT = 740;
+  function getLadderTargetHeight() {
+    return window.innerWidth <= 700 ? 540 : 740;
+  }
   const countLabel = document.getElementById("ladderCountLabel");
   const countMinus = document.getElementById("ladderCountMinus");
   const countPlus = document.getElementById("ladderCountPlus");
@@ -172,7 +174,7 @@ document.querySelectorAll(".game-tab").forEach((tab) => {
       namesRow.offsetHeight +
       resultsRow.offsetHeight +
       12;
-    canvas.height = Math.max(300, LADDER_TARGET_HEIGHT - nonCanvasHeight);
+    canvas.height = Math.max(300, getLadderTargetHeight() - nonCanvasHeight);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ctx.strokeStyle = "#ccc";

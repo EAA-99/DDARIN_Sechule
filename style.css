@@ -2280,9 +2280,21 @@ body {
   padding: 40px 0;
 }
 
+@media (max-width: 700px) {
+  .ladder-panel,
+  .roulette-panel {
+    min-height: 540px;
+  }
+
+  .ladder-toolbar-bottom {
+    transform: translateX(-30px);
+  }
+}
+
 @media (max-width: 600px) {
   .songbook-view {
     padding: 12px;
+    overflow: hidden;
   }
 
   .songbook-inner {
