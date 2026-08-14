@@ -483,6 +483,11 @@ body {
   cursor: pointer;
 }
 
+.day-card.today {
+  outline: 2px dashed #4a7fd6;
+  outline-offset: 4px;
+  border-radius: 14px;
+}
 
 .day-card-date {
   flex-shrink: 0;
