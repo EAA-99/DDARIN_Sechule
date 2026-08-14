@@ -513,20 +513,7 @@ body {
 }
 
 .day-card.today .day-card-date {
-  background: #4a7fd6;
   border-color: #4a7fd6;
-}
-
-.day-card.today .day-card-weekday,
-.day-card.today .day-card-num {
-  color: #fff;
-}
-
-.day-card-today-label {
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: #fff;
-  letter-spacing: 0.02em;
 }
 
 .day-card-body {
