@@ -1508,7 +1508,6 @@ const EVENT_HEX_LABELS = {
   "#e951d0": "커머스",
   "#8a2be2": "종겜",
   "#9900ff": "종겜",
-  "#000000": "시네티",
   "#ff6f00": "같이보기",
 };
 
@@ -2003,8 +2002,7 @@ eventForm.addEventListener("submit", (e) => {
   const newEvent = selectedHex ? { title, sheetColor: selectedHex } : { title, color: selectedColor };
 
   if (editingIndex !== null) {
-    const prevEvent = events[selectedDateKey][editingIndex];
-    if (prevEvent && prevEvent.source) newEvent.source = prevEvent.source;
+    // 앱에서 직접 수정한 일정은 "app" 소유로 승격되어, 이후 월별 탭 동기화가 덮어쓰지 않음
     events[selectedDateKey][editingIndex] = newEvent;
   } else {
     events[selectedDateKey].push(newEvent);
