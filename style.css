@@ -19,8 +19,15 @@
   border-radius: 50%;
 }
 
+html {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 body {
   margin: 0;
+  overflow-x: hidden;
+  width: 100%;
   font-family: -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
   font-weight: 700;
   background: #fff;
@@ -167,13 +174,18 @@ body {
     display: none !important;
   }
 
+  #todayScheduleCard .today-schedule-header {
+    justify-content: center;
+  }
+
   #todayScheduleHeaderLabel {
     font-size: 0;
   }
 
   #todayScheduleHeaderLabel::before {
     content: "TODAY";
-    font-size: 0.9rem;
+    font-size: 1rem;
+    font-weight: 800;
   }
 
   .page {
