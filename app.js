@@ -1373,6 +1373,8 @@ async function apiPost(payload) {
   }
 }
 
+let saveInFlightCount = 0;
+
 function saveEvents(data) {
   const hadData = Object.keys(eventsCache || {}).some((k) => (eventsCache[k] || []).length > 0);
   const hasData = Object.keys(data || {}).some((k) => (data[k] || []).length > 0);
@@ -1384,30 +1386,44 @@ function saveEvents(data) {
   eventsCache = data;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
-  console.log("[saveEvents] saving. sample date 2026-07-26 =", data["2026-07-26"]);
-
   const { username, password } = getStoredCreds();
-  if (!password || !username) {
-    console.log("[saveEvents] NOT logged in (no stored creds) — save skipped, local only");
-    return;
-  }
+  if (!password || !username) return;
 
-  apiPost({ action: "save", events: eventsObjectToFlat(data), username, password }).then((res) => {
-    console.log("[saveEvents] server response:", res);
-    if (res && res.error === "refused_empty_overwrite") {
-      alert("서버가 빈 데이터로 전체 덮어쓰기를 거부했습니다. 새로고침 후 다시 시도해주세요.");
-      return;
-    }
-    if (!res || !res.ok) {
-      clearStoredCreds();
-      isReadOnly = true;
-      updateLockUi();
-      alert("저장에 실패했습니다. 편집 잠금이 해제되어 다시 비밀번호를 입력해야 합니다.");
-    }
-  });
+  attemptSaveToServer(data, username, password, 0);
+}
+
+function attemptSaveToServer(data, username, password, retryCount) {
+  saveInFlightCount++;
+  apiPost({ action: "save", events: eventsObjectToFlat(data), username, password })
+    .then((res) => {
+      if (res && res.error === "refused_empty_overwrite") {
+        alert("서버가 빈 데이터로 전체 덮어쓰기를 거부했습니다. 새로고침 후 다시 시도해주세요.");
+        return;
+      }
+      if (res && res.ok) return;
+
+      if (res && res.error === "unauthorized") {
+        clearStoredCreds();
+        isReadOnly = true;
+        updateLockUi();
+        alert("비밀번호가 만료되어 편집 잠금이 해제되었습니다. 다시 로그인해주세요.");
+        return;
+      }
+
+      // 네트워크 오류 등 일시적 실패로 보고 재시도 (로그인 상태는 유지)
+      if (retryCount < 2) {
+        setTimeout(() => attemptSaveToServer(data, username, password, retryCount + 1), 1500);
+      } else {
+        alert("저장 중 네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      }
+    })
+    .finally(() => {
+      saveInFlightCount--;
+    });
 }
 
 async function syncEventsFromServer() {
+  if (saveInFlightCount > 0) return; // 저장 중일 때는 동기화로 덮어쓰지 않음
   const flat = await apiGetEvents();
   if (!flat) return;
 
