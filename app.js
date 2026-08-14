@@ -2060,7 +2060,6 @@ function applyMobileViewLock() {
 }
 
 mobileViewQuery.addEventListener("change", applyMobileViewLock);
-applyMobileViewLock();
 
 closeModalBtn.addEventListener("click", closeModal);
 modalBackdrop.addEventListener("click", (e) => {
@@ -2303,6 +2302,7 @@ async function init() {
 
   updateLockUi();
   renderGrid();
+  applyMobileViewLock();
   renderTodaySchedule();
   loadTodayYoutube();
   checkLiveStatus();
