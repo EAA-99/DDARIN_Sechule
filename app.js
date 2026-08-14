@@ -1471,11 +1471,12 @@ const WEEKDAY_LABELS = ["월", "화", "수", "목", "금", "토", "일"];
 const ATTENDEE_RE = /\s+w\.\s*(.+)$/i;
 
 function getColorInfo(ev) {
+  if (ev.sheetColor) return { hex: ev.sheetColor };
+  if (ev.color) return { key: ev.color };
   if (ev.title.includes("휴방")) return { key: "hiatus" };
   if (ev.title.includes("합방")) return { key: "collab" };
   if (ev.title.includes("따이봤")) return { key: "gray" };
-  if (ev.sheetColor) return { hex: ev.sheetColor };
-  return { key: ev.color || "blue" };
+  return { key: "blue" };
 }
 
 function hexToRgb(hex) {
