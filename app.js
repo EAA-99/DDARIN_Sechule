@@ -1381,18 +1381,28 @@ const todayMemoHideTodayBtn = document.getElementById("todayMemoHideTodayBtn");
 const todayMemoCloseBtn = document.getElementById("todayMemoCloseBtn");
 const closeTodayMemoModalBtn = document.getElementById("closeTodayMemoModalBtn");
 const TODAY_MEMO_POPUP_KEY = "today-memo-popup-dismissed-date";
+let todayMemoPopupOnDone = null;
 
 function closeTodayMemoModal() {
   todayMemoModalBackdrop.classList.add("hidden");
+  const onDone = todayMemoPopupOnDone;
+  todayMemoPopupOnDone = null;
+  if (onDone) onDone();
 }
 
-function showTodayMemoPopupIfNeeded() {
+function showTodayMemoPopupIfNeeded(onDone) {
   const today = todayKey();
-  if (localStorage.getItem(TODAY_MEMO_POPUP_KEY) === today) return;
+  const todaysMemos =
+    localStorage.getItem(TODAY_MEMO_POPUP_KEY) === today
+      ? []
+      : sharedMemoItems.filter((item) => item.date === today);
 
-  const todaysMemos = sharedMemoItems.filter((item) => item.date === today);
-  if (!todaysMemos.length) return;
+  if (!todaysMemos.length) {
+    if (onDone) onDone();
+    return;
+  }
 
+  todayMemoPopupOnDone = onDone || null;
   renderMemoCards(todayMemoModalList, todaysMemos, false, null, null);
   todayMemoModalBackdrop.classList.remove("hidden");
 }
@@ -1405,6 +1415,113 @@ todayMemoHideTodayBtn.addEventListener("click", () => {
 });
 todayMemoModalBackdrop.addEventListener("click", (e) => {
   if (e.target === todayMemoModalBackdrop) closeTodayMemoModal();
+});
+
+const TODAY_YOUTUBE_POPUP_API_URL = "/api/youtube-recent";
+const YOUTUBE_POPUP_DISMISS_KEY = "today-youtube-popup-dismissed";
+const YOUTUBE_POPUP_WINDOW_DAYS = 3;
+
+const todayYoutubeModalBackdrop = document.getElementById("todayYoutubeModalBackdrop");
+const todayYoutubeModalList = document.getElementById("todayYoutubeModalList");
+const todayYoutubeHideTodayBtn = document.getElementById("todayYoutubeHideTodayBtn");
+const todayYoutubeHideWeekBtn = document.getElementById("todayYoutubeHideWeekBtn");
+const todayYoutubeCloseBtn = document.getElementById("todayYoutubeCloseBtn");
+const closeTodayYoutubeModalBtn = document.getElementById("closeTodayYoutubeModalBtn");
+
+let todayYoutubePopupVideoIds = [];
+
+function loadYoutubeDismissMap() {
+  try {
+    return JSON.parse(localStorage.getItem(YOUTUBE_POPUP_DISMISS_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveYoutubeDismissMap(map) {
+  localStorage.setItem(YOUTUBE_POPUP_DISMISS_KEY, JSON.stringify(map));
+}
+
+function renderTodayYoutubeList(videos) {
+  todayYoutubeModalList.innerHTML = "";
+  videos.forEach((v) => {
+    const item = document.createElement("a");
+    item.className = "today-video-item";
+    item.href = v.url;
+    item.target = "_blank";
+    item.rel = "noopener";
+
+    const thumb = document.createElement("img");
+    thumb.className = "today-video-thumb";
+    thumb.src = v.thumbnail;
+    thumb.alt = "";
+
+    const info = document.createElement("div");
+    info.className = "today-video-info";
+
+    const titleEl = document.createElement("div");
+    titleEl.className = "today-video-title";
+    titleEl.textContent = v.title;
+
+    const goto = document.createElement("span");
+    goto.className = "today-video-goto";
+    goto.textContent = "바로가기 ↗";
+
+    info.append(titleEl, goto);
+    item.append(thumb, info);
+    todayYoutubeModalList.appendChild(item);
+  });
+}
+
+async function showTodayYoutubePopupIfNeeded() {
+  let videos = [];
+  try {
+    const res = await fetch(TODAY_YOUTUBE_POPUP_API_URL);
+    videos = res.ok ? await res.json() : [];
+  } catch {
+    videos = [];
+  }
+
+  const cutoff = Date.now() - YOUTUBE_POPUP_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+  const dismissMap = loadYoutubeDismissMap();
+  const today = todayKey();
+
+  const recent = (videos || []).filter((v) => {
+    if (!v.published || new Date(v.published).getTime() < cutoff) return false;
+    const dismissedUntil = dismissMap[v.id];
+    if (dismissedUntil && dismissedUntil >= today) return false;
+    return true;
+  });
+
+  if (!recent.length) return;
+
+  todayYoutubePopupVideoIds = recent.map((v) => v.id);
+  renderTodayYoutubeList(recent);
+  todayYoutubeModalBackdrop.classList.remove("hidden");
+}
+
+function closeTodayYoutubeModal() {
+  todayYoutubeModalBackdrop.classList.add("hidden");
+}
+
+function dismissTodayYoutubePopup(days) {
+  const dismissMap = loadYoutubeDismissMap();
+  const until = new Date();
+  until.setDate(until.getDate() + days);
+  const untilKey = dateKey(until.getFullYear(), until.getMonth(), until.getDate());
+  todayYoutubePopupVideoIds.forEach((id) => {
+    dismissMap[id] = untilKey;
+  });
+  saveYoutubeDismissMap(dismissMap);
+  closeTodayYoutubeModal();
+}
+
+closeTodayYoutubeModalBtn.addEventListener("click", closeTodayYoutubeModal);
+todayYoutubeCloseBtn.addEventListener("click", closeTodayYoutubeModal);
+todayYoutubeHideTodayBtn.addEventListener("click", () => dismissTodayYoutubePopup(0));
+todayYoutubeHideWeekBtn.addEventListener("click", () => dismissTodayYoutubePopup(7));
+todayYoutubeModalBackdrop.addEventListener("click", (e) => {
+  if (e.target === todayYoutubeModalBackdrop) closeTodayYoutubeModal();
 });
 
 let memoAddExtraRowCount = 0;
@@ -3170,7 +3287,7 @@ async function init() {
 
   prefetchTodayNotices();
   prefetchSongbookInBackground();
-  loadSharedMemoList().then(showTodayMemoPopupIfNeeded);
+  loadSharedMemoList().then(() => showTodayMemoPopupIfNeeded(showTodayYoutubePopupIfNeeded));
 
   tryAutoUnlock().then(() => {
     updateLockUi();
