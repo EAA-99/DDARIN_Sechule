@@ -2461,6 +2461,31 @@ body {
   color: #666;
 }
 
+.queue-item.has-mr {
+  padding-right: 58px;
+}
+
+.queue-item-play {
+  position: absolute;
+  top: 6px;
+  right: 30px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #7fb8ea;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.queue-item-play:hover {
+  background: #eaf4fd;
+}
+
 .favorites-empty {
   font-size: 0.8rem;
   color: #999;

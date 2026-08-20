@@ -243,6 +243,11 @@ const song2SortSelect = document.getElementById("song2SortSelect");
 const song2Grid = document.getElementById("song2Grid");
 const favorites2ListEl = document.getElementById("favorites2List");
 const singQueueListEl = document.getElementById("singQueueList");
+const mrPlayerModalBackdrop = document.getElementById("mrPlayerModalBackdrop");
+const mrPlayerModalFrame = document.getElementById("mrPlayerModalFrame");
+const mrPlayerModalTitle = document.getElementById("mrPlayerModalTitle");
+const mrPlayerModalArtist = document.getElementById("mrPlayerModalArtist");
+const mrPlayerModalClose = document.getElementById("mrPlayerModalClose");
 const songManageBtn = document.getElementById("songManageBtn");
 const songManageToolbar = document.getElementById("songManageToolbar");
 const songSelectAllBtn = document.getElementById("songSelectAllBtn");
@@ -482,12 +487,19 @@ const CHOSEONG_GROUP_MAP = {
   "ㅎ": "ㅎ",
 };
 const CHOSEONG_GROUPS = ["ㄱ", "ㄴ", "ㄷ", "ㄹ", "ㅁ", "ㅂ", "ㅅ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
+const ALPHABET_GROUPS = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
 
 function getArtistInitialGroup(artist) {
-  const code = (artist || "").trim().charCodeAt(0);
-  if (!(code >= 0xac00 && code <= 0xd7a3)) return null;
-  const choseong = CHOSEONG_LIST[Math.floor((code - 0xac00) / 588)];
-  return CHOSEONG_GROUP_MAP[choseong] || null;
+  const ch = (artist || "").trim()[0];
+  if (!ch) return null;
+  const code = ch.charCodeAt(0);
+  if (code >= 0xac00 && code <= 0xd7a3) {
+    const choseong = CHOSEONG_LIST[Math.floor((code - 0xac00) / 588)];
+    return CHOSEONG_GROUP_MAP[choseong] || null;
+  }
+  const upper = ch.toUpperCase();
+  if (upper >= "A" && upper <= "Z") return upper;
+  return null;
 }
 
 function renderArtistList2() {
@@ -513,7 +525,7 @@ function renderArtistList2() {
   });
   artist2List.appendChild(allBtn);
 
-  CHOSEONG_GROUPS.forEach((group) => {
+  [...CHOSEONG_GROUPS, ...ALPHABET_GROUPS].forEach((group) => {
     if (!presentGroups.has(group)) return;
     const btn = document.createElement("button");
     btn.type = "button";
@@ -2024,6 +2036,31 @@ function removeFromSingQueue(key) {
 
 let draggedQueueKey = null;
 
+function extractYoutubeVideoId(url) {
+  if (!url) return null;
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([\w-]{11})/);
+  return match ? match[1] : null;
+}
+
+function openMrPlayerModal(song) {
+  const videoId = extractYoutubeVideoId(song.mr);
+  if (!videoId) return;
+  mrPlayerModalFrame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+  mrPlayerModalTitle.textContent = song.title;
+  mrPlayerModalArtist.textContent = song.artist;
+  mrPlayerModalBackdrop.classList.remove("hidden");
+}
+
+function closeMrPlayerModal() {
+  mrPlayerModalBackdrop.classList.add("hidden");
+  mrPlayerModalFrame.src = "";
+}
+
+mrPlayerModalClose.addEventListener("click", closeMrPlayerModal);
+mrPlayerModalBackdrop.addEventListener("click", (e) => {
+  if (e.target === mrPlayerModalBackdrop) closeMrPlayerModal();
+});
+
 function renderSingQueueList() {
   singQueueListEl.innerHTML = "";
 
@@ -2041,7 +2078,7 @@ function renderSingQueueList() {
     const key = albumArtCacheKey(song);
 
     const item = document.createElement("div");
-    item.className = "queue-item";
+    item.className = "queue-item" + (song.mr ? " has-mr" : "");
     item.draggable = true;
 
     const titleEl = document.createElement("div");
@@ -2059,7 +2096,22 @@ function renderSingQueueList() {
     removeBtn.textContent = "✕";
     removeBtn.addEventListener("click", () => removeFromSingQueue(key));
 
-    item.append(titleEl, artistEl, removeBtn);
+    item.append(titleEl, artistEl);
+
+    if (song.mr) {
+      const playBtn = document.createElement("button");
+      playBtn.type = "button";
+      playBtn.className = "queue-item-play";
+      playBtn.setAttribute("aria-label", "MR 재생");
+      playBtn.textContent = "▶";
+      playBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openMrPlayerModal(song);
+      });
+      item.appendChild(playBtn);
+    }
+
+    item.appendChild(removeBtn);
 
     item.addEventListener("dragstart", () => {
       draggedQueueKey = key;
