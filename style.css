@@ -1752,6 +1752,34 @@ body {
   cursor: default;
 }
 
+#todayMemoModalBackdrop .modal-actions {
+  justify-content: center;
+  gap: 12px;
+}
+
+#todayMemoModalBackdrop .modal-actions button {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  background: #eef0f4;
+  color: #666;
+}
+
+#todayMemoModalBackdrop .modal-actions button:hover {
+  background: #e3e6ec;
+}
+
+#todayMemoModalBackdrop .modal-actions .primary-btn {
+  background: #f5a862;
+  color: #fff;
+}
+
+#todayMemoModalBackdrop .modal-actions .primary-btn:hover {
+  background: #f29a49;
+}
+
 .memo-card {
   position: relative;
   border: 1.5px solid #d9b878;
