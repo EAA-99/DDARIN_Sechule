@@ -242,9 +242,18 @@ const artist2List = document.getElementById("artist2List");
 const song2SortSelect = document.getElementById("song2SortSelect");
 const song2Grid = document.getElementById("song2Grid");
 const favorites2ListEl = document.getElementById("favorites2List");
+const singQueueListEl = document.getElementById("singQueueList");
+const songManageBtn = document.getElementById("songManageBtn");
+const songManageToolbar = document.getElementById("songManageToolbar");
+const songSelectAllBtn = document.getElementById("songSelectAllBtn");
+const songDeleteSelectedBtn = document.getElementById("songDeleteSelectedBtn");
+const songQueueAddBtn = document.getElementById("songQueueAddBtn");
+const songManageCloseBtn = document.getElementById("songManageCloseBtn");
 let songbook2Genre = "전체";
 let songbook2Artist = "전체";
 let songSortMode2 = "artist";
+let songManageMode = false;
+let selectedSongKeys = new Set();
 let allSongs = null;
 let songByKey = {};
 let songbookGenre = "전체";
@@ -984,11 +993,22 @@ function advanceFavoritesQueue() {
 function buildSongCard(song, options) {
   const playable = !options || options.playable !== false;
   const onFavToggle = (options && options.onFavToggle) || renderFavoritesList;
+  const checkbox = options && options.checkbox;
 
   const card = document.createElement("div");
   card.className = "song-card";
 
   const key = albumArtCacheKey(song);
+
+  let checkboxEl = null;
+  if (checkbox) {
+    checkboxEl = document.createElement("input");
+    checkboxEl.type = "checkbox";
+    checkboxEl.className = "song-card-checkbox";
+    checkboxEl.checked = checkbox.checked;
+    checkboxEl.addEventListener("click", (e) => e.stopPropagation());
+    checkboxEl.addEventListener("change", () => checkbox.onChange(key, checkboxEl.checked));
+  }
 
   const artEl = document.createElement("img");
   artEl.className = "song-card-art";
@@ -1018,6 +1038,7 @@ function buildSongCard(song, options) {
   genreEl.className = "song-card-genre";
   genreEl.textContent = song.genre;
 
+  if (checkboxEl) card.appendChild(checkboxEl);
   card.append(artEl, favBtn, titleEl, artistEl, genreEl);
   if (playable) {
     card.addEventListener("click", () => playSong(song));
@@ -1091,7 +1112,7 @@ function renderSongGrid() {
   });
 }
 
-function renderSongGrid2() {
+function getFilteredSongs2() {
   const query = song2SearchInput.value.trim().toLowerCase();
 
   const filtered = (allSongs || []).filter((song) => {
@@ -1106,6 +1127,25 @@ function renderSongGrid2() {
     return a[field].localeCompare(b[field], "ko");
   });
 
+  return filtered;
+}
+
+function buildSongCardOptions2(song) {
+  return {
+    playable: false,
+    onFavToggle: renderFavorites2List,
+    checkbox: songManageMode
+      ? {
+          checked: selectedSongKeys.has(albumArtCacheKey(song)),
+          onChange: toggleSongSelection,
+        }
+      : null,
+  };
+}
+
+function renderSongGrid2() {
+  const filtered = getFilteredSongs2();
+
   song2Grid.innerHTML = "";
 
   if (!filtered.length) {
@@ -1116,10 +1156,8 @@ function renderSongGrid2() {
     return;
   }
 
-  const cardOptions = { playable: false, onFavToggle: renderFavorites2List };
-
   if (songSortMode2 !== "artist") {
-    filtered.forEach((song) => song2Grid.appendChild(buildSongCard(song, cardOptions)));
+    filtered.forEach((song) => song2Grid.appendChild(buildSongCard(song, buildSongCardOptions2(song))));
     return;
   }
 
@@ -1148,7 +1186,7 @@ function renderSongGrid2() {
     header.append(nameEl, countEl);
     song2Grid.appendChild(header);
 
-    group.songs.forEach((song) => song2Grid.appendChild(buildSongCard(song, cardOptions)));
+    group.songs.forEach((song) => song2Grid.appendChild(buildSongCard(song, buildSongCardOptions2(song))));
   });
 }
 
@@ -1185,6 +1223,7 @@ async function openSongbook2() {
 
   renderSongGrid2();
   renderFavorites2List();
+  renderSingQueueList();
   renderArtistList2();
 }
 
@@ -1740,6 +1779,150 @@ songAddForm.addEventListener("submit", (e) => {
 
   closeSongAddModal();
 });
+
+function toggleSongSelection(key, checked) {
+  if (checked) selectedSongKeys.add(key);
+  else selectedSongKeys.delete(key);
+}
+
+function openSongManageMode() {
+  songManageMode = true;
+  songManageBtn.classList.add("hidden");
+  songManageToolbar.classList.remove("hidden");
+  renderSongGrid2();
+}
+
+function closeSongManageMode() {
+  songManageMode = false;
+  selectedSongKeys.clear();
+  songManageToolbar.classList.add("hidden");
+  songManageBtn.classList.toggle("hidden", isReadOnly);
+  renderSongGrid2();
+}
+
+songManageBtn.addEventListener("click", openSongManageMode);
+songManageCloseBtn.addEventListener("click", closeSongManageMode);
+
+songSelectAllBtn.addEventListener("click", () => {
+  getFilteredSongs2().forEach((song) => selectedSongKeys.add(albumArtCacheKey(song)));
+  renderSongGrid2();
+});
+
+songDeleteSelectedBtn.addEventListener("click", () => {
+  if (!selectedSongKeys.size) return;
+  if (!confirm(`선택한 ${selectedSongKeys.size}곡을 삭제할까요?`)) return;
+
+  allSongs = (allSongs || []).filter((song) => !selectedSongKeys.has(albumArtCacheKey(song)));
+  selectedSongKeys.forEach((key) => delete songByKey[key]);
+  selectedSongKeys.clear();
+
+  songbookGenresList = [...new Set(allSongs.map((s) => s.genre))];
+  renderGenreTabs(songbookGenresList);
+  renderGenreTabs2(songbookGenresList);
+  renderArtistList();
+  renderArtistList2();
+  renderSongGrid();
+  renderSongGrid2();
+  renderFavorites2List();
+  renderSingQueueList();
+});
+
+songQueueAddBtn.addEventListener("click", () => {
+  if (!selectedSongKeys.size) return;
+  addToSingQueue([...selectedSongKeys]);
+});
+
+const SING_QUEUE_KEY = "songbook-sing-queue";
+let singQueueOrder = [];
+try {
+  singQueueOrder = JSON.parse(localStorage.getItem(SING_QUEUE_KEY)) || [];
+} catch {
+  singQueueOrder = [];
+}
+
+function saveSingQueue() {
+  localStorage.setItem(SING_QUEUE_KEY, JSON.stringify(singQueueOrder));
+}
+
+function addToSingQueue(keys) {
+  keys.forEach((key) => {
+    if (!singQueueOrder.includes(key)) singQueueOrder.push(key);
+  });
+  saveSingQueue();
+  renderSingQueueList();
+}
+
+function removeFromSingQueue(key) {
+  const idx = singQueueOrder.indexOf(key);
+  if (idx === -1) return;
+  singQueueOrder.splice(idx, 1);
+  saveSingQueue();
+  renderSingQueueList();
+}
+
+let draggedQueueKey = null;
+
+function renderSingQueueList() {
+  singQueueListEl.innerHTML = "";
+
+  const queueSongs = singQueueOrder.map((key) => songByKey[key]).filter(Boolean);
+
+  if (!queueSongs.length) {
+    const empty = document.createElement("p");
+    empty.className = "favorites-empty";
+    empty.textContent = "대기열이 비어 있습니다.";
+    singQueueListEl.appendChild(empty);
+    return;
+  }
+
+  queueSongs.forEach((song) => {
+    const key = albumArtCacheKey(song);
+
+    const item = document.createElement("div");
+    item.className = "queue-item";
+    item.draggable = true;
+
+    const titleEl = document.createElement("div");
+    titleEl.className = "favorite-item-title";
+    titleEl.textContent = song.title;
+
+    const artistEl = document.createElement("div");
+    artistEl.className = "favorite-item-artist";
+    artistEl.textContent = song.artist;
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "queue-item-remove";
+    removeBtn.setAttribute("aria-label", "대기열에서 제거");
+    removeBtn.textContent = "✕";
+    removeBtn.addEventListener("click", () => removeFromSingQueue(key));
+
+    item.append(titleEl, artistEl, removeBtn);
+
+    item.addEventListener("dragstart", () => {
+      draggedQueueKey = key;
+      item.classList.add("dragging");
+    });
+    item.addEventListener("dragend", () => {
+      draggedQueueKey = null;
+      item.classList.remove("dragging");
+    });
+    item.addEventListener("dragover", (e) => e.preventDefault());
+    item.addEventListener("drop", (e) => {
+      e.preventDefault();
+      if (!draggedQueueKey || draggedQueueKey === key) return;
+      const fromIdx = singQueueOrder.indexOf(draggedQueueKey);
+      const toIdx = singQueueOrder.indexOf(key);
+      if (fromIdx === -1 || toIdx === -1) return;
+      singQueueOrder.splice(fromIdx, 1);
+      singQueueOrder.splice(toIdx, 0, draggedQueueKey);
+      saveSingQueue();
+      renderSingQueueList();
+    });
+
+    singQueueListEl.appendChild(item);
+  });
+}
 
 async function apiPost(payload) {
   try {
@@ -2502,7 +2685,8 @@ function updateLockUi() {
   editLockBtn.title = label;
   editLockBtn.setAttribute("aria-label", label);
   loginBtnLabel.textContent = isReadOnly ? "로그인" : "로그아웃";
-  songAddBtn.classList.toggle("hidden", isReadOnly);
+  if (isReadOnly && songManageMode) closeSongManageMode();
+  songManageBtn.classList.toggle("hidden", isReadOnly || songManageMode);
 }
 
 async function tryAutoUnlock() {

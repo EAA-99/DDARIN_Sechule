@@ -1898,6 +1898,7 @@ body {
 .songbook-header-actions {
   margin-left: auto;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
 }
@@ -1925,6 +1926,84 @@ body {
 
 .song-add-btn:hover {
   background: #bfe0fa;
+}
+
+.song-gear-btn {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #eee;
+  border-radius: 50%;
+  background: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.song-gear-btn:hover {
+  background: #f5f5f5;
+}
+
+.song-manage-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.song-manage-btn {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border: 1px solid #eee;
+  border-radius: 999px;
+  background: #fff;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.song-manage-btn:hover {
+  background: #f5f5f5;
+}
+
+.song-manage-btn-danger {
+  border-color: #f5c6cf;
+  color: #c8425a;
+}
+
+.song-manage-btn-danger:hover {
+  background: #fdecef;
+}
+
+.song-manage-close-btn {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #999;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.song-manage-close-btn:hover {
+  background: #f0f0f0;
+}
+
+.song-card-checkbox {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  width: 20px;
+  height: 20px;
+  z-index: 2;
+  cursor: pointer;
 }
 
 #songAddModalBackdrop .modal {
@@ -2358,6 +2437,41 @@ body {
   opacity: 0.4;
 }
 
+.queue-item {
+  position: relative;
+  text-align: left;
+  background: #f7f7f7;
+  border-radius: 10px;
+  padding: 8px 34px 8px 10px;
+  cursor: grab;
+}
+
+.queue-item.dragging {
+  opacity: 0.4;
+}
+
+.queue-item-remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #999;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.queue-item-remove:hover {
+  background: #eee;
+  color: #666;
+}
+
 .favorites-empty {
   font-size: 0.8rem;
   color: #999;
@@ -2429,15 +2543,10 @@ body {
   margin-left: 6px;
   padding: 1px 7px;
   border-radius: 999px;
-  background: #fbd7e4;
-  color: #ad3f68;
+  background: #cfe8fb;
+  color: #1c5fa8;
   font-size: 0.72rem;
   font-weight: 700;
-}
-
-.genre-tab.active .genre-tab-count {
-  background: rgba(255, 255, 255, 0.28);
-  color: #fff;
 }
 
 .song-grid {
@@ -2517,7 +2626,7 @@ body {
   cursor: default;
 }
 
-#songbook2View .player-favorites {
+#songbook2View .player-favorites:first-child {
   margin-top: 0;
   padding-top: 0;
   border-top: none;

@@ -152,7 +152,14 @@
     <div class="songbook-header">
       <h1>노래책</h1>
       <div class="songbook-header-actions">
-        <button type="button" id="songAddBtn" class="song-add-btn hidden" aria-label="곡 추가" title="곡 추가">+</button>
+        <button type="button" id="songManageBtn" class="song-gear-btn hidden" aria-label="곡 관리" title="곡 관리">⚙️</button>
+        <div id="songManageToolbar" class="song-manage-toolbar hidden">
+          <button type="button" id="songAddBtn" class="song-add-btn" aria-label="곡 추가" title="곡 추가">+</button>
+          <button type="button" id="songSelectAllBtn" class="song-manage-btn">전체선택</button>
+          <button type="button" id="songDeleteSelectedBtn" class="song-manage-btn song-manage-btn-danger">선택삭제</button>
+          <button type="button" id="songQueueAddBtn" class="song-manage-btn">대기열 추가</button>
+          <button type="button" id="songManageCloseBtn" class="song-manage-close-btn" aria-label="곡 관리 닫기" title="닫기">✕</button>
+        </div>
         <select id="song2SortSelect" class="song-sort-select">
           <option value="artist">가수이름순</option>
           <option value="title">가나다순</option>
@@ -165,6 +172,11 @@
         <div class="player-favorites">
           <h3>즐겨찾기</h3>
           <div id="favorites2List" class="favorites-list"></div>
+        </div>
+
+        <div class="player-favorites">
+          <h3>대기열</h3>
+          <div id="singQueueList" class="favorites-list"></div>
         </div>
 
         <div class="player-artists">
