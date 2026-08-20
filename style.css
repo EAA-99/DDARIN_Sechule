@@ -1834,45 +1834,6 @@ body {
   color: #e05a5a;
 }
 
-.soop-chat-modal {
-  max-width: 480px;
-}
-
-.soop-chat-status {
-  font-size: 0.82rem;
-  color: #666;
-  margin-bottom: 10px;
-  line-height: 1.4;
-}
-
-.soop-chat-log {
-  max-height: 320px;
-  overflow-y: auto;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  padding: 10px;
-  margin-bottom: 14px;
-  font-size: 0.82rem;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.soop-chat-line {
-  display: flex;
-  gap: 8px;
-}
-
-.soop-chat-time {
-  flex-shrink: 0;
-  color: #999;
-  font-variant-numeric: tabular-nums;
-}
-
-.soop-chat-text {
-  word-break: break-word;
-}
-
 .memo-card {
   position: relative;
   border: 1.5px solid #d9b878;
