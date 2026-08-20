@@ -205,15 +205,15 @@
         <h2 id="songAddModalTitle">곡 추가</h2>
         <button type="button" id="closeSongAddModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
       </div>
-      <form id="songAddForm" class="song-add-form">
+      <form id="songAddForm" class="song-add-form" autocomplete="off">
         <div class="song-add-row song-add-row-2">
           <label class="song-add-field">
             <span class="song-add-label">제목</span>
-            <input type="text" id="songAddTitleInput" class="song-add-input" placeholder="제목" maxlength="200" required>
+            <input type="text" id="songAddTitleInput" class="song-add-input" placeholder="제목" maxlength="200" required autocomplete="off">
           </label>
           <label class="song-add-field">
             <span class="song-add-label">가수</span>
-            <input type="text" id="songAddArtistInput" class="song-add-input" placeholder="가수" maxlength="200" required>
+            <input type="text" id="songAddArtistInput" class="song-add-input" placeholder="가수" maxlength="200" required autocomplete="off">
           </label>
         </div>
         <div class="song-add-row song-add-row-3">
@@ -239,12 +239,12 @@
           </div>
           <label class="song-add-field">
             <span class="song-add-label">비고</span>
-            <input type="text" id="songAddNoteInput" class="song-add-input" placeholder="비고 (쉼표로 여러개)">
+            <input type="text" id="songAddNoteInput" class="song-add-input" placeholder="비고 (쉼표로 여러개)" autocomplete="off">
           </label>
         </div>
         <label class="song-add-field song-add-field-full">
           <span class="song-add-label">MR</span>
-          <input type="text" id="songAddMrInput" class="song-add-input" placeholder="MR (시청자 화면에는 표시되지 않아요)">
+          <input type="text" id="songAddMrInput" class="song-add-input" placeholder="MR (시청자 화면에는 표시되지 않아요)" autocomplete="off">
         </label>
         <div class="song-add-actions">
           <button type="submit" id="songAddSaveBtn" class="song-add-save-btn">저장</button>
@@ -404,17 +404,6 @@
     </div>
   </div>
 
-  <div id="mrPlayerModalBackdrop" class="song-player-modal-backdrop hidden">
-    <div class="song-player-modal">
-      <button type="button" id="mrPlayerModalClose" class="song-player-modal-close" aria-label="닫기">✕</button>
-      <iframe id="mrPlayerModalFrame" class="song-player-modal-frame" allow="autoplay; encrypted-media" allowfullscreen frameborder="0"></iframe>
-      <div class="song-player-modal-info">
-        <h3 id="mrPlayerModalTitle" class="song-player-modal-title"></h3>
-        <span id="mrPlayerModalArtist" class="song-player-modal-artist"></span>
-      </div>
-    </div>
-  </div>
-
 
   <div id="modalBackdrop" class="modal-backdrop hidden">
     <div class="modal">
@@ -442,10 +431,10 @@
         <div id="modalCafeNoticeTitle" class="modal-cafe-notice-title"></div>
       </a>
 
-      <form id="eventForm">
+      <form id="eventForm" autocomplete="off">
         <div class="event-field">
           <label class="event-field-label" for="eventTitle">일정 제목</label>
-          <input type="text" id="eventTitle" placeholder="일정" required maxlength="100">
+          <input type="text" id="eventTitle" placeholder="일정" required maxlength="100" autocomplete="off">
         </div>
         <div class="event-field-row">
           <div class="event-field event-field-half">
@@ -471,7 +460,7 @@
             <label class="event-field-label" for="eventAttendees">참여 멤버</label>
             <div class="attendees-input-row">
               <span class="attendees-icon">👤</span>
-              <input type="text" id="eventAttendees" placeholder="참여 멤버 (쉼표로 구분)" maxlength="200">
+              <input type="text" id="eventAttendees" placeholder="참여 멤버 (쉼표로 구분)" maxlength="200" autocomplete="off">
             </div>
           </div>
         </div>

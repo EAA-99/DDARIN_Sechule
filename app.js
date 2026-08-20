@@ -243,11 +243,6 @@ const song2SortSelect = document.getElementById("song2SortSelect");
 const song2Grid = document.getElementById("song2Grid");
 const favorites2ListEl = document.getElementById("favorites2List");
 const singQueueListEl = document.getElementById("singQueueList");
-const mrPlayerModalBackdrop = document.getElementById("mrPlayerModalBackdrop");
-const mrPlayerModalFrame = document.getElementById("mrPlayerModalFrame");
-const mrPlayerModalTitle = document.getElementById("mrPlayerModalTitle");
-const mrPlayerModalArtist = document.getElementById("mrPlayerModalArtist");
-const mrPlayerModalClose = document.getElementById("mrPlayerModalClose");
 const songManageBtn = document.getElementById("songManageBtn");
 const songManageToolbar = document.getElementById("songManageToolbar");
 const songSelectAllBtn = document.getElementById("songSelectAllBtn");
@@ -2036,30 +2031,10 @@ function removeFromSingQueue(key) {
 
 let draggedQueueKey = null;
 
-function extractYoutubeVideoId(url) {
-  if (!url) return null;
-  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([\w-]{11})/);
-  return match ? match[1] : null;
+function openMrLink(song) {
+  if (!song.mr) return;
+  window.open(song.mr, "_blank", "noopener,noreferrer");
 }
-
-function openMrPlayerModal(song) {
-  const videoId = extractYoutubeVideoId(song.mr);
-  if (!videoId) return;
-  mrPlayerModalFrame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-  mrPlayerModalTitle.textContent = song.title;
-  mrPlayerModalArtist.textContent = song.artist;
-  mrPlayerModalBackdrop.classList.remove("hidden");
-}
-
-function closeMrPlayerModal() {
-  mrPlayerModalBackdrop.classList.add("hidden");
-  mrPlayerModalFrame.src = "";
-}
-
-mrPlayerModalClose.addEventListener("click", closeMrPlayerModal);
-mrPlayerModalBackdrop.addEventListener("click", (e) => {
-  if (e.target === mrPlayerModalBackdrop) closeMrPlayerModal();
-});
 
 function renderSingQueueList() {
   singQueueListEl.innerHTML = "";
@@ -2106,7 +2081,7 @@ function renderSingQueueList() {
       playBtn.textContent = "▶";
       playBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        openMrPlayerModal(song);
+        openMrLink(song);
       });
       item.appendChild(playBtn);
     }
