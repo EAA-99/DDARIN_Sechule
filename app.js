@@ -1601,7 +1601,18 @@ const songAddForm = document.getElementById("songAddForm");
 const songAddTitleInput = document.getElementById("songAddTitleInput");
 const songAddArtistInput = document.getElementById("songAddArtistInput");
 const songAddGenreSelect = document.getElementById("songAddGenreSelect");
+const songAddSkillSelect = document.getElementById("songAddSkillSelect");
+const songAddNoteInput = document.getElementById("songAddNoteInput");
+const songAddMrInput = document.getElementById("songAddMrInput");
 const closeSongAddModalBtn = document.getElementById("closeSongAddModalBtn");
+const cancelSongAddBtn = document.getElementById("cancelSongAddBtn");
+
+for (let i = 0; i <= 5; i++) {
+  const option = document.createElement("option");
+  option.value = String(i);
+  option.textContent = "★".repeat(i) + "☆".repeat(5 - i);
+  songAddSkillSelect.appendChild(option);
+}
 
 function closeSongAddModal() {
   songAddModalBackdrop.classList.add("hidden");
@@ -1609,6 +1620,12 @@ function closeSongAddModal() {
 
 function openSongAddModal() {
   songAddGenreSelect.innerHTML = "";
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.disabled = true;
+  placeholder.selected = true;
+  placeholder.textContent = "장르 선택";
+  songAddGenreSelect.appendChild(placeholder);
   songbookGenresList.forEach((genre) => {
     const option = document.createElement("option");
     option.value = genre;
@@ -1622,6 +1639,7 @@ function openSongAddModal() {
 
 songAddBtn.addEventListener("click", openSongAddModal);
 closeSongAddModalBtn.addEventListener("click", closeSongAddModal);
+cancelSongAddBtn.addEventListener("click", closeSongAddModal);
 songAddModalBackdrop.addEventListener("click", (e) => {
   if (e.target === songAddModalBackdrop) closeSongAddModal();
 });
@@ -1633,7 +1651,11 @@ songAddForm.addEventListener("submit", (e) => {
   const genre = songAddGenreSelect.value;
   if (!title || !artist || !genre) return;
 
-  const song = { genre, artist, title };
+  const skill = Number(songAddSkillSelect.value);
+  const note = songAddNoteInput.value.trim();
+  const mr = songAddMrInput.value.trim();
+
+  const song = { genre, artist, title, skill, note, mr };
   allSongs = allSongs || [];
   allSongs.push(song);
   songByKey[albumArtCacheKey(song)] = song;
@@ -2409,6 +2431,7 @@ function updateLockUi() {
   editLockBtn.title = label;
   editLockBtn.setAttribute("aria-label", label);
   loginBtnLabel.textContent = isReadOnly ? "로그인" : "로그아웃";
+  songAddBtn.classList.toggle("hidden", isReadOnly);
 }
 
 async function tryAutoUnlock() {

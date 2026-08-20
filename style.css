@@ -1912,8 +1912,8 @@ body {
   height: 34px;
   border: none;
   border-radius: 50%;
-  background: #8a6d3b;
-  color: #fff;
+  background: #cfe8fb;
+  color: #1c5fa8;
   font-size: 1.2rem;
   font-weight: 700;
   line-height: 1;
@@ -1924,13 +1924,124 @@ body {
 }
 
 .song-add-btn:hover {
-  background: #75592f;
+  background: #bfe0fa;
 }
 
-#songAddTitleInput,
-#songAddArtistInput,
-#songAddGenreSelect {
-  width: 160px;
+#songAddModalBackdrop .modal {
+  background: #1c1c24;
+  color: #e7e7ee;
+  max-width: 620px;
+  border-radius: 16px;
+}
+
+#songAddModalBackdrop .modal h2 {
+  color: #fff;
+}
+
+#songAddModalBackdrop .modal-close-x {
+  color: #8a8a96;
+}
+
+.song-add-row {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.song-add-row-2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.song-add-row-3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.song-add-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.song-add-field-full {
+  margin-bottom: 20px;
+}
+
+.song-add-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #b4b4c2;
+}
+
+.song-add-input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #3a3a45;
+  background: #26262f;
+  color: #f0f0f5;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.song-add-input::placeholder {
+  color: #6b6b78;
+}
+
+.song-add-input:focus {
+  outline: none;
+  border-color: #7fb8ea;
+}
+
+select.song-add-input {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 30px;
+  cursor: pointer;
+}
+
+.song-add-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.song-add-save-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 24px;
+  background: #ff6fa5;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.song-add-save-btn:hover {
+  background: #ff5695;
+}
+
+.song-add-cancel-btn {
+  border: 1px solid #4a4a56;
+  border-radius: 999px;
+  padding: 10px 24px;
+  background: transparent;
+  color: #d8d8e0;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.song-add-cancel-btn:hover {
+  background: #2a2a33;
+}
+
+@media (max-width: 560px) {
+  .song-add-row-2,
+  .song-add-row-3 {
+    grid-template-columns: 1fr;
+  }
 }
 
 .songbook-header h1 {

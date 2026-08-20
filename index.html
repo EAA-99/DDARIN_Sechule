@@ -152,7 +152,7 @@
     <div class="songbook-header">
       <h1>노래책</h1>
       <div class="songbook-header-actions">
-        <button type="button" id="songAddBtn" class="song-add-btn" aria-label="곡 추가" title="곡 추가">+</button>
+        <button type="button" id="songAddBtn" class="song-add-btn hidden" aria-label="곡 추가" title="곡 추가">+</button>
         <select id="song2SortSelect" class="song-sort-select">
           <option value="artist">가수이름순</option>
           <option value="title">가나다순</option>
@@ -187,19 +187,45 @@
   </div>
 
   <div id="songAddModalBackdrop" class="modal-backdrop hidden">
-    <div class="modal">
+    <div class="modal song-add-modal">
       <div class="modal-header-row">
         <h2>곡 추가</h2>
         <button type="button" id="closeSongAddModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
       </div>
-      <form id="songAddForm">
-        <div class="memo-add-fields-grid">
-          <input type="text" id="songAddTitleInput" class="memo-add-modal-input" placeholder="제목" maxlength="200" required>
-          <input type="text" id="songAddArtistInput" class="memo-add-modal-input" placeholder="가수" maxlength="200" required>
-          <select id="songAddGenreSelect" class="memo-add-modal-input"></select>
+      <form id="songAddForm" class="song-add-form">
+        <div class="song-add-row song-add-row-2">
+          <label class="song-add-field">
+            <span class="song-add-label">제목</span>
+            <input type="text" id="songAddTitleInput" class="song-add-input" placeholder="제목" maxlength="200" required>
+          </label>
+          <label class="song-add-field">
+            <span class="song-add-label">가수</span>
+            <input type="text" id="songAddArtistInput" class="song-add-input" placeholder="가수" maxlength="200" required>
+          </label>
         </div>
-        <div class="modal-actions">
-          <button type="submit" class="primary-btn">추가</button>
+        <div class="song-add-row song-add-row-3">
+          <label class="song-add-field">
+            <span class="song-add-label">장르</span>
+            <select id="songAddGenreSelect" class="song-add-input" required>
+              <option value="" disabled selected>장르 선택</option>
+            </select>
+          </label>
+          <label class="song-add-field">
+            <span class="song-add-label">숙련도</span>
+            <select id="songAddSkillSelect" class="song-add-input"></select>
+          </label>
+          <label class="song-add-field">
+            <span class="song-add-label">비고</span>
+            <input type="text" id="songAddNoteInput" class="song-add-input" placeholder="비고 (쉼표로 여러개)">
+          </label>
+        </div>
+        <label class="song-add-field song-add-field-full">
+          <span class="song-add-label">MR</span>
+          <input type="text" id="songAddMrInput" class="song-add-input" placeholder="MR (시청자 화면에는 표시되지 않아요)">
+        </label>
+        <div class="song-add-actions">
+          <button type="submit" class="song-add-save-btn">저장</button>
+          <button type="button" id="cancelSongAddBtn" class="song-add-cancel-btn">취소</button>
         </div>
       </form>
     </div>
