@@ -1387,8 +1387,21 @@ const todayMemoModalList = document.getElementById("todayMemoModalList");
 const todayMemoHideTodayBtn = document.getElementById("todayMemoHideTodayBtn");
 const todayMemoCloseBtn = document.getElementById("todayMemoCloseBtn");
 const closeTodayMemoModalBtn = document.getElementById("closeTodayMemoModalBtn");
-const TODAY_MEMO_POPUP_KEY = "today-memo-popup-dismissed-date";
+const TODAY_MEMO_POPUP_DISMISS_KEY = "today-memo-popup-dismissed";
 let todayMemoPopupOnDone = null;
+let todayMemoPopupIds = [];
+
+function loadMemoDismissMap() {
+  try {
+    return JSON.parse(localStorage.getItem(TODAY_MEMO_POPUP_DISMISS_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveMemoDismissMap(map) {
+  localStorage.setItem(TODAY_MEMO_POPUP_DISMISS_KEY, JSON.stringify(map));
+}
 
 function closeTodayMemoModal() {
   todayMemoModalBackdrop.classList.add("hidden");
@@ -1399,16 +1412,19 @@ function closeTodayMemoModal() {
 
 function showTodayMemoPopupIfNeeded(onDone) {
   const today = todayKey();
-  const todaysMemos =
-    localStorage.getItem(TODAY_MEMO_POPUP_KEY) === today
-      ? []
-      : sharedMemoItems.filter((item) => item.date === today);
+  const dismissMap = loadMemoDismissMap();
+  const todaysMemos = sharedMemoItems.filter((item) => {
+    if (item.date !== today) return false;
+    const dismissedUntil = dismissMap[item.id];
+    return !(dismissedUntil && dismissedUntil >= today);
+  });
 
   if (!todaysMemos.length) {
     if (onDone) onDone();
     return;
   }
 
+  todayMemoPopupIds = todaysMemos.map((item) => item.id);
   todayMemoPopupOnDone = onDone || null;
   renderMemoCards(todayMemoModalList, todaysMemos, false, null, null);
   todayMemoModalBackdrop.classList.remove("hidden");
@@ -1417,7 +1433,12 @@ function showTodayMemoPopupIfNeeded(onDone) {
 closeTodayMemoModalBtn.addEventListener("click", closeTodayMemoModal);
 todayMemoCloseBtn.addEventListener("click", closeTodayMemoModal);
 todayMemoHideTodayBtn.addEventListener("click", () => {
-  localStorage.setItem(TODAY_MEMO_POPUP_KEY, todayKey());
+  const dismissMap = loadMemoDismissMap();
+  const today = todayKey();
+  todayMemoPopupIds.forEach((id) => {
+    dismissMap[id] = today;
+  });
+  saveMemoDismissMap(dismissMap);
   closeTodayMemoModal();
 });
 todayMemoModalBackdrop.addEventListener("click", (e) => {
