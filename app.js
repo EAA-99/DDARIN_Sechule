@@ -3272,6 +3272,8 @@ function renderTodayYoutube(videos) {
   window.addEventListener("resize", positionTodayYoutubeCard);
 })();
 
+let wasSoopLive = false;
+
 async function checkLiveStatus() {
   try {
     const res = await fetch("https://chapi.sooplive.com/api/insome0319/station", {
@@ -3280,8 +3282,9 @@ async function checkLiveStatus() {
     const data = await res.json();
     const broad = data && data.broad;
     const broadNo = broad && (broad.broad_no || broad.broadNo);
+    const isLive = !!broadNo;
 
-    if (broadNo) {
+    if (isLive) {
       todayScheduleLive.classList.remove("hidden");
       todayScheduleThumb.src = `https://liveimg.sooplive.co.kr/m/${broadNo}`;
       todayScheduleThumbTitle.textContent = broad.broad_title || broad.title || "";
@@ -3291,6 +3294,14 @@ async function checkLiveStatus() {
       todayScheduleLive.classList.add("hidden");
       todayScheduleThumbLink.classList.add("hidden");
     }
+
+    // 방송이 "켜짐 → 꺼짐"으로 바뀌는 순간을 방종대기 시작으로 보고 자동으로 채팅 수집을 시작합니다.
+    // (방종대기도 오프라인으로 잡히는지는 실제 방송으로 확인 필요 — 안 되면 수동 버튼으로 시작해주세요)
+    if (wasSoopLive && !isLive && !isReadOnly) {
+      soopChatModalBackdrop.classList.remove("hidden");
+      startSoopChatCollection();
+    }
+    wasSoopLive = isLive;
   } catch {
     todayScheduleLive.classList.add("hidden");
     todayScheduleThumbLink.classList.add("hidden");
