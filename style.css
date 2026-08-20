@@ -878,6 +878,14 @@ body {
   border-bottom: none;
 }
 
+.event-card.manageable {
+  cursor: grab;
+}
+
+.event-card.dragging {
+  opacity: 0.4;
+}
+
 .event-card-title {
   font-size: 1.2rem;
   font-weight: 700;

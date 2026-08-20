@@ -203,6 +203,7 @@ let selectedHex = null;
 let editingIndex = null;
 let managingMode = false;
 let expandedIndex = null;
+let draggedEventIndex = null;
 
 const editLockBtn = document.getElementById("editLockBtn");
 const loginBtnLabel = document.getElementById("loginBtnLabel");
@@ -2702,6 +2703,32 @@ function renderEventList() {
     }
 
     card.classList.add("manageable");
+    card.draggable = true;
+
+    card.addEventListener("dragstart", () => {
+      draggedEventIndex = idx;
+      card.classList.add("dragging");
+    });
+    card.addEventListener("dragend", () => {
+      draggedEventIndex = null;
+      card.classList.remove("dragging");
+    });
+    card.addEventListener("dragover", (e) => e.preventDefault());
+    card.addEventListener("drop", (e) => {
+      e.preventDefault();
+      if (draggedEventIndex === null || draggedEventIndex === idx) return;
+      const events = loadEvents();
+      const dayList = events[selectedDateKey] || [];
+      const [moved] = dayList.splice(draggedEventIndex, 1);
+      dayList.splice(idx, 0, moved);
+      events[selectedDateKey] = dayList;
+      saveEvents(events);
+      expandedIndex = null;
+      eventForm.classList.add("hidden");
+      renderEventList();
+      refreshCurrentView();
+    });
+
     const header = document.createElement("div");
     header.className = "event-card-header";
 
