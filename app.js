@@ -58,8 +58,7 @@ const weekPrevBtn = document.getElementById("weekPrevBtn");
 const weekNextBtn = document.getElementById("weekNextBtn");
 const dayCellMenu = document.getElementById("dayCellMenu");
 const dayCellSoopSummaryEl = document.getElementById("dayCellSoopSummary");
-const dayCellCafeNotice = document.getElementById("dayCellCafeNotice");
-const dayCellCafeNoticeTitle = document.getElementById("dayCellCafeNoticeTitle");
+const dayCellChatBtn = document.getElementById("dayCellChatBtn");
 
 const CAFE_API_URL = "/api/cafe";
 const BROADCAST_SUMMARY_API_URL = "/api/broadcast-summary";
@@ -161,29 +160,10 @@ async function loadDayCellBroadcastSummary(dateKeyStr) {
   repositionDayCellMenu();
 }
 
-async function loadDayCellCafeNotice(dateKeyStr) {
-  dayCellCafeNoticeTitle.textContent = "불러오는 중...";
-  dayCellCafeNotice.classList.remove("hidden");
-  repositionDayCellMenu();
-  try {
-    const posts = await fetchCafeNoticeCached(dateKeyStr);
-    if (dayCellMenuDate !== dateKeyStr) return;
-    if (posts && posts.length) {
-      dayCellCafeNoticeTitle.textContent = posts[0].title;
-      dayCellCafeNotice.href = posts[0].url;
-    } else {
-      dayCellCafeNotice.classList.add("hidden");
-    }
-  } catch {
-    if (dayCellMenuDate === dateKeyStr) dayCellCafeNotice.classList.add("hidden");
-  }
-  repositionDayCellMenu();
-}
-
 function openDayCellMenu(anchorEl, dateKeyStr) {
   dayCellMenuDate = dateKeyStr;
   dayCellSoopSummaryEl.classList.add("hidden");
-  dayCellCafeNotice.classList.add("hidden");
+  dayCellChatBtn.classList.toggle("hidden", isReadOnly);
 
   const rect = anchorEl.getBoundingClientRect();
   dayCellMenu.classList.remove("hidden");
@@ -192,12 +172,15 @@ function openDayCellMenu(anchorEl, dateKeyStr) {
 
   window.addEventListener("scroll", repositionDayCellMenu, true);
   window.addEventListener("resize", repositionDayCellMenu);
-
-  loadDayCellCafeNotice(dateKeyStr);
 }
 
 document.getElementById("dayCellSoopBtn").addEventListener("click", () => {
   if (dayCellMenuDate) loadDayCellBroadcastSummary(dayCellMenuDate);
+});
+
+dayCellChatBtn.addEventListener("click", () => {
+  closeDayCellMenu();
+  soopChatModalBackdrop.classList.remove("hidden");
 });
 
 document.addEventListener("click", (e) => {
@@ -3076,7 +3059,6 @@ function updateLockUi() {
   loginBtnLabel.textContent = isReadOnly ? "로그인" : "로그아웃";
   if (isReadOnly && songManageMode) closeSongManageMode();
   songManageBtn.classList.toggle("hidden", isReadOnly || songManageMode);
-  soopChatBtn.classList.toggle("hidden", isReadOnly);
 }
 
 async function tryAutoUnlock() {
@@ -3299,7 +3281,6 @@ async function checkLiveStatus() {
 const SOOP_CHAT_TICKET_API_URL = "/api/soop-chat-ticket";
 const SOOP_CHAT_COLLECT_MS = 10 * 60 * 1000; // 10분
 
-const soopChatBtn = document.getElementById("soopChatBtn");
 const soopChatModalBackdrop = document.getElementById("soopChatModalBackdrop");
 const closeSoopChatModalBtn = document.getElementById("closeSoopChatModalBtn");
 const soopChatStatusEl = document.getElementById("soopChatStatus");
@@ -3416,9 +3397,6 @@ function stopSoopChatCollection() {
   soopChatStatusEl.textContent = `수집 종료 (${soopChatMessages.length}개 수집됨)`;
 }
 
-soopChatBtn.addEventListener("click", () => {
-  soopChatModalBackdrop.classList.remove("hidden");
-});
 closeSoopChatModalBtn.addEventListener("click", () => {
   soopChatModalBackdrop.classList.add("hidden");
 });

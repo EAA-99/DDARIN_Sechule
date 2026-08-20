@@ -370,9 +370,6 @@
       <button type="button" id="gameBtn" class="side-nav-btn" aria-label="게임">
         <img class="side-nav-icon" src="게임메뉴.png" alt="">게임
       </button>
-      <button type="button" id="soopChatBtn" class="side-nav-btn hidden" aria-label="채팅 수집">
-        <img class="side-nav-icon" src="soop-icon.png" alt="">채팅 수집
-      </button>
       <button type="button" id="editLockBtn" class="side-nav-btn" title="로그인" aria-label="로그인">
         <img class="side-nav-icon" src="로그인.png" alt=""><span id="loginBtnLabel">로그인</span>
       </button>
@@ -386,10 +383,10 @@
       <span id="dayCellSoopBtnLabel">방송 요약</span>
     </button>
     <div id="dayCellSoopSummary" class="day-cell-summary hidden"></div>
-    <a id="dayCellCafeNotice" class="day-cell-cafe-notice hidden" target="_blank" rel="noopener">
-      <span class="day-cell-cafe-notice-label">따카오톡</span>
-      <span id="dayCellCafeNoticeTitle" class="day-cell-cafe-notice-title"></span>
-    </a>
+    <button type="button" id="dayCellChatBtn" class="day-cell-menu-item hidden">
+      <img class="day-cell-menu-icon" src="soop-icon.png" alt="">
+      <span>채팅 수집</span>
+    </button>
   </div>
 
   <div id="songPlayerModalBackdrop" class="song-player-modal-backdrop hidden">
