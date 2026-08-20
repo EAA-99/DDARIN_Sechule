@@ -1,4 +1,4 @@
-const CACHE_NAME = "ddarin-calendar-v224";
+const CACHE_NAME = "ddarin-calendar-v225";
 const ASSETS = [
   "./",
   "./index.html",

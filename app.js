@@ -182,7 +182,7 @@ document.addEventListener("click", (e) => {
   }
 });
 let viewMode = "list";
-let cardWeekStart = getMonday(new Date());
+let cardWeekStart = getWeekStart(new Date());
 const modalBackdrop = document.getElementById("modalBackdrop");
 const modalDate = document.getElementById("modalDate");
 const eventList = document.getElementById("eventList");
@@ -1468,23 +1468,23 @@ function todayKey() {
   return dateKey(t.getFullYear(), t.getMonth(), t.getDate());
 }
 
-function getMonday(date) {
+function getWeekStart(date) {
   const d = new Date(date);
-  const diff = (d.getDay() + 6) % 7; // 0=월 ... 6=일
+  const diff = d.getDay(); // 0=일 ... 6=토 (이미 일요일 시작이므로 그대로 사용)
   d.setDate(d.getDate() - diff);
   d.setHours(0, 0, 0, 0);
   return d;
 }
 
 function firstWeekOfMonth(monthIndex) {
-  return getMonday(new Date(YEAR, monthIndex, 1));
+  return getWeekStart(new Date(YEAR, monthIndex, 1));
 }
 
 function lastWeekOfMonth(monthIndex) {
-  return getMonday(new Date(YEAR, monthIndex + 1, 0));
+  return getWeekStart(new Date(YEAR, monthIndex + 1, 0));
 }
 
-const WEEKDAY_LABELS = ["월", "화", "수", "목", "금", "토", "일"];
+const WEEKDAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
 
 const ATTENDEE_RE = /\s+w\.\s*(.+)$/i;
 
@@ -1578,7 +1578,7 @@ function renderGrid() {
 
   grid.innerHTML = "";
 
-  const firstDay = (new Date(YEAR, currentMonth, 1).getDay() + 6) % 7; // 0=월 ... 6=일
+  const firstDay = new Date(YEAR, currentMonth, 1).getDay(); // 0=일 ... 6=토
   const daysInMonth = new Date(YEAR, currentMonth + 1, 0).getDate();
   const today = todayKey();
 
@@ -1688,7 +1688,7 @@ function renderCardView() {
 function resetCardWeekToMonth() {
   const first = firstWeekOfMonth(currentMonth);
   const last = lastWeekOfMonth(currentMonth);
-  const todayWeek = getMonday(new Date());
+  const todayWeek = getWeekStart(new Date());
   cardWeekStart = todayWeek >= first && todayWeek <= last ? todayWeek : first;
 }
 
