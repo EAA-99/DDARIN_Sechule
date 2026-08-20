@@ -972,6 +972,9 @@ async function openSongbook() {
 
 songbookBtn.addEventListener("click", openSongbook);
 document.getElementById("calendarBtn").addEventListener("click", () => showMainView("calendar"));
+document.getElementById("songbook2Btn").addEventListener("click", () => {
+  alert("노래책은 준비 중입니다.");
+});
 function syncGameViewHeight() {
   const wasHidden = songbookView.classList.contains("hidden");
   if (wasHidden) songbookView.classList.remove("hidden");
