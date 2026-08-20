@@ -154,7 +154,7 @@
       <div class="songbook-header-actions">
         <button type="button" id="songManageBtn" class="song-gear-btn hidden" aria-label="곡 관리" title="곡 관리">⚙️</button>
         <div id="songManageToolbar" class="song-manage-toolbar hidden">
-          <button type="button" id="songAddBtn" class="song-add-btn" aria-label="곡 추가" title="곡 추가">+</button>
+          <button type="button" id="songAddBtn" class="song-manage-btn" aria-label="곡 추가" title="곡 추가">+</button>
           <button type="button" id="songSelectAllBtn" class="song-manage-btn">전체선택</button>
           <button type="button" id="songDeleteSelectedBtn" class="song-manage-btn song-manage-btn-danger">선택삭제</button>
           <button type="button" id="songQueueAddBtn" class="song-manage-btn">대기열 추가</button>
@@ -201,7 +201,7 @@
   <div id="songAddModalBackdrop" class="modal-backdrop hidden">
     <div class="modal song-add-modal">
       <div class="modal-header-row">
-        <h2>곡 추가</h2>
+        <h2 id="songAddModalTitle">곡 추가</h2>
         <button type="button" id="closeSongAddModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
       </div>
       <form id="songAddForm" class="song-add-form">
@@ -246,7 +246,7 @@
           <input type="text" id="songAddMrInput" class="song-add-input" placeholder="MR (시청자 화면에는 표시되지 않아요)">
         </label>
         <div class="song-add-actions">
-          <button type="submit" class="song-add-save-btn">저장</button>
+          <button type="submit" id="songAddSaveBtn" class="song-add-save-btn">저장</button>
           <button type="button" id="cancelSongAddBtn" class="song-add-cancel-btn">취소</button>
         </div>
       </form>

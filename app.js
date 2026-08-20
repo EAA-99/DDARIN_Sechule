@@ -1038,8 +1038,15 @@ function buildSongCard(song, options) {
   genreEl.className = "song-card-genre";
   genreEl.textContent = song.genre;
 
-  if (checkboxEl) card.appendChild(checkboxEl);
-  card.append(artEl, favBtn, titleEl, artistEl, genreEl);
+  card.appendChild(artEl);
+  if (checkboxEl) {
+    const titleRow = document.createElement("div");
+    titleRow.className = "song-card-title-row";
+    titleRow.append(checkboxEl, titleEl);
+    card.append(titleRow, favBtn, artistEl, genreEl);
+  } else {
+    card.append(favBtn, titleEl, artistEl, genreEl);
+  }
   if (playable) {
     card.addEventListener("click", () => playSong(song));
   } else {
@@ -1636,6 +1643,8 @@ song2SortSelect.addEventListener("change", () => {
 
 const songAddBtn = document.getElementById("songAddBtn");
 const songAddModalBackdrop = document.getElementById("songAddModalBackdrop");
+const songAddModalTitle = document.getElementById("songAddModalTitle");
+const songAddSaveBtn = document.getElementById("songAddSaveBtn");
 const songAddForm = document.getElementById("songAddForm");
 const songAddTitleInput = document.getElementById("songAddTitleInput");
 const songAddArtistInput = document.getElementById("songAddArtistInput");
@@ -1738,11 +1747,30 @@ function closeSongAddModal() {
   songAddModalBackdrop.classList.add("hidden");
 }
 
+let songEditTarget = null;
+
 function openSongAddModal() {
+  const selectedKeys = [...selectedSongKeys];
+  songEditTarget = selectedKeys.length === 1 ? songByKey[selectedKeys[0]] : null;
+
+  songAddModalTitle.textContent = songEditTarget ? "곡 편집" : "곡 추가";
+  songAddSaveBtn.textContent = songEditTarget ? "수정" : "저장";
+
   songAddGenreSelect.setOptions(songbookGenresList.map((g) => ({ value: g, label: g })));
-  songAddGenreSelect.setValue("");
-  songAddSkillSelect.setValue(0);
-  songAddForm.reset();
+
+  if (songEditTarget) {
+    songAddTitleInput.value = songEditTarget.title;
+    songAddArtistInput.value = songEditTarget.artist;
+    songAddNoteInput.value = songEditTarget.note || "";
+    songAddMrInput.value = songEditTarget.mr || "";
+    songAddGenreSelect.setValue(songEditTarget.genre);
+    songAddSkillSelect.setValue(songEditTarget.skill || 0);
+  } else {
+    songAddForm.reset();
+    songAddGenreSelect.setValue("");
+    songAddSkillSelect.setValue(0);
+  }
+
   songAddModalBackdrop.classList.remove("hidden");
   songAddTitleInput.focus();
 }
@@ -1765,10 +1793,33 @@ songAddForm.addEventListener("submit", (e) => {
   const note = songAddNoteInput.value.trim();
   const mr = songAddMrInput.value.trim();
 
-  const song = { genre, artist, title, skill, note, mr };
-  allSongs = allSongs || [];
-  allSongs.push(song);
-  songByKey[albumArtCacheKey(song)] = song;
+  if (songEditTarget) {
+    const oldKey = albumArtCacheKey(songEditTarget);
+    songEditTarget.genre = genre;
+    songEditTarget.artist = artist;
+    songEditTarget.title = title;
+    songEditTarget.skill = skill;
+    songEditTarget.note = note;
+    songEditTarget.mr = mr;
+    const newKey = albumArtCacheKey(songEditTarget);
+
+    if (newKey !== oldKey) {
+      delete songByKey[oldKey];
+      const favIdx = songFavoritesOrder.indexOf(oldKey);
+      if (favIdx !== -1) songFavoritesOrder[favIdx] = newKey;
+      const queueIdx = singQueueOrder.indexOf(oldKey);
+      if (queueIdx !== -1) singQueueOrder[queueIdx] = newKey;
+      localStorage.setItem(SONG_FAVORITES_KEY, JSON.stringify(songFavoritesOrder));
+      saveSingQueue();
+    }
+    songByKey[newKey] = songEditTarget;
+    selectedSongKeys.clear();
+  } else {
+    const song = { genre, artist, title, skill, note, mr };
+    allSongs = allSongs || [];
+    allSongs.push(song);
+    songByKey[albumArtCacheKey(song)] = song;
+  }
 
   renderGenreTabs(songbookGenresList);
   renderGenreTabs2(songbookGenresList);
@@ -1776,6 +1827,8 @@ songAddForm.addEventListener("submit", (e) => {
   renderArtistList2();
   renderSongGrid();
   renderSongGrid2();
+  renderFavorites2List();
+  renderSingQueueList();
 
   closeSongAddModal();
 });
