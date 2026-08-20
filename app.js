@@ -532,29 +532,45 @@ function albumArtCacheKey(song) {
   return `${song.artist}|${song.title}`.toLowerCase();
 }
 
-const SONGBOOK_LOCAL_KEY = "songbook-local-overrides";
-const SONGBOOK_DELETED_KEY = "songbook-local-deletions";
+const SONGBOOK_LOCAL_API_URL = "/api/songbook";
 
 let localSongOverrides = {};
-try {
-  localSongOverrides = JSON.parse(localStorage.getItem(SONGBOOK_LOCAL_KEY)) || {};
-} catch {
-  localSongOverrides = {};
-}
-
 let localSongDeletions = new Set();
-try {
-  localSongDeletions = new Set(JSON.parse(localStorage.getItem(SONGBOOK_DELETED_KEY)) || []);
-} catch {
-  localSongDeletions = new Set();
+let songbookLocalDataPromise = null;
+
+function ensureSongbookLocalData() {
+  if (!songbookLocalDataPromise) {
+    songbookLocalDataPromise = fetch(SONGBOOK_LOCAL_API_URL)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        localSongOverrides = (data && data.overrides) || {};
+        localSongDeletions = new Set((data && data.deletions) || []);
+      })
+      .catch(() => {
+        localSongOverrides = {};
+        localSongDeletions = new Set();
+      });
+  }
+  return songbookLocalDataPromise;
 }
 
-function saveLocalSongOverrides() {
-  localStorage.setItem(SONGBOOK_LOCAL_KEY, JSON.stringify(localSongOverrides));
-}
-
-function saveLocalSongDeletions() {
-  localStorage.setItem(SONGBOOK_DELETED_KEY, JSON.stringify([...localSongDeletions]));
+async function saveSongbookLocalData() {
+  const { username, password } = getStoredCreds();
+  if (!username || !password) return;
+  try {
+    await fetch(SONGBOOK_LOCAL_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username,
+        password,
+        overrides: localSongOverrides,
+        deletions: [...localSongDeletions],
+      }),
+    });
+  } catch {
+    // 네트워크 오류 시에도 로컬 상태는 이미 반영되어 있으므로 화면은 정상 동작
+  }
 }
 
 let songSeqCounter = 0;
@@ -563,7 +579,7 @@ let songbookGenresList = [];
 
 function ensureSongbookSongs() {
   if (!songbookSongsPromise) {
-    songbookSongsPromise = fetchSongbookSongs().then((songs) => {
+    songbookSongsPromise = Promise.all([fetchSongbookSongs(), ensureSongbookLocalData()]).then(([songs]) => {
       const merged = [];
       const seenKeys = new Set();
 
@@ -1888,11 +1904,10 @@ songAddForm.addEventListener("submit", (e) => {
       if (queueIdx !== -1) singQueueOrder[queueIdx] = newKey;
       localStorage.setItem(SONG_FAVORITES_KEY, JSON.stringify(songFavoritesOrder));
       saveSingQueue();
-      saveLocalSongDeletions();
     }
     songByKey[newKey] = songEditTarget;
     localSongOverrides[newKey] = songEditTarget;
-    saveLocalSongOverrides();
+    saveSongbookLocalData();
     selectedSongKeys.clear();
   } else {
     const song = { genre, artist, title, skill, note, mr, seq: songSeqCounter++ };
@@ -1901,7 +1916,7 @@ songAddForm.addEventListener("submit", (e) => {
     const key = albumArtCacheKey(song);
     songByKey[key] = song;
     localSongOverrides[key] = song;
-    saveLocalSongOverrides();
+    saveSongbookLocalData();
   }
 
   renderGenreTabs(songbookGenresList);
@@ -1960,8 +1975,7 @@ songDeleteSelectedBtn.addEventListener("click", () => {
     delete localSongOverrides[key];
     localSongDeletions.add(key);
   });
-  saveLocalSongOverrides();
-  saveLocalSongDeletions();
+  saveSongbookLocalData();
   selectedSongKeys.clear();
 
   songbookGenresList = [...new Set(allSongs.map((s) => s.genre))];
