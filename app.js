@@ -1600,38 +1600,109 @@ const songAddModalBackdrop = document.getElementById("songAddModalBackdrop");
 const songAddForm = document.getElementById("songAddForm");
 const songAddTitleInput = document.getElementById("songAddTitleInput");
 const songAddArtistInput = document.getElementById("songAddArtistInput");
-const songAddGenreSelect = document.getElementById("songAddGenreSelect");
-const songAddSkillSelect = document.getElementById("songAddSkillSelect");
 const songAddNoteInput = document.getElementById("songAddNoteInput");
 const songAddMrInput = document.getElementById("songAddMrInput");
 const closeSongAddModalBtn = document.getElementById("closeSongAddModalBtn");
 const cancelSongAddBtn = document.getElementById("cancelSongAddBtn");
 
-for (let i = 0; i <= 5; i++) {
-  const option = document.createElement("option");
-  option.value = String(i);
-  option.textContent = "★".repeat(i) + "☆".repeat(5 - i);
-  songAddSkillSelect.appendChild(option);
+function renderPlainOptionLabel(opt) {
+  const span = document.createElement("span");
+  span.textContent = opt.label;
+  return span;
 }
+
+function renderStarOptionLabel(opt) {
+  const frag = document.createDocumentFragment();
+  const filled = document.createElement("span");
+  filled.className = "star-filled";
+  filled.textContent = "★".repeat(opt.value);
+  const empty = document.createElement("span");
+  empty.className = "star-empty";
+  empty.textContent = "☆".repeat(5 - opt.value);
+  frag.append(filled, empty);
+  return frag;
+}
+
+function setupCustomSelect(root, { options, initialValue, placeholderLabel, renderLabel }) {
+  const trigger = root.querySelector(".song-select-trigger");
+  const triggerLabel = trigger.querySelector(".song-select-trigger-label");
+  const panel = root.querySelector(".song-select-panel");
+
+  function setValue(value) {
+    root.dataset.value = value;
+    const opt = options.find((o) => String(o.value) === String(value));
+    triggerLabel.innerHTML = "";
+    triggerLabel.classList.toggle("placeholder", !opt);
+    if (opt) {
+      triggerLabel.append(renderLabel(opt));
+    } else {
+      triggerLabel.textContent = placeholderLabel || "";
+    }
+  }
+
+  function closePanel() {
+    panel.classList.add("hidden");
+  }
+
+  function openPanel() {
+    panel.innerHTML = "";
+    options.forEach((opt) => {
+      const item = document.createElement("div");
+      item.className = "song-select-option";
+      item.append(renderLabel(opt));
+      item.addEventListener("click", () => {
+        setValue(opt.value);
+        closePanel();
+      });
+      panel.appendChild(item);
+    });
+    document.querySelectorAll(".song-select-panel").forEach((p) => p.classList.add("hidden"));
+    panel.classList.remove("hidden");
+  }
+
+  trigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (panel.classList.contains("hidden")) openPanel();
+    else closePanel();
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!root.contains(e.target)) closePanel();
+  });
+
+  setValue(initialValue);
+
+  return {
+    getValue: () => root.dataset.value,
+    setValue,
+    setOptions: (newOptions) => {
+      options = newOptions;
+    },
+  };
+}
+
+const songAddGenreSelect = setupCustomSelect(document.getElementById("songAddGenreSelect"), {
+  options: [],
+  initialValue: "",
+  placeholderLabel: "장르 선택",
+  renderLabel: renderPlainOptionLabel,
+});
+
+const songAddSkillOptions = [0, 1, 2, 3, 4, 5].map((n) => ({ value: n, label: "★".repeat(n) + "☆".repeat(5 - n) }));
+const songAddSkillSelect = setupCustomSelect(document.getElementById("songAddSkillSelect"), {
+  options: songAddSkillOptions,
+  initialValue: 0,
+  renderLabel: renderStarOptionLabel,
+});
 
 function closeSongAddModal() {
   songAddModalBackdrop.classList.add("hidden");
 }
 
 function openSongAddModal() {
-  songAddGenreSelect.innerHTML = "";
-  const placeholder = document.createElement("option");
-  placeholder.value = "";
-  placeholder.disabled = true;
-  placeholder.selected = true;
-  placeholder.textContent = "장르 선택";
-  songAddGenreSelect.appendChild(placeholder);
-  songbookGenresList.forEach((genre) => {
-    const option = document.createElement("option");
-    option.value = genre;
-    option.textContent = genre;
-    songAddGenreSelect.appendChild(option);
-  });
+  songAddGenreSelect.setOptions(songbookGenresList.map((g) => ({ value: g, label: g })));
+  songAddGenreSelect.setValue("");
+  songAddSkillSelect.setValue(0);
   songAddForm.reset();
   songAddModalBackdrop.classList.remove("hidden");
   songAddTitleInput.focus();
@@ -1648,10 +1719,10 @@ songAddForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const title = songAddTitleInput.value.trim();
   const artist = songAddArtistInput.value.trim();
-  const genre = songAddGenreSelect.value;
+  const genre = songAddGenreSelect.getValue();
   if (!title || !artist || !genre) return;
 
-  const skill = Number(songAddSkillSelect.value);
+  const skill = Number(songAddSkillSelect.getValue());
   const note = songAddNoteInput.value.trim();
   const mr = songAddMrInput.value.trim();
 

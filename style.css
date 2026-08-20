@@ -1928,18 +1928,10 @@ body {
 }
 
 #songAddModalBackdrop .modal {
-  background: #1c1c24;
-  color: #e7e7ee;
+  background: #fff;
+  border: 6px solid #cfe2f7;
   max-width: 620px;
   border-radius: 16px;
-}
-
-#songAddModalBackdrop .modal h2 {
-  color: #fff;
-}
-
-#songAddModalBackdrop .modal-close-x {
-  color: #8a8a96;
 }
 
 .song-add-row {
@@ -1969,21 +1961,21 @@ body {
 .song-add-label {
   font-size: 0.82rem;
   font-weight: 600;
-  color: #b4b4c2;
+  color: #777;
 }
 
 .song-add-input {
   padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid #3a3a45;
-  background: #26262f;
-  color: #f0f0f5;
+  border: 1px solid #eee;
+  background: #fff;
+  color: #222;
   font-size: 0.9rem;
   font-family: inherit;
 }
 
 .song-add-input::placeholder {
-  color: #6b6b78;
+  color: #aaa;
 }
 
 .song-add-input:focus {
@@ -1991,14 +1983,68 @@ body {
   border-color: #7fb8ea;
 }
 
-select.song-add-input {
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 30px;
+.song-select {
+  position: relative;
+}
+
+.song-select-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  background: #fff;
+  color: #222;
+  font-size: 0.9rem;
+  font-family: inherit;
   cursor: pointer;
+  text-align: left;
+}
+
+.song-select-trigger-label.placeholder {
+  color: #aaa;
+}
+
+.song-select-arrow {
+  margin-left: 8px;
+  color: #999;
+  font-size: 0.75rem;
+}
+
+.song-select-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: #fff;
+  border: 1px solid #cfe2f7;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  padding: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.song-select-option {
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.song-select-option:hover {
+  background: #eaf4fd;
+}
+
+.star-filled {
+  color: #7fb8ea;
+}
+
+.star-empty {
+  color: #ccc;
 }
 
 .song-add-actions {
@@ -2023,18 +2069,18 @@ select.song-add-input {
 }
 
 .song-add-cancel-btn {
-  border: 1px solid #4a4a56;
+  border: 1px solid #ddd;
   border-radius: 999px;
   padding: 10px 24px;
   background: transparent;
-  color: #d8d8e0;
+  color: #666;
   font-weight: 700;
   font-size: 0.9rem;
   cursor: pointer;
 }
 
 .song-add-cancel-btn:hover {
-  background: #2a2a33;
+  background: #f2f2f2;
 }
 
 @media (max-width: 560px) {

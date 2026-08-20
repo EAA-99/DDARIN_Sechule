@@ -204,16 +204,26 @@
           </label>
         </div>
         <div class="song-add-row song-add-row-3">
-          <label class="song-add-field">
+          <div class="song-add-field">
             <span class="song-add-label">장르</span>
-            <select id="songAddGenreSelect" class="song-add-input" required>
-              <option value="" disabled selected>장르 선택</option>
-            </select>
-          </label>
-          <label class="song-add-field">
+            <div class="song-select" id="songAddGenreSelect">
+              <button type="button" class="song-select-trigger">
+                <span class="song-select-trigger-label placeholder">장르 선택</span>
+                <span class="song-select-arrow">▾</span>
+              </button>
+              <div class="song-select-panel hidden"></div>
+            </div>
+          </div>
+          <div class="song-add-field">
             <span class="song-add-label">숙련도</span>
-            <select id="songAddSkillSelect" class="song-add-input"></select>
-          </label>
+            <div class="song-select" id="songAddSkillSelect">
+              <button type="button" class="song-select-trigger">
+                <span class="song-select-trigger-label"></span>
+                <span class="song-select-arrow">▾</span>
+              </button>
+              <div class="song-select-panel hidden"></div>
+            </div>
+          </div>
           <label class="song-add-field">
             <span class="song-add-label">비고</span>
             <input type="text" id="songAddNoteInput" class="song-add-input" placeholder="비고 (쉼표로 여러개)">
