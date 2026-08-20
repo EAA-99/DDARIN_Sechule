@@ -464,13 +464,39 @@ function renderGenreTabs2(genres) {
   });
 }
 
+const CHOSEONG_LIST = ["ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
+const CHOSEONG_GROUP_MAP = {
+  "ㄱ": "ㄱ", "ㄲ": "ㄱ",
+  "ㄴ": "ㄴ",
+  "ㄷ": "ㄷ", "ㄸ": "ㄷ",
+  "ㄹ": "ㄹ",
+  "ㅁ": "ㅁ",
+  "ㅂ": "ㅂ", "ㅃ": "ㅂ",
+  "ㅅ": "ㅅ", "ㅆ": "ㅅ",
+  "ㅇ": "ㅇ",
+  "ㅈ": "ㅈ", "ㅉ": "ㅈ",
+  "ㅊ": "ㅊ",
+  "ㅋ": "ㅋ",
+  "ㅌ": "ㅌ",
+  "ㅍ": "ㅍ",
+  "ㅎ": "ㅎ",
+};
+const CHOSEONG_GROUPS = ["ㄱ", "ㄴ", "ㄷ", "ㄹ", "ㅁ", "ㅂ", "ㅅ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
+
+function getArtistInitialGroup(artist) {
+  const code = (artist || "").trim().charCodeAt(0);
+  if (!(code >= 0xac00 && code <= 0xd7a3)) return null;
+  const choseong = CHOSEONG_LIST[Math.floor((code - 0xac00) / 588)];
+  return CHOSEONG_GROUP_MAP[choseong] || null;
+}
+
 function renderArtistList2() {
   const inGenre = (allSongs || []).filter(
     (song) => songbook2Genre === "전체" || song.genre === songbook2Genre
   );
-  const artists = [...new Set(inGenre.map((s) => s.artist))].sort((a, b) => a.localeCompare(b, "ko"));
+  const presentGroups = new Set(inGenre.map((s) => getArtistInitialGroup(s.artist)).filter(Boolean));
 
-  if (songbook2Artist !== "전체" && !artists.includes(songbook2Artist)) {
+  if (songbook2Artist !== "전체" && !presentGroups.has(songbook2Artist)) {
     songbook2Artist = "전체";
   }
 
@@ -487,13 +513,14 @@ function renderArtistList2() {
   });
   artist2List.appendChild(allBtn);
 
-  artists.forEach((artist) => {
+  CHOSEONG_GROUPS.forEach((group) => {
+    if (!presentGroups.has(group)) return;
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "artist-list-btn" + (songbook2Artist === artist ? " active" : "");
-    btn.textContent = artist;
+    btn.className = "artist-list-btn" + (songbook2Artist === group ? " active" : "");
+    btn.textContent = group;
     btn.addEventListener("click", () => {
-      songbook2Artist = artist;
+      songbook2Artist = group;
       renderArtistList2();
       renderSongGrid2();
     });
@@ -505,21 +532,66 @@ function albumArtCacheKey(song) {
   return `${song.artist}|${song.title}`.toLowerCase();
 }
 
+const SONGBOOK_LOCAL_KEY = "songbook-local-overrides";
+const SONGBOOK_DELETED_KEY = "songbook-local-deletions";
+
+let localSongOverrides = {};
+try {
+  localSongOverrides = JSON.parse(localStorage.getItem(SONGBOOK_LOCAL_KEY)) || {};
+} catch {
+  localSongOverrides = {};
+}
+
+let localSongDeletions = new Set();
+try {
+  localSongDeletions = new Set(JSON.parse(localStorage.getItem(SONGBOOK_DELETED_KEY)) || []);
+} catch {
+  localSongDeletions = new Set();
+}
+
+function saveLocalSongOverrides() {
+  localStorage.setItem(SONGBOOK_LOCAL_KEY, JSON.stringify(localSongOverrides));
+}
+
+function saveLocalSongDeletions() {
+  localStorage.setItem(SONGBOOK_DELETED_KEY, JSON.stringify([...localSongDeletions]));
+}
+
+let songSeqCounter = 0;
 let songbookSongsPromise = null;
 let songbookGenresList = [];
 
 function ensureSongbookSongs() {
   if (!songbookSongsPromise) {
     songbookSongsPromise = fetchSongbookSongs().then((songs) => {
-      allSongs = songs;
-      songByKey = {};
+      const merged = [];
+      const seenKeys = new Set();
+
       songs.forEach((song) => {
+        const key = albumArtCacheKey(song);
+        if (localSongDeletions.has(key)) return;
+        const finalSong = localSongOverrides[key] ? { ...localSongOverrides[key] } : song;
+        finalSong.seq = songSeqCounter++;
+        merged.push(finalSong);
+        seenKeys.add(key);
+      });
+
+      Object.keys(localSongOverrides).forEach((key) => {
+        if (seenKeys.has(key) || localSongDeletions.has(key)) return;
+        const song = { ...localSongOverrides[key] };
+        song.seq = songSeqCounter++;
+        merged.push(song);
+      });
+
+      allSongs = merged;
+      songByKey = {};
+      allSongs.forEach((song) => {
         songByKey[albumArtCacheKey(song)] = song;
       });
-      songbookGenresList = [...new Set(songs.map((s) => s.genre))];
+      songbookGenresList = [...new Set(allSongs.map((s) => s.genre))];
       renderGenreTabs(songbookGenresList);
       renderGenreTabs2(songbookGenresList);
-      return songs;
+      return allSongs;
     });
   }
   return songbookSongsPromise;
@@ -1124,12 +1196,13 @@ function getFilteredSongs2() {
 
   const filtered = (allSongs || []).filter((song) => {
     if (songbook2Genre !== "전체" && song.genre !== songbook2Genre) return false;
-    if (songbook2Artist !== "전체" && song.artist !== songbook2Artist) return false;
+    if (songbook2Artist !== "전체" && getArtistInitialGroup(song.artist) !== songbook2Artist) return false;
     if (query && !song.title.toLowerCase().includes(query) && !song.artist.toLowerCase().includes(query)) return false;
     return true;
   });
 
   filtered.sort((a, b) => {
+    if (songSortMode2 === "recent") return (b.seq || 0) - (a.seq || 0);
     const field = songSortMode2 === "title" ? "title" : "artist";
     return a[field].localeCompare(b[field], "ko");
   });
@@ -1805,20 +1878,30 @@ songAddForm.addEventListener("submit", (e) => {
 
     if (newKey !== oldKey) {
       delete songByKey[oldKey];
+      delete localSongOverrides[oldKey];
+      localSongDeletions.add(oldKey);
+      songEditTarget.seq = songSeqCounter++;
+
       const favIdx = songFavoritesOrder.indexOf(oldKey);
       if (favIdx !== -1) songFavoritesOrder[favIdx] = newKey;
       const queueIdx = singQueueOrder.indexOf(oldKey);
       if (queueIdx !== -1) singQueueOrder[queueIdx] = newKey;
       localStorage.setItem(SONG_FAVORITES_KEY, JSON.stringify(songFavoritesOrder));
       saveSingQueue();
+      saveLocalSongDeletions();
     }
     songByKey[newKey] = songEditTarget;
+    localSongOverrides[newKey] = songEditTarget;
+    saveLocalSongOverrides();
     selectedSongKeys.clear();
   } else {
-    const song = { genre, artist, title, skill, note, mr };
+    const song = { genre, artist, title, skill, note, mr, seq: songSeqCounter++ };
     allSongs = allSongs || [];
     allSongs.push(song);
-    songByKey[albumArtCacheKey(song)] = song;
+    const key = albumArtCacheKey(song);
+    songByKey[key] = song;
+    localSongOverrides[key] = song;
+    saveLocalSongOverrides();
   }
 
   renderGenreTabs(songbookGenresList);
@@ -1857,7 +1940,13 @@ songManageBtn.addEventListener("click", openSongManageMode);
 songManageCloseBtn.addEventListener("click", closeSongManageMode);
 
 songSelectAllBtn.addEventListener("click", () => {
-  getFilteredSongs2().forEach((song) => selectedSongKeys.add(albumArtCacheKey(song)));
+  const filteredKeys = getFilteredSongs2().map((song) => albumArtCacheKey(song));
+  const allSelected = filteredKeys.length > 0 && filteredKeys.every((key) => selectedSongKeys.has(key));
+  if (allSelected) {
+    filteredKeys.forEach((key) => selectedSongKeys.delete(key));
+  } else {
+    filteredKeys.forEach((key) => selectedSongKeys.add(key));
+  }
   renderSongGrid2();
 });
 
@@ -1866,7 +1955,13 @@ songDeleteSelectedBtn.addEventListener("click", () => {
   if (!confirm(`선택한 ${selectedSongKeys.size}곡을 삭제할까요?`)) return;
 
   allSongs = (allSongs || []).filter((song) => !selectedSongKeys.has(albumArtCacheKey(song)));
-  selectedSongKeys.forEach((key) => delete songByKey[key]);
+  selectedSongKeys.forEach((key) => {
+    delete songByKey[key];
+    delete localSongOverrides[key];
+    localSongDeletions.add(key);
+  });
+  saveLocalSongOverrides();
+  saveLocalSongDeletions();
   selectedSongKeys.clear();
 
   songbookGenresList = [...new Set(allSongs.map((s) => s.genre))];
