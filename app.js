@@ -235,6 +235,16 @@ const songPlayerModalFavBtn = document.getElementById("songPlayerModalFavBtn");
 const songPlayerModalFavIcon = document.getElementById("songPlayerModalFavIcon");
 const songPlayerModalFavLabel = document.getElementById("songPlayerModalFavLabel");
 const favoritesListEl = document.getElementById("favoritesList");
+const songbook2View = document.getElementById("songbook2View");
+const song2SearchInput = document.getElementById("song2SearchInput");
+const genre2Tabs = document.getElementById("genre2Tabs");
+const artist2List = document.getElementById("artist2List");
+const song2SortSelect = document.getElementById("song2SortSelect");
+const song2Grid = document.getElementById("song2Grid");
+const favorites2ListEl = document.getElementById("favorites2List");
+let songbook2Genre = "전체";
+let songbook2Artist = "전체";
+let songSortMode2 = "artist";
 let allSongs = null;
 let songByKey = {};
 let songbookGenre = "전체";
@@ -414,6 +424,63 @@ function renderArtistList() {
   });
 }
 
+function renderGenreTabs2(genres) {
+  genre2Tabs.innerHTML = "";
+
+  const allBtn = document.createElement("button");
+  allBtn.type = "button";
+  allBtn.className = "genre-tab" + (songbook2Genre === "전체" ? " active" : "");
+  allBtn.dataset.genre = "전체";
+  allBtn.textContent = "전체";
+  genre2Tabs.appendChild(allBtn);
+
+  genres.forEach((genre) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "genre-tab" + (songbook2Genre === genre ? " active" : "");
+    btn.dataset.genre = genre;
+    btn.textContent = genre;
+    genre2Tabs.appendChild(btn);
+  });
+}
+
+function renderArtistList2() {
+  const inGenre = (allSongs || []).filter(
+    (song) => songbook2Genre === "전체" || song.genre === songbook2Genre
+  );
+  const artists = [...new Set(inGenre.map((s) => s.artist))].sort((a, b) => a.localeCompare(b, "ko"));
+
+  if (songbook2Artist !== "전체" && !artists.includes(songbook2Artist)) {
+    songbook2Artist = "전체";
+  }
+
+  artist2List.innerHTML = "";
+
+  const allBtn = document.createElement("button");
+  allBtn.type = "button";
+  allBtn.className = "artist-list-btn" + (songbook2Artist === "전체" ? " active" : "");
+  allBtn.textContent = "All";
+  allBtn.addEventListener("click", () => {
+    songbook2Artist = "전체";
+    renderArtistList2();
+    renderSongGrid2();
+  });
+  artist2List.appendChild(allBtn);
+
+  artists.forEach((artist) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "artist-list-btn" + (songbook2Artist === artist ? " active" : "");
+    btn.textContent = artist;
+    btn.addEventListener("click", () => {
+      songbook2Artist = artist;
+      renderArtistList2();
+      renderSongGrid2();
+    });
+    artist2List.appendChild(btn);
+  });
+}
+
 function albumArtCacheKey(song) {
   return `${song.artist}|${song.title}`.toLowerCase();
 }
@@ -430,6 +497,7 @@ function ensureSongbookSongs() {
       });
       const genres = [...new Set(songs.map((s) => s.genre))];
       renderGenreTabs(genres);
+      renderGenreTabs2(genres);
       return songs;
     });
   }
@@ -808,6 +876,62 @@ function renderFavoritesList() {
   });
 }
 
+function renderFavorites2List() {
+  favorites2ListEl.innerHTML = "";
+
+  const favSongs = songFavoritesOrder.map((key) => songByKey[key]).filter(Boolean);
+
+  if (!favSongs.length) {
+    const empty = document.createElement("p");
+    empty.className = "favorites-empty";
+    empty.textContent = "즐겨찾기한 곡이 없습니다.";
+    favorites2ListEl.appendChild(empty);
+    return;
+  }
+
+  favSongs.forEach((song) => {
+    const key = albumArtCacheKey(song);
+
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "favorite-item";
+    item.draggable = true;
+
+    const titleEl = document.createElement("div");
+    titleEl.className = "favorite-item-title";
+    titleEl.textContent = song.title;
+
+    const artistEl = document.createElement("div");
+    artistEl.className = "favorite-item-artist";
+    artistEl.textContent = song.artist;
+
+    item.append(titleEl, artistEl);
+
+    item.addEventListener("dragstart", () => {
+      draggedFavKey = key;
+      item.classList.add("dragging");
+    });
+    item.addEventListener("dragend", () => {
+      draggedFavKey = null;
+      item.classList.remove("dragging");
+    });
+    item.addEventListener("dragover", (e) => e.preventDefault());
+    item.addEventListener("drop", (e) => {
+      e.preventDefault();
+      if (!draggedFavKey || draggedFavKey === key) return;
+      const fromIdx = songFavoritesOrder.indexOf(draggedFavKey);
+      const toIdx = songFavoritesOrder.indexOf(key);
+      if (fromIdx === -1 || toIdx === -1) return;
+      songFavoritesOrder.splice(fromIdx, 1);
+      songFavoritesOrder.splice(toIdx, 0, draggedFavKey);
+      localStorage.setItem(SONG_FAVORITES_KEY, JSON.stringify(songFavoritesOrder));
+      renderFavorites2List();
+    });
+
+    favorites2ListEl.appendChild(item);
+  });
+}
+
 let clipDurationMap = {};
 let favoritesQueue = [];
 let favoritesQueueIndex = -1;
@@ -845,7 +969,10 @@ function advanceFavoritesQueue() {
   playSong(favoritesQueue[nextIndex]);
 }
 
-function buildSongCard(song) {
+function buildSongCard(song, options) {
+  const playable = !options || options.playable !== false;
+  const onFavToggle = (options && options.onFavToggle) || renderFavoritesList;
+
   const card = document.createElement("div");
   card.className = "song-card";
 
@@ -864,7 +991,7 @@ function buildSongCard(song) {
     toggleSongFavorite(key);
     favBtn.classList.toggle("active");
     favBtn.textContent = isSongFavorite(key) ? "★" : "☆";
-    renderFavoritesList();
+    onFavToggle();
   });
 
   const titleEl = document.createElement("div");
@@ -880,7 +1007,11 @@ function buildSongCard(song) {
   genreEl.textContent = song.genre;
 
   card.append(artEl, favBtn, titleEl, artistEl, genreEl);
-  card.addEventListener("click", () => playSong(song));
+  if (playable) {
+    card.addEventListener("click", () => playSong(song));
+  } else {
+    card.classList.add("song-card-static");
+  }
 
   artEl.src = (thumbMap && thumbMap[key]) || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E";
 
@@ -948,9 +1079,71 @@ function renderSongGrid() {
   });
 }
 
+function renderSongGrid2() {
+  const query = song2SearchInput.value.trim().toLowerCase();
+
+  const filtered = (allSongs || []).filter((song) => {
+    if (songbook2Genre !== "전체" && song.genre !== songbook2Genre) return false;
+    if (songbook2Artist !== "전체" && song.artist !== songbook2Artist) return false;
+    if (query && !song.title.toLowerCase().includes(query) && !song.artist.toLowerCase().includes(query)) return false;
+    return true;
+  });
+
+  filtered.sort((a, b) => {
+    const field = songSortMode2 === "title" ? "title" : "artist";
+    return a[field].localeCompare(b[field], "ko");
+  });
+
+  song2Grid.innerHTML = "";
+
+  if (!filtered.length) {
+    const empty = document.createElement("div");
+    empty.className = "song-empty";
+    empty.textContent = "곡이 없습니다.";
+    song2Grid.appendChild(empty);
+    return;
+  }
+
+  const cardOptions = { playable: false, onFavToggle: renderFavorites2List };
+
+  if (songSortMode2 !== "artist") {
+    filtered.forEach((song) => song2Grid.appendChild(buildSongCard(song, cardOptions)));
+    return;
+  }
+
+  const groups = [];
+  filtered.forEach((song) => {
+    const lastGroup = groups[groups.length - 1];
+    if (lastGroup && lastGroup.artist === song.artist) {
+      lastGroup.songs.push(song);
+    } else {
+      groups.push({ artist: song.artist, songs: [song] });
+    }
+  });
+
+  groups.forEach((group) => {
+    const header = document.createElement("div");
+    header.className = "song-group-header";
+
+    const nameEl = document.createElement("span");
+    nameEl.className = "song-group-name";
+    nameEl.textContent = group.artist;
+
+    const countEl = document.createElement("span");
+    countEl.className = "song-group-count";
+    countEl.textContent = `${group.songs.length}곡`;
+
+    header.append(nameEl, countEl);
+    song2Grid.appendChild(header);
+
+    group.songs.forEach((song) => song2Grid.appendChild(buildSongCard(song, cardOptions)));
+  });
+}
+
 function showMainView(view) {
   appViewEl.classList.toggle("hidden", view !== "calendar");
   songbookView.classList.toggle("hidden", view !== "songbook");
+  songbook2View.classList.toggle("hidden", view !== "songbook2");
   gameView.classList.toggle("hidden", view !== "game");
   if (view === "calendar" && typeof positionTodayYoutubeCard === "function") positionTodayYoutubeCard();
 }
@@ -970,11 +1163,22 @@ async function openSongbook() {
   renderArtistList();
 }
 
+async function openSongbook2() {
+  showMainView("songbook2");
+
+  if (!allSongs) {
+    song2Grid.innerHTML = `<div class="song-empty">불러오는 중...</div>`;
+    await ensureSongbookSongs();
+  }
+
+  renderSongGrid2();
+  renderFavorites2List();
+  renderArtistList2();
+}
+
 songbookBtn.addEventListener("click", openSongbook);
 document.getElementById("calendarBtn").addEventListener("click", () => showMainView("calendar"));
-document.getElementById("songbook2Btn").addEventListener("click", () => {
-  alert("노래책은 준비 중입니다.");
-});
+document.getElementById("songbook2Btn").addEventListener("click", openSongbook2);
 function syncGameViewHeight() {
   const wasHidden = songbookView.classList.contains("hidden");
   if (wasHidden) songbookView.classList.remove("hidden");
@@ -1362,6 +1566,21 @@ songImageBtn.addEventListener("click", () => {
 songSortSelect.addEventListener("change", () => {
   songSortMode = songSortSelect.value;
   renderSongGrid();
+});
+
+song2SearchInput.addEventListener("input", renderSongGrid2);
+genre2Tabs.addEventListener("click", (e) => {
+  const btn = e.target.closest(".genre-tab");
+  if (!btn) return;
+  songbook2Genre = btn.dataset.genre;
+  genre2Tabs.querySelectorAll(".genre-tab").forEach((el) => el.classList.toggle("active", el === btn));
+  renderArtistList2();
+  renderSongGrid2();
+});
+
+song2SortSelect.addEventListener("change", () => {
+  songSortMode2 = song2SortSelect.value;
+  renderSongGrid2();
 });
 
 async function apiPost(payload) {

@@ -155,6 +155,11 @@ body {
   bottom: calc(100% - 17px);
 }
 
+#songbook2View .page-top-mascot {
+  bottom: calc(100% - 17px);
+  max-height: 180px;
+}
+
 @media (max-width: 900px) {
   #todayYoutubeCard,
   .page-top-mascot {
@@ -2295,6 +2300,16 @@ body {
 
 .song-grid.no-image-mode .song-card-art {
   display: none;
+}
+
+.song-card-static {
+  cursor: default;
+}
+
+#songbook2View .player-favorites {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
 }
 
 .song-card-art {

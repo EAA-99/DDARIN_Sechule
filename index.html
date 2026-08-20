@@ -145,6 +145,44 @@
     </div>
   </div>
 
+  <div id="songbook2View" class="songbook-view hidden">
+    <img src="today-mascot2.png" alt="" class="page-top-mascot">
+
+    <div class="songbook-inner">
+    <div class="songbook-header">
+      <h1>노래책</h1>
+      <select id="song2SortSelect" class="song-sort-select">
+        <option value="artist">가수이름순</option>
+        <option value="title">가나다순</option>
+      </select>
+    </div>
+
+    <div class="songbook-body">
+      <div class="player-panel">
+        <div class="player-favorites">
+          <h3>즐겨찾기</h3>
+          <div id="favorites2List" class="favorites-list"></div>
+        </div>
+
+        <div class="player-artists">
+          <h3>가수</h3>
+          <div id="artist2List" class="artist-list"></div>
+        </div>
+      </div>
+
+      <div class="songbook-main">
+        <input type="text" id="song2SearchInput" class="song-search" placeholder="노래 제목 또는 가수를 검색하세요">
+
+        <div id="genre2Tabs" class="genre-tabs">
+          <button type="button" class="genre-tab active" data-genre="전체">전체</button>
+        </div>
+
+        <div id="song2Grid" class="song-grid no-image-mode"></div>
+      </div>
+    </div>
+    </div>
+  </div>
+
   <div id="gameView" class="songbook-view hidden">
     <img src="today-mascot3.png" alt="" class="page-top-mascot">
     <div class="game-tabs">
