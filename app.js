@@ -367,6 +367,15 @@ async function fetchSongbookSongs() {
   return songs;
 }
 
+function appendGenreTabLabel(btn, label, count) {
+  const labelEl = document.createElement("span");
+  labelEl.textContent = label;
+  const countEl = document.createElement("span");
+  countEl.className = "genre-tab-count";
+  countEl.textContent = count;
+  btn.append(labelEl, countEl);
+}
+
 function renderGenreTabs(genres) {
   genreTabs.innerHTML = "";
 
@@ -374,7 +383,7 @@ function renderGenreTabs(genres) {
   allBtn.type = "button";
   allBtn.className = "genre-tab" + (songbookGenre === "전체" ? " active" : "");
   allBtn.dataset.genre = "전체";
-  allBtn.textContent = "전체";
+  appendGenreTabLabel(allBtn, "전체", (allSongs || []).length);
   genreTabs.appendChild(allBtn);
 
   genres.forEach((genre) => {
@@ -382,7 +391,8 @@ function renderGenreTabs(genres) {
     btn.type = "button";
     btn.className = "genre-tab" + (songbookGenre === genre ? " active" : "");
     btn.dataset.genre = genre;
-    btn.textContent = genre;
+    const count = (allSongs || []).filter((s) => s.genre === genre).length;
+    appendGenreTabLabel(btn, genre, count);
     genreTabs.appendChild(btn);
   });
 }
@@ -431,7 +441,7 @@ function renderGenreTabs2(genres) {
   allBtn.type = "button";
   allBtn.className = "genre-tab" + (songbook2Genre === "전체" ? " active" : "");
   allBtn.dataset.genre = "전체";
-  allBtn.textContent = "전체";
+  appendGenreTabLabel(allBtn, "전체", (allSongs || []).length);
   genre2Tabs.appendChild(allBtn);
 
   genres.forEach((genre) => {
@@ -439,7 +449,8 @@ function renderGenreTabs2(genres) {
     btn.type = "button";
     btn.className = "genre-tab" + (songbook2Genre === genre ? " active" : "");
     btn.dataset.genre = genre;
-    btn.textContent = genre;
+    const count = (allSongs || []).filter((s) => s.genre === genre).length;
+    appendGenreTabLabel(btn, genre, count);
     genre2Tabs.appendChild(btn);
   });
 }
@@ -486,6 +497,7 @@ function albumArtCacheKey(song) {
 }
 
 let songbookSongsPromise = null;
+let songbookGenresList = [];
 
 function ensureSongbookSongs() {
   if (!songbookSongsPromise) {
@@ -495,9 +507,9 @@ function ensureSongbookSongs() {
       songs.forEach((song) => {
         songByKey[albumArtCacheKey(song)] = song;
       });
-      const genres = [...new Set(songs.map((s) => s.genre))];
-      renderGenreTabs(genres);
-      renderGenreTabs2(genres);
+      songbookGenresList = [...new Set(songs.map((s) => s.genre))];
+      renderGenreTabs(songbookGenresList);
+      renderGenreTabs2(songbookGenresList);
       return songs;
     });
   }
@@ -1581,6 +1593,59 @@ genre2Tabs.addEventListener("click", (e) => {
 song2SortSelect.addEventListener("change", () => {
   songSortMode2 = song2SortSelect.value;
   renderSongGrid2();
+});
+
+const songAddBtn = document.getElementById("songAddBtn");
+const songAddModalBackdrop = document.getElementById("songAddModalBackdrop");
+const songAddForm = document.getElementById("songAddForm");
+const songAddTitleInput = document.getElementById("songAddTitleInput");
+const songAddArtistInput = document.getElementById("songAddArtistInput");
+const songAddGenreSelect = document.getElementById("songAddGenreSelect");
+const closeSongAddModalBtn = document.getElementById("closeSongAddModalBtn");
+
+function closeSongAddModal() {
+  songAddModalBackdrop.classList.add("hidden");
+}
+
+function openSongAddModal() {
+  songAddGenreSelect.innerHTML = "";
+  songbookGenresList.forEach((genre) => {
+    const option = document.createElement("option");
+    option.value = genre;
+    option.textContent = genre;
+    songAddGenreSelect.appendChild(option);
+  });
+  songAddForm.reset();
+  songAddModalBackdrop.classList.remove("hidden");
+  songAddTitleInput.focus();
+}
+
+songAddBtn.addEventListener("click", openSongAddModal);
+closeSongAddModalBtn.addEventListener("click", closeSongAddModal);
+songAddModalBackdrop.addEventListener("click", (e) => {
+  if (e.target === songAddModalBackdrop) closeSongAddModal();
+});
+
+songAddForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const title = songAddTitleInput.value.trim();
+  const artist = songAddArtistInput.value.trim();
+  const genre = songAddGenreSelect.value;
+  if (!title || !artist || !genre) return;
+
+  const song = { genre, artist, title };
+  allSongs = allSongs || [];
+  allSongs.push(song);
+  songByKey[albumArtCacheKey(song)] = song;
+
+  renderGenreTabs(songbookGenresList);
+  renderGenreTabs2(songbookGenresList);
+  renderArtistList();
+  renderArtistList2();
+  renderSongGrid();
+  renderSongGrid2();
+
+  closeSongAddModal();
 });
 
 async function apiPost(payload) {
