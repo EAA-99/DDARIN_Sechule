@@ -1739,6 +1739,19 @@ body {
   gap: 10px;
 }
 
+.today-memo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 50vh;
+  overflow-y: auto;
+  margin-bottom: 16px;
+}
+
+.today-memo-list .memo-card {
+  cursor: default;
+}
+
 .memo-card {
   position: relative;
   border: 1.5px solid #d9b878;

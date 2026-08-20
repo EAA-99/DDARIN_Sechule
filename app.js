@@ -1375,6 +1375,38 @@ const memoAddFieldsGrid = document.getElementById("memoAddFieldsGrid");
 const memoAddMoreBtn = document.getElementById("memoAddMoreBtn");
 const closeMemoAddModalBtn = document.getElementById("closeMemoAddModalBtn");
 
+const todayMemoModalBackdrop = document.getElementById("todayMemoModalBackdrop");
+const todayMemoModalList = document.getElementById("todayMemoModalList");
+const todayMemoHideTodayBtn = document.getElementById("todayMemoHideTodayBtn");
+const todayMemoCloseBtn = document.getElementById("todayMemoCloseBtn");
+const closeTodayMemoModalBtn = document.getElementById("closeTodayMemoModalBtn");
+const TODAY_MEMO_POPUP_KEY = "today-memo-popup-dismissed-date";
+
+function closeTodayMemoModal() {
+  todayMemoModalBackdrop.classList.add("hidden");
+}
+
+function showTodayMemoPopupIfNeeded() {
+  const today = todayKey();
+  if (localStorage.getItem(TODAY_MEMO_POPUP_KEY) === today) return;
+
+  const todaysMemos = sharedMemoItems.filter((item) => item.date === today);
+  if (!todaysMemos.length) return;
+
+  renderMemoCards(todayMemoModalList, todaysMemos, false, null, null);
+  todayMemoModalBackdrop.classList.remove("hidden");
+}
+
+closeTodayMemoModalBtn.addEventListener("click", closeTodayMemoModal);
+todayMemoCloseBtn.addEventListener("click", closeTodayMemoModal);
+todayMemoHideTodayBtn.addEventListener("click", () => {
+  localStorage.setItem(TODAY_MEMO_POPUP_KEY, todayKey());
+  closeTodayMemoModal();
+});
+todayMemoModalBackdrop.addEventListener("click", (e) => {
+  if (e.target === todayMemoModalBackdrop) closeTodayMemoModal();
+});
+
 let memoAddExtraRowCount = 0;
 
 function clearMemoExtraTitleRows() {
@@ -3138,7 +3170,7 @@ async function init() {
 
   prefetchTodayNotices();
   prefetchSongbookInBackground();
-  loadSharedMemoList();
+  loadSharedMemoList().then(showTodayMemoPopupIfNeeded);
 
   tryAutoUnlock().then(() => {
     updateLockUi();
