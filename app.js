@@ -58,6 +58,8 @@ const weekPrevBtn = document.getElementById("weekPrevBtn");
 const weekNextBtn = document.getElementById("weekNextBtn");
 const dayCellMenu = document.getElementById("dayCellMenu");
 const dayCellSoopSummaryEl = document.getElementById("dayCellSoopSummary");
+const dayCellCafeNotice = document.getElementById("dayCellCafeNotice");
+const dayCellCafeNoticeTitle = document.getElementById("dayCellCafeNoticeTitle");
 
 const CAFE_API_URL = "/api/cafe";
 const BROADCAST_SUMMARY_API_URL = "/api/broadcast-summary";
@@ -159,9 +161,29 @@ async function loadDayCellBroadcastSummary(dateKeyStr) {
   repositionDayCellMenu();
 }
 
+async function loadDayCellCafeNotice(dateKeyStr) {
+  dayCellCafeNoticeTitle.textContent = "불러오는 중...";
+  dayCellCafeNotice.classList.remove("hidden");
+  repositionDayCellMenu();
+  try {
+    const posts = await fetchCafeNoticeCached(dateKeyStr);
+    if (dayCellMenuDate !== dateKeyStr) return;
+    if (posts && posts.length) {
+      dayCellCafeNoticeTitle.textContent = posts[0].title;
+      dayCellCafeNotice.href = posts[0].url;
+    } else {
+      dayCellCafeNotice.classList.add("hidden");
+    }
+  } catch {
+    if (dayCellMenuDate === dateKeyStr) dayCellCafeNotice.classList.add("hidden");
+  }
+  repositionDayCellMenu();
+}
+
 function openDayCellMenu(anchorEl, dateKeyStr) {
   dayCellMenuDate = dateKeyStr;
   dayCellSoopSummaryEl.classList.add("hidden");
+  dayCellCafeNotice.classList.add("hidden");
 
   const rect = anchorEl.getBoundingClientRect();
   dayCellMenu.classList.remove("hidden");
@@ -170,6 +192,8 @@ function openDayCellMenu(anchorEl, dateKeyStr) {
 
   window.addEventListener("scroll", repositionDayCellMenu, true);
   window.addEventListener("resize", repositionDayCellMenu);
+
+  loadDayCellCafeNotice(dateKeyStr);
 }
 
 document.getElementById("dayCellSoopBtn").addEventListener("click", () => {
@@ -3052,6 +3076,7 @@ function updateLockUi() {
   loginBtnLabel.textContent = isReadOnly ? "로그인" : "로그아웃";
   if (isReadOnly && songManageMode) closeSongManageMode();
   songManageBtn.classList.toggle("hidden", isReadOnly || songManageMode);
+  soopChatBtn.classList.toggle("hidden", isReadOnly);
 }
 
 async function tryAutoUnlock() {
@@ -3268,6 +3293,144 @@ async function checkLiveStatus() {
     todayScheduleThumbLink.classList.add("hidden");
   }
 }
+
+// SOOP 채팅은 비공식·미문서화 프로토콜이라 아래 연결/파싱 로직은 추정치입니다.
+// 실제 방송에서 콘솔에 찍히는 raw 프레임을 보면서 서비스 코드/구분자를 맞춰야 할 수 있습니다.
+const SOOP_CHAT_TICKET_API_URL = "/api/soop-chat-ticket";
+const SOOP_CHAT_COLLECT_MS = 10 * 60 * 1000; // 10분
+
+const soopChatBtn = document.getElementById("soopChatBtn");
+const soopChatModalBackdrop = document.getElementById("soopChatModalBackdrop");
+const closeSoopChatModalBtn = document.getElementById("closeSoopChatModalBtn");
+const soopChatStatusEl = document.getElementById("soopChatStatus");
+const soopChatLogEl = document.getElementById("soopChatLog");
+const soopChatStartBtn = document.getElementById("soopChatStartBtn");
+const soopChatStopBtn = document.getElementById("soopChatStopBtn");
+const soopChatCopyBtn = document.getElementById("soopChatCopyBtn");
+
+let soopChatSocket = null;
+let soopChatCollectTimer = null;
+let soopChatMessages = [];
+
+function nowTimeLabel() {
+  return new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+}
+
+function renderSoopChatLog() {
+  soopChatLogEl.innerHTML = "";
+  soopChatMessages.forEach((entry) => {
+    const line = document.createElement("div");
+    line.className = "soop-chat-line";
+
+    const time = document.createElement("span");
+    time.className = "soop-chat-time";
+    time.textContent = entry.time;
+
+    const text = document.createElement("span");
+    text.className = "soop-chat-text";
+    text.textContent = entry.text;
+
+    line.append(time, text);
+    soopChatLogEl.appendChild(line);
+  });
+  soopChatLogEl.scrollTop = soopChatLogEl.scrollHeight;
+}
+
+function logSoopChatEntry(text) {
+  soopChatMessages.push({ time: nowTimeLabel(), text });
+  renderSoopChatLog();
+}
+
+function parseSoopChatFrame(raw) {
+  const text = typeof raw === "string" ? raw : "";
+  return text.split(/[\x1b\x0c]/).filter((p) => p && /[가-힣a-zA-Z0-9]/.test(p));
+}
+
+async function startSoopChatCollection() {
+  if (soopChatSocket) return;
+
+  soopChatMessages = [];
+  renderSoopChatLog();
+  soopChatStatusEl.textContent = "접속 정보를 가져오는 중...";
+
+  let ticket;
+  try {
+    const res = await fetch(SOOP_CHAT_TICKET_API_URL);
+    ticket = await res.json();
+  } catch (err) {
+    soopChatStatusEl.textContent = "접속 정보를 가져오지 못했습니다.";
+    console.log("[soop-chat] ticket fetch error", err);
+    return;
+  }
+
+  console.log("[soop-chat] ticket response", ticket);
+
+  if (!ticket || !ticket.available || !ticket.chatDomain || !ticket.chatPort) {
+    soopChatStatusEl.textContent = "채팅 접속 정보를 가져오지 못했습니다. (콘솔의 ticket response 확인 필요)";
+    return;
+  }
+
+  try {
+    const ws = new WebSocket(`wss://${ticket.chatDomain}:${ticket.chatPort}/Websocket/${ticket.bjid}`, "chat");
+    ws.binaryType = "arraybuffer";
+    soopChatSocket = ws;
+
+    ws.addEventListener("open", () => {
+      soopChatStatusEl.textContent = "연결됨 — 10분간 수집 중";
+      logSoopChatEntry("[연결됨]");
+    });
+
+    ws.addEventListener("message", (e) => {
+      const text = e.data instanceof ArrayBuffer ? new TextDecoder("utf-8", { fatal: false }).decode(e.data) : e.data;
+      console.log("[soop-chat] raw frame", text);
+      const parts = parseSoopChatFrame(text);
+      if (parts.length) logSoopChatEntry(parts.join(" | "));
+    });
+
+    ws.addEventListener("close", () => {
+      logSoopChatEntry("[연결 종료]");
+      soopChatSocket = null;
+    });
+
+    ws.addEventListener("error", (err) => {
+      soopChatStatusEl.textContent = "연결 오류 (콘솔 확인 필요)";
+      console.log("[soop-chat] socket error", err);
+    });
+  } catch (err) {
+    soopChatStatusEl.textContent = "연결 실패";
+    console.log("[soop-chat] connect error", err);
+    return;
+  }
+
+  clearTimeout(soopChatCollectTimer);
+  soopChatCollectTimer = setTimeout(stopSoopChatCollection, SOOP_CHAT_COLLECT_MS);
+}
+
+function stopSoopChatCollection() {
+  clearTimeout(soopChatCollectTimer);
+  soopChatCollectTimer = null;
+  if (soopChatSocket) {
+    soopChatSocket.close();
+    soopChatSocket = null;
+  }
+  soopChatStatusEl.textContent = `수집 종료 (${soopChatMessages.length}개 수집됨)`;
+}
+
+soopChatBtn.addEventListener("click", () => {
+  soopChatModalBackdrop.classList.remove("hidden");
+});
+closeSoopChatModalBtn.addEventListener("click", () => {
+  soopChatModalBackdrop.classList.add("hidden");
+});
+soopChatModalBackdrop.addEventListener("click", (e) => {
+  if (e.target === soopChatModalBackdrop) soopChatModalBackdrop.classList.add("hidden");
+});
+soopChatStartBtn.addEventListener("click", startSoopChatCollection);
+soopChatStopBtn.addEventListener("click", stopSoopChatCollection);
+soopChatCopyBtn.addEventListener("click", () => {
+  const text = soopChatMessages.map((m) => `[${m.time}] ${m.text}`).join("\n");
+  navigator.clipboard.writeText(text).catch(() => {});
+});
 
 async function init() {
   const today = new Date();
