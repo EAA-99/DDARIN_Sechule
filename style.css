@@ -224,8 +224,16 @@ body {
     position: static;
     transform: none;
     width: 100%;
-    justify-content: center;
-    margin-top: 8px;
+    order: -1;
+    justify-content: flex-end;
+    margin-bottom: 4px;
+    padding: 2px;
+    gap: 2px;
+  }
+
+  .view-mode-btn {
+    padding: 4px 10px;
+    font-size: 0.72rem;
   }
 
   .page {
