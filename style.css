@@ -187,7 +187,7 @@ body {
   }
 
   .calendar-header {
-    background: transparent;
+    background: #fff;
   }
 
   #todayScheduleLive {
@@ -629,6 +629,10 @@ body {
   .weekday-row {
     grid-template-columns: repeat(7, 105px);
     overflow-x: hidden;
+  }
+
+  .weekday-row.card-mode {
+    display: none;
   }
 
   .card-list {

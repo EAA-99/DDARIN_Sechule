@@ -3047,6 +3047,7 @@ function setViewMode(mode) {
   viewModeMonthBtn.classList.toggle("active", mode === "list");
   grid.classList.toggle("hidden", mode === "card");
   cardView.classList.toggle("hidden", mode !== "card");
+  weekdayRow.classList.toggle("card-mode", mode === "card");
   if (mode === "card") {
     resetCardWeekToMonth();
     renderCardView();
