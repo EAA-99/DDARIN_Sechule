@@ -218,6 +218,7 @@ body {
 
   .toolbar {
     flex-wrap: wrap;
+    padding: 4px 0 2px !important;
   }
 
   .view-mode-toggle {
@@ -225,14 +226,19 @@ body {
     transform: none !important;
     width: 100% !important;
     justify-content: flex-end !important;
-    margin-top: 2px !important;
-    padding: 2px !important;
-    gap: 2px !important;
+    margin-top: 0 !important;
+    background: transparent !important;
+    padding: 0 !important;
+    gap: 4px !important;
   }
 
   .view-mode-btn {
     padding: 3px 8px !important;
     font-size: 0.65rem !important;
+  }
+
+  .card-view {
+    padding-top: 4px !important;
   }
 
   .page {
@@ -611,7 +617,13 @@ body {
 
 @media (max-width: 700px) {
   .day-cell {
-    height: 80px;
+    height: 210px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(7, 130px);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .weekday-row {
