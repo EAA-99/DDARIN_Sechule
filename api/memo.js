@@ -33,7 +33,7 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    const { username, password, action, text, id, date } = req.body || {};
+    const { username, password, action, text, id, date, order } = req.body || {};
     if (username !== process.env.EDIT_USERNAME || password !== process.env.EDIT_PASSWORD) {
       res.status(401).json({ success: false });
       return;
@@ -44,6 +44,12 @@ export default async function handler(req, res) {
       items = items.filter((it) => it.id !== id);
     } else if (action === "edit") {
       items = items.map((it) => (it.id === id ? { ...it, text: text || "", date: date || it.date || "" } : it));
+    } else if (action === "reorder") {
+      const orderIds = Array.isArray(order) ? order : [];
+      const byId = new Map(items.map((it) => [it.id, it]));
+      const reordered = orderIds.map((itemId) => byId.get(itemId)).filter(Boolean);
+      const missing = items.filter((it) => !orderIds.includes(it.id));
+      items = [...reordered, ...missing];
     } else {
       items.unshift({ id: Date.now(), text: text || "", date: date || "" });
     }

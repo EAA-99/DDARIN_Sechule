@@ -1883,12 +1883,19 @@ body {
   cursor: pointer;
 }
 
-.memo-card-date {
-  display: block;
-  font-size: 0.75rem;
+.memo-card.dragging {
+  opacity: 0.4;
+}
+
+.memo-group-header {
+  font-size: 0.78rem;
   font-weight: 700;
   color: #4a7fd6;
-  margin-bottom: 4px;
+  padding: 6px 2px 0;
+}
+
+.memo-group-header:first-child {
+  padding-top: 0;
 }
 
 .memo-card-text {

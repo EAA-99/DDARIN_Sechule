@@ -1720,7 +1720,23 @@ memoAddForm.addEventListener("submit", async (e) => {
   }
 });
 
-function renderMemoCards(listEl, items, canDelete, onDelete, onEdit) {
+let draggedMemoId = null;
+
+function groupMemoItemsByDate(items) {
+  const order = [];
+  const buckets = new Map();
+  items.forEach((item) => {
+    const key = item.date || `__nodate_${item.id}`;
+    if (!buckets.has(key)) {
+      buckets.set(key, { date: item.date || null, items: [] });
+      order.push(key);
+    }
+    buckets.get(key).items.push(item);
+  });
+  return order.map((key) => buckets.get(key));
+}
+
+function renderMemoCards(listEl, items, canDelete, onDelete, onEdit, onReorder) {
   listEl.innerHTML = "";
   if (!items.length) {
     const empty = document.createElement("div");
@@ -1729,38 +1745,69 @@ function renderMemoCards(listEl, items, canDelete, onDelete, onEdit) {
     listEl.appendChild(empty);
     return;
   }
-  items.forEach((item) => {
-    const card = document.createElement("div");
-    card.className = "memo-card";
 
-    if (item.date) {
-      const dateEl = document.createElement("div");
-      dateEl.className = "memo-card-date";
-      dateEl.textContent = item.date;
-      card.appendChild(dateEl);
+  const groups = groupMemoItemsByDate(items);
+  const orderedItems = groups.flatMap((g) => g.items);
+
+  groups.forEach((group) => {
+    if (group.date) {
+      const header = document.createElement("div");
+      header.className = "memo-group-header";
+      header.textContent = group.date;
+      listEl.appendChild(header);
     }
 
-    const textEl = document.createElement("span");
-    textEl.className = "memo-card-text";
-    textEl.textContent = item.text;
-    card.appendChild(textEl);
+    group.items.forEach((item) => {
+      const card = document.createElement("div");
+      card.className = "memo-card";
 
-    if (onEdit) {
-      card.addEventListener("dblclick", () => onEdit(item));
-    }
+      const textEl = document.createElement("span");
+      textEl.className = "memo-card-text";
+      textEl.textContent = item.text;
+      card.appendChild(textEl);
 
-    if (canDelete) {
-      const delBtn = document.createElement("button");
-      delBtn.type = "button";
-      delBtn.className = "memo-card-delete";
-      delBtn.textContent = "✕";
-      delBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        onDelete(item.id);
-      });
-      card.appendChild(delBtn);
-    }
-    listEl.appendChild(card);
+      if (onEdit) {
+        card.addEventListener("dblclick", () => onEdit(item));
+      }
+
+      if (canDelete) {
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "memo-card-delete";
+        delBtn.textContent = "✕";
+        delBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          onDelete(item.id);
+        });
+        card.appendChild(delBtn);
+      }
+
+      if (onReorder) {
+        card.draggable = true;
+        card.addEventListener("dragstart", () => {
+          draggedMemoId = item.id;
+          card.classList.add("dragging");
+        });
+        card.addEventListener("dragend", () => {
+          draggedMemoId = null;
+          card.classList.remove("dragging");
+        });
+        card.addEventListener("dragover", (e) => e.preventDefault());
+        card.addEventListener("drop", (e) => {
+          e.preventDefault();
+          if (draggedMemoId === null || draggedMemoId === item.id) return;
+          const fromIdx = orderedItems.findIndex((it) => it.id === draggedMemoId);
+          const toIdx = orderedItems.findIndex((it) => it.id === item.id);
+          if (fromIdx === -1 || toIdx === -1) return;
+          const reordered = orderedItems.slice();
+          const [moved] = reordered.splice(fromIdx, 1);
+          reordered.splice(toIdx, 0, moved);
+          onReorder(reordered);
+        });
+      }
+
+      listEl.appendChild(card);
+    });
   });
 }
 
@@ -1786,7 +1833,11 @@ function renderPersonalMemoList() {
       savePersonalMemoItems(loadPersonalMemoItems().filter((it) => it.id !== id));
       renderPersonalMemoList();
     },
-    (item) => openMemoEditModal(item, false)
+    (item) => openMemoEditModal(item, false),
+    (reorderedItems) => {
+      savePersonalMemoItems(reorderedItems);
+      renderPersonalMemoList();
+    }
   );
 }
 
@@ -1807,7 +1858,30 @@ function renderSharedMemoList() {
       if (data && data.items) sharedMemoItems = data.items;
       renderSharedMemoList();
     },
-    isReadOnly ? null : (item) => openMemoEditModal(item, true)
+    isReadOnly ? null : (item) => openMemoEditModal(item, true),
+    isReadOnly
+      ? null
+      : async (reorderedItems) => {
+          const { username, password } = getStoredCreds();
+          if (!username || !password) return;
+          sharedMemoItems = reorderedItems;
+          renderSharedMemoList();
+          const res = await fetch(SHARED_MEMO_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username,
+              password,
+              action: "reorder",
+              order: reorderedItems.map((it) => it.id),
+            }),
+          });
+          const data = await res.json().catch(() => null);
+          if (data && data.items) {
+            sharedMemoItems = data.items;
+            renderSharedMemoList();
+          }
+        }
   );
 }
 
