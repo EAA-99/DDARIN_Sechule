@@ -1790,32 +1790,41 @@ body {
 }
 
 .today-popup-actions {
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 12px;
+  justify-content: center !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
 }
 
 .today-popup-actions button {
-  border: none;
-  border-radius: 999px;
-  padding: 10px 20px;
+  border: none !important;
+  border-radius: 999px !important;
+  padding: 10px 20px !important;
   font-weight: 700;
   font-size: 0.85rem;
-  background: #eef0f4;
-  color: #666;
+  background: #eef0f4 !important;
+  color: #666 !important;
 }
 
 .today-popup-actions button:hover {
-  background: #e3e6ec;
+  background: #e3e6ec !important;
 }
 
 .today-popup-actions .primary-btn {
-  background: #f5a862;
-  color: #fff;
+  background: #f5a862 !important;
+  color: #fff !important;
 }
 
 .today-popup-actions .primary-btn:hover {
-  background: #f29a49;
+  background: #f29a49 !important;
+}
+
+#todayMemoModalBackdrop .today-popup-actions .primary-btn {
+  background: #cfe8fb !important;
+  color: #1c5fa8 !important;
+}
+
+#todayMemoModalBackdrop .today-popup-actions .primary-btn:hover {
+  background: #bfe0fa !important;
 }
 
 .today-video-list {
