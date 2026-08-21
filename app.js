@@ -217,6 +217,7 @@ const genreTabs = document.getElementById("genreTabs");
 const artistList = document.getElementById("artistList");
 let songbookArtist = "전체";
 const songSortSelect = document.getElementById("songSortSelect");
+const deleteNoClipBtn = document.getElementById("deleteNoClipBtn");
 const songNoImageBtn = document.getElementById("songNoImageBtn");
 const songImageBtn = document.getElementById("songImageBtn");
 const playerEmpty = document.getElementById("playerEmpty");
@@ -389,11 +390,13 @@ function appendGenreTabLabel(btn, label, count) {
 function renderGenreTabs(genres) {
   genreTabs.innerHTML = "";
 
+  const visibleSongs = (allSongs || []).filter((s) => !s.deletedFromLiveClip);
+
   const allBtn = document.createElement("button");
   allBtn.type = "button";
   allBtn.className = "genre-tab" + (songbookGenre === "전체" ? " active" : "");
   allBtn.dataset.genre = "전체";
-  appendGenreTabLabel(allBtn, "전체", (allSongs || []).length);
+  appendGenreTabLabel(allBtn, "전체", visibleSongs.length);
   genreTabs.appendChild(allBtn);
 
   genres.forEach((genre) => {
@@ -401,7 +404,7 @@ function renderGenreTabs(genres) {
     btn.type = "button";
     btn.className = "genre-tab" + (songbookGenre === genre ? " active" : "");
     btn.dataset.genre = genre;
-    const count = (allSongs || []).filter((s) => s.genre === genre).length;
+    const count = visibleSongs.filter((s) => s.genre === genre).length;
     appendGenreTabLabel(btn, genre, count);
     genreTabs.appendChild(btn);
   });
@@ -409,7 +412,7 @@ function renderGenreTabs(genres) {
 
 function renderArtistList() {
   const inGenre = (allSongs || []).filter(
-    (song) => songbookGenre === "전체" || song.genre === songbookGenre
+    (song) => !song.deletedFromLiveClip && (songbookGenre === "전체" || song.genre === songbookGenre)
   );
   const artists = [...new Set(inGenre.map((s) => s.artist))].sort((a, b) => a.localeCompare(b, "ko"));
 
@@ -1160,6 +1163,7 @@ function renderSongGrid() {
   const query = songSearchInput.value.trim().toLowerCase();
 
   const filtered = (allSongs || []).filter((song) => {
+    if (song.deletedFromLiveClip) return false;
     if (songbookGenre !== "전체" && song.genre !== songbookGenre) return false;
     if (songbookArtist !== "전체" && song.artist !== songbookArtist) return false;
     if (query && !song.title.toLowerCase().includes(query) && !song.artist.toLowerCase().includes(query)) return false;
@@ -2167,6 +2171,33 @@ songDeleteSelectedBtn.addEventListener("click", () => {
   renderSingQueueList();
 });
 
+async function deleteNoClipSongsFromLiveClip() {
+  await ensureSongMeta();
+  const noClipSongs = (allSongs || []).filter(
+    (song) => !song.deletedFromLiveClip && !clipMap[albumArtCacheKey(song)]
+  );
+
+  if (!noClipSongs.length) {
+    alert("Live Clip에서 삭제할, 클립 없는 곡이 없습니다.");
+    return;
+  }
+  if (!confirm(`Live Clip에서 클립이 연결되지 않은 곡 ${noClipSongs.length}개를 삭제할까요? (노래책에는 그대로 남습니다)`)) return;
+
+  noClipSongs.forEach((song) => {
+    song.deletedFromLiveClip = true;
+    localSongOverrides[albumArtCacheKey(song)] = song;
+  });
+  saveSongbookLocalData();
+
+  renderGenreTabs(songbookGenresList);
+  renderArtistList();
+  renderSongGrid();
+
+  alert(`${noClipSongs.length}개 곡을 Live Clip에서 삭제했습니다.`);
+}
+
+deleteNoClipBtn.addEventListener("click", deleteNoClipSongsFromLiveClip);
+
 songQueueAddBtn.addEventListener("click", () => {
   if (!selectedSongKeys.size) return;
   addToSingQueue([...selectedSongKeys]);
@@ -3073,6 +3104,7 @@ function updateLockUi() {
   loginBtnLabel.textContent = isReadOnly ? "로그인" : "로그아웃";
   if (isReadOnly && songManageMode) closeSongManageMode();
   songManageBtn.classList.toggle("hidden", isReadOnly || songManageMode);
+  deleteNoClipBtn.classList.toggle("hidden", isReadOnly);
 }
 
 async function tryAutoUnlock() {

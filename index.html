@@ -78,10 +78,13 @@
     <div class="songbook-inner">
     <div class="songbook-header">
       <h1>Live Clip</h1>
-      <select id="songSortSelect" class="song-sort-select">
-        <option value="artist">가수이름순</option>
-        <option value="title">가나다순</option>
-      </select>
+      <div class="songbook-header-actions">
+        <button type="button" id="deleteNoClipBtn" class="song-manage-btn song-manage-btn-danger hidden">클립 없는 곡 삭제</button>
+        <select id="songSortSelect" class="song-sort-select">
+          <option value="artist">가수이름순</option>
+          <option value="title">가나다순</option>
+        </select>
+      </div>
     </div>
 
     <div class="songbook-body">
