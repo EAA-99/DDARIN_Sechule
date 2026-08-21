@@ -1930,18 +1930,6 @@ function renderPlainOptionLabel(opt) {
   return span;
 }
 
-function renderStarOptionLabel(opt) {
-  const frag = document.createDocumentFragment();
-  const filled = document.createElement("span");
-  filled.className = "star-filled";
-  filled.textContent = "★".repeat(opt.value);
-  const empty = document.createElement("span");
-  empty.className = "star-empty";
-  empty.textContent = "☆".repeat(5 - opt.value);
-  frag.append(filled, empty);
-  return frag;
-}
-
 function setupCustomSelect(root, { options, initialValue, placeholderLabel, renderLabel }) {
   const trigger = root.querySelector(".song-select-trigger");
   const triggerLabel = trigger.querySelector(".song-select-trigger-label");
@@ -2007,13 +1995,6 @@ const songAddGenreSelect = setupCustomSelect(document.getElementById("songAddGen
   renderLabel: renderPlainOptionLabel,
 });
 
-const songAddSkillOptions = [0, 1, 2, 3, 4, 5].map((n) => ({ value: n, label: "★".repeat(n) + "☆".repeat(5 - n) }));
-const songAddSkillSelect = setupCustomSelect(document.getElementById("songAddSkillSelect"), {
-  options: songAddSkillOptions,
-  initialValue: 0,
-  renderLabel: renderStarOptionLabel,
-});
-
 function closeSongAddModal() {
   songAddModalBackdrop.classList.add("hidden");
 }
@@ -2035,11 +2016,9 @@ function openSongAddModal() {
     songAddNoteInput.value = songEditTarget.note || "";
     songAddMrInput.value = songEditTarget.mr || "";
     songAddGenreSelect.setValue(songEditTarget.genre);
-    songAddSkillSelect.setValue(songEditTarget.skill || 0);
   } else {
     songAddForm.reset();
     songAddGenreSelect.setValue("");
-    songAddSkillSelect.setValue(0);
   }
 
   songAddModalBackdrop.classList.remove("hidden");
@@ -2060,7 +2039,6 @@ songAddForm.addEventListener("submit", (e) => {
   const genre = songAddGenreSelect.getValue();
   if (!title || !artist || !genre) return;
 
-  const skill = Number(songAddSkillSelect.getValue());
   const note = songAddNoteInput.value.trim();
   const mr = songAddMrInput.value.trim();
 
@@ -2069,7 +2047,6 @@ songAddForm.addEventListener("submit", (e) => {
     songEditTarget.genre = genre;
     songEditTarget.artist = artist;
     songEditTarget.title = title;
-    songEditTarget.skill = skill;
     songEditTarget.note = note;
     songEditTarget.mr = mr;
     const newKey = albumArtCacheKey(songEditTarget);
@@ -2092,7 +2069,7 @@ songAddForm.addEventListener("submit", (e) => {
     saveSongbookLocalData();
     selectedSongKeys.clear();
   } else {
-    const song = { genre, artist, title, skill, note, mr, seq: songSeqCounter++ };
+    const song = { genre, artist, title, note, mr, seq: songSeqCounter++ };
     allSongs = allSongs || [];
     allSongs.push(song);
     const key = albumArtCacheKey(song);

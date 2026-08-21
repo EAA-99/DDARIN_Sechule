@@ -2210,14 +2210,6 @@ body {
   background: #eaf4fd;
 }
 
-.star-filled {
-  color: #7fb8ea;
-}
-
-.star-empty {
-  color: #ccc;
-}
-
 .song-add-actions {
   display: flex;
   justify-content: flex-end;
