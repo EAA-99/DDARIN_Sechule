@@ -190,6 +190,10 @@ body {
     background: #fff;
   }
 
+  .calendar-header.card-mode {
+    background: transparent;
+  }
+
   #todayScheduleLive {
     display: none !important;
   }
@@ -617,17 +621,18 @@ body {
 
 @media (max-width: 700px) {
   .day-cell {
-    height: 150px;
+    height: 120px;
   }
 
   .grid {
-    grid-template-columns: repeat(7, 105px);
-    overflow-x: auto;
+    grid-template-columns: repeat(7, 88px);
+    max-height: 58vh;
+    overflow: auto;
     -webkit-overflow-scrolling: touch;
   }
 
   .weekday-row {
-    grid-template-columns: repeat(7, 105px);
+    grid-template-columns: repeat(7, 88px);
     overflow-x: hidden;
   }
 

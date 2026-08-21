@@ -50,6 +50,7 @@ loadingGifImg.src = CALENDAR_LOADING_GIFS[Math.floor(Math.random() * CALENDAR_LO
 const monthTitle = document.getElementById("monthTitle");
 const grid = document.getElementById("grid");
 const weekdayRow = document.querySelector(".weekday-row");
+const calendarHeaderEl = document.querySelector(".calendar-header");
 grid.addEventListener("scroll", () => {
   weekdayRow.scrollLeft = grid.scrollLeft;
 });
@@ -3048,6 +3049,7 @@ function setViewMode(mode) {
   grid.classList.toggle("hidden", mode === "card");
   cardView.classList.toggle("hidden", mode !== "card");
   weekdayRow.classList.toggle("card-mode", mode === "card");
+  calendarHeaderEl.classList.toggle("card-mode", mode === "card");
   if (mode === "card") {
     resetCardWeekToMonth();
     renderCardView();
