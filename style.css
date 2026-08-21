@@ -617,17 +617,18 @@ body {
 
 @media (max-width: 700px) {
   .day-cell {
-    height: 210px;
+    height: 150px;
   }
 
   .grid {
-    grid-template-columns: repeat(7, 130px);
+    grid-template-columns: repeat(7, 105px);
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
 
   .weekday-row {
-    display: none;
+    grid-template-columns: repeat(7, 105px);
+    overflow-x: hidden;
   }
 
   .card-list {

@@ -50,6 +50,9 @@ loadingGifImg.src = CALENDAR_LOADING_GIFS[Math.floor(Math.random() * CALENDAR_LO
 const monthTitle = document.getElementById("monthTitle");
 const grid = document.getElementById("grid");
 const weekdayRow = document.querySelector(".weekday-row");
+grid.addEventListener("scroll", () => {
+  weekdayRow.scrollLeft = grid.scrollLeft;
+});
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 const cardView = document.getElementById("cardView");
