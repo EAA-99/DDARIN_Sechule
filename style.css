@@ -1909,6 +1909,7 @@ body {
 
 .memo-card-text {
   display: block;
+  white-space: pre-line;
 }
 
 .memo-card-delete {

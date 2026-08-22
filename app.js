@@ -1611,9 +1611,33 @@ function openMemoEditModal(item, isShared) {
   memoAddTitleInput.focus();
 }
 
+function mergeMemoText(existingText, newTexts) {
+  return [existingText, ...newTexts].filter(Boolean).join("\n");
+}
+
 async function addSharedMemoTexts(texts, date) {
   const { username, password } = getStoredCreds();
   if (!username || !password) return;
+
+  if (date) {
+    const existing = sharedMemoItems.find((it) => it.date === date);
+    const action = existing ? "edit" : "add";
+    const text = existing ? mergeMemoText(existing.text, texts) : texts.join("\n");
+    const res = await fetch(SHARED_MEMO_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(
+        existing
+          ? { username, password, action, id: existing.id, text, date }
+          : { username, password, action, text, date }
+      ),
+    });
+    const data = await res.json().catch(() => null);
+    if (data && data.items) sharedMemoItems = data.items;
+    renderSharedMemoList();
+    return;
+  }
+
   for (const t of texts) {
     const res = await fetch(SHARED_MEMO_API_URL, {
       method: "POST",
@@ -1628,7 +1652,16 @@ async function addSharedMemoTexts(texts, date) {
 
 function addPersonalMemoTexts(texts, date) {
   const items = loadPersonalMemoItems();
-  texts.forEach((t, i) => items.unshift({ id: Date.now() + i, text: t, date }));
+  if (date) {
+    const existing = items.find((it) => it.date === date);
+    if (existing) {
+      existing.text = mergeMemoText(existing.text, texts);
+    } else {
+      items.unshift({ id: Date.now(), text: texts.join("\n"), date });
+    }
+  } else {
+    texts.forEach((t, i) => items.unshift({ id: Date.now() + i, text: t, date }));
+  }
   savePersonalMemoItems(items);
   renderPersonalMemoList();
 }
