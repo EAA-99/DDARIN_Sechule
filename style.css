@@ -1908,7 +1908,7 @@ body {
 
 .memo-group-date {
   flex-shrink: 0;
-  min-width: 28px;
+  min-width: 38px;
   display: flex;
   align-items: center;
   justify-content: center;

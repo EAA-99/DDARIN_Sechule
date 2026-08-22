@@ -1772,8 +1772,8 @@ function groupMemoItemsByDate(items) {
 function formatMemoDateLabel(dateStr) {
   const parts = (dateStr || "").split("-");
   if (parts.length !== 3) return dateStr || "";
-  const [, , d] = parts;
-  return String(parseInt(d, 10));
+  const [, m, d] = parts;
+  return `${parseInt(m, 10)}/${parseInt(d, 10)}`;
 }
 
 function buildMemoItemCard(item, canDelete, onDelete, onEdit, onReorder, orderedItems) {
@@ -1782,7 +1782,8 @@ function buildMemoItemCard(item, canDelete, onDelete, onEdit, onReorder, ordered
 
   const textEl = document.createElement("div");
   textEl.className = "memo-card-text";
-  textEl.textContent = item.text;
+  const lines = (item.text || "").split("\n").filter((line) => line.length);
+  textEl.textContent = lines.length > 1 ? lines.map((line, i) => `${i + 1}. ${line}`).join("\n") : item.text;
   card.appendChild(textEl);
 
   if (onEdit) {
