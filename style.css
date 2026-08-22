@@ -1899,11 +1899,7 @@ body {
 .memo-group {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  border: 1.5px solid #d9b878;
-  border-radius: 10px;
-  background: #fff;
-  padding: 16px;
+  gap: 8px;
 }
 
 .memo-group-date {
@@ -1920,6 +1916,10 @@ body {
   flex-direction: column;
   gap: 10px;
   text-align: left;
+  border: 1.5px solid #d9b878;
+  border-radius: 10px;
+  background: #fff;
+  padding: 12px 14px;
 }
 
 .memo-group-items .memo-card {
