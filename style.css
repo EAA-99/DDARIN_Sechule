@@ -1773,7 +1773,7 @@ body {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 22px;
 }
 
 #todayMemoModalBackdrop .modal-header-row {
@@ -1911,7 +1911,7 @@ body {
 .memo-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .memo-group-date {
@@ -1926,7 +1926,7 @@ body {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   text-align: left;
 }
 
@@ -1945,7 +1945,7 @@ body {
 .memo-card-text {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   text-align: left;
 }
 
@@ -1953,7 +1953,7 @@ body {
   border: 1.5px solid #d9b878;
   border-radius: 10px;
   background: transparent;
-  padding: 10px 12px;
+  padding: 14px 16px;
 }
 
 .memo-card-delete {
