@@ -1926,12 +1926,8 @@ body {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   text-align: left;
-  border: 1.5px solid #d9b878;
-  border-radius: 10px;
-  background: transparent;
-  padding: 12px 14px;
 }
 
 .memo-group-items .memo-card {
@@ -1947,13 +1943,17 @@ body {
 }
 
 .memo-card-text {
-  display: block;
-  white-space: pre-line;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   text-align: left;
 }
 
-.memo-card-line + .memo-card-line {
-  margin-top: 6px;
+.memo-card-line {
+  border: 1.5px solid #d9b878;
+  border-radius: 10px;
+  background: transparent;
+  padding: 10px 12px;
 }
 
 .memo-card-delete {
