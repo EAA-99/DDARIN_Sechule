@@ -1898,7 +1898,7 @@ body {
 
 .memo-group {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
   border: 1.5px solid #d9b878;
   border-radius: 10px;
@@ -1908,10 +1908,14 @@ body {
 
 .memo-group-date {
   flex-shrink: 0;
+  min-width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #1c5fa8;
   font-weight: 700;
-  font-size: 0.8rem;
-  white-space: nowrap;
+  font-size: 1.1rem;
+  text-align: center;
 }
 
 .memo-group-items {
