@@ -1783,7 +1783,16 @@ function buildMemoItemCard(item, canDelete, onDelete, onEdit, onReorder, ordered
   const textEl = document.createElement("div");
   textEl.className = "memo-card-text";
   const lines = (item.text || "").split("\n").filter((line) => line.length);
-  textEl.textContent = lines.length > 1 ? lines.map((line, i) => `${i + 1}. ${line}`).join("\n") : item.text;
+  if (lines.length > 1) {
+    lines.forEach((line, i) => {
+      const lineEl = document.createElement("div");
+      lineEl.className = "memo-card-line";
+      lineEl.textContent = `${i + 1}. ${line}`;
+      textEl.appendChild(lineEl);
+    });
+  } else {
+    textEl.textContent = item.text;
+  }
   card.appendChild(textEl);
 
   if (onEdit) {
