@@ -1769,6 +1769,58 @@ function groupMemoItemsByDate(items) {
   return order.map((key) => buckets.get(key));
 }
 
+function buildMemoItemCard(item, canDelete, onDelete, onEdit, onReorder, orderedItems) {
+  const card = document.createElement("div");
+  card.className = "memo-card";
+
+  const textEl = document.createElement("span");
+  textEl.className = "memo-card-text";
+  textEl.textContent = item.text;
+  card.appendChild(textEl);
+
+  if (onEdit) {
+    card.addEventListener("dblclick", () => onEdit(item));
+  }
+
+  if (canDelete) {
+    const delBtn = document.createElement("button");
+    delBtn.type = "button";
+    delBtn.className = "memo-card-delete";
+    delBtn.textContent = "✕";
+    delBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      onDelete(item.id);
+    });
+    card.appendChild(delBtn);
+  }
+
+  if (onReorder) {
+    card.draggable = true;
+    card.addEventListener("dragstart", () => {
+      draggedMemoId = item.id;
+      card.classList.add("dragging");
+    });
+    card.addEventListener("dragend", () => {
+      draggedMemoId = null;
+      card.classList.remove("dragging");
+    });
+    card.addEventListener("dragover", (e) => e.preventDefault());
+    card.addEventListener("drop", (e) => {
+      e.preventDefault();
+      if (draggedMemoId === null || draggedMemoId === item.id) return;
+      const fromIdx = orderedItems.findIndex((it) => it.id === draggedMemoId);
+      const toIdx = orderedItems.findIndex((it) => it.id === item.id);
+      if (fromIdx === -1 || toIdx === -1) return;
+      const reordered = orderedItems.slice();
+      const [moved] = reordered.splice(fromIdx, 1);
+      reordered.splice(toIdx, 0, moved);
+      onReorder(reordered);
+    });
+  }
+
+  return card;
+}
+
 function renderMemoCards(listEl, items, canDelete, onDelete, onEdit, onReorder) {
   listEl.innerHTML = "";
   if (!items.length) {
@@ -1783,64 +1835,29 @@ function renderMemoCards(listEl, items, canDelete, onDelete, onEdit, onReorder) 
   const orderedItems = groups.flatMap((g) => g.items);
 
   groups.forEach((group) => {
-    if (group.date) {
-      const header = document.createElement("div");
-      header.className = "memo-group-header";
-      header.textContent = group.date;
-      listEl.appendChild(header);
+    if (!group.date) {
+      group.items.forEach((item) => {
+        listEl.appendChild(buildMemoItemCard(item, canDelete, onDelete, onEdit, onReorder, orderedItems));
+      });
+      return;
     }
 
+    const row = document.createElement("div");
+    row.className = "memo-group";
+
+    const dateEl = document.createElement("div");
+    dateEl.className = "memo-group-date";
+    dateEl.textContent = group.date;
+    row.appendChild(dateEl);
+
+    const itemsCol = document.createElement("div");
+    itemsCol.className = "memo-group-items";
     group.items.forEach((item) => {
-      const card = document.createElement("div");
-      card.className = "memo-card";
-
-      const textEl = document.createElement("span");
-      textEl.className = "memo-card-text";
-      textEl.textContent = item.text;
-      card.appendChild(textEl);
-
-      if (onEdit) {
-        card.addEventListener("dblclick", () => onEdit(item));
-      }
-
-      if (canDelete) {
-        const delBtn = document.createElement("button");
-        delBtn.type = "button";
-        delBtn.className = "memo-card-delete";
-        delBtn.textContent = "✕";
-        delBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          onDelete(item.id);
-        });
-        card.appendChild(delBtn);
-      }
-
-      if (onReorder) {
-        card.draggable = true;
-        card.addEventListener("dragstart", () => {
-          draggedMemoId = item.id;
-          card.classList.add("dragging");
-        });
-        card.addEventListener("dragend", () => {
-          draggedMemoId = null;
-          card.classList.remove("dragging");
-        });
-        card.addEventListener("dragover", (e) => e.preventDefault());
-        card.addEventListener("drop", (e) => {
-          e.preventDefault();
-          if (draggedMemoId === null || draggedMemoId === item.id) return;
-          const fromIdx = orderedItems.findIndex((it) => it.id === draggedMemoId);
-          const toIdx = orderedItems.findIndex((it) => it.id === item.id);
-          if (fromIdx === -1 || toIdx === -1) return;
-          const reordered = orderedItems.slice();
-          const [moved] = reordered.splice(fromIdx, 1);
-          reordered.splice(toIdx, 0, moved);
-          onReorder(reordered);
-        });
-      }
-
-      listEl.appendChild(card);
+      itemsCol.appendChild(buildMemoItemCard(item, canDelete, onDelete, onEdit, onReorder, orderedItems));
     });
+    row.appendChild(itemsCol);
+
+    listEl.appendChild(row);
   });
 }
 
