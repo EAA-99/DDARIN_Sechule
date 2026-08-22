@@ -1769,13 +1769,31 @@ function groupMemoItemsByDate(items) {
   return order.map((key) => buckets.get(key));
 }
 
-function buildMemoItemCard(item, canDelete, onDelete, onEdit, onReorder, orderedItems) {
+function formatMemoDateLabel(dateStr) {
+  const parts = (dateStr || "").split("-");
+  if (parts.length !== 3) return dateStr || "";
+  const [, m, d] = parts;
+  return `${parseInt(m, 10)}월 ${parseInt(d, 10)}일`;
+}
+
+function buildMemoItemCard(item, canDelete, onDelete, onEdit, onReorder, orderedItems, numberStart) {
   const card = document.createElement("div");
   card.className = "memo-card";
 
-  const textEl = document.createElement("span");
+  const textEl = document.createElement("div");
   textEl.className = "memo-card-text";
-  textEl.textContent = item.text;
+
+  const lines = (item.text || "").split("\n").filter((l) => l.trim() !== "");
+  if (numberStart) {
+    lines.forEach((line, i) => {
+      const lineEl = document.createElement("div");
+      lineEl.textContent = `${numberStart + i}. ${line}`;
+      textEl.appendChild(lineEl);
+    });
+  } else {
+    textEl.textContent = item.text;
+  }
+
   card.appendChild(textEl);
 
   if (onEdit) {
@@ -1847,13 +1865,24 @@ function renderMemoCards(listEl, items, canDelete, onDelete, onEdit, onReorder) 
 
     const dateEl = document.createElement("div");
     dateEl.className = "memo-group-date";
-    dateEl.textContent = group.date;
+    dateEl.textContent = formatMemoDateLabel(group.date);
     row.appendChild(dateEl);
+
+    const totalLines = group.items.reduce(
+      (sum, it) => sum + (it.text || "").split("\n").filter((l) => l.trim() !== "").length,
+      0
+    );
+    const numbering = totalLines > 1;
 
     const itemsCol = document.createElement("div");
     itemsCol.className = "memo-group-items";
+    let lineCounter = 1;
     group.items.forEach((item) => {
-      itemsCol.appendChild(buildMemoItemCard(item, canDelete, onDelete, onEdit, onReorder, orderedItems));
+      const lineCount = (item.text || "").split("\n").filter((l) => l.trim() !== "").length;
+      itemsCol.appendChild(
+        buildMemoItemCard(item, canDelete, onDelete, onEdit, onReorder, orderedItems, numbering ? lineCounter : 0)
+      );
+      lineCounter += lineCount;
     });
     row.appendChild(itemsCol);
 
