@@ -33,6 +33,9 @@ export default async function handler(req, res) {
         results.push({
           title: s.title,
           url: `https://www.youtube.com/watch?v=${videoId}`,
+          thumbnail:
+            (s.thumbnails && (s.thumbnails.medium || s.thumbnails.default || {}).url) ||
+            `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
         });
       }
     }

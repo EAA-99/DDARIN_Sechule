@@ -1084,6 +1084,10 @@ body {
   max-width: 420px;
 }
 
+#todayYoutubeModalBackdrop .modal {
+  max-width: 560px;
+}
+
 #modalBackdrop .modal {
   max-width: 640px;
   max-height: 90vh;
@@ -1845,7 +1849,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  max-height: 50vh;
+  max-height: 65vh;
   overflow-y: auto;
   margin-bottom: 16px;
 }

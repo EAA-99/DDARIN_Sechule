@@ -3358,23 +3358,24 @@ function renderTodayYoutube(videos) {
 
   todayYoutubeList.innerHTML = "";
   videos.forEach((video) => {
-    const row = document.createElement("a");
-    row.className = "today-schedule-item";
-    row.href = video.url;
-    row.target = "_blank";
-    row.rel = "noopener";
+    const link = document.createElement("a");
+    link.className = "today-schedule-thumb-link";
+    link.href = video.url;
+    link.target = "_blank";
+    link.rel = "noopener";
 
-    const dot = document.createElement("span");
-    dot.className = "today-schedule-item-dot";
-    dot.style.background = "#e05a5a";
-    row.appendChild(dot);
+    const thumb = document.createElement("img");
+    thumb.className = "today-schedule-thumb";
+    thumb.src = video.thumbnail;
+    thumb.alt = "";
+    link.appendChild(thumb);
 
     const titleEl = document.createElement("span");
-    titleEl.className = "today-schedule-item-title";
+    titleEl.className = "today-schedule-thumb-title";
     titleEl.textContent = video.title;
-    row.appendChild(titleEl);
+    link.appendChild(titleEl);
 
-    todayYoutubeList.appendChild(row);
+    todayYoutubeList.appendChild(link);
   });
 
   todayYoutubeCard.classList.remove("hidden");
