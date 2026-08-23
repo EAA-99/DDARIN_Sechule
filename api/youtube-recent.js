@@ -1,15 +1,7 @@
 // 따린(DDARINEE) 유튜브 채널. "@DDARINEE"와 "@세이브따일" 두 핸들 모두
 // 같은 채널(UC5YFkTsmwnAm__Cvt66BRhA)로 연결되어 있어 채널 ID는 하나만 사용.
 const CHANNEL_IDS = ["UC5YFkTsmwnAm__Cvt66BRhA"];
-
-function decodeXmlEntities(str) {
-  return str
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
-}
+const API_KEY = process.env.YOUTUBE_API_KEY;
 
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json");
@@ -17,28 +9,25 @@ export default async function handler(req, res) {
   const results = [];
   try {
     for (const channelId of CHANNEL_IDS) {
-      const url = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
+      const uploadsPlaylistId = "UU" + channelId.slice(2);
+      const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&maxResults=15&key=${API_KEY}`;
       const r = await fetch(url);
       if (!r.ok) continue;
-      const xml = await r.text();
+      const data = await r.json();
 
-      const entryRe = /<entry>([\s\S]*?)<\/entry>/g;
-      let m;
-      while ((m = entryRe.exec(xml))) {
-        const entry = m[1];
-        const idMatch = /<yt:videoId>([^<]+)<\/yt:videoId>/.exec(entry);
-        const titleMatch = /<title>([\s\S]*?)<\/title>/.exec(entry);
-        const linkMatch = /<link rel="alternate" href="([^"]+)"/.exec(entry);
-        const publishedMatch = /<published>([^<]+)<\/published>/.exec(entry);
-        const thumbMatch = /<media:thumbnail url="([^"]+)"/.exec(entry);
-        if (!idMatch || !titleMatch || !linkMatch || !publishedMatch) continue;
+      for (const item of data.items || []) {
+        const s = item.snippet;
+        const videoId = s && s.resourceId && s.resourceId.videoId;
+        if (!videoId || !s.publishedAt) continue;
 
         results.push({
-          id: idMatch[1],
-          title: decodeXmlEntities(titleMatch[1]),
-          url: linkMatch[1],
-          published: publishedMatch[1],
-          thumbnail: thumbMatch ? thumbMatch[1] : `https://i.ytimg.com/vi/${idMatch[1]}/hqdefault.jpg`,
+          id: videoId,
+          title: s.title,
+          url: `https://www.youtube.com/watch?v=${videoId}`,
+          published: s.publishedAt,
+          thumbnail:
+            (s.thumbnails && (s.thumbnails.medium || s.thumbnails.default || {}).url) ||
+            `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
         });
       }
     }
