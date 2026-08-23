@@ -271,10 +271,6 @@ body {
   text-align: left;
 }
 
-.today-youtube-card {
-  border: 2px solid #cfe2f7;
-}
-
 .today-schedule-header {
   display: flex;
   align-items: center;

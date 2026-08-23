@@ -1307,7 +1307,6 @@ function showMainView(view) {
   songbookView.classList.toggle("hidden", view !== "songbook");
   songbook2View.classList.toggle("hidden", view !== "songbook2");
   gameView.classList.toggle("hidden", view !== "game");
-  if (view === "calendar" && typeof positionTodayYoutubeCard === "function") positionTodayYoutubeCard();
 }
 
 async function openSongbook() {
@@ -3325,96 +3324,6 @@ function renderTodaySchedule() {
   todayScheduleCard.classList.remove("hidden");
 }
 
-const todayYoutubeCard = document.getElementById("todayYoutubeCard");
-const todayYoutubeList = document.getElementById("todayYoutubeList");
-const TODAY_YOUTUBE_API_URL = "/api/youtube-today";
-let todayYoutubeCardMoved = false;
-
-function positionTodayYoutubeCard() {
-  if (todayYoutubeCardMoved || appViewEl.classList.contains("hidden")) return;
-  const titleRect = monthTitle.getBoundingClientRect();
-  const appRect = appViewEl.getBoundingClientRect();
-  const cardRect = todayYoutubeCard.getBoundingClientRect();
-  if (!titleRect.width || !appRect.width) return;
-  const centerX = titleRect.left + titleRect.width / 2 - appRect.left;
-  todayYoutubeCard.style.left = `${centerX - cardRect.width / 2}px`;
-}
-
-async function loadTodayYoutube() {
-  try {
-    const res = await fetch(`${TODAY_YOUTUBE_API_URL}?date=${todayKey()}`);
-    const videos = await res.json();
-    renderTodayYoutube(Array.isArray(videos) ? videos : []);
-  } catch {
-    renderTodayYoutube([]);
-  }
-}
-
-function renderTodayYoutube(videos) {
-  if (!videos.length) {
-    todayYoutubeCard.classList.add("hidden");
-    return;
-  }
-
-  todayYoutubeList.innerHTML = "";
-  videos.forEach((video) => {
-    const link = document.createElement("a");
-    link.className = "today-schedule-thumb-link";
-    link.href = video.url;
-    link.target = "_blank";
-    link.rel = "noopener";
-
-    const thumb = document.createElement("img");
-    thumb.className = "today-schedule-thumb";
-    thumb.src = video.thumbnail;
-    thumb.alt = "";
-    link.appendChild(thumb);
-
-    const titleEl = document.createElement("span");
-    titleEl.className = "today-schedule-thumb-title";
-    titleEl.textContent = video.title;
-    link.appendChild(titleEl);
-
-    todayYoutubeList.appendChild(link);
-  });
-
-  todayYoutubeCard.classList.remove("hidden");
-  positionTodayYoutubeCard();
-}
-
-(function makeTodayYoutubeCardDraggable() {
-  const header = todayYoutubeCard.querySelector(".today-schedule-header");
-  let dragging = false;
-  let offsetX = 0;
-  let offsetY = 0;
-
-  header.addEventListener("mousedown", (e) => {
-    dragging = true;
-    todayYoutubeCardMoved = true;
-    const rect = todayYoutubeCard.getBoundingClientRect();
-    const appRect = appViewEl.getBoundingClientRect();
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
-    todayYoutubeCard.style.bottom = "auto";
-    todayYoutubeCard.style.left = `${rect.left - appRect.left}px`;
-    todayYoutubeCard.style.top = `${rect.top - appRect.top}px`;
-    e.preventDefault();
-  });
-
-  document.addEventListener("mousemove", (e) => {
-    if (!dragging) return;
-    const appRect = appViewEl.getBoundingClientRect();
-    todayYoutubeCard.style.left = `${e.clientX - offsetX - appRect.left}px`;
-    todayYoutubeCard.style.top = `${e.clientY - offsetY - appRect.top}px`;
-  });
-
-  document.addEventListener("mouseup", () => {
-    dragging = false;
-  });
-
-  window.addEventListener("resize", positionTodayYoutubeCard);
-})();
-
 async function checkLiveStatus() {
   try {
     const res = await fetch("https://chapi.sooplive.com/api/insome0319/station", {
@@ -3451,7 +3360,6 @@ async function init() {
   renderGrid();
   applyDefaultMobileViewMode();
   renderTodaySchedule();
-  loadTodayYoutube();
   checkLiveStatus();
 
   loadingScreen.classList.add("hidden");
