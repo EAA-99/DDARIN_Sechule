@@ -39,6 +39,14 @@ export default async function handler(req, res) {
     debug.push({ caught: String(err) });
   }
 
+  if (req.query.checkVideo) {
+    const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,status&id=${req.query.checkVideo}&key=${API_KEY}`;
+    const r = await fetch(url);
+    const data = await r.json();
+    res.status(200).json(data);
+    return;
+  }
+
   results.sort((a, b) => new Date(b.published) - new Date(a.published));
   if (req.query.debug) {
     res.status(200).json({ results, debug });
