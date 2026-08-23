@@ -1,6 +1,7 @@
-// 따린(DDARINEE) 유튜브 채널. "@DDARINEE"와 "@세이브따일" 두 핸들 모두
-// 같은 채널(UC5YFkTsmwnAm__Cvt66BRhA)로 연결되어 있어 채널 ID는 하나만 사용.
-const CHANNEL_IDS = ["UC5YFkTsmwnAm__Cvt66BRhA"];
+// 따린(DDARINEE)의 유튜브 채널 두 개.
+// UC5YFkTsmwnAm__Cvt66BRhA = "@DDARINEE"/"@세이브따일" (세이브파일 : 따린, 롱폼)
+// UCuROXT7djegOJSyVp1lhx-w = 따린 DDARIN (쇼츠)
+const CHANNEL_IDS = ["UC5YFkTsmwnAm__Cvt66BRhA", "UCuROXT7djegOJSyVp1lhx-w"];
 const API_KEY = process.env.YOUTUBE_API_KEY;
 
 // UTC 타임스탬프를 KST(UTC+9) 기준 날짜 문자열(YYYY-MM-DD)로 변환
