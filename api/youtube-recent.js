@@ -7,12 +7,16 @@ export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json");
 
   const results = [];
+  const debug = [];
   try {
     for (const channelId of CHANNEL_IDS) {
       const uploadsPlaylistId = "UU" + channelId.slice(2);
       const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&maxResults=15&key=${API_KEY}`;
       const r = await fetch(url);
-      if (!r.ok) continue;
+      if (!r.ok) {
+        debug.push({ hasKey: Boolean(API_KEY), status: r.status, body: await r.text() });
+        continue;
+      }
       const data = await r.json();
 
       for (const item of data.items || []) {
@@ -31,10 +35,14 @@ export default async function handler(req, res) {
         });
       }
     }
-  } catch {
-    // results가 비어있는 채로 반환
+  } catch (err) {
+    debug.push({ caught: String(err) });
   }
 
   results.sort((a, b) => new Date(b.published) - new Date(a.published));
+  if (req.query.debug) {
+    res.status(200).json({ results, debug });
+    return;
+  }
   res.status(200).json(results);
 }
