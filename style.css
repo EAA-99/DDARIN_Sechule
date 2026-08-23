@@ -1803,16 +1803,18 @@ body {
 
 .today-popup-actions {
   justify-content: center !important;
-  flex-wrap: wrap !important;
-  gap: 12px !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
+  overflow-x: auto;
 }
 
 .today-popup-actions button {
   border: none !important;
   border-radius: 999px !important;
-  padding: 10px 20px !important;
+  padding: 10px 14px !important;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
   background: #eef0f4 !important;
   color: #666 !important;
 }
@@ -1850,33 +1852,27 @@ body {
 
 .today-video-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   border: 1px solid #f5c6c6;
   background: #fdf1f1;
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 16px;
   text-decoration: none;
   color: inherit;
+  text-align: center;
 }
 
-.today-video-thumb {
-  width: 96px;
-  height: 54px;
-  border-radius: 6px;
-  object-fit: cover;
-  flex-shrink: 0;
-  background: #eee;
-}
-
-.today-video-info {
-  min-width: 0;
-  flex: 1;
+.today-video-date {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #a9791f;
 }
 
 .today-video-title {
   font-weight: 700;
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   color: #333;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -1884,12 +1880,13 @@ body {
   overflow: hidden;
 }
 
-.today-video-goto {
-  display: inline-block;
-  margin-top: 4px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: #e05a5a;
+.today-video-thumb {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  object-fit: cover;
+  background: #eee;
 }
 
 .memo-card {

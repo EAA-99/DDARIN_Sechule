@@ -1471,6 +1471,11 @@ function saveYoutubeDismissMap(map) {
   localStorage.setItem(YOUTUBE_POPUP_DISMISS_KEY, JSON.stringify(map));
 }
 
+function formatYoutubeDateLabel(iso) {
+  const d = new Date(iso);
+  return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
+}
+
 function renderTodayYoutubeList(videos) {
   todayYoutubeModalList.innerHTML = "";
   videos.forEach((v) => {
@@ -1480,24 +1485,20 @@ function renderTodayYoutubeList(videos) {
     item.target = "_blank";
     item.rel = "noopener";
 
-    const thumb = document.createElement("img");
-    thumb.className = "today-video-thumb";
-    thumb.src = v.thumbnail;
-    thumb.alt = "";
-
-    const info = document.createElement("div");
-    info.className = "today-video-info";
+    const dateEl = document.createElement("div");
+    dateEl.className = "today-video-date";
+    dateEl.textContent = formatYoutubeDateLabel(v.published);
 
     const titleEl = document.createElement("div");
     titleEl.className = "today-video-title";
     titleEl.textContent = v.title;
 
-    const goto = document.createElement("span");
-    goto.className = "today-video-goto";
-    goto.textContent = "바로가기 ↗";
+    const thumb = document.createElement("img");
+    thumb.className = "today-video-thumb";
+    thumb.src = v.thumbnail;
+    thumb.alt = "";
 
-    info.append(titleEl, goto);
-    item.append(thumb, info);
+    item.append(dateEl, titleEl, thumb);
     todayYoutubeModalList.appendChild(item);
   });
 }
