@@ -7,17 +7,21 @@ export default async function handler(req, res) {
   let results = [];
   try {
     const url =
-      `https://apis.naver.com/cafe-web/cafe2/ArticleListV2dot1.json` +
-      `?search.clubid=${clubId}&search.menuid=${menuId}&search.boardtype=L&search.page=1&search.perPage=20`;
-    const r = await fetch(url, { headers: { Referer: "https://cafe.naver.com/ddarin" } });
+      `https://apis.naver.com/cafe-web/cafe-boardlist-api/v1/cafes/${clubId}/menus/${menuId}/articles` +
+      `?page=1&perPage=20&viewType=L`;
+    const r = await fetch(url, { headers: { Referer: `https://cafe.naver.com/f-e/cafes/${clubId}/menus/${menuId}?viewType=L` } });
     const data = await r.json();
-    const articleList = data?.message?.result?.articleList || [];
+    const articleList = data?.result?.articleList || [];
 
-    results = articleList.map((item) => ({
-      title: item.subject,
-      writer: item.writerNickname,
-      url: `https://cafe.naver.com/ddarin/${item.articleId}`,
-    }));
+    results = articleList
+      .filter((entry) => entry.type === "ARTICLE" && entry.item)
+      .map((entry) => ({
+        title: entry.item.subject,
+        writer: entry.item.writerInfo && entry.item.writerInfo.nickName,
+        url: `https://cafe.naver.com/ddarin/${entry.item.articleId}`,
+        image: entry.item.representImage || "",
+      }))
+      .filter((item) => item.image);
   } catch {
     // results가 비어있는 채로 반환
   }

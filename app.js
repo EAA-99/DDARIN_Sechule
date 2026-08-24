@@ -1378,23 +1378,24 @@ document.getElementById("backMenuPostsBtn").addEventListener("click", async () =
   }
 
   items.forEach((item) => {
-    const row = document.createElement("a");
-    row.className = "today-schedule-item";
-    row.href = item.url;
-    row.target = "_blank";
-    row.rel = "noopener";
+    const link = document.createElement("a");
+    link.className = "today-schedule-thumb-link";
+    link.href = item.url;
+    link.target = "_blank";
+    link.rel = "noopener";
 
-    const dot = document.createElement("span");
-    dot.className = "today-schedule-item-dot";
-    dot.style.background = "#e08a3c";
-    row.appendChild(dot);
+    const thumb = document.createElement("img");
+    thumb.className = "today-schedule-thumb";
+    thumb.src = `/api/naver-image?url=${encodeURIComponent(item.image)}`;
+    thumb.alt = "";
+    link.appendChild(thumb);
 
     const titleEl = document.createElement("span");
-    titleEl.className = "today-schedule-item-title";
+    titleEl.className = "today-schedule-thumb-title";
     titleEl.textContent = item.title;
-    row.appendChild(titleEl);
+    link.appendChild(titleEl);
 
-    cafePhotosList.appendChild(row);
+    cafePhotosList.appendChild(link);
   });
 });
 function syncGameViewHeight() {
