@@ -94,7 +94,7 @@
           <path d="M20 7l-7 5 7 5z"/>
           <circle cx="12" cy="12" r="1.4" fill="#3a3f52" stroke="none"/>
         </svg>
-        <span class="back-menu-label color-posts">posts</span>
+        <span class="back-menu-label color-posts">Photo</span>
       </button>
       <button type="button" id="backMenuSongbookBtn" class="back-menu-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round">
@@ -585,6 +585,16 @@
         <button type="button" id="todayYoutubeHideWeekBtn">일주일간 보지 않기</button>
         <button type="button" id="todayYoutubeCloseBtn" class="primary-btn">닫기</button>
       </div>
+    </div>
+  </div>
+
+  <div id="cafePhotosModalBackdrop" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-header-row">
+        <h2>🎁 팬아트</h2>
+        <button type="button" id="closeCafePhotosModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
+      </div>
+      <div id="cafePhotosList" class="today-schedule-list"></div>
     </div>
   </div>
 

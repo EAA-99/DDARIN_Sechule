@@ -1349,6 +1349,54 @@ document.getElementById("songbook2Btn").addEventListener("click", openSongbook2)
 const backToCalendarBtn = document.getElementById("backToCalendarBtn");
 backToCalendarBtn.addEventListener("click", () => showMainView("backmenu"));
 document.getElementById("backMenuCalendarBtn").addEventListener("click", () => showMainView("calendar"));
+
+const cafePhotosModalBackdrop = document.getElementById("cafePhotosModalBackdrop");
+const cafePhotosList = document.getElementById("cafePhotosList");
+document.getElementById("closeCafePhotosModalBtn").addEventListener("click", () => {
+  cafePhotosModalBackdrop.classList.add("hidden");
+});
+cafePhotosModalBackdrop.addEventListener("click", (e) => {
+  if (e.target === cafePhotosModalBackdrop) cafePhotosModalBackdrop.classList.add("hidden");
+});
+
+document.getElementById("backMenuPostsBtn").addEventListener("click", async () => {
+  cafePhotosList.innerHTML = `<div class="today-schedule-item"><span class="today-schedule-item-title">불러오는 중...</span></div>`;
+  cafePhotosModalBackdrop.classList.remove("hidden");
+
+  let items = [];
+  try {
+    const res = await fetch("/api/cafe-photos");
+    items = await res.json();
+  } catch {
+    items = [];
+  }
+
+  cafePhotosList.innerHTML = "";
+  if (!items.length) {
+    cafePhotosList.innerHTML = `<div class="today-schedule-item"><span class="today-schedule-item-title">게시글을 불러오지 못했습니다.</span></div>`;
+    return;
+  }
+
+  items.forEach((item) => {
+    const row = document.createElement("a");
+    row.className = "today-schedule-item";
+    row.href = item.url;
+    row.target = "_blank";
+    row.rel = "noopener";
+
+    const dot = document.createElement("span");
+    dot.className = "today-schedule-item-dot";
+    dot.style.background = "#e08a3c";
+    row.appendChild(dot);
+
+    const titleEl = document.createElement("span");
+    titleEl.className = "today-schedule-item-title";
+    titleEl.textContent = item.title;
+    row.appendChild(titleEl);
+
+    cafePhotosList.appendChild(row);
+  });
+});
 function syncGameViewHeight() {
   const wasHidden = songbookView.classList.contains("hidden");
   if (wasHidden) songbookView.classList.remove("hidden");
