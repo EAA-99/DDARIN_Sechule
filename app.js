@@ -1354,7 +1354,7 @@ backToCalendarBtn.addEventListener("click", () => showMainView("backmenu"));
 document.getElementById("backMenuCalendarBtn").addEventListener("click", () => showMainView("calendar"));
 
 const cafePhotosList = document.getElementById("cafePhotosList");
-document.getElementById("cafePhotosHomeBtn").addEventListener("click", () => showMainView("calendar"));
+document.getElementById("cafePhotosHomeBtn").addEventListener("click", () => showMainView("backmenu"));
 
 function formatRelativeTimeKo(timestamp) {
   if (!timestamp) return "";
