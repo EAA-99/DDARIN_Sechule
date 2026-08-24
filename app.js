@@ -1356,20 +1356,9 @@ document.getElementById("backMenuCalendarBtn").addEventListener("click", () => s
 const cafePhotosList = document.getElementById("cafePhotosList");
 document.getElementById("cafePhotosHomeBtn").addEventListener("click", () => showMainView("backmenu"));
 
-function formatRelativeTimeKo(timestamp) {
-  if (!timestamp) return "";
-  const diffMs = Date.now() - timestamp;
-  const minute = 60 * 1000;
-  const hour = 60 * minute;
-  const day = 24 * hour;
-  const month = 30 * day;
-  const year = 365 * day;
-  if (diffMs < hour) return `${Math.max(1, Math.floor(diffMs / minute))}분 전`;
-  if (diffMs < day) return `${Math.floor(diffMs / hour)}시간 전`;
-  if (diffMs < month) return `${Math.floor(diffMs / day)}일 전`;
-  if (diffMs < year) return `${Math.floor(diffMs / month)}개월 전`;
-  return `${Math.floor(diffMs / year)}년 전`;
-}
+const cafePhotoLightbox = document.getElementById("cafePhotoLightbox");
+const cafePhotoLightboxImg = document.getElementById("cafePhotoLightboxImg");
+cafePhotoLightbox.addEventListener("click", () => cafePhotoLightbox.classList.add("hidden"));
 
 document.getElementById("backMenuPostsBtn").addEventListener("click", async () => {
   cafePhotosList.innerHTML = `<p class="cafe-photos-status">불러오는 중...</p>`;
@@ -1390,36 +1379,22 @@ document.getElementById("backMenuPostsBtn").addEventListener("click", async () =
   }
 
   items.forEach((item) => {
-    const card = document.createElement("a");
+    const card = document.createElement("button");
+    card.type = "button";
     card.className = "cafe-photo-card";
-    card.href = item.url;
-    card.target = "_blank";
-    card.rel = "noopener";
 
+    const imgUrl = `/api/naver-image?url=${encodeURIComponent(item.image)}`;
     const img = document.createElement("img");
     img.className = "cafe-photo-img";
-    img.src = `/api/naver-image?url=${encodeURIComponent(item.image)}`;
+    img.src = imgUrl;
     img.alt = "";
     card.appendChild(img);
 
-    const info = document.createElement("div");
-    info.className = "cafe-photo-info";
+    card.addEventListener("click", () => {
+      cafePhotoLightboxImg.src = imgUrl;
+      cafePhotoLightbox.classList.remove("hidden");
+    });
 
-    const titleEl = document.createElement("p");
-    titleEl.className = "cafe-photo-title";
-    titleEl.textContent = item.title;
-    info.appendChild(titleEl);
-
-    const meta = document.createElement("p");
-    meta.className = "cafe-photo-meta";
-    const writerEl = document.createElement("span");
-    writerEl.textContent = item.writer || "";
-    const timeEl = document.createElement("span");
-    timeEl.textContent = formatRelativeTimeKo(item.published);
-    meta.append(writerEl, timeEl);
-    info.appendChild(meta);
-
-    card.appendChild(info);
     cafePhotosList.appendChild(card);
   });
 });
