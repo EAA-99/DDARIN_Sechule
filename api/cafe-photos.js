@@ -20,6 +20,7 @@ export default async function handler(req, res) {
         writer: entry.item.writerInfo && entry.item.writerInfo.nickName,
         url: `https://cafe.naver.com/ddarin/${entry.item.articleId}`,
         image: entry.item.representImage || "",
+        published: entry.item.writeDateTimestamp || null,
       }))
       .filter((item) => item.image);
   } catch {

@@ -42,8 +42,6 @@
   grid-template-columns: repeat(2, 110px);
   gap: 16px;
   padding: 20px;
-  border-radius: 20px;
-  background: #faf6ee;
 }
 
 .back-menu-item {
@@ -1159,25 +1157,100 @@ body {
 }
 
 .cafe-photos-view {
-  position: relative;
-  width: 100%;
-  max-width: 1500px;
-  margin-top: 240px;
-  padding: 24px;
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: #14171f;
+  color: #e8e8ec;
+  overflow-y: auto;
+}
+
+.cafe-photos-header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 24px;
+  background: #14171f;
+  z-index: 1;
+}
+
+.cafe-photos-home-btn {
+  border: none;
+  background: none;
+  color: #cfd3da;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
 }
 
 .cafe-photos-title {
-  margin: 0 0 16px;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.cafe-photos-cafe-link {
+  color: #9aa0ab;
+  font-size: 0.8rem;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 .cafe-photos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1px;
+  background: #232733;
+  padding-bottom: 24px;
 }
 
-.cafe-photos-grid .today-schedule-thumb-link {
-  margin-bottom: 0;
+.cafe-photos-status {
+  grid-column: 1 / -1;
+  padding: 24px;
+  color: #9aa0ab;
+  background: #14171f;
+}
+
+.cafe-photo-card {
+  display: block;
+  background: #14171f;
+  color: inherit;
+  text-decoration: none;
+  padding-bottom: 16px;
+}
+
+.cafe-photo-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  background: #232733;
+}
+
+.cafe-photo-info {
+  padding: 10px 14px 0;
+}
+
+.cafe-photo-title {
+  margin: 0 0 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cafe-photo-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.72rem;
+  color: #8a8f99;
 }
 
 #modalBackdrop .modal {

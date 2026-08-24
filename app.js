@@ -1312,8 +1312,8 @@ function showMainView(view) {
   gameView.classList.toggle("hidden", view !== "game");
   backMenuView.classList.toggle("hidden", view !== "backmenu");
   cafePhotosView.classList.toggle("hidden", view !== "cafephotos");
-  sideNavEl.classList.toggle("hidden", view === "backmenu");
-  backToCalendarBtn.classList.toggle("hidden", view === "backmenu");
+  sideNavEl.classList.toggle("hidden", view === "backmenu" || view === "cafephotos");
+  backToCalendarBtn.classList.toggle("hidden", view === "backmenu" || view === "cafephotos");
 }
 
 async function openSongbook() {
@@ -1354,9 +1354,25 @@ backToCalendarBtn.addEventListener("click", () => showMainView("backmenu"));
 document.getElementById("backMenuCalendarBtn").addEventListener("click", () => showMainView("calendar"));
 
 const cafePhotosList = document.getElementById("cafePhotosList");
+document.getElementById("cafePhotosHomeBtn").addEventListener("click", () => showMainView("calendar"));
+
+function formatRelativeTimeKo(timestamp) {
+  if (!timestamp) return "";
+  const diffMs = Date.now() - timestamp;
+  const minute = 60 * 1000;
+  const hour = 60 * minute;
+  const day = 24 * hour;
+  const month = 30 * day;
+  const year = 365 * day;
+  if (diffMs < hour) return `${Math.max(1, Math.floor(diffMs / minute))}분 전`;
+  if (diffMs < day) return `${Math.floor(diffMs / hour)}시간 전`;
+  if (diffMs < month) return `${Math.floor(diffMs / day)}일 전`;
+  if (diffMs < year) return `${Math.floor(diffMs / month)}개월 전`;
+  return `${Math.floor(diffMs / year)}년 전`;
+}
 
 document.getElementById("backMenuPostsBtn").addEventListener("click", async () => {
-  cafePhotosList.innerHTML = `<div class="today-schedule-item"><span class="today-schedule-item-title">불러오는 중...</span></div>`;
+  cafePhotosList.innerHTML = `<p class="cafe-photos-status">불러오는 중...</p>`;
   showMainView("cafephotos");
 
   let items = [];
@@ -1369,29 +1385,42 @@ document.getElementById("backMenuPostsBtn").addEventListener("click", async () =
 
   cafePhotosList.innerHTML = "";
   if (!items.length) {
-    cafePhotosList.innerHTML = `<div class="today-schedule-item"><span class="today-schedule-item-title">게시글을 불러오지 못했습니다.</span></div>`;
+    cafePhotosList.innerHTML = `<p class="cafe-photos-status">게시글을 불러오지 못했습니다.</p>`;
     return;
   }
 
   items.forEach((item) => {
-    const link = document.createElement("a");
-    link.className = "today-schedule-thumb-link";
-    link.href = item.url;
-    link.target = "_blank";
-    link.rel = "noopener";
+    const card = document.createElement("a");
+    card.className = "cafe-photo-card";
+    card.href = item.url;
+    card.target = "_blank";
+    card.rel = "noopener";
 
-    const thumb = document.createElement("img");
-    thumb.className = "today-schedule-thumb";
-    thumb.src = `/api/naver-image?url=${encodeURIComponent(item.image)}`;
-    thumb.alt = "";
-    link.appendChild(thumb);
+    const img = document.createElement("img");
+    img.className = "cafe-photo-img";
+    img.src = `/api/naver-image?url=${encodeURIComponent(item.image)}`;
+    img.alt = "";
+    card.appendChild(img);
 
-    const titleEl = document.createElement("span");
-    titleEl.className = "today-schedule-thumb-title";
+    const info = document.createElement("div");
+    info.className = "cafe-photo-info";
+
+    const titleEl = document.createElement("p");
+    titleEl.className = "cafe-photo-title";
     titleEl.textContent = item.title;
-    link.appendChild(titleEl);
+    info.appendChild(titleEl);
 
-    cafePhotosList.appendChild(link);
+    const meta = document.createElement("p");
+    meta.className = "cafe-photo-meta";
+    const writerEl = document.createElement("span");
+    writerEl.textContent = item.writer || "";
+    const timeEl = document.createElement("span");
+    timeEl.textContent = formatRelativeTimeKo(item.published);
+    meta.append(writerEl, timeEl);
+    info.appendChild(meta);
+
+    card.appendChild(info);
+    cafePhotosList.appendChild(card);
   });
 });
 function syncGameViewHeight() {
