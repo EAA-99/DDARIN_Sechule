@@ -216,6 +216,7 @@ const appViewEl = document.querySelector(".app");
 const songbookBtn = document.getElementById("songbookBtn");
 const songbookView = document.getElementById("songbookView");
 const gameView = document.getElementById("gameView");
+const backMenuView = document.getElementById("backMenuView");
 const songSearchInput = document.getElementById("songSearchInput");
 const genreTabs = document.getElementById("genreTabs");
 const artistList = document.getElementById("artistList");
@@ -1307,6 +1308,7 @@ function showMainView(view) {
   songbookView.classList.toggle("hidden", view !== "songbook");
   songbook2View.classList.toggle("hidden", view !== "songbook2");
   gameView.classList.toggle("hidden", view !== "game");
+  backMenuView.classList.toggle("hidden", view !== "backmenu");
 }
 
 async function openSongbook() {
@@ -1343,12 +1345,8 @@ document.getElementById("calendarBtn").addEventListener("click", () => showMainV
 document.getElementById("songbook2Btn").addEventListener("click", openSongbook2);
 
 const backToCalendarBtn = document.getElementById("backToCalendarBtn");
-const backMenuPopup = document.getElementById("backMenuPopup");
-backToCalendarBtn.addEventListener("click", () => backMenuPopup.classList.toggle("hidden"));
-document.getElementById("backMenuCalendarBtn").addEventListener("click", () => {
-  backMenuPopup.classList.add("hidden");
-  showMainView("calendar");
-});
+backToCalendarBtn.addEventListener("click", () => showMainView("backmenu"));
+document.getElementById("backMenuCalendarBtn").addEventListener("click", () => showMainView("calendar"));
 function syncGameViewHeight() {
   const wasHidden = songbookView.classList.contains("hidden");
   if (wasHidden) songbookView.classList.remove("hidden");
