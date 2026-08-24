@@ -1341,6 +1341,14 @@ async function openSongbook2() {
 songbookBtn.addEventListener("click", openSongbook);
 document.getElementById("calendarBtn").addEventListener("click", () => showMainView("calendar"));
 document.getElementById("songbook2Btn").addEventListener("click", openSongbook2);
+
+const backToCalendarBtn = document.getElementById("backToCalendarBtn");
+const backMenuPopup = document.getElementById("backMenuPopup");
+backToCalendarBtn.addEventListener("click", () => backMenuPopup.classList.toggle("hidden"));
+document.getElementById("backMenuCalendarBtn").addEventListener("click", () => {
+  backMenuPopup.classList.add("hidden");
+  showMainView("calendar");
+});
 function syncGameViewHeight() {
   const wasHidden = songbookView.classList.contains("hidden");
   if (wasHidden) songbookView.classList.remove("hidden");
