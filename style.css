@@ -1157,12 +1157,13 @@ body {
 }
 
 .cafe-photos-view {
-  position: fixed;
-  inset: 0;
-  z-index: 80;
+  position: relative;
+  width: 100%;
+  max-width: 1500px;
+  margin-top: 240px;
+  padding: 24px;
   background: #fff;
   color: #2a2a2a;
-  overflow-y: auto;
 }
 
 .cafe-photos-header {
@@ -1170,7 +1171,7 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px 24px;
+  padding-bottom: 16px;
 }
 
 .cafe-photos-home-btn {
@@ -1190,8 +1191,8 @@ body {
 
 .cafe-photos-cafe-link {
   position: absolute;
-  top: 18px;
-  right: 24px;
+  top: 2px;
+  right: 0;
   color: #999;
   font-size: 0.72rem;
   text-decoration: none;
