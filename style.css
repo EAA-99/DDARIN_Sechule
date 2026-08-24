@@ -849,10 +849,10 @@ body {
   justify-content: center;
 }
 
-.day-cell:nth-child(7n) .day-num { color: #e0577a; }
-.day-cell:nth-child(7n+6) .day-num { color: #4a7fd6; }
+.day-cell:nth-child(7n) .day-num { color: #4a7fd6; }
+.day-cell:nth-child(7n+1) .day-num { color: #e0577a; }
 .day-cell.today:nth-child(7n) .day-num,
-.day-cell.today:nth-child(7n+6) .day-num { color: #fff; }
+.day-cell.today:nth-child(7n+1) .day-num { color: #fff; }
 
 .event-single {
   flex: 1;
