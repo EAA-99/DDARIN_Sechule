@@ -217,6 +217,7 @@ const songbookBtn = document.getElementById("songbookBtn");
 const songbookView = document.getElementById("songbookView");
 const gameView = document.getElementById("gameView");
 const backMenuView = document.getElementById("backMenuView");
+const sideNavEl = document.querySelector(".side-nav");
 const songSearchInput = document.getElementById("songSearchInput");
 const genreTabs = document.getElementById("genreTabs");
 const artistList = document.getElementById("artistList");
@@ -1309,6 +1310,7 @@ function showMainView(view) {
   songbook2View.classList.toggle("hidden", view !== "songbook2");
   gameView.classList.toggle("hidden", view !== "game");
   backMenuView.classList.toggle("hidden", view !== "backmenu");
+  sideNavEl.classList.toggle("hidden", view === "backmenu");
 }
 
 async function openSongbook() {
