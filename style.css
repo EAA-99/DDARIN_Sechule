@@ -1158,16 +1158,22 @@ body {
   max-width: 560px;
 }
 
-#cafePhotosModalBackdrop .modal {
-  max-width: 640px;
+.cafe-photos-view {
+  position: relative;
+  width: 100%;
+  max-width: 1500px;
+  margin-top: 240px;
+  padding: 24px;
+}
+
+.cafe-photos-title {
+  margin: 0 0 16px;
 }
 
 .cafe-photos-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 10px;
-  max-height: 65vh;
-  overflow-y: auto;
 }
 
 .cafe-photos-grid .today-schedule-thumb-link {

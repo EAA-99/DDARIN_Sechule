@@ -217,6 +217,7 @@ const songbookBtn = document.getElementById("songbookBtn");
 const songbookView = document.getElementById("songbookView");
 const gameView = document.getElementById("gameView");
 const backMenuView = document.getElementById("backMenuView");
+const cafePhotosView = document.getElementById("cafePhotosView");
 const sideNavEl = document.querySelector(".side-nav");
 const songSearchInput = document.getElementById("songSearchInput");
 const genreTabs = document.getElementById("genreTabs");
@@ -1310,7 +1311,9 @@ function showMainView(view) {
   songbook2View.classList.toggle("hidden", view !== "songbook2");
   gameView.classList.toggle("hidden", view !== "game");
   backMenuView.classList.toggle("hidden", view !== "backmenu");
+  cafePhotosView.classList.toggle("hidden", view !== "cafephotos");
   sideNavEl.classList.toggle("hidden", view === "backmenu");
+  backToCalendarBtn.classList.toggle("hidden", view === "backmenu");
 }
 
 async function openSongbook() {
@@ -1350,18 +1353,11 @@ const backToCalendarBtn = document.getElementById("backToCalendarBtn");
 backToCalendarBtn.addEventListener("click", () => showMainView("backmenu"));
 document.getElementById("backMenuCalendarBtn").addEventListener("click", () => showMainView("calendar"));
 
-const cafePhotosModalBackdrop = document.getElementById("cafePhotosModalBackdrop");
 const cafePhotosList = document.getElementById("cafePhotosList");
-document.getElementById("closeCafePhotosModalBtn").addEventListener("click", () => {
-  cafePhotosModalBackdrop.classList.add("hidden");
-});
-cafePhotosModalBackdrop.addEventListener("click", (e) => {
-  if (e.target === cafePhotosModalBackdrop) cafePhotosModalBackdrop.classList.add("hidden");
-});
 
 document.getElementById("backMenuPostsBtn").addEventListener("click", async () => {
   cafePhotosList.innerHTML = `<div class="today-schedule-item"><span class="today-schedule-item-title">불러오는 중...</span></div>`;
-  cafePhotosModalBackdrop.classList.remove("hidden");
+  showMainView("cafephotos");
 
   let items = [];
   try {
