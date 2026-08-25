@@ -155,7 +155,9 @@
 
     <div class="songbook-inner">
     <div class="songbook-header">
-      <h1>Live Clip</h1>
+      <div id="genreTabs" class="genre-tabs">
+        <button type="button" class="genre-tab active" data-genre="전체">전체</button>
+      </div>
       <div class="songbook-header-actions">
         <button type="button" id="deleteNoClipBtn" class="song-manage-btn song-manage-btn-danger hidden">클립 없는 곡 삭제</button>
         <select id="songSortSelect" class="song-sort-select">
@@ -214,10 +216,6 @@
               <rect x="13" y="13" width="8" height="8" rx="2"/>
             </svg>
           </button>
-        </div>
-
-        <div id="genreTabs" class="genre-tabs">
-          <button type="button" class="genre-tab active" data-genre="전체">전체</button>
         </div>
 
         <div id="songGrid" class="song-grid"></div>

@@ -2182,14 +2182,36 @@ memoOverlay.addEventListener("click", closeMemoPanel);
   });
 })();
 songSearchInput.addEventListener("input", renderSongGrid);
-genreTabs.addEventListener("click", (e) => {
-  const btn = e.target.closest(".genre-tab");
-  if (!btn) return;
+function selectGenreTab(btn) {
+  if (!btn || btn.classList.contains("active")) return;
   songbookGenre = btn.dataset.genre;
   genreTabs.querySelectorAll(".genre-tab").forEach((el) => el.classList.toggle("active", el === btn));
   renderArtistList();
   renderSongGrid();
+}
+
+genreTabs.addEventListener("click", (e) => {
+  selectGenreTab(e.target.closest(".genre-tab"));
 });
+
+(function makeGenreTabsDragSelectable() {
+  let dragging = false;
+
+  genreTabs.addEventListener("pointerdown", (e) => {
+    if (e.target.closest(".genre-tab")) dragging = true;
+  });
+
+  genreTabs.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const target = document.elementFromPoint(e.clientX, e.clientY);
+    const btn = target && target.closest && target.closest(".genre-tab");
+    if (btn && genreTabs.contains(btn)) selectGenreTab(btn);
+  });
+
+  window.addEventListener("pointerup", () => {
+    dragging = false;
+  });
+})();
 
 songNoImageBtn.addEventListener("click", () => {
   songShowImage = false;
