@@ -3242,47 +3242,61 @@ body {
 }
 
 #genreTabs {
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  position: relative;
 }
 
-#genreTabs .genre-tab {
-  background: none;
+#genreTabsToggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   border: none;
+  background: none;
   padding: 4px 0;
-  min-width: 50px;
   font-size: 1.3rem;
   font-weight: 800;
-  color: #999;
+  color: #2a2a2a;
   cursor: pointer;
-  user-select: none;
 }
 
-#genreTabs .genre-tab:not(.active) {
-  display: none;
+#genreTabsMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  margin-top: 6px;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
-#genreTabs .genre-tabs-arrow {
-  display: none;
+#genreTabsMenu .genre-tab {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
   border: none;
   background: none;
-  padding: 0;
-  font-size: 1.2rem;
-  color: #2a2a2a;
-  opacity: 0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #666;
+  text-align: left;
   cursor: pointer;
-  transition: opacity 0.15s;
 }
 
-#genreTabs:hover .genre-tabs-arrow {
-  display: inline;
-  opacity: 1;
+#genreTabsMenu .genre-tab:hover {
+  background: #f5f6f8;
 }
 
-#genreTabs .genre-tab.active {
+#genreTabsMenu .genre-tab.active {
   color: #2a2a2a;
+  background: #eef0f4;
 }
 
 #songbookView .song-sort-row {
@@ -3297,14 +3311,13 @@ body {
 }
 
 #songbookView .song-sort-row .song-sort-select {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
+  background: none;
   border: none;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
+  padding: 0;
+  color: #999;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 #songbookView .player-hashtags {

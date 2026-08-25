@@ -220,6 +220,8 @@ const cafePhotosView = document.getElementById("cafePhotosView");
 const sideNavEl = document.querySelector(".side-nav");
 const songSearchInput = document.getElementById("songSearchInput");
 const genreTabs = document.getElementById("genreTabs");
+const genreTabsToggle = document.getElementById("genreTabsToggle");
+const genreTabsMenu = document.getElementById("genreTabsMenu");
 const artistList = document.getElementById("artistList");
 let songbookArtist = "전체";
 const songSortSelect = document.getElementById("songSortSelect");
@@ -392,7 +394,7 @@ function appendGenreTabLabel(btn, label, count) {
 }
 
 function renderGenreTabs(genres) {
-  genreTabs.innerHTML = "";
+  genreTabsMenu.innerHTML = "";
 
   const visibleSongs = (allSongs || []).filter((s) => !s.deletedFromLiveClip);
 
@@ -401,15 +403,7 @@ function renderGenreTabs(genres) {
   allBtn.className = "genre-tab" + (songbookGenre === "전체" ? " active" : "");
   allBtn.dataset.genre = "전체";
   appendGenreTabLabel(allBtn, "전체", visibleSongs.length);
-  genreTabs.appendChild(allBtn);
-
-  if (genres.length) {
-    const arrow = document.createElement("button");
-    arrow.type = "button";
-    arrow.className = "genre-tabs-arrow";
-    arrow.textContent = "›";
-    genreTabs.appendChild(arrow);
-  }
+  genreTabsMenu.appendChild(allBtn);
 
   genres.forEach((genre) => {
     const btn = document.createElement("button");
@@ -418,7 +412,7 @@ function renderGenreTabs(genres) {
     btn.dataset.genre = genre;
     const count = visibleSongs.filter((s) => s.genre === genre).length;
     appendGenreTabLabel(btn, genre, count);
-    genreTabs.appendChild(btn);
+    genreTabsMenu.appendChild(btn);
   });
 }
 
@@ -2191,25 +2185,22 @@ songSearchInput.addEventListener("input", renderSongGrid);
 function selectGenreTab(btn) {
   if (!btn || btn.classList.contains("active")) return;
   songbookGenre = btn.dataset.genre;
-  genreTabs.querySelectorAll(".genre-tab").forEach((el) => el.classList.toggle("active", el === btn));
+  genreTabsMenu.querySelectorAll(".genre-tab").forEach((el) => el.classList.toggle("active", el === btn));
   renderArtistList();
   renderSongGrid();
 }
 
-function cycleGenreTabs() {
-  const tabs = Array.from(genreTabs.querySelectorAll(".genre-tab"));
-  if (tabs.length < 2) return;
-  const currentIndex = tabs.findIndex((el) => el.classList.contains("active"));
-  const nextIndex = (currentIndex + 1) % tabs.length;
-  selectGenreTab(tabs[nextIndex]);
-}
+genreTabsToggle.addEventListener("click", () => {
+  genreTabsMenu.classList.toggle("hidden");
+});
 
-genreTabs.addEventListener("click", (e) => {
-  if (e.target.closest(".genre-tabs-arrow")) {
-    cycleGenreTabs();
-    return;
-  }
+genreTabsMenu.addEventListener("click", (e) => {
   selectGenreTab(e.target.closest(".genre-tab"));
+  genreTabsMenu.classList.add("hidden");
+});
+
+document.addEventListener("click", (e) => {
+  if (!genreTabs.contains(e.target)) genreTabsMenu.classList.add("hidden");
 });
 
 songSortSelect.addEventListener("change", () => {
@@ -2217,14 +2208,6 @@ songSortSelect.addEventListener("change", () => {
   renderSongGrid();
 });
 
-document.getElementById("songSortRow").addEventListener("click", (e) => {
-  e.preventDefault();
-  if (songSortSelect.showPicker) {
-    songSortSelect.showPicker();
-  } else {
-    songSortSelect.focus();
-  }
-});
 
 song2SearchInput.addEventListener("input", renderSongGrid2);
 genre2Tabs.addEventListener("click", (e) => {
