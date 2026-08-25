@@ -1,14 +1,13 @@
 export default async function handler(req, res) {
   const clubId = "31054486";
   const menuId = "27"; // 🎁 팬아트 게시판
-  const currentYear = new Date().getFullYear();
-  const MAX_PAGES = 20;
+  const MAX_PAGES = 30;
 
   res.setHeader("Content-Type", "application/json");
 
   const results = [];
   try {
-    outer: for (let page = 1; page <= MAX_PAGES; page++) {
+    for (let page = 1; page <= MAX_PAGES; page++) {
       const url =
         `https://apis.naver.com/cafe-web/cafe-boardlist-api/v1/cafes/${clubId}/menus/${menuId}/articles` +
         `?page=${page}&perPage=20&viewType=L`;
@@ -19,17 +18,14 @@ export default async function handler(req, res) {
 
       for (const entry of articleList) {
         if (entry.type !== "ARTICLE" || !entry.item) continue;
-        const timestamp = entry.item.writeDateTimestamp;
-        if (!timestamp) continue;
-        if (new Date(timestamp).getFullYear() !== currentYear) break outer;
-
         if (!entry.item.representImage) continue;
+
         results.push({
           title: entry.item.subject,
           writer: entry.item.writerInfo && entry.item.writerInfo.nickName,
           url: `https://cafe.naver.com/ddarin/${entry.item.articleId}`,
           image: entry.item.representImage,
-          published: timestamp,
+          published: entry.item.writeDateTimestamp || null,
           likeCount: entry.item.likeCount || 0,
         });
       }
