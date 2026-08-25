@@ -3196,17 +3196,14 @@ body {
   padding: 40px 0;
 }
 
-/* Playlist(Live Clip) 전용 다크 테마 - #songbookView로 범위를 좁혀서 노래책/게임 화면엔 영향 없음 */
+/* Playlist(Live Clip) 전용 레이아웃 - #songbookView로 범위를 좁혀서 노래책/게임 화면엔 영향 없음. 바깥 프레임은 .songbook-view(일정표와 동일) 그대로 두고 안쪽만 흰 테마로 커스텀 */
 #songbookView {
-  background: #14171f;
-  border: none;
-  color: #e8e8ec;
-  height: calc(100vh - 290px);
+  margin-top: 0;
+  height: calc(100vh - 90px);
   overflow: hidden;
 }
 
 #songbookView .songbook-inner {
-  background: transparent;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -3225,6 +3222,11 @@ body {
 #songbookView .player-panel {
   height: 100%;
   overflow-y: auto;
+  scrollbar-width: none;
+}
+
+#songbookView .player-panel::-webkit-scrollbar {
+  display: none;
 }
 
 #songbookView .songbook-main {
@@ -3239,12 +3241,6 @@ body {
   flex-shrink: 0;
 }
 
-#songGrid {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-}
-
 #genreTabs {
   gap: 10px;
   align-items: center;
@@ -3256,9 +3252,10 @@ body {
   background: none;
   border: none;
   padding: 4px 0;
+  min-width: 50px;
   font-size: 1.3rem;
   font-weight: 800;
-  color: #6b7078;
+  color: #999;
   cursor: pointer;
   user-select: none;
 }
@@ -3273,7 +3270,7 @@ body {
   background: none;
   padding: 0;
   font-size: 1.2rem;
-  color: #fff;
+  color: #2a2a2a;
   opacity: 0;
   cursor: pointer;
   transition: opacity 0.15s;
@@ -3285,24 +3282,7 @@ body {
 }
 
 #genreTabs .genre-tab.active {
-  color: #fff;
-}
-
-#genreTabs .genre-tab-count {
-  background: #232733;
-  color: #9aa0ab;
-}
-
-#songbookView .song-sort-select {
-  background: #1c2029;
-  border: 1px solid #2a2f3a;
-  color: #e8e8ec;
-}
-
-#songbookView .song-search {
-  background: #1c2029;
-  border: 1px solid #2a2f3a;
-  color: #e8e8ec;
+  color: #2a2a2a;
 }
 
 #songbookView .song-sort-row {
@@ -3310,7 +3290,7 @@ body {
   align-items: center;
   gap: 8px;
   margin-bottom: 14px;
-  color: #9aa0ab;
+  color: #999;
   font-size: 0.85rem;
   cursor: pointer;
   width: fit-content;
@@ -3327,65 +3307,26 @@ body {
   white-space: nowrap;
 }
 
-#songbookView .player-panel {
-  background: #1c2029;
-  border: none;
-  color: #e8e8ec;
-}
-
 #songbookView .player-hashtags {
-  color: #6b7078;
-}
-
-#songbookView .player-panel h2,
-#songbookView .player-panel h3 {
-  color: #fff;
-}
-
-#songbookView .player-owner-name {
-  color: #fff;
+  color: #999;
 }
 
 #songbookView .player-stats {
-  color: #9aa0ab;
-}
-
-#songbookView .player-empty-title {
-  color: #fff;
-}
-
-#songbookView .player-empty-sub {
-  color: #6b7078;
-}
-
-#songbookView .artist-list-btn {
-  background: #232733;
-  border: none;
-  color: #9aa0ab;
-}
-
-#songbookView .artist-list-btn.active {
-  background: #4a5fd6;
-  color: #fff;
+  color: #999;
 }
 
 #songGrid {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  max-height: none;
 }
 
-#songGrid .song-group-header {
-  border-bottom: 1px solid #232733;
-}
-
-#songGrid .song-group-name {
-  color: #fff;
-}
-
-#songGrid .song-group-count {
-  color: #6b7078;
+#songGrid::-webkit-scrollbar {
+  display: none;
 }
 
 #songGrid .song-card {
@@ -3403,7 +3344,7 @@ body {
 }
 
 #songGrid .song-card:hover {
-  background: #1c2029;
+  background: #fafbff;
 }
 
 #songGrid .song-card-art {
@@ -3417,14 +3358,12 @@ body {
 #songGrid .song-card-title {
   grid-column: 2;
   grid-row: 1;
-  color: #fff;
 }
 
 #songGrid .song-card-artist {
   grid-column: 2;
   grid-row: 2;
   margin-bottom: 0;
-  color: #9aa0ab;
 }
 
 #songGrid .song-card-genre {
@@ -3437,15 +3376,6 @@ body {
   position: static;
   background: none;
   box-shadow: none;
-  color: #6b7078;
-}
-
-#songGrid .song-card-fav-btn.active {
-  color: #f0b400;
-}
-
-#songGrid .song-empty {
-  color: #6b7078;
 }
 
 @media (max-width: 700px) {
