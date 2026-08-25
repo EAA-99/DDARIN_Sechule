@@ -169,9 +169,17 @@
           <span class="player-collage-box"></span>
         </div>
 
+        <div class="clip-source-row">
+          <button type="button" class="clip-source-tab active" data-source="clip">Clip</button>
+          <span class="clip-source-sep">/</span>
+          <button type="button" class="clip-source-tab" data-source="youtube">Youtube</button>
+          <span class="clip-source-sep">/</span>
+          <button type="button" class="clip-source-tab" data-source="playlist">Playlist</button>
+        </div>
+
         <div id="genreTabs" class="genre-tabs">
           <button type="button" id="genreTabsToggle" class="genre-tabs-toggle">
-            Clip / Youtube / Playlist
+            <span id="genreTabsToggleLabel">전체</span>
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div id="genreTabsMenu" class="genre-tabs-menu hidden"></div>

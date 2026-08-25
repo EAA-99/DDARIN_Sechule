@@ -1227,6 +1227,82 @@ function renderSongGrid() {
   });
 }
 
+let songSource = "clip"; // "clip" | "youtube" | "playlist"
+let youtubePlaylistSongs = null;
+
+async function loadYoutubePlaylistSongs() {
+  if (youtubePlaylistSongs) return youtubePlaylistSongs;
+  try {
+    const res = await fetch("/api/youtube-playlist");
+    youtubePlaylistSongs = await res.json();
+  } catch {
+    youtubePlaylistSongs = [];
+  }
+  return youtubePlaylistSongs;
+}
+
+function renderYoutubePlaylistGrid(songs) {
+  document.getElementById("playerStats").textContent = `트랙 ${songs.length}개`;
+  songGrid.innerHTML = "";
+
+  if (!songs.length) {
+    const empty = document.createElement("div");
+    empty.className = "song-empty";
+    empty.textContent = "불러올 곡이 없습니다.";
+    songGrid.appendChild(empty);
+    return;
+  }
+
+  songs.forEach((song) => {
+    const card = document.createElement("a");
+    card.className = "song-card";
+    card.href = song.url;
+    card.target = "_blank";
+    card.rel = "noopener";
+
+    const art = document.createElement("img");
+    art.className = "song-card-art";
+    art.alt = "";
+    art.src = song.thumbnail;
+
+    const titleEl = document.createElement("div");
+    titleEl.className = "song-card-title";
+    titleEl.textContent = song.title;
+
+    const artistEl = document.createElement("div");
+    artistEl.className = "song-card-artist";
+    artistEl.textContent = song.artist;
+
+    card.append(art, titleEl, artistEl);
+    songGrid.appendChild(card);
+  });
+}
+
+document.querySelectorAll(".clip-source-tab").forEach((tab) => {
+  tab.addEventListener("click", async () => {
+    if (tab.classList.contains("active")) return;
+    document.querySelectorAll(".clip-source-tab").forEach((el) => el.classList.toggle("active", el === tab));
+    songSource = tab.dataset.source;
+    genreTabs.classList.toggle("hidden", songSource !== "clip");
+
+    if (songSource === "clip") {
+      renderSongGrid();
+    } else if (songSource === "youtube") {
+      document.getElementById("playerStats").textContent = "";
+      songGrid.innerHTML = `<div class="song-empty">불러오는 중...</div>`;
+      const songs = await loadYoutubePlaylistSongs();
+      renderYoutubePlaylistGrid(songs);
+    } else {
+      document.getElementById("playerStats").textContent = "";
+      songGrid.innerHTML = "";
+      const empty = document.createElement("div");
+      empty.className = "song-empty";
+      empty.textContent = "준비 중입니다.";
+      songGrid.appendChild(empty);
+    }
+  });
+});
+
 function getFilteredSongs2() {
   const query = song2SearchInput.value.trim().toLowerCase();
 
@@ -2188,6 +2264,7 @@ function selectGenreTab(btn) {
   if (!btn || btn.classList.contains("active")) return;
   songbookGenre = btn.dataset.genre;
   genreTabsMenu.querySelectorAll(".genre-tab").forEach((el) => el.classList.toggle("active", el === btn));
+  document.getElementById("genreTabsToggleLabel").textContent = songbookGenre;
   renderArtistList();
   renderSongGrid();
 }
