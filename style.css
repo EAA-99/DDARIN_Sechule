@@ -1303,7 +1303,9 @@ body {
 .cafe-photo-lightbox-img {
   display: block;
   width: 100%;
-  height: auto;
+  aspect-ratio: 5 / 8;
+  object-fit: contain;
+  background: #f0f0f0;
   cursor: grab;
   touch-action: pan-y;
   user-select: none;
