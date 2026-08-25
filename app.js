@@ -1378,7 +1378,6 @@ function renderCafePhotoLightbox() {
   const item = cafePhotoItems[cafePhotoIndex];
   if (!item) return;
   cafePhotoLightboxImg.src = `/api/naver-image?url=${encodeURIComponent(item.image)}`;
-  cafePhotoLightboxLink.href = item.url;
   cafePhotoLikes.textContent = `좋아요 ${(item.likeCount || 0).toLocaleString()}개`;
   cafePhotoWriter.textContent = item.writer || "";
   cafePhotoTitle.textContent = item.title || "";
@@ -1434,8 +1433,10 @@ function openCafePhotoLightbox(items, index) {
     if (dragging) endDrag(e);
   });
 
-  cafePhotoLightboxLink.addEventListener("click", (e) => {
-    if (dragMoved) e.preventDefault();
+  cafePhotoLightboxLink.addEventListener("click", () => {
+    if (dragMoved) return;
+    const item = cafePhotoItems[cafePhotoIndex];
+    if (item) window.open(item.url, "_blank", "noopener");
   });
 })();
 
