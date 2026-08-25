@@ -1383,6 +1383,8 @@ document.getElementById("backMenuPostsBtn").addEventListener("click", async () =
     items = [];
   }
 
+  document.getElementById("cafePhotosPostCount").textContent = items.length;
+
   cafePhotosList.innerHTML = "";
   if (!items.length) {
     cafePhotosList.innerHTML = `<p class="cafe-photos-status">게시글을 불러오지 못했습니다.</p>`;
