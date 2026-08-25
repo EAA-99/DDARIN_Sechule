@@ -1352,6 +1352,7 @@ document.getElementById("songbook2Btn").addEventListener("click", openSongbook2)
 const backToCalendarBtn = document.getElementById("backToCalendarBtn");
 backToCalendarBtn.addEventListener("click", () => showMainView("backmenu"));
 document.getElementById("backMenuCalendarBtn").addEventListener("click", () => showMainView("calendar"));
+document.getElementById("backMenuSongbookBtn").addEventListener("click", openSongbook2);
 
 const cafePhotosList = document.getElementById("cafePhotosList");
 document.getElementById("cafePhotosHomeBtn").addEventListener("click", () => showMainView("backmenu"));
@@ -1484,6 +1485,14 @@ async function loadCafePhotosPage() {
     cafePhotosHasMore = false;
   } finally {
     cafePhotosLoading = false;
+  }
+
+  if (
+    cafePhotosHasMore &&
+    !cafePhotosView.classList.contains("hidden") &&
+    document.body.scrollHeight <= window.innerHeight
+  ) {
+    loadCafePhotosPage();
   }
 }
 
