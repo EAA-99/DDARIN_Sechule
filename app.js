@@ -1440,41 +1440,67 @@ function openCafePhotoLightbox(items, index) {
   });
 })();
 
-document.getElementById("backMenuPostsBtn").addEventListener("click", async () => {
-  cafePhotosList.innerHTML = `<p class="cafe-photos-status">불러오는 중...</p>`;
-  showMainView("cafephotos");
+let cafePhotosPage = 1;
+let cafePhotosLoading = false;
+let cafePhotosHasMore = true;
+let cafePhotosAllItems = [];
 
-  let items = [];
+async function loadCafePhotosPage() {
+  if (cafePhotosLoading || !cafePhotosHasMore) return;
+  cafePhotosLoading = true;
+
   try {
-    const res = await fetch("/api/cafe-photos");
-    items = await res.json();
+    const res = await fetch(`/api/cafe-photos?page=${cafePhotosPage}`);
+    const data = await res.json();
+    const items = data.items || [];
+    cafePhotosHasMore = Boolean(data.hasMore);
+    cafePhotosPage += 1;
+
+    items.forEach((item) => {
+      const index = cafePhotosAllItems.length;
+      cafePhotosAllItems.push(item);
+
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "cafe-photo-card";
+
+      const img = document.createElement("img");
+      img.className = "cafe-photo-img";
+      img.src = `/api/naver-image?url=${encodeURIComponent(item.image)}`;
+      img.alt = "";
+      card.appendChild(img);
+
+      card.addEventListener("click", () => openCafePhotoLightbox(cafePhotosAllItems, index));
+
+      cafePhotosList.appendChild(card);
+    });
+
+    document.getElementById("cafePhotosPostCount").textContent = cafePhotosAllItems.length;
+
+    if (!cafePhotosAllItems.length && !cafePhotosHasMore) {
+      cafePhotosList.innerHTML = `<p class="cafe-photos-status">게시글을 불러오지 못했습니다.</p>`;
+    }
   } catch {
-    items = [];
+    cafePhotosHasMore = false;
+  } finally {
+    cafePhotosLoading = false;
   }
+}
 
-  document.getElementById("cafePhotosPostCount").textContent = items.length;
+window.addEventListener("scroll", () => {
+  if (cafePhotosView.classList.contains("hidden")) return;
+  const nearBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight - 600;
+  if (nearBottom) loadCafePhotosPage();
+});
 
+document.getElementById("backMenuPostsBtn").addEventListener("click", () => {
+  cafePhotosPage = 1;
+  cafePhotosLoading = false;
+  cafePhotosHasMore = true;
+  cafePhotosAllItems = [];
   cafePhotosList.innerHTML = "";
-  if (!items.length) {
-    cafePhotosList.innerHTML = `<p class="cafe-photos-status">게시글을 불러오지 못했습니다.</p>`;
-    return;
-  }
-
-  items.forEach((item, index) => {
-    const card = document.createElement("button");
-    card.type = "button";
-    card.className = "cafe-photo-card";
-
-    const img = document.createElement("img");
-    img.className = "cafe-photo-img";
-    img.src = `/api/naver-image?url=${encodeURIComponent(item.image)}`;
-    img.alt = "";
-    card.appendChild(img);
-
-    card.addEventListener("click", () => openCafePhotoLightbox(items, index));
-
-    cafePhotosList.appendChild(card);
-  });
+  showMainView("cafephotos");
+  loadCafePhotosPage();
 });
 function syncGameViewHeight() {
   const wasHidden = songbookView.classList.contains("hidden");
