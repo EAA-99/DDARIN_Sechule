@@ -1272,6 +1272,18 @@ body {
   border-radius: 12px;
   overflow: hidden;
   cursor: default;
+  transition: width 0.2s, max-width 0.2s;
+}
+
+.cafe-photo-post.zoomed {
+  width: 90vw;
+  max-width: 700px;
+}
+
+.cafe-photo-post.zoomed .cafe-photo-lightbox-img {
+  aspect-ratio: auto;
+  height: auto;
+  max-height: 85vh;
 }
 
 .cafe-photo-post-header {
@@ -1281,11 +1293,57 @@ body {
   padding: 12px 14px;
 }
 
+.cafe-photo-post-brand-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .cafe-photo-post-brand {
   font-weight: 800;
   font-size: 0.95rem;
   color: #2a2a2a;
   letter-spacing: 0.02em;
+}
+
+.cafe-photo-menu-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  color: #999;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+.cafe-photo-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 5;
+  margin-top: 6px;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.cafe-photo-menu-item {
+  border: none;
+  background: none;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #2a2a2a;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.cafe-photo-menu-item:hover {
+  background: #f5f6f8;
+  border-radius: 6px;
 }
 
 .cafe-photo-close-btn {
@@ -3405,6 +3463,25 @@ body {
   position: static;
   background: none;
   box-shadow: none;
+}
+
+@media (max-width: 600px) {
+  #songbookView .songbook-body {
+    min-height: 0;
+  }
+
+  #songbookView .player-panel {
+    height: auto;
+    max-height: 45%;
+    flex-shrink: 0;
+    overflow-y: auto;
+  }
+
+  #songbookView .songbook-main {
+    height: auto;
+    flex: 1;
+    min-height: 0;
+  }
 }
 
 @media (max-width: 700px) {

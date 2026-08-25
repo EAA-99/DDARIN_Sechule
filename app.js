@@ -1482,17 +1482,38 @@ document.getElementById("cafePhotosHomeBtn").addEventListener("click", () => sho
 const cafePhotoLightbox = document.getElementById("cafePhotoLightbox");
 const cafePhotoLightboxImg = document.getElementById("cafePhotoLightboxImg");
 const cafePhotoLightboxLink = document.getElementById("cafePhotoLightboxLink");
+const cafePhotoPostEl = document.querySelector(".cafe-photo-post");
 const cafePhotoLikes = document.getElementById("cafePhotoLikes");
 const cafePhotoWriter = document.getElementById("cafePhotoWriter");
 const cafePhotoTitle = document.getElementById("cafePhotoTitle");
+const cafePhotoMenuBtn = document.getElementById("cafePhotoMenuBtn");
+const cafePhotoMenu = document.getElementById("cafePhotoMenu");
 
 function closeCafePhotoLightbox() {
   cafePhotoLightbox.classList.add("hidden");
+  cafePhotoPostEl.classList.remove("zoomed");
+  cafePhotoMenu.classList.add("hidden");
 }
 cafePhotoLightbox.addEventListener("click", (e) => {
   if (e.target === cafePhotoLightbox) closeCafePhotoLightbox();
 });
 document.getElementById("cafePhotoCloseBtn").addEventListener("click", closeCafePhotoLightbox);
+
+cafePhotoMenuBtn.addEventListener("click", () => {
+  cafePhotoMenu.classList.toggle("hidden");
+});
+
+document.getElementById("cafePhotoGotoPostBtn").addEventListener("click", () => {
+  const item = cafePhotoItems[cafePhotoIndex];
+  if (item) window.open(item.url, "_blank", "noopener");
+  cafePhotoMenu.classList.add("hidden");
+});
+
+document.addEventListener("click", (e) => {
+  if (!cafePhotoMenuBtn.contains(e.target) && !cafePhotoMenu.contains(e.target)) {
+    cafePhotoMenu.classList.add("hidden");
+  }
+});
 
 let cafePhotoItems = [];
 let cafePhotoIndex = 0;
@@ -1504,6 +1525,7 @@ function renderCafePhotoLightbox() {
   cafePhotoLikes.textContent = `좋아요 ${(item.likeCount || 0).toLocaleString()}개`;
   cafePhotoWriter.textContent = item.writer || "";
   cafePhotoTitle.textContent = item.title || "";
+  cafePhotoPostEl.classList.remove("zoomed");
 }
 
 function openCafePhotoLightbox(items, index) {
@@ -1558,8 +1580,7 @@ function openCafePhotoLightbox(items, index) {
 
   cafePhotoLightboxLink.addEventListener("click", () => {
     if (dragMoved) return;
-    const item = cafePhotoItems[cafePhotoIndex];
-    if (item) window.open(item.url, "_blank", "noopener");
+    cafePhotoPostEl.classList.toggle("zoomed");
   });
 })();
 

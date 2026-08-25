@@ -127,7 +127,13 @@
   <div id="cafePhotoLightbox" class="cafe-photo-lightbox hidden">
     <div class="cafe-photo-post">
       <div class="cafe-photo-post-header">
-        <span class="cafe-photo-post-brand">DDARIN</span>
+        <div class="cafe-photo-post-brand-row">
+          <span class="cafe-photo-post-brand">DDARIN</span>
+          <button type="button" id="cafePhotoMenuBtn" class="cafe-photo-menu-btn" aria-label="더보기">•••</button>
+          <div id="cafePhotoMenu" class="cafe-photo-menu hidden">
+            <button type="button" id="cafePhotoGotoPostBtn" class="cafe-photo-menu-item">게시물로 이동</button>
+          </div>
+        </div>
         <button type="button" id="cafePhotoCloseBtn" class="cafe-photo-close-btn" aria-label="닫기">✕</button>
       </div>
       <div id="cafePhotoLightboxLink" class="cafe-photo-post-imgwrap">
