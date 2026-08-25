@@ -2647,16 +2647,30 @@ body {
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
-.player-panel-header {
+.player-owner-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin: 0 0 24px;
+  gap: 10px;
+  margin-bottom: 8px;
 }
 
-.player-panel h2 {
-  font-size: 1.1rem;
-  margin: 0;
+.player-owner-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #eee;
+  flex-shrink: 0;
+}
+
+.player-owner-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.player-stats {
+  margin: 0 0 20px;
+  font-size: 0.82rem;
+  color: #999;
 }
 
 .player-empty {
@@ -3243,6 +3257,22 @@ body {
 #songbookView .player-panel h2,
 #songbookView .player-panel h3 {
   color: #fff;
+}
+
+#songbookView .player-owner-name {
+  color: #fff;
+}
+
+#songbookView .player-stats {
+  color: #9aa0ab;
+}
+
+#songbookView .player-empty-title {
+  color: #fff;
+}
+
+#songbookView .player-empty-sub {
+  color: #6b7078;
 }
 
 #songbookView .artist-list-btn {

@@ -1177,6 +1177,8 @@ function renderSongGrid() {
     return a[field].localeCompare(b[field], "ko");
   });
 
+  document.getElementById("playerStats").textContent = `트랙 ${filtered.length}개`;
+
   songGrid.innerHTML = "";
 
   if (!filtered.length) {

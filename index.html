@@ -166,9 +166,18 @@
           <button type="button" class="genre-tab active" data-genre="전체">전체</button>
         </div>
 
-        <div class="player-panel-header">
-          <h2>플레이어</h2>
+        <div class="player-owner-row">
+          <span class="player-owner-avatar"></span>
+          <span class="player-owner-name">따린 DDARIN</span>
         </div>
+        <p id="playerStats" class="player-stats"></p>
+
+        <div class="player-controls">
+          <button type="button" id="playerPrevBtn" class="player-btn" disabled>⏮</button>
+          <button type="button" id="playerPlayBtn" class="player-btn player-btn-play" disabled>▶</button>
+          <button type="button" id="playerNextBtn" class="player-btn" disabled>⏭</button>
+        </div>
+
         <div id="playerEmpty" class="player-empty">
           <p class="player-empty-title">재생할 곡이 없습니다</p>
           <p class="player-empty-sub">곡을 선택해보세요.</p>
@@ -177,18 +186,13 @@
           <p class="player-empty-title">클립이 없습니다</p>
           <p class="player-empty-sub" id="playerNoClipSong"></p>
         </div>
-        <div class="player-controls">
-          <button type="button" id="playerPrevBtn" class="player-btn" disabled>⏮</button>
-          <button type="button" id="playerPlayBtn" class="player-btn player-btn-play" disabled>▶</button>
-          <button type="button" id="playerNextBtn" class="player-btn" disabled>⏭</button>
-        </div>
 
-        <div class="player-favorites">
+        <div class="player-favorites hidden">
           <h3>즐겨찾기</h3>
           <div id="favoritesList" class="favorites-list"></div>
         </div>
 
-        <div class="player-artists">
+        <div class="player-artists hidden">
           <h3>가수</h3>
           <div id="artistList" class="artist-list"></div>
         </div>
