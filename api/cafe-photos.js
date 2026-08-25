@@ -30,6 +30,7 @@ export default async function handler(req, res) {
           url: `https://cafe.naver.com/ddarin/${entry.item.articleId}`,
           image: entry.item.representImage,
           published: timestamp,
+          likeCount: entry.item.likeCount || 0,
         });
       }
     }

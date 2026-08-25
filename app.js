@@ -1358,7 +1358,18 @@ document.getElementById("cafePhotosHomeBtn").addEventListener("click", () => sho
 
 const cafePhotoLightbox = document.getElementById("cafePhotoLightbox");
 const cafePhotoLightboxImg = document.getElementById("cafePhotoLightboxImg");
-cafePhotoLightbox.addEventListener("click", () => cafePhotoLightbox.classList.add("hidden"));
+const cafePhotoLightboxLink = document.getElementById("cafePhotoLightboxLink");
+const cafePhotoLikes = document.getElementById("cafePhotoLikes");
+const cafePhotoWriter = document.getElementById("cafePhotoWriter");
+const cafePhotoTitle = document.getElementById("cafePhotoTitle");
+
+function closeCafePhotoLightbox() {
+  cafePhotoLightbox.classList.add("hidden");
+}
+cafePhotoLightbox.addEventListener("click", (e) => {
+  if (e.target === cafePhotoLightbox) closeCafePhotoLightbox();
+});
+document.getElementById("cafePhotoCloseBtn").addEventListener("click", closeCafePhotoLightbox);
 
 document.getElementById("backMenuPostsBtn").addEventListener("click", async () => {
   cafePhotosList.innerHTML = `<p class="cafe-photos-status">불러오는 중...</p>`;
@@ -1392,6 +1403,10 @@ document.getElementById("backMenuPostsBtn").addEventListener("click", async () =
 
     card.addEventListener("click", () => {
       cafePhotoLightboxImg.src = imgUrl;
+      cafePhotoLightboxLink.href = item.url;
+      cafePhotoLikes.textContent = `좋아요 ${(item.likeCount || 0).toLocaleString()}개`;
+      cafePhotoWriter.textContent = item.writer || "";
+      cafePhotoTitle.textContent = item.title || "";
       cafePhotoLightbox.classList.remove("hidden");
     });
 

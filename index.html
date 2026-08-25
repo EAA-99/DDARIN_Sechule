@@ -115,7 +115,24 @@
   </div>
 
   <div id="cafePhotoLightbox" class="cafe-photo-lightbox hidden">
-    <img id="cafePhotoLightboxImg" class="cafe-photo-lightbox-img" alt="">
+    <div class="cafe-photo-post">
+      <div class="cafe-photo-post-header">
+        <span class="cafe-photo-post-brand">DDARIN</span>
+        <button type="button" id="cafePhotoCloseBtn" class="cafe-photo-close-btn" aria-label="닫기">✕</button>
+      </div>
+      <a id="cafePhotoLightboxLink" class="cafe-photo-post-imgwrap" target="_blank" rel="noopener">
+        <img id="cafePhotoLightboxImg" class="cafe-photo-lightbox-img" alt="">
+      </a>
+      <div class="cafe-photo-post-actions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-9.5-8.5C1 9 2.5 5 6.5 5c2 0 3.5 1.5 4.5 3 1-1.5 2.5-3 4.5-3 4 0 5.5 4 4 7.5C19 16.65 12 21 12 21z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.3 0-2.5-.3-3.6-.8L3 21l1.8-5.4A8.5 8.5 0 1 1 21 11.5z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>
+        <span class="cafe-photo-post-spacer"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg>
+      </div>
+      <p id="cafePhotoLikes" class="cafe-photo-post-likes"></p>
+      <p class="cafe-photo-post-caption"><span id="cafePhotoWriter" class="cafe-photo-post-writer"></span> <span id="cafePhotoTitle"></span></p>
+    </div>
   </div>
 
   <div id="songbookView" class="songbook-view hidden">

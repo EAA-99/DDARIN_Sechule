@@ -1239,16 +1239,85 @@ body {
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.85);
-  cursor: zoom-out;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.cafe-photo-post {
+  width: 80vw;
+  max-width: 500px;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: default;
+}
+
+.cafe-photo-post-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+}
+
+.cafe-photo-post-brand {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #2a2a2a;
+  letter-spacing: 0.02em;
+}
+
+.cafe-photo-close-btn {
+  border: none;
+  background: none;
+  font-size: 1rem;
+  color: #999;
+  cursor: pointer;
+}
+
+.cafe-photo-post-imgwrap {
+  display: block;
 }
 
 .cafe-photo-lightbox-img {
-  width: 80vw;
-  max-width: 500px;
+  display: block;
+  width: 100%;
   aspect-ratio: 5 / 8;
-  max-height: 85vh;
   object-fit: cover;
-  border-radius: 8px;
+}
+
+.cafe-photo-post-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px 4px;
+  color: #2a2a2a;
+}
+
+.cafe-photo-post-actions svg {
+  width: 22px;
+  height: 22px;
+}
+
+.cafe-photo-post-spacer {
+  flex: 1;
+}
+
+.cafe-photo-post-likes {
+  margin: 4px 14px 0;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #2a2a2a;
+}
+
+.cafe-photo-post-caption {
+  margin: 6px 14px 14px;
+  font-size: 0.85rem;
+  color: #2a2a2a;
+}
+
+.cafe-photo-post-writer {
+  font-weight: 700;
+  margin-right: 6px;
 }
 
 #modalBackdrop .modal {
