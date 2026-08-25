@@ -1345,6 +1345,14 @@ body {
   width: 100%;
   aspect-ratio: 5 / 8;
   object-fit: cover;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.cafe-photo-lightbox-img:active {
+  cursor: grabbing;
 }
 
 .cafe-photo-post-actions {

@@ -1371,6 +1371,74 @@ cafePhotoLightbox.addEventListener("click", (e) => {
 });
 document.getElementById("cafePhotoCloseBtn").addEventListener("click", closeCafePhotoLightbox);
 
+let cafePhotoItems = [];
+let cafePhotoIndex = 0;
+
+function renderCafePhotoLightbox() {
+  const item = cafePhotoItems[cafePhotoIndex];
+  if (!item) return;
+  cafePhotoLightboxImg.src = `/api/naver-image?url=${encodeURIComponent(item.image)}`;
+  cafePhotoLightboxLink.href = item.url;
+  cafePhotoLikes.textContent = `좋아요 ${(item.likeCount || 0).toLocaleString()}개`;
+  cafePhotoWriter.textContent = item.writer || "";
+  cafePhotoTitle.textContent = item.title || "";
+}
+
+function openCafePhotoLightbox(items, index) {
+  cafePhotoItems = items;
+  cafePhotoIndex = index;
+  renderCafePhotoLightbox();
+  cafePhotoLightbox.classList.remove("hidden");
+}
+
+(function makeCafePhotoLightboxDraggable() {
+  let dragging = false;
+  let dragMoved = false;
+  let startX = 0;
+
+  cafePhotoLightboxImg.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    dragMoved = false;
+    startX = e.clientX;
+    cafePhotoLightboxImg.setPointerCapture(e.pointerId);
+    cafePhotoLightboxImg.style.transition = "none";
+  });
+
+  cafePhotoLightboxImg.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 5) dragMoved = true;
+    cafePhotoLightboxImg.style.transform = `translateX(${dx}px)`;
+  });
+
+  function endDrag(e) {
+    if (!dragging) return;
+    dragging = false;
+    const dx = e.clientX - startX;
+    cafePhotoLightboxImg.style.transition = "";
+    cafePhotoLightboxImg.style.transform = "";
+
+    if (dragMoved && Math.abs(dx) > 50) {
+      if (dx < 0 && cafePhotoIndex < cafePhotoItems.length - 1) {
+        cafePhotoIndex += 1;
+        renderCafePhotoLightbox();
+      } else if (dx > 0 && cafePhotoIndex > 0) {
+        cafePhotoIndex -= 1;
+        renderCafePhotoLightbox();
+      }
+    }
+  }
+
+  cafePhotoLightboxImg.addEventListener("pointerup", endDrag);
+  cafePhotoLightboxImg.addEventListener("pointerleave", (e) => {
+    if (dragging) endDrag(e);
+  });
+
+  cafePhotoLightboxLink.addEventListener("click", (e) => {
+    if (dragMoved) e.preventDefault();
+  });
+})();
+
 document.getElementById("backMenuPostsBtn").addEventListener("click", async () => {
   cafePhotosList.innerHTML = `<p class="cafe-photos-status">불러오는 중...</p>`;
   showMainView("cafephotos");
@@ -1391,26 +1459,18 @@ document.getElementById("backMenuPostsBtn").addEventListener("click", async () =
     return;
   }
 
-  items.forEach((item) => {
+  items.forEach((item, index) => {
     const card = document.createElement("button");
     card.type = "button";
     card.className = "cafe-photo-card";
 
-    const imgUrl = `/api/naver-image?url=${encodeURIComponent(item.image)}`;
     const img = document.createElement("img");
     img.className = "cafe-photo-img";
-    img.src = imgUrl;
+    img.src = `/api/naver-image?url=${encodeURIComponent(item.image)}`;
     img.alt = "";
     card.appendChild(img);
 
-    card.addEventListener("click", () => {
-      cafePhotoLightboxImg.src = imgUrl;
-      cafePhotoLightboxLink.href = item.url;
-      cafePhotoLikes.textContent = `좋아요 ${(item.likeCount || 0).toLocaleString()}개`;
-      cafePhotoWriter.textContent = item.writer || "";
-      cafePhotoTitle.textContent = item.title || "";
-      cafePhotoLightbox.classList.remove("hidden");
-    });
+    card.addEventListener("click", () => openCafePhotoLightbox(items, index));
 
     cafePhotosList.appendChild(card);
   });
