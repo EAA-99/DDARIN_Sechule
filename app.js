@@ -404,7 +404,8 @@ function renderGenreTabs(genres) {
   genreTabs.appendChild(allBtn);
 
   if (genres.length) {
-    const arrow = document.createElement("span");
+    const arrow = document.createElement("button");
+    arrow.type = "button";
     arrow.className = "genre-tabs-arrow";
     arrow.textContent = "›";
     genreTabs.appendChild(arrow);
@@ -2195,36 +2196,34 @@ function selectGenreTab(btn) {
   renderSongGrid();
 }
 
+function cycleGenreTabs() {
+  const tabs = Array.from(genreTabs.querySelectorAll(".genre-tab"));
+  if (tabs.length < 2) return;
+  const currentIndex = tabs.findIndex((el) => el.classList.contains("active"));
+  const nextIndex = (currentIndex + 1) % tabs.length;
+  selectGenreTab(tabs[nextIndex]);
+}
+
 genreTabs.addEventListener("click", (e) => {
+  if (e.target.closest(".genre-tabs-arrow")) {
+    cycleGenreTabs();
+    return;
+  }
   selectGenreTab(e.target.closest(".genre-tab"));
 });
-
-(function makeGenreTabsDragSelectable() {
-  let dragging = false;
-
-  genreTabs.addEventListener("pointerdown", (e) => {
-    if (e.target.closest(".genre-tab")) {
-      dragging = true;
-      genreTabs.classList.add("dragging");
-    }
-  });
-
-  genreTabs.addEventListener("pointermove", (e) => {
-    if (!dragging) return;
-    const target = document.elementFromPoint(e.clientX, e.clientY);
-    const btn = target && target.closest && target.closest(".genre-tab");
-    if (btn && genreTabs.contains(btn)) selectGenreTab(btn);
-  });
-
-  window.addEventListener("pointerup", () => {
-    dragging = false;
-    genreTabs.classList.remove("dragging");
-  });
-})();
 
 songSortSelect.addEventListener("change", () => {
   songSortMode = songSortSelect.value;
   renderSongGrid();
+});
+
+document.getElementById("songSortRow").addEventListener("click", (e) => {
+  e.preventDefault();
+  if (songSortSelect.showPicker) {
+    songSortSelect.showPicker();
+  } else {
+    songSortSelect.focus();
+  }
 });
 
 song2SearchInput.addEventListener("input", renderSongGrid2);
