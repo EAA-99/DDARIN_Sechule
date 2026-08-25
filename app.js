@@ -1353,6 +1353,7 @@ const backToCalendarBtn = document.getElementById("backToCalendarBtn");
 backToCalendarBtn.addEventListener("click", () => showMainView("backmenu"));
 document.getElementById("backMenuCalendarBtn").addEventListener("click", () => showMainView("calendar"));
 document.getElementById("backMenuSongbookBtn").addEventListener("click", openSongbook2);
+document.getElementById("backMenuPlaylistBtn").addEventListener("click", openSongbook);
 
 const cafePhotosList = document.getElementById("cafePhotosList");
 document.getElementById("cafePhotosHomeBtn").addEventListener("click", () => showMainView("backmenu"));
