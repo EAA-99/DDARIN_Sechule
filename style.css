@@ -3241,24 +3241,32 @@ body {
   flex-shrink: 0;
 }
 
-#genreTabs {
+#genreTabs,
+#sortTabs {
   position: relative;
 }
 
-#genreTabsToggle {
+.genre-tabs-toggle {
   display: flex;
   align-items: center;
   gap: 6px;
   border: none;
   background: none;
   padding: 4px 0;
-  font-size: 1.3rem;
+  font-size: 1.05rem;
   font-weight: 800;
   color: #2a2a2a;
   cursor: pointer;
+  white-space: nowrap;
 }
 
-#genreTabsMenu {
+#sortTabsToggle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #999;
+}
+
+.genre-tabs-menu {
   position: absolute;
   top: 100%;
   left: 0;
@@ -3274,7 +3282,7 @@ body {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
-#genreTabsMenu .genre-tab {
+.genre-tabs-menu .genre-tab {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -3290,34 +3298,18 @@ body {
   cursor: pointer;
 }
 
-#genreTabsMenu .genre-tab:hover {
+.genre-tabs-menu .genre-tab:hover {
   background: #f5f6f8;
 }
 
-#genreTabsMenu .genre-tab.active {
+.genre-tabs-menu .genre-tab.active {
   color: #2a2a2a;
   background: #eef0f4;
 }
 
 #songbookView .song-sort-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   margin-bottom: 14px;
-  color: #999;
-  font-size: 0.85rem;
-  cursor: pointer;
   width: fit-content;
-}
-
-#songbookView .song-sort-row .song-sort-select {
-  background: none;
-  border: none;
-  padding: 0;
-  color: #999;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
 }
 
 #songbookView .player-hashtags {

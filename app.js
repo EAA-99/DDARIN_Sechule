@@ -224,7 +224,9 @@ const genreTabsToggle = document.getElementById("genreTabsToggle");
 const genreTabsMenu = document.getElementById("genreTabsMenu");
 const artistList = document.getElementById("artistList");
 let songbookArtist = "전체";
-const songSortSelect = document.getElementById("songSortSelect");
+const sortTabs = document.getElementById("sortTabs");
+const sortTabsToggle = document.getElementById("sortTabsToggle");
+const sortTabsMenu = document.getElementById("sortTabsMenu");
 const deleteNoClipBtn = document.getElementById("deleteNoClipBtn");
 const playerEmpty = document.getElementById("playerEmpty");
 const playerNoClip = document.getElementById("playerNoClip");
@@ -2201,10 +2203,19 @@ genreTabsMenu.addEventListener("click", (e) => {
 
 document.addEventListener("click", (e) => {
   if (!genreTabs.contains(e.target)) genreTabsMenu.classList.add("hidden");
+  if (!sortTabs.contains(e.target)) sortTabsMenu.classList.add("hidden");
 });
 
-songSortSelect.addEventListener("change", () => {
-  songSortMode = songSortSelect.value;
+sortTabsToggle.addEventListener("click", () => {
+  sortTabsMenu.classList.toggle("hidden");
+});
+
+sortTabsMenu.addEventListener("click", (e) => {
+  const btn = e.target.closest(".genre-tab");
+  if (!btn) return;
+  songSortMode = btn.dataset.sort;
+  sortTabsMenu.querySelectorAll(".genre-tab").forEach((el) => el.classList.toggle("active", el === btn));
+  sortTabsMenu.classList.add("hidden");
   renderSongGrid();
 });
 
