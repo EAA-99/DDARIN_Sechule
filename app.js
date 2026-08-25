@@ -224,8 +224,6 @@ const artistList = document.getElementById("artistList");
 let songbookArtist = "전체";
 const songSortSelect = document.getElementById("songSortSelect");
 const deleteNoClipBtn = document.getElementById("deleteNoClipBtn");
-const songNoImageBtn = document.getElementById("songNoImageBtn");
-const songImageBtn = document.getElementById("songImageBtn");
 const playerEmpty = document.getElementById("playerEmpty");
 const playerNoClip = document.getElementById("playerNoClip");
 const playerNoClipSong = document.getElementById("playerNoClipSong");
@@ -919,7 +917,6 @@ playerPlayBtn.addEventListener("click", () => {
   if (favSongs.length) playSong(favSongs[0]);
 });
 
-let songShowImage = true;
 let songSortMode = "artist"; // "artist" | "title"
 
 const SONG_FAVORITES_KEY = "songbook-favorites";
@@ -1164,12 +1161,11 @@ function buildSongCard(song, options) {
 }
 
 function renderSongGrid() {
-  songGrid.classList.toggle("no-image-mode", !songShowImage);
-
   const query = songSearchInput.value.trim().toLowerCase();
 
   const filtered = (allSongs || []).filter((song) => {
     if (song.deletedFromLiveClip) return false;
+    if (!(thumbMap && thumbMap[albumArtCacheKey(song)])) return false;
     if (songbookGenre !== "전체" && song.genre !== songbookGenre) return false;
     if (songbookArtist !== "전체" && song.artist !== songbookArtist) return false;
     if (query && !song.title.toLowerCase().includes(query) && !song.artist.toLowerCase().includes(query)) return false;
@@ -2212,20 +2208,6 @@ genreTabs.addEventListener("click", (e) => {
     dragging = false;
   });
 })();
-
-songNoImageBtn.addEventListener("click", () => {
-  songShowImage = false;
-  songNoImageBtn.classList.add("active");
-  songImageBtn.classList.remove("active");
-  renderSongGrid();
-});
-
-songImageBtn.addEventListener("click", () => {
-  songShowImage = true;
-  songImageBtn.classList.add("active");
-  songNoImageBtn.classList.remove("active");
-  renderSongGrid();
-});
 
 songSortSelect.addEventListener("change", () => {
   songSortMode = songSortSelect.value;
