@@ -1201,7 +1201,7 @@ body {
 
 .cafe-photos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 2px;
   background: #e5e5e5;
   padding-bottom: 24px;
@@ -1243,9 +1243,11 @@ body {
 }
 
 .cafe-photo-lightbox-img {
-  max-width: 90vw;
-  max-height: 90vh;
-  object-fit: contain;
+  width: 80vw;
+  max-width: 500px;
+  aspect-ratio: 5 / 8;
+  max-height: 85vh;
+  object-fit: cover;
   border-radius: 8px;
 }
 
