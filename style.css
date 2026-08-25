@@ -3213,6 +3213,7 @@ body {
 
 #genreTabs {
   gap: 14px;
+  align-items: center;
 }
 
 #genreTabs .genre-tab {
@@ -3225,6 +3226,29 @@ body {
   cursor: grab;
   user-select: none;
   touch-action: pan-y;
+}
+
+#genreTabs .genre-tab:not(.active) {
+  display: none;
+}
+
+#genreTabs .genre-tabs-arrow {
+  display: none;
+  font-size: 1.2rem;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+#genreTabs:hover .genre-tab:not(.active),
+#genreTabs.dragging .genre-tab:not(.active) {
+  display: inline-flex;
+}
+
+#genreTabs:hover .genre-tabs-arrow,
+#genreTabs.dragging .genre-tabs-arrow {
+  display: inline;
+  opacity: 0.5;
 }
 
 #genreTabs .genre-tab:active {

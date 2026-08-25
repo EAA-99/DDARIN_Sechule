@@ -403,6 +403,13 @@ function renderGenreTabs(genres) {
   appendGenreTabLabel(allBtn, "전체", visibleSongs.length);
   genreTabs.appendChild(allBtn);
 
+  if (genres.length) {
+    const arrow = document.createElement("span");
+    arrow.className = "genre-tabs-arrow";
+    arrow.textContent = "›";
+    genreTabs.appendChild(arrow);
+  }
+
   genres.forEach((genre) => {
     const btn = document.createElement("button");
     btn.type = "button";
@@ -2196,7 +2203,10 @@ genreTabs.addEventListener("click", (e) => {
   let dragging = false;
 
   genreTabs.addEventListener("pointerdown", (e) => {
-    if (e.target.closest(".genre-tab")) dragging = true;
+    if (e.target.closest(".genre-tab")) {
+      dragging = true;
+      genreTabs.classList.add("dragging");
+    }
   });
 
   genreTabs.addEventListener("pointermove", (e) => {
@@ -2208,6 +2218,7 @@ genreTabs.addEventListener("click", (e) => {
 
   window.addEventListener("pointerup", () => {
     dragging = false;
+    genreTabs.classList.remove("dragging");
   });
 })();
 
