@@ -213,7 +213,6 @@ const editLockBtn = document.getElementById("editLockBtn");
 const loginBtnLabel = document.getElementById("loginBtnLabel");
 
 const appViewEl = document.querySelector(".app");
-const songbookBtn = document.getElementById("songbookBtn");
 const songbookView = document.getElementById("songbookView");
 const gameView = document.getElementById("gameView");
 const backMenuView = document.getElementById("backMenuView");
@@ -1312,7 +1311,10 @@ function showMainView(view) {
   gameView.classList.toggle("hidden", view !== "game");
   backMenuView.classList.toggle("hidden", view !== "backmenu");
   cafePhotosView.classList.toggle("hidden", view !== "cafephotos");
-  sideNavEl.classList.toggle("hidden", view === "backmenu" || view === "cafephotos");
+  sideNavEl.classList.toggle(
+    "hidden",
+    view === "backmenu" || view === "cafephotos" || view === "songbook" || view === "songbook2"
+  );
   backToCalendarBtn.classList.toggle("hidden", view === "backmenu" || view === "cafephotos");
 }
 
@@ -1345,9 +1347,7 @@ async function openSongbook2() {
   renderArtistList2();
 }
 
-songbookBtn.addEventListener("click", openSongbook);
 document.getElementById("calendarBtn").addEventListener("click", () => showMainView("calendar"));
-document.getElementById("songbook2Btn").addEventListener("click", openSongbook2);
 
 const backToCalendarBtn = document.getElementById("backToCalendarBtn");
 backToCalendarBtn.addEventListener("click", () => showMainView("backmenu"));
