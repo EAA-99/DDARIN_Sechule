@@ -170,19 +170,14 @@
         </div>
 
         <div class="clip-source-row">
-          <button type="button" class="clip-source-tab active" data-source="clip">Clip</button>
+          <div id="genreTabs" class="clip-source-item">
+            <button type="button" class="clip-source-tab active" data-source="clip">Clip</button>
+            <div id="genreTabsMenu" class="genre-tabs-menu hidden"></div>
+          </div>
           <span class="clip-source-sep">/</span>
           <button type="button" class="clip-source-tab" data-source="youtube">Youtube</button>
           <span class="clip-source-sep">/</span>
           <button type="button" class="clip-source-tab" data-source="playlist">Playlist</button>
-        </div>
-
-        <div id="genreTabs" class="genre-tabs">
-          <button type="button" id="genreTabsToggle" class="genre-tabs-toggle">
-            <span id="genreTabsToggleLabel">전체</span>
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div id="genreTabsMenu" class="genre-tabs-menu hidden"></div>
         </div>
 
         <div class="player-owner-row">
@@ -231,10 +226,7 @@
             정렬
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
-          <div id="sortTabsMenu" class="genre-tabs-menu hidden">
-            <button type="button" class="genre-tab active" data-sort="artist">가수이름순</button>
-            <button type="button" class="genre-tab" data-sort="title">가나다순</button>
-          </div>
+          <div id="sortTabsMenu" class="genre-tabs-menu hidden"></div>
         </div>
 
         <div id="songGrid" class="song-grid"></div>

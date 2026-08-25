@@ -220,8 +220,8 @@ const cafePhotosView = document.getElementById("cafePhotosView");
 const sideNavEl = document.querySelector(".side-nav");
 const songSearchInput = document.getElementById("songSearchInput");
 const genreTabs = document.getElementById("genreTabs");
-const genreTabsToggle = document.getElementById("genreTabsToggle");
 const genreTabsMenu = document.getElementById("genreTabsMenu");
+const clipSourceTab = document.querySelector('.clip-source-tab[data-source="clip"]');
 const artistList = document.getElementById("artistList");
 let songbookArtist = "전체";
 const sortTabs = document.getElementById("sortTabs");
@@ -1228,24 +1228,58 @@ function renderSongGrid() {
 }
 
 let songSource = "clip"; // "clip" | "youtube" | "playlist"
-let youtubePlaylistSongs = null;
+let youtubeSourceFilter = "전체";
+const youtubeGroupCache = {};
 
-async function loadYoutubePlaylistSongs() {
-  if (youtubePlaylistSongs) return youtubePlaylistSongs;
+const SORT_OPTIONS = {
+  clip: [
+    { value: "artist", label: "가수이름순" },
+    { value: "title", label: "가나다순" },
+  ],
+  youtube: [
+    { value: "전체", label: "전체" },
+    { value: "단체 커버곡", label: "단체 커버곡" },
+    { value: "노래 영상", label: "노래 영상" },
+  ],
+  playlist: [
+    { value: "전체", label: "전체" },
+    { value: "출근용", label: "출근용" },
+    { value: "퇴근용", label: "퇴근용" },
+  ],
+};
+
+function renderSortMenu() {
+  const options = SORT_OPTIONS[songSource] || SORT_OPTIONS.clip;
+  sortTabsMenu.innerHTML = "";
+  options.forEach((opt, i) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "genre-tab" + (i === 0 ? " active" : "");
+    btn.dataset.sortValue = opt.value;
+    btn.textContent = opt.label;
+    sortTabsMenu.appendChild(btn);
+  });
+}
+
+async function loadYoutubeGroup(group) {
+  if (youtubeGroupCache[group]) return youtubeGroupCache[group];
   try {
-    const res = await fetch("/api/youtube-playlist");
-    youtubePlaylistSongs = await res.json();
+    const res = await fetch(`/api/youtube-playlist?group=${group}`);
+    const data = await res.json();
+    youtubeGroupCache[group] = data.items || [];
   } catch {
-    youtubePlaylistSongs = [];
+    youtubeGroupCache[group] = [];
   }
-  return youtubePlaylistSongs;
+  return youtubeGroupCache[group];
 }
 
 function renderYoutubePlaylistGrid(songs) {
-  document.getElementById("playerStats").textContent = `트랙 ${songs.length}개`;
+  const filtered = youtubeSourceFilter === "전체" ? songs : songs.filter((s) => s.source === youtubeSourceFilter);
+
+  document.getElementById("playerStats").textContent = `트랙 ${filtered.length}개`;
   songGrid.innerHTML = "";
 
-  if (!songs.length) {
+  if (!filtered.length) {
     const empty = document.createElement("div");
     empty.className = "song-empty";
     empty.textContent = "불러올 곡이 없습니다.";
@@ -1253,7 +1287,7 @@ function renderYoutubePlaylistGrid(songs) {
     return;
   }
 
-  songs.forEach((song) => {
+  filtered.forEach((song) => {
     const card = document.createElement("a");
     card.className = "song-card";
     card.href = song.url;
@@ -1278,30 +1312,39 @@ function renderYoutubePlaylistGrid(songs) {
   });
 }
 
-document.querySelectorAll(".clip-source-tab").forEach((tab) => {
-  tab.addEventListener("click", async () => {
-    if (tab.classList.contains("active")) return;
-    document.querySelectorAll(".clip-source-tab").forEach((el) => el.classList.toggle("active", el === tab));
-    songSource = tab.dataset.source;
-    genreTabs.classList.toggle("hidden", songSource !== "clip");
+function switchSongSource(newSource) {
+  document.querySelectorAll(".clip-source-tab").forEach((el) => el.classList.toggle("active", el.dataset.source === newSource));
+  songSource = newSource;
+  youtubeSourceFilter = "전체";
+  genreTabsMenu.classList.add("hidden");
+  sortTabsMenu.classList.add("hidden");
+  renderSortMenu();
 
-    if (songSource === "clip") {
-      renderSongGrid();
-    } else if (songSource === "youtube") {
-      document.getElementById("playerStats").textContent = "";
-      songGrid.innerHTML = `<div class="song-empty">불러오는 중...</div>`;
-      const songs = await loadYoutubePlaylistSongs();
-      renderYoutubePlaylistGrid(songs);
-    } else {
-      document.getElementById("playerStats").textContent = "";
-      songGrid.innerHTML = "";
-      const empty = document.createElement("div");
-      empty.className = "song-empty";
-      empty.textContent = "준비 중입니다.";
-      songGrid.appendChild(empty);
-    }
+  if (songSource === "clip") {
+    renderSongGrid();
+  } else {
+    document.getElementById("playerStats").textContent = "";
+    songGrid.innerHTML = `<div class="song-empty">불러오는 중...</div>`;
+    loadYoutubeGroup(songSource).then(renderYoutubePlaylistGrid);
+  }
+}
+
+clipSourceTab.addEventListener("click", () => {
+  if (songSource !== "clip") {
+    switchSongSource("clip");
+  } else {
+    genreTabsMenu.classList.toggle("hidden");
+  }
+});
+
+document.querySelectorAll('.clip-source-tab:not([data-source="clip"])').forEach((tab) => {
+  tab.addEventListener("click", () => {
+    if (tab.classList.contains("active")) return;
+    switchSongSource(tab.dataset.source);
   });
 });
+
+renderSortMenu();
 
 function getFilteredSongs2() {
   const query = song2SearchInput.value.trim().toLowerCase();
@@ -2264,14 +2307,9 @@ function selectGenreTab(btn) {
   if (!btn || btn.classList.contains("active")) return;
   songbookGenre = btn.dataset.genre;
   genreTabsMenu.querySelectorAll(".genre-tab").forEach((el) => el.classList.toggle("active", el === btn));
-  document.getElementById("genreTabsToggleLabel").textContent = songbookGenre;
   renderArtistList();
   renderSongGrid();
 }
-
-genreTabsToggle.addEventListener("click", () => {
-  genreTabsMenu.classList.toggle("hidden");
-});
 
 genreTabsMenu.addEventListener("click", (e) => {
   selectGenreTab(e.target.closest(".genre-tab"));
@@ -2290,10 +2328,16 @@ sortTabsToggle.addEventListener("click", () => {
 sortTabsMenu.addEventListener("click", (e) => {
   const btn = e.target.closest(".genre-tab");
   if (!btn) return;
-  songSortMode = btn.dataset.sort;
   sortTabsMenu.querySelectorAll(".genre-tab").forEach((el) => el.classList.toggle("active", el === btn));
   sortTabsMenu.classList.add("hidden");
-  renderSongGrid();
+
+  if (songSource === "clip") {
+    songSortMode = btn.dataset.sortValue === "title" ? "title" : "artist";
+    renderSongGrid();
+  } else {
+    youtubeSourceFilter = btn.dataset.sortValue;
+    renderYoutubePlaylistGrid(youtubeGroupCache[songSource] || []);
+  }
 });
 
 

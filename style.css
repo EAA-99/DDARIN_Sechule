@@ -3253,6 +3253,11 @@ body {
   margin-bottom: 10px;
 }
 
+.clip-source-item {
+  position: relative;
+  display: flex;
+}
+
 .clip-source-tab {
   border: none;
   background: none;
