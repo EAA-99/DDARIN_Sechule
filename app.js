@@ -3140,23 +3140,6 @@ function resetForm() {
 
 const modalCafeNotice = document.getElementById("modalCafeNotice");
 const modalCafeNoticeTitle = document.getElementById("modalCafeNoticeTitle");
-const modalPostImageWrap = document.getElementById("modalPostImageWrap");
-const modalPostImage = document.getElementById("modalPostImage");
-
-let modalSoopImage = null;
-let modalCafeImage = null;
-
-function updateModalPostImage() {
-  const image = modalSoopImage || modalCafeImage;
-  if (image) {
-    modalPostImage.src = image.includes("pstatic.net")
-      ? `/api/naver-image?url=${encodeURIComponent(image)}`
-      : image;
-    modalPostImageWrap.classList.remove("hidden");
-  } else {
-    modalPostImageWrap.classList.add("hidden");
-  }
-}
 
 const cafeNoticeCache = new Map();
 function fetchCafeNoticeCached(key) {
@@ -3178,19 +3161,13 @@ async function loadModalCafeNotice(key) {
     if (posts && posts.length) {
       modalCafeNoticeTitle.textContent = posts[0].title;
       modalCafeNotice.href = posts[0].url;
-      modalCafeImage = posts[0].image || null;
     } else {
       modalCafeNotice.classList.add("hidden");
-      modalCafeImage = null;
     }
   } catch {
     cafeNoticeCache.delete(key);
-    if (selectedDateKey === key) {
-      modalCafeNotice.classList.add("hidden");
-      modalCafeImage = null;
-    }
+    if (selectedDateKey === key) modalCafeNotice.classList.add("hidden");
   }
-  if (selectedDateKey === key) updateModalPostImage();
 }
 
 const SOOP_NOTICE_API_URL = "/api/soop-notice";
@@ -3220,19 +3197,13 @@ async function loadModalSoopNotice(key) {
       modalSoopNoticeTitle.textContent = posts[0].title;
       modalSoopNoticeContent.textContent = posts[0].content;
       modalSoopNotice.href = posts[0].url;
-      modalSoopImage = posts[0].image || null;
     } else {
       modalSoopNotice.classList.add("hidden");
-      modalSoopImage = null;
     }
   } catch {
     soopNoticeCache.delete(key);
-    if (selectedDateKey === key) {
-      modalSoopNotice.classList.add("hidden");
-      modalSoopImage = null;
-    }
+    if (selectedDateKey === key) modalSoopNotice.classList.add("hidden");
   }
-  if (selectedDateKey === key) updateModalPostImage();
 }
 
 function prefetchTodayNotices() {
@@ -3252,9 +3223,6 @@ function openModal(key) {
   resetForm();
   eventForm.classList.add("hidden");
   renderEventList();
-  modalSoopImage = null;
-  modalCafeImage = null;
-  modalPostImageWrap.classList.add("hidden");
   modalBackdrop.classList.remove("hidden");
   loadModalCafeNotice(key);
   loadModalSoopNotice(key);
