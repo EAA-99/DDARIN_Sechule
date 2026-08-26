@@ -3461,10 +3461,14 @@ body {
 #songbookView .songbook-body {
   flex: 1;
   min-height: 0;
+  flex-direction: column;
 }
 
 #songbookView .player-panel {
-  height: 100%;
+  width: 100%;
+  height: auto;
+  max-height: 45%;
+  flex-shrink: 0;
   overflow-y: auto;
   scrollbar-width: none;
 }
@@ -3474,7 +3478,8 @@ body {
 }
 
 #songbookView .songbook-main {
-  height: 100%;
+  height: auto;
+  flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -3658,25 +3663,6 @@ body {
   position: static;
   background: none;
   box-shadow: none;
-}
-
-@media (max-width: 600px) {
-  #songbookView .songbook-body {
-    min-height: 0;
-  }
-
-  #songbookView .player-panel {
-    height: auto;
-    max-height: 45%;
-    flex-shrink: 0;
-    overflow-y: auto;
-  }
-
-  #songbookView .songbook-main {
-    height: auto;
-    flex: 1;
-    min-height: 0;
-  }
 }
 
 @media (max-width: 700px) {
