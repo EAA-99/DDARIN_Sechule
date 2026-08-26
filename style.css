@@ -96,7 +96,6 @@ body {
   background: #fff;
   color: #2a2a2a;
   text-align: center;
-  zoom: 0.67;
 }
 
 .page {
@@ -112,10 +111,12 @@ body {
   min-width: 0;
   max-width: 1500px;
   text-align: left;
+  zoom: 0.8;
 }
 
 .side-nav {
   order: -1;
+  zoom: 0.8;
 }
 
 .app {
