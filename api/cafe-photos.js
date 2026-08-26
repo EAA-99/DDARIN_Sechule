@@ -1,6 +1,7 @@
 export default async function handler(req, res) {
   const clubId = "31054486";
-  const menuId = "27"; // 🎁 팬아트 게시판
+  const menuId = String(req.query.menuId || "27");
+  const titleContains = String(req.query.titleContains || "");
   const page = Math.max(1, parseInt(req.query.page, 10) || 1);
 
   res.setHeader("Content-Type", "application/json");
@@ -18,6 +19,7 @@ export default async function handler(req, res) {
 
     items = articleList
       .filter((entry) => entry.type === "ARTICLE" && entry.item && entry.item.representImage)
+      .filter((entry) => !titleContains || (entry.item.subject || "").includes(titleContains))
       .map((entry) => ({
         title: entry.item.subject,
         writer: entry.item.writerInfo && entry.item.writerInfo.nickName,
