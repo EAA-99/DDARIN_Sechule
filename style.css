@@ -1275,9 +1275,23 @@ body {
 
 .modal-post-name {
   font-weight: 800;
-  font-size: 0.95rem;
+  font-size: 0.75rem;
   color: #2a2a2a;
   flex-shrink: 0;
+}
+
+#modalBackdrop .modal-header-row {
+  position: relative;
+}
+
+#modalBackdrop .modal-header-row #modalDate {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  flex: none;
+  white-space: nowrap;
 }
 
 .cafe-photos-view {

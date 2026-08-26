@@ -34,10 +34,12 @@ export default async function handler(req, res) {
           const d = (item.regDate || "").slice(0, 10);
           if (d === targetDate) {
             const rawContent = item.content?.textContent || "";
+            const imgMatch = rawContent.match(/<img[^>]+src="([^"]+)"/i);
             matches.push({
               title: item.titleName,
-              content: rawContent.replace(/<br\s*\/?>/gi, "\n"),
+              content: rawContent.replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "").trim(),
               url: `https://www.sooplive.com/station/insome0319/post/${item.titleNo}`,
+              image: imgMatch ? imgMatch[1] : null,
             });
           }
           if (d < yearStart) break outer;
