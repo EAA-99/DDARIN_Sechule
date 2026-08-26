@@ -1,7 +1,7 @@
 const GROUPS = {
   youtube: [
-    { id: "PLO1Oy6ecS9SqP8ukPjrL8zEk_wWEjoJYq", label: "단체 커버곡" },
-    { id: "PLO1Oy6ecS9SqcGn07NZMxUEH6bKz5UtbQ", label: "노래 영상" },
+    { id: "PLO1Oy6ecS9SqP8ukPjrL8zEk_wWEjoJYq", label: "노래 영상" },
+    { id: "PLO1Oy6ecS9SqcGn07NZMxUEH6bKz5UtbQ", label: "단체 커버곡" },
   ],
   playlist: [
     { id: "PLO1Oy6ecS9Sp8_V9ATKJIuZ1tD0muxiAu", label: "출근용" },
