@@ -1477,10 +1477,21 @@ const calendarPostModalBody = document.getElementById("calendarPostModalBody");
 function openCalendarPostModal() {
   const clone = document.querySelector(".app").cloneNode(true);
   clone.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+  clone.addEventListener("click", () => {
+    closeCalendarPostModal();
+    showMainView("calendar");
+  });
   calendarPostModalBody.innerHTML = "";
   calendarPostModalBody.appendChild(clone);
+
   const now = new Date();
   document.getElementById("calendarPostTodayDate").textContent = `${now.getMonth() + 1}월 ${now.getDate()}일`;
+
+  const todayEvents = loadEvents()[todayKey()] || [];
+  document.getElementById("calendarPostTodaySchedule").textContent = todayEvents.length
+    ? " " + todayEvents.map((ev) => ev.title).join(", ")
+    : " 오늘은 일정이 없습니다";
+
   calendarPostModal.classList.remove("hidden");
 }
 

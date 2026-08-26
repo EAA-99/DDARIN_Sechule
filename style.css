@@ -17,63 +17,83 @@
 
 .back-menu-view {
   position: relative;
-  width: 100%;
-  max-width: 1500px;
-  margin-top: 240px;
-  padding: 24px;
+  width: min(420px, 100%);
+  margin: 40px auto 0;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.back-menu-top {
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-height: 400px;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #eee;
+}
+
+.back-menu-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #eee;
+  flex-shrink: 0;
+}
+
+.back-menu-name {
+  flex: 1;
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: #2a2a2a;
+}
+
+.back-menu-hamburger {
+  flex-shrink: 0;
+  display: flex;
+}
+
+.back-menu-hamburger svg {
+  width: 22px;
+  height: 22px;
+}
+
+.back-menu-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  background: #000;
 }
 
 .back-menu-bg-video {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  z-index: 0;
+  display: block;
 }
 
-.back-menu-grid {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: repeat(2, 110px);
-  gap: 16px;
-  padding: 20px;
-}
-
-.back-menu-item {
+.back-menu-bottom-nav {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 110px;
-  height: 110px;
-  border: 2px solid #000;
-  border-radius: 18px;
+  justify-content: space-around;
+  padding: 12px 10px;
+  border-top: 1px solid #eee;
+}
+
+.back-menu-nav-item {
+  border: none;
   background: transparent;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
 }
 
-.back-menu-item svg {
-  width: 28px;
-  height: 28px;
+.back-menu-nav-item svg {
+  width: 24px;
+  height: 24px;
 }
-
-.back-menu-label {
-  font-size: 0.85rem;
-  font-weight: 700;
-}
-
-.back-menu-label.color-calendar { color: #4a7fd6; }
-.back-menu-label.color-playlist { color: #3aa76d; }
-.back-menu-label.color-posts { color: #2a2a2a; }
-.back-menu-label.color-songbook { color: #e08a3c; }
-.back-menu-label.color-mail { color: #5b9bd5; }
 
 .loading-screen {
   position: fixed;
@@ -292,6 +312,7 @@ body {
   width: min(720px, 100%);
   max-height: 90vh;
   overflow-y: auto;
+  text-align: left;
 }
 
 .calendar-post-modal-body {
