@@ -1588,13 +1588,16 @@ let cafePhotosPage = 1;
 let cafePhotosLoading = false;
 let cafePhotosHasMore = true;
 let cafePhotosAllItems = [];
+let cafePhotosSource = { menuId: "27", titleContains: "" };
 
 async function loadCafePhotosPage() {
   if (cafePhotosLoading || !cafePhotosHasMore) return;
   cafePhotosLoading = true;
 
   try {
-    const res = await fetch(`/api/cafe-photos?page=${cafePhotosPage}`);
+    const params = new URLSearchParams({ page: cafePhotosPage, menuId: cafePhotosSource.menuId });
+    if (cafePhotosSource.titleContains) params.set("titleContains", cafePhotosSource.titleContains);
+    const res = await fetch(`/api/cafe-photos?${params}`);
     const data = await res.json();
     const items = data.items || [];
     cafePhotosHasMore = Boolean(data.hasMore);
@@ -1645,14 +1648,31 @@ window.addEventListener("scroll", () => {
   if (nearBottom) loadCafePhotosPage();
 });
 
-document.getElementById("backMenuPostsBtn").addEventListener("click", () => {
+function switchCafePhotosTab(tabEl, source) {
+  document.querySelectorAll(".cafe-photos-tab").forEach((el) => el.classList.toggle("active", el === tabEl));
+  cafePhotosSource = source;
   cafePhotosPage = 1;
   cafePhotosLoading = false;
   cafePhotosHasMore = true;
   cafePhotosAllItems = [];
   cafePhotosList.innerHTML = "";
-  showMainView("cafephotos");
   loadCafePhotosPage();
+}
+
+const cafePhotosTabEls = document.querySelectorAll(".cafe-photos-tab");
+cafePhotosTabEls[0].addEventListener("click", () =>
+  switchCafePhotosTab(cafePhotosTabEls[0], { menuId: "27", titleContains: "" })
+);
+cafePhotosTabEls[1].addEventListener("click", () =>
+  switchCafePhotosTab(cafePhotosTabEls[1], { menuId: "36", titleContains: "움짤" })
+);
+cafePhotosTabEls[2].addEventListener("click", () =>
+  switchCafePhotosTab(cafePhotosTabEls[2], { menuId: "27", titleContains: "" })
+);
+
+document.getElementById("backMenuPostsBtn").addEventListener("click", () => {
+  switchCafePhotosTab(cafePhotosTabEls[0], { menuId: "27", titleContains: "" });
+  showMainView("cafephotos");
 });
 function syncGameViewHeight() {
   const wasHidden = songbookView.classList.contains("hidden");
