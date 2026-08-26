@@ -212,7 +212,7 @@ let draggedEventIndex = null;
 const editLockBtn = document.getElementById("editLockBtn");
 const loginBtnLabel = document.getElementById("loginBtnLabel");
 
-const appViewEl = document.querySelector(".app");
+const appViewEl = document.querySelector(".calendar-post-column");
 const songbookView = document.getElementById("songbookView");
 const gameView = document.getElementById("gameView");
 const backMenuView = document.getElementById("backMenuView");

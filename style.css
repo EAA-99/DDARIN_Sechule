@@ -213,12 +213,12 @@ body {
 
 .calendar-post-name {
   font-weight: 800;
-  font-size: 0.9rem;
+  font-size: 1.3rem;
   color: #2a2a2a;
 }
 
 .calendar-post-date {
-  font-size: 0.75rem;
+  font-size: 1.05rem;
   color: #999;
   font-weight: 600;
 }
