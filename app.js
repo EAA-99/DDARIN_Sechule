@@ -1682,15 +1682,15 @@ async function loadCafePhotosPage() {
   if (
     cafePhotosHasMore &&
     !cafePhotosView.classList.contains("hidden") &&
-    document.body.scrollHeight <= window.innerHeight
+    cafePhotosList.scrollHeight <= cafePhotosList.clientHeight
   ) {
     loadCafePhotosPage();
   }
 }
 
-window.addEventListener("scroll", () => {
+cafePhotosList.addEventListener("scroll", () => {
   if (cafePhotosView.classList.contains("hidden")) return;
-  const nearBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight - 600;
+  const nearBottom = cafePhotosList.scrollTop + cafePhotosList.clientHeight >= cafePhotosList.scrollHeight - 600;
   if (nearBottom) loadCafePhotosPage();
 });
 

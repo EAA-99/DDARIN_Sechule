@@ -1247,10 +1247,21 @@ body {
   position: relative;
   width: 100%;
   max-width: 520px;
+  height: calc(100vh - 90px);
   padding: 24px;
   background: #fff;
   color: #2a2a2a;
   text-align: left;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.cafe-photos-home-btn,
+.cafe-photos-profile-top,
+.cafe-photos-follow-btn,
+.cafe-photos-tabs {
+  flex-shrink: 0;
 }
 
 .cafe-photos-home-btn {
@@ -1385,9 +1396,13 @@ body {
 .cafe-photos-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  align-content: start;
   gap: 2px;
   background: #e5e5e5;
   padding-bottom: 24px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .cafe-photos-status {
