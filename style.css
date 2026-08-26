@@ -63,6 +63,7 @@
 .back-menu-label.color-playlist { color: #3aa76d; }
 .back-menu-label.color-posts { color: #2a2a2a; }
 .back-menu-label.color-songbook { color: #e08a3c; }
+.back-menu-label.color-mail { color: #5b9bd5; }
 
 .loading-screen {
   position: fixed;
