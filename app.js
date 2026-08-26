@@ -1698,11 +1698,6 @@ document.getElementById("gameBtn").addEventListener("click", () => {
   if (typeof redrawLadderCanvas === "function") redrawLadderCanvas();
 });
 
-const menuToggleBtn = document.getElementById("menuToggleBtn");
-const sideNavItems = document.getElementById("sideNavItems");
-menuToggleBtn.addEventListener("click", () => {
-  sideNavItems.classList.toggle("hidden");
-});
 
 const MEMO_KEY = "ddarin-memo-2026";
 const memoBtn = document.getElementById("memoBtn");
@@ -2973,6 +2968,7 @@ function fillEventContent(el, title) {
 function renderGrid() {
   const events = loadEvents();
   monthTitle.textContent = `${currentMonth + 1}월`;
+  document.getElementById("calendarPostDate").textContent = `${YEAR}.${String(currentMonth + 1).padStart(2, "0")}`;
   prevBtn.disabled = currentMonth === 0;
   nextBtn.disabled = currentMonth === 11;
 
@@ -3609,72 +3605,6 @@ loginForm.addEventListener("submit", async (e) => {
   }
 });
 
-const todayScheduleCard = document.getElementById("todayScheduleCard");
-const todayScheduleLive = document.getElementById("todayScheduleLive");
-const todayScheduleThumbLink = document.getElementById("todayScheduleThumbLink");
-const todayScheduleThumb = document.getElementById("todayScheduleThumb");
-const todayScheduleThumbTitle = document.getElementById("todayScheduleThumbTitle");
-const todayScheduleList = document.getElementById("todayScheduleList");
-
-function renderTodaySchedule() {
-  const key = todayKey();
-  const events = loadEvents();
-  const list = events[key] || [];
-
-  todayScheduleList.innerHTML = "";
-  if (!list.length) {
-    const empty = document.createElement("p");
-    empty.className = "today-schedule-empty";
-    empty.textContent = "오늘 일정이 없습니다.";
-    todayScheduleList.appendChild(empty);
-  } else {
-    list.forEach((ev) => {
-      const item = document.createElement("div");
-      item.className = "today-schedule-item";
-
-      const dot = document.createElement("span");
-      dot.className = "today-schedule-item-dot";
-      applyEventColor(dot, ev);
-      item.appendChild(dot);
-
-      const titleEl = document.createElement("span");
-      titleEl.className = "today-schedule-item-title";
-      titleEl.textContent = ev.title;
-      item.appendChild(titleEl);
-
-      item.addEventListener("click", () => openModal(key));
-      todayScheduleList.appendChild(item);
-    });
-  }
-
-  todayScheduleCard.classList.remove("hidden");
-}
-
-async function checkLiveStatus() {
-  try {
-    const res = await fetch("https://chapi.sooplive.com/api/insome0319/station", {
-      headers: { Accept: "application/json, text/plain, */*" },
-    });
-    const data = await res.json();
-    const broad = data && data.broad;
-    const broadNo = broad && (broad.broad_no || broad.broadNo);
-
-    if (broadNo) {
-      todayScheduleLive.classList.remove("hidden");
-      todayScheduleThumb.src = `https://liveimg.sooplive.co.kr/m/${broadNo}`;
-      todayScheduleThumbTitle.textContent = broad.broad_title || broad.title || "";
-      todayScheduleThumbLink.href = "https://play.sooplive.com/insome0319";
-      todayScheduleThumbLink.classList.remove("hidden");
-    } else {
-      todayScheduleLive.classList.add("hidden");
-      todayScheduleThumbLink.classList.add("hidden");
-    }
-  } catch {
-    todayScheduleLive.classList.add("hidden");
-    todayScheduleThumbLink.classList.add("hidden");
-  }
-}
-
 async function init() {
   const today = new Date();
   if (today.getFullYear() === YEAR) currentMonth = today.getMonth();
@@ -3685,8 +3615,6 @@ async function init() {
   updateLockUi();
   renderGrid();
   applyDefaultMobileViewMode();
-  renderTodaySchedule();
-  checkLiveStatus();
 
   loadingScreen.classList.add("hidden");
 
@@ -3705,6 +3633,4 @@ const SYNC_INTERVAL_MS = 60 * 1000; // 1분
 
 setInterval(() => {
   syncEventsFromServer();
-  renderTodaySchedule();
-  checkLiveStatus();
 }, SYNC_INTERVAL_MS);

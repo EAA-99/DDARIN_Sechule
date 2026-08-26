@@ -25,20 +25,14 @@
 
   <div class="page">
   <div class="app">
-    <div id="todayScheduleCard" class="today-schedule-card hidden">
-      <div class="today-schedule-header">
-        <span id="todayScheduleHeaderLabel">오늘 일정</span>
-        <span id="todayScheduleLive" class="today-schedule-live hidden">● LIVE</span>
+    <div class="calendar-post-header">
+      <span class="calendar-post-avatar"></span>
+      <div class="calendar-post-header-text">
+        <span class="calendar-post-name">DDARIN</span>
+        <span id="calendarPostDate" class="calendar-post-date"></span>
       </div>
-      <div class="today-schedule-body">
-        <a id="todayScheduleThumbLink" class="today-schedule-thumb-link hidden" target="_blank" rel="noopener">
-          <img id="todayScheduleThumb" class="today-schedule-thumb" alt="">
-          <span id="todayScheduleThumbTitle" class="today-schedule-thumb-title"></span>
-        </a>
-        <div id="todayScheduleList" class="today-schedule-list"></div>
-      </div>
+      <span class="calendar-post-menu">•••</span>
     </div>
-    <img src="today-mascot.png" alt="" class="page-top-mascot">
 
     <div class="calendar-header">
       <header class="toolbar">
@@ -63,6 +57,15 @@
       <button type="button" id="weekPrevBtn" class="week-nav-btn" aria-label="이전 주">‹</button>
       <div id="cardList" class="card-list"></div>
       <button type="button" id="weekNextBtn" class="week-nav-btn" aria-label="다음 주">›</button>
+    </div>
+
+    <div class="calendar-post-actions">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-9.5-8.5C1 9 2.5 5 6.5 5c2 0 3.5 1.5 4.5 3 1-1.5 2.5-3 4.5-3 4 0 5.5 4 4 7.5C19 16.65 12 21 12 21z"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.3 0-2.5-.3-3.6-.8L3 21l1.8-5.4A8.5 8.5 0 1 1 21 11.5z"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>
+      <span class="calendar-post-spacer"></span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg>
     </div>
   </div>
 
@@ -450,24 +453,25 @@
   </div>
 
   <nav class="side-nav">
-    <button type="button" id="menuToggleBtn" class="side-nav-btn" aria-label="메뉴">
-      <img class="side-nav-icon" src="메뉴판2.png" alt="">
-    </button>
-    <div id="sideNavItems" class="side-nav-items hidden">
+    <div id="sideNavItems" class="side-nav-items">
       <button type="button" id="calendarBtn" class="side-nav-btn" aria-label="일정표">
-        <img class="side-nav-icon" src="일정표.png" alt="">일정표
+        <svg class="side-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 12 4l9 8"/><path d="M5 10v10h14V10"/></svg>
       </button>
       <a class="side-nav-btn" href="https://www.youtube.com/@DDARINEE" target="_blank" rel="noopener" aria-label="유튜브">
-        <img class="side-nav-icon" src="유튜브.png" alt="">유튜브
+        <svg class="side-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="4"/><polygon points="10 9 15 12 10 15" fill="currentColor" stroke="none"/></svg>
       </a>
       <button type="button" id="memoBtn" class="side-nav-btn" aria-label="메모">
-        <img class="side-nav-icon" src="메모.png" alt="">메모
+        <svg class="side-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.3 0-2.5-.3-3.6-.8L3 21l1.8-5.4A8.5 8.5 0 1 1 21 11.5z"/></svg>
       </button>
       <button type="button" id="gameBtn" class="side-nav-btn" aria-label="게임">
-        <img class="side-nav-icon" src="게임메뉴.png" alt="">게임
+        <svg class="side-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9.5 16.5 14 18.5 21 12 17 5.5 21 7.5 14 2 9.5 9 9"/></svg>
       </button>
       <button type="button" id="editLockBtn" class="side-nav-btn" title="로그인" aria-label="로그인">
-        <img class="side-nav-icon" src="로그인.png" alt=""><span id="loginBtnLabel">로그인</span>
+        <svg class="side-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+        <span id="loginBtnLabel" class="side-nav-sr">로그인</span>
+      </button>
+      <button type="button" id="menuToggleBtn" class="side-nav-btn" aria-label="메뉴">
+        <svg class="side-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
       </button>
     </div>
   </nav>
