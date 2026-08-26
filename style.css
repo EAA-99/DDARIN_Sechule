@@ -25,9 +25,22 @@
   align-items: center;
   justify-content: center;
   min-height: 400px;
+  overflow: hidden;
+  border-radius: 30px;
+}
+
+.back-menu-bg-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
 }
 
 .back-menu-grid {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: repeat(2, 110px);
   gap: 16px;
@@ -290,8 +303,21 @@ body {
 
 .calendar-post-modal-body .app {
   padding: 0;
-  border: none;
+  border: 1px solid #000;
   border-radius: 0;
+}
+
+.calendar-post-modal-card .calendar-post-avatar {
+  width: 36px;
+  height: 36px;
+}
+
+.calendar-post-modal-card .calendar-post-name {
+  font-size: 1rem;
+}
+
+.calendar-post-modal-card .calendar-post-date {
+  font-size: 0.85rem;
 }
 
 .calendar-post-modal-body .toolbar,
