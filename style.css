@@ -1277,7 +1277,6 @@ body {
   border-radius: 12px;
   overflow: hidden;
   cursor: default;
-  transition: width 0.2s, max-width 0.2s;
 }
 
 .cafe-photo-post.zoomed {

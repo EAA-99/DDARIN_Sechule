@@ -227,7 +227,6 @@ let songbookArtist = "전체";
 const sortTabs = document.getElementById("sortTabs");
 const sortTabsToggle = document.getElementById("sortTabsToggle");
 const sortTabsMenu = document.getElementById("sortTabsMenu");
-const deleteNoClipBtn = document.getElementById("deleteNoClipBtn");
 const playerEmpty = document.getElementById("playerEmpty");
 const playerNoClip = document.getElementById("playerNoClip");
 const playerNoClipSong = document.getElementById("playerNoClipSong");
@@ -1667,7 +1666,7 @@ cafePhotosTabEls[1].addEventListener("click", () =>
   switchCafePhotosTab(cafePhotosTabEls[1], { menuId: "36", titleContains: "움짤" })
 );
 cafePhotosTabEls[2].addEventListener("click", () =>
-  switchCafePhotosTab(cafePhotosTabEls[2], { menuId: "27", titleContains: "" })
+  switchCafePhotosTab(cafePhotosTabEls[2], { menuId: "28", titleContains: "" })
 );
 
 document.getElementById("backMenuPostsBtn").addEventListener("click", () => {
@@ -2633,32 +2632,6 @@ songDeleteSelectedBtn.addEventListener("click", () => {
   renderSingQueueList();
 });
 
-async function deleteNoClipSongsFromLiveClip() {
-  await ensureSongMeta();
-  const noClipSongs = (allSongs || []).filter(
-    (song) => !song.deletedFromLiveClip && !clipMap[albumArtCacheKey(song)]
-  );
-
-  if (!noClipSongs.length) {
-    alert("Live Clip에서 삭제할, 클립 없는 곡이 없습니다.");
-    return;
-  }
-  if (!confirm(`Live Clip에서 클립이 연결되지 않은 곡 ${noClipSongs.length}개를 삭제할까요? (노래책에는 그대로 남습니다)`)) return;
-
-  noClipSongs.forEach((song) => {
-    song.deletedFromLiveClip = true;
-    localSongOverrides[albumArtCacheKey(song)] = song;
-  });
-  saveSongbookLocalData();
-
-  renderGenreTabs(songbookGenresList);
-  renderArtistList();
-  renderSongGrid();
-
-  alert(`${noClipSongs.length}개 곡을 Live Clip에서 삭제했습니다.`);
-}
-
-deleteNoClipBtn.addEventListener("click", deleteNoClipSongsFromLiveClip);
 
 songQueueAddBtn.addEventListener("click", () => {
   if (!selectedSongKeys.size) return;
@@ -3563,7 +3536,6 @@ function updateLockUi() {
   loginBtnLabel.textContent = isReadOnly ? "로그인" : "로그아웃";
   if (isReadOnly && songManageMode) closeSongManageMode();
   songManageBtn.classList.toggle("hidden", isReadOnly || songManageMode);
-  deleteNoClipBtn.classList.toggle("hidden", isReadOnly);
 }
 
 async function tryAutoUnlock() {
