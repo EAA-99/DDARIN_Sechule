@@ -1471,8 +1471,25 @@ document.getElementById("calendarBtn").addEventListener("click", () => showMainV
 
 const backToCalendarBtn = document.getElementById("backToCalendarBtn");
 backToCalendarBtn.addEventListener("click", () => showMainView("backmenu"));
-document.getElementById("backMenuCalendarBtn").addEventListener("click", () => {
-  window.open(location.origin + location.pathname, "_blank", "noopener");
+const calendarPostModal = document.getElementById("calendarPostModal");
+const calendarPostModalBody = document.getElementById("calendarPostModalBody");
+
+function openCalendarPostModal() {
+  const clone = document.querySelector(".app").cloneNode(true);
+  clone.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+  calendarPostModalBody.innerHTML = "";
+  calendarPostModalBody.appendChild(clone);
+  calendarPostModal.classList.remove("hidden");
+}
+
+function closeCalendarPostModal() {
+  calendarPostModal.classList.add("hidden");
+  calendarPostModalBody.innerHTML = "";
+}
+
+document.getElementById("backMenuCalendarBtn").addEventListener("click", openCalendarPostModal);
+calendarPostModal.addEventListener("click", (e) => {
+  if (e.target === calendarPostModal) closeCalendarPostModal();
 });
 document.getElementById("backMenuSongbookBtn").addEventListener("click", openSongbook2);
 document.getElementById("backMenuPlaylistBtn").addEventListener("click", openSongbook);
