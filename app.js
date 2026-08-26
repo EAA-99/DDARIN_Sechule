@@ -1479,6 +1479,8 @@ function openCalendarPostModal() {
   clone.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
   calendarPostModalBody.innerHTML = "";
   calendarPostModalBody.appendChild(clone);
+  const now = new Date();
+  document.getElementById("calendarPostTodayDate").textContent = `${now.getMonth() + 1}월 ${now.getDate()}일`;
   calendarPostModal.classList.remove("hidden");
 }
 

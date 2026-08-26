@@ -25,15 +25,13 @@
   align-items: center;
   justify-content: center;
   min-height: 400px;
-  overflow: hidden;
-  border-radius: 30px;
 }
 
 .back-menu-bg-video {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   object-fit: cover;
   z-index: 0;
 }
@@ -55,10 +53,9 @@
   gap: 10px;
   width: 110px;
   height: 110px;
-  border: none;
+  border: 2px solid #000;
   border-radius: 18px;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: transparent;
   cursor: pointer;
 }
 
@@ -318,6 +315,23 @@ body {
 
 .calendar-post-modal-card .calendar-post-date {
   font-size: 0.85rem;
+}
+
+.calendar-post-caption {
+  padding: 6px 12px 0;
+  font-size: 0.95rem;
+  color: #2a2a2a;
+}
+
+.calendar-post-caption-name {
+  font-weight: 800;
+  margin-right: 4px;
+}
+
+.calendar-post-timestamp {
+  padding: 4px 12px 14px;
+  font-size: 0.8rem;
+  color: #999;
 }
 
 .calendar-post-modal-body .toolbar,
