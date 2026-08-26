@@ -1478,6 +1478,17 @@ document.getElementById("backMenuPlaylistBtn").addEventListener("click", openSon
 const cafePhotosList = document.getElementById("cafePhotosList");
 document.getElementById("cafePhotosHomeBtn").addEventListener("click", () => showMainView("backmenu"));
 
+const cafePhotosProfileMenuBtn = document.getElementById("cafePhotosProfileMenuBtn");
+const cafePhotosProfileMenu = document.getElementById("cafePhotosProfileMenu");
+cafePhotosProfileMenuBtn.addEventListener("click", () => {
+  cafePhotosProfileMenu.classList.toggle("hidden");
+});
+document.addEventListener("click", (e) => {
+  if (!cafePhotosProfileMenuBtn.contains(e.target) && !cafePhotosProfileMenu.contains(e.target)) {
+    cafePhotosProfileMenu.classList.add("hidden");
+  }
+});
+
 const cafePhotoLightbox = document.getElementById("cafePhotoLightbox");
 const cafePhotoLightboxImg = document.getElementById("cafePhotoLightboxImg");
 const cafePhotoLightboxLink = document.getElementById("cafePhotoLightboxLink");

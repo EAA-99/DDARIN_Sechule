@@ -1159,6 +1159,7 @@ body {
 }
 
 .cafe-photos-profile-name-row {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1171,8 +1172,38 @@ body {
 }
 
 .cafe-photos-profile-menu {
+  border: none;
+  background: none;
+  padding: 0;
   color: #999;
   font-weight: 700;
+  cursor: pointer;
+}
+
+.cafe-photos-profile-popup {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 5;
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 10px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.cafe-photos-profile-popup-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: #f5f6f8;
+  color: #2a2a2a;
+  cursor: pointer;
 }
 
 .cafe-photos-cafe-link {
@@ -2777,9 +2808,9 @@ body {
 .song-player-modal {
   position: relative;
   width: 100%;
-  max-width: 640px;
-  min-width: 320px;
-  background: #fff;
+  max-width: 360px;
+  min-width: 280px;
+  background: #000;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
@@ -2799,7 +2830,7 @@ body {
 .song-player-modal-frame {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 9 / 16;
   border: none;
   background: #000;
   display: block;
@@ -2854,43 +2885,72 @@ body {
 }
 
 .song-player-modal-info {
-  padding: 16px 20px 20px;
+  position: absolute;
+  left: 0;
+  right: 60px;
+  bottom: 0;
+  z-index: 1;
+  padding: 24px 12px 14px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  pointer-events: none;
 }
 
 .song-player-modal-title {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  margin: 0 0 8px;
+  color: #fff;
+  margin: 0 0 6px;
 }
 
 .song-player-modal-artist {
   display: inline-block;
-  font-size: 0.82rem;
-  color: #777;
-  background: #f2f2f2;
-  border-radius: 999px;
-  padding: 4px 12px;
-  margin-bottom: 14px;
+  font-size: 0.78rem;
+  color: #e8e8ec;
 }
 
-.song-player-modal-fav-btn {
+.song-player-sidebar {
+  position: absolute;
+  right: 8px;
+  bottom: 14px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.song-player-side-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  width: 100%;
+  width: 34px;
+  height: 34px;
   border: none;
-  border-radius: 999px;
-  padding: 12px;
-  background: #cfe8fb;
-  color: #1c5fa8;
-  font-weight: 700;
-  font-size: 0.9rem;
+  background: none;
+  color: #fff;
+  font-size: 1.3rem;
   cursor: pointer;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
 }
 
-.song-player-modal-fav-btn:hover {
-  background: #bfe0fa;
+.song-player-side-static {
+  cursor: default;
+}
+
+.song-player-side-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.song-player-side-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #eee;
+  border: 2px solid #fff;
 }
 
 .player-controls {
