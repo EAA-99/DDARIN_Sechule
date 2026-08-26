@@ -303,6 +303,29 @@ body {
   display: none;
 }
 
+.calendar-post-modal-body .day-cell {
+  height: 46px;
+  padding: 4px;
+  gap: 2px;
+}
+
+.calendar-post-modal-body .day-num {
+  font-size: 0.8rem;
+}
+
+.calendar-post-modal-body .day-cell-menu-btn {
+  display: none;
+}
+
+.calendar-post-modal-body .day-cell-events {
+  gap: 2px;
+}
+
+.calendar-post-modal-body .event-single {
+  padding: 2px;
+  border-radius: 4px;
+}
+
 .calendar-header {
   position: sticky;
   top: 0;

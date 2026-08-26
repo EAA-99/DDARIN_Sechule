@@ -1467,7 +1467,7 @@ async function openSongbook2() {
   renderArtistList2();
 }
 
-document.getElementById("calendarBtn").addEventListener("click", () => showMainView("calendar"));
+document.getElementById("calendarBtn").addEventListener("click", () => showMainView("backmenu"));
 
 const backToCalendarBtn = document.getElementById("backToCalendarBtn");
 backToCalendarBtn.addEventListener("click", () => showMainView("backmenu"));
