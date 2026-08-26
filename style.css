@@ -1002,6 +1002,16 @@ body {
 .day-cell.today:nth-child(7n) .day-num,
 .day-cell.today:nth-child(7n+1) .day-num { color: #fff; }
 
+.calendar-post-modal-body .day-cell.today .day-num {
+  background: none;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+}
+
+.calendar-post-modal-body .day-cell.today:nth-child(7n) .day-num { color: #4a7fd6; }
+.calendar-post-modal-body .day-cell.today:nth-child(7n+1) .day-num { color: #e0577a; }
+
 .event-single {
   flex: 1;
   display: flex;
