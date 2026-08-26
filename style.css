@@ -2808,8 +2808,9 @@ body {
 .song-player-modal {
   position: relative;
   width: 100%;
-  max-width: 360px;
-  min-width: 280px;
+  max-width: 480px;
+  min-width: 320px;
+  max-height: 90vh;
   background: #000;
   border-radius: 16px;
   overflow: hidden;
