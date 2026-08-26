@@ -1692,11 +1692,6 @@ function syncGameViewHeight() {
   if (h > 0) gameView.style.minHeight = `${Math.max(0, h - 100)}px`;
 }
 
-document.getElementById("gameBtn").addEventListener("click", () => {
-  syncGameViewHeight();
-  showMainView("game");
-  if (typeof redrawLadderCanvas === "function") redrawLadderCanvas();
-});
 
 
 const MEMO_KEY = "ddarin-memo-2026";
