@@ -1571,12 +1571,12 @@ function renderCafePhotoLightbox() {
   cafePhotoLikes.textContent = `좋아요 ${(item.likeCount || 0).toLocaleString()}개`;
   cafePhotoWriter.textContent = item.writer || "";
   cafePhotoTitle.textContent = item.title || "";
-  cafePhotoPostEl.classList.remove("zoomed");
 }
 
 function openCafePhotoLightbox(items, index) {
   cafePhotoItems = items;
   cafePhotoIndex = index;
+  cafePhotoPostEl.classList.remove("zoomed");
   renderCafePhotoLightbox();
   cafePhotoLightbox.classList.remove("hidden");
 }
@@ -3140,6 +3140,8 @@ function resetForm() {
 
 const modalCafeNotice = document.getElementById("modalCafeNotice");
 const modalCafeNoticeTitle = document.getElementById("modalCafeNoticeTitle");
+const modalPostImageWrap = document.getElementById("modalPostImageWrap");
+const modalPostImage = document.getElementById("modalPostImage");
 
 const cafeNoticeCache = new Map();
 function fetchCafeNoticeCached(key) {
@@ -3161,12 +3163,22 @@ async function loadModalCafeNotice(key) {
     if (posts && posts.length) {
       modalCafeNoticeTitle.textContent = posts[0].title;
       modalCafeNotice.href = posts[0].url;
+      if (posts[0].image) {
+        modalPostImage.src = `/api/naver-image?url=${encodeURIComponent(posts[0].image)}`;
+        modalPostImageWrap.classList.remove("hidden");
+      } else {
+        modalPostImageWrap.classList.add("hidden");
+      }
     } else {
       modalCafeNotice.classList.add("hidden");
+      modalPostImageWrap.classList.add("hidden");
     }
   } catch {
     cafeNoticeCache.delete(key);
-    if (selectedDateKey === key) modalCafeNotice.classList.add("hidden");
+    if (selectedDateKey === key) {
+      modalCafeNotice.classList.add("hidden");
+      modalPostImageWrap.classList.add("hidden");
+    }
   }
 }
 
@@ -3223,6 +3235,7 @@ function openModal(key) {
   resetForm();
   eventForm.classList.add("hidden");
   renderEventList();
+  modalPostImageWrap.classList.add("hidden");
   modalBackdrop.classList.remove("hidden");
   loadModalCafeNotice(key);
   loadModalSoopNotice(key);

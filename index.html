@@ -564,72 +564,80 @@
 
 
   <div id="modalBackdrop" class="modal-backdrop hidden">
-    <div class="modal">
-      <div class="modal-header-row">
-        <h2 id="modalDate">일정</h2>
-        <button type="button" id="closeModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
+    <div class="modal modal-post-layout">
+      <div id="modalPostImageWrap" class="modal-post-image-wrap hidden">
+        <img id="modalPostImage" class="modal-post-image" alt="">
       </div>
 
-      <div id="eventList" class="event-list"></div>
-
-      <a id="modalSoopNotice" class="modal-soop-notice hidden" target="_blank" rel="noopener">
-        <div class="modal-soop-notice-header">
-          <span>공지사항</span>
-          <span class="modal-soop-notice-goto">바로가기 ↗</span>
+      <div class="modal-post-right">
+        <div class="modal-header-row">
+          <span class="modal-post-avatar"></span>
+          <span class="modal-post-name">DDARIN</span>
+          <h2 id="modalDate">일정</h2>
+          <button type="button" id="closeModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
         </div>
-        <div id="modalSoopNoticeTitle" class="modal-soop-notice-title"></div>
-        <div id="modalSoopNoticeContent" class="modal-soop-notice-content"></div>
-      </a>
 
-      <a id="modalCafeNotice" class="modal-cafe-notice hidden" target="_blank" rel="noopener">
-        <div class="modal-cafe-notice-header">
-          <span>따카오톡</span>
-          <span class="modal-cafe-notice-goto">바로가기 ↗</span>
-        </div>
-        <div id="modalCafeNoticeTitle" class="modal-cafe-notice-title"></div>
-      </a>
+        <div id="eventList" class="event-list"></div>
 
-      <form id="eventForm" autocomplete="off">
-        <div class="event-field">
-          <label class="event-field-label" for="eventTitle">일정 제목</label>
-          <input type="text" id="eventTitle" placeholder="일정" required maxlength="100" autocomplete="off">
-        </div>
-        <div class="event-field-row">
-          <div class="event-field event-field-half">
-            <label class="event-field-label">유형</label>
-            <div class="color-picker-dropdown">
-              <button type="button" id="colorPickerBtn" class="color-picker-btn">
-                <span id="colorPickerBtnLabel">갠방</span>
-                <span class="color-picker-arrow">⌄</span>
-              </button>
-              <div id="colorPickerList" class="color-picker-list hidden">
-                <button type="button" class="color-picker-option" data-value="gray" style="background:#e2e2e2;">갠방</button>
-                <button type="button" class="color-picker-option" data-value="blue" style="background:#cfe8fb;">종겜</button>
-                <button type="button" class="color-picker-option" data-value="purple" style="background:#e5d9fb;">합방</button>
-                <button type="button" class="color-picker-option" data-value="yellow" style="background:#fffbd6;">노래관련</button>
-                <button type="button" class="color-picker-option" data-value="green" style="background:#d3f3d8;">게임 출시</button>
-                <button type="button" class="color-picker-option" data-value="#cc0000" style="background:#f6d1d1;">휴방</button>
-                <button type="button" class="color-picker-option" data-value="#e951d0" style="background:#fbe0f6;">커머스</button>
-                <button type="button" class="color-picker-option" data-value="#ff6f00" style="background:#ffe5d1;">같이보기</button>
+        <a id="modalSoopNotice" class="modal-soop-notice hidden" target="_blank" rel="noopener">
+          <div class="modal-soop-notice-header">
+            <span>공지사항</span>
+            <span class="modal-soop-notice-goto">바로가기 ↗</span>
+          </div>
+          <div id="modalSoopNoticeTitle" class="modal-soop-notice-title"></div>
+          <div id="modalSoopNoticeContent" class="modal-soop-notice-content"></div>
+        </a>
+
+        <a id="modalCafeNotice" class="modal-cafe-notice hidden" target="_blank" rel="noopener">
+          <div class="modal-cafe-notice-header">
+            <span>따카오톡</span>
+            <span class="modal-cafe-notice-goto">바로가기 ↗</span>
+          </div>
+          <div id="modalCafeNoticeTitle" class="modal-cafe-notice-title"></div>
+        </a>
+
+        <form id="eventForm" autocomplete="off">
+          <div class="event-field">
+            <label class="event-field-label" for="eventTitle">일정 제목</label>
+            <input type="text" id="eventTitle" placeholder="일정" required maxlength="100" autocomplete="off">
+          </div>
+          <div class="event-field-row">
+            <div class="event-field event-field-half">
+              <label class="event-field-label">유형</label>
+              <div class="color-picker-dropdown">
+                <button type="button" id="colorPickerBtn" class="color-picker-btn">
+                  <span id="colorPickerBtnLabel">갠방</span>
+                  <span class="color-picker-arrow">⌄</span>
+                </button>
+                <div id="colorPickerList" class="color-picker-list hidden">
+                  <button type="button" class="color-picker-option" data-value="gray" style="background:#e2e2e2;">갠방</button>
+                  <button type="button" class="color-picker-option" data-value="blue" style="background:#cfe8fb;">종겜</button>
+                  <button type="button" class="color-picker-option" data-value="purple" style="background:#e5d9fb;">합방</button>
+                  <button type="button" class="color-picker-option" data-value="yellow" style="background:#fffbd6;">노래관련</button>
+                  <button type="button" class="color-picker-option" data-value="green" style="background:#d3f3d8;">게임 출시</button>
+                  <button type="button" class="color-picker-option" data-value="#cc0000" style="background:#f6d1d1;">휴방</button>
+                  <button type="button" class="color-picker-option" data-value="#e951d0" style="background:#fbe0f6;">커머스</button>
+                  <button type="button" class="color-picker-option" data-value="#ff6f00" style="background:#ffe5d1;">같이보기</button>
+                </div>
+              </div>
+            </div>
+            <div class="event-field event-field-half">
+              <label class="event-field-label" for="eventAttendees">참여 멤버</label>
+              <div class="attendees-input-row">
+                <span class="attendees-icon">👤</span>
+                <input type="text" id="eventAttendees" placeholder="참여 멤버 (쉼표로 구분)" maxlength="200" autocomplete="off">
               </div>
             </div>
           </div>
-          <div class="event-field event-field-half">
-            <label class="event-field-label" for="eventAttendees">참여 멤버</label>
-            <div class="attendees-input-row">
-              <span class="attendees-icon">👤</span>
-              <input type="text" id="eventAttendees" placeholder="참여 멤버 (쉼표로 구분)" maxlength="200" autocomplete="off">
-            </div>
+          <div class="modal-actions">
+            <button type="submit" id="eventSubmitBtn" class="primary-btn">추가</button>
           </div>
-        </div>
-        <div class="modal-actions">
-          <button type="submit" id="eventSubmitBtn" class="primary-btn">추가</button>
-        </div>
-      </form>
+        </form>
 
-      <div id="modalManageActions" class="modal-manage-actions hidden">
-        <button type="button" id="bulkDeleteBtn" class="modal-manage-btn modal-manage-btn-danger">일괄 삭제</button>
-        <button type="button" id="newEventBtn" class="modal-manage-btn modal-manage-btn-primary">+ 새 일정</button>
+        <div id="modalManageActions" class="modal-manage-actions hidden">
+          <button type="button" id="bulkDeleteBtn" class="modal-manage-btn modal-manage-btn-danger">일괄 삭제</button>
+          <button type="button" id="newEventBtn" class="modal-manage-btn modal-manage-btn-primary">+ 새 일정</button>
+        </div>
       </div>
     </div>
   </div>
