@@ -2928,9 +2928,13 @@ body {
   border: none;
   background: none;
   color: #fff;
-  font-size: 1.3rem;
   cursor: pointer;
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
+}
+
+.song-player-heart-icon.active {
+  fill: #ff3b5c;
+  stroke: #ff3b5c;
 }
 
 .song-player-side-static {

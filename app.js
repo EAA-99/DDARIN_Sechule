@@ -708,7 +708,7 @@ function buildClipPageUrl(clipId) {
 
 function updateSongPlayerModalFavBtn(key) {
   const fav = isSongFavorite(key);
-  songPlayerModalFavIcon.textContent = fav ? "★" : "☆";
+  songPlayerModalFavIcon.classList.toggle("active", fav);
   songPlayerModalFavLabel.textContent = fav ? "즐겨찾기 해제" : "즐겨찾기 추가";
 }
 
