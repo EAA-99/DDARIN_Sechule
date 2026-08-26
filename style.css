@@ -252,6 +252,7 @@ body {
   display: flex;
   align-items: center;
   gap: 4px;
+  cursor: pointer;
 }
 
 .calendar-post-date-music svg {
@@ -278,7 +279,7 @@ body {
 .calendar-post-modal-card {
   background: #fff;
   border-radius: 16px;
-  width: min(420px, 100%);
+  width: min(720px, 100%);
   max-height: 90vh;
   overflow-y: auto;
 }
@@ -295,6 +296,10 @@ body {
 
 .calendar-post-modal-body .toolbar,
 .calendar-post-modal-body .card-view {
+  display: none;
+}
+
+.calendar-post-modal-body .event-single-text {
   display: none;
 }
 

@@ -1488,6 +1488,10 @@ function closeCalendarPostModal() {
 }
 
 document.getElementById("backMenuCalendarBtn").addEventListener("click", openCalendarPostModal);
+document.getElementById("calendarPostMusicLink").addEventListener("click", (e) => {
+  e.stopPropagation();
+  window.open("https://youtu.be/dV1IEiiSBJ0?si=MQ6NcJ0wwrc-AuJk", "_blank", "noopener");
+});
 calendarPostModal.addEventListener("click", (e) => {
   if (e.target === calendarPostModal) closeCalendarPostModal();
 });
