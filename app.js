@@ -1471,7 +1471,9 @@ document.getElementById("calendarBtn").addEventListener("click", () => showMainV
 
 const backToCalendarBtn = document.getElementById("backToCalendarBtn");
 backToCalendarBtn.addEventListener("click", () => showMainView("backmenu"));
-document.getElementById("backMenuCalendarBtn").addEventListener("click", () => showMainView("calendar"));
+document.getElementById("backMenuCalendarBtn").addEventListener("click", () => {
+  window.open(location.origin + location.pathname, "_blank", "noopener");
+});
 document.getElementById("backMenuSongbookBtn").addEventListener("click", openSongbook2);
 document.getElementById("backMenuPlaylistBtn").addEventListener("click", openSongbook);
 
