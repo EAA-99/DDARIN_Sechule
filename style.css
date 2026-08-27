@@ -1491,6 +1491,11 @@ body {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.cafe-photos-grid::-webkit-scrollbar {
+  display: none;
 }
 
 .cafe-photos-status {
@@ -3541,52 +3546,35 @@ body {
   position: relative;
 }
 
-.clip-source-carousel {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: 12px;
-  overflow: hidden;
-  margin-bottom: 10px;
-  background: #000;
-}
-
-.clip-source-track {
+.clip-source-row {
   display: flex;
-  width: 100%;
-  height: 100%;
-  cursor: grab;
-  transition: transform 0.25s ease;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
-.clip-source-slide {
-  width: 100%;
-  height: 100%;
-  flex-shrink: 0;
+.clip-source-item {
+  position: relative;
+  display: flex;
+}
+
+.clip-source-tab {
   border: none;
+  background: none;
   padding: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ccc;
   cursor: pointer;
 }
 
-.clip-source-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  pointer-events: none;
+.clip-source-tab.active {
+  color: #2a2a2a;
 }
 
-.clip-source-dots {
-  position: static;
-  padding: 0 0 10px;
-}
-
-.clip-source-dots .back-menu-dot {
-  background: #ddd;
-}
-
-.clip-source-dots .back-menu-dot.active {
-  background: #4a7fd6;
+.clip-source-sep {
+  color: #ccc;
+  font-weight: 800;
 }
 
 .genre-tabs-toggle {
@@ -3680,6 +3668,7 @@ body {
   align-items: center;
   column-gap: 14px;
   row-gap: 2px;
+  width: 100%;
   background: transparent;
   border: none;
   border-radius: 8px;
