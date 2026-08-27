@@ -17,7 +17,7 @@
 
 .back-menu-view {
   position: relative;
-  width: min(520px, 100%);
+  width: min(640px, 100%);
   margin: 40px auto 0;
   background: #fff;
   border-radius: 18px;
@@ -1246,7 +1246,7 @@ body {
 .cafe-photos-view {
   position: relative;
   width: 100%;
-  max-width: 520px;
+  max-width: 640px;
   height: calc(100vh - 90px);
   padding: 24px;
   background: #fff;
@@ -3457,7 +3457,7 @@ body {
 /* Playlist(Live Clip) 전용 레이아웃 - #songbookView로 범위를 좁혀서 노래책/게임 화면엔 영향 없음. 바깥 프레임은 .songbook-view(일정표와 동일) 그대로 두고 안쪽만 흰 테마로 커스텀 */
 #songbookView {
   margin-top: 0;
-  max-width: 520px;
+  max-width: 640px;
   height: calc(100vh - 90px);
   overflow: hidden;
 }
