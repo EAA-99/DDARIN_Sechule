@@ -45,11 +45,25 @@
 }
 
 .back-menu-avatar {
+  position: relative;
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: #eee;
+  background: #eee url("DDARIN_아바타.jpg") center/cover no-repeat;
   flex-shrink: 0;
+}
+
+.back-menu-avatar.live {
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.back-menu-avatar.live::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  background: conic-gradient(from 180deg, #f9ce34, #ee2a7b, #6228d7, #f9ce34);
+  z-index: -1;
 }
 
 .back-menu-name {

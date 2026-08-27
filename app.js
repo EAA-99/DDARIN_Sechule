@@ -3714,6 +3714,19 @@ async function init() {
 }
 init();
 
+const backMenuAvatarEls = document.querySelectorAll(".back-menu-avatar");
+async function refreshSoopLiveStatus() {
+  try {
+    const res = await fetch("/api/soop-live");
+    const data = await res.json();
+    backMenuAvatarEls.forEach((el) => el.classList.toggle("live", Boolean(data.live)));
+  } catch {
+    // 실패 시 이전 상태 유지
+  }
+}
+refreshSoopLiveStatus();
+setInterval(refreshSoopLiveStatus, 60 * 1000);
+
 const SYNC_INTERVAL_MS = 60 * 1000; // 1분
 
 setInterval(() => {
