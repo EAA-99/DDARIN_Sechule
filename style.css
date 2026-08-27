@@ -18,7 +18,7 @@
 .back-menu-view {
   position: relative;
   width: min(640px, 100%);
-  margin: 40px auto 0;
+  margin: 0 auto;
   background: #fff;
   border-radius: 18px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
@@ -1248,7 +1248,7 @@ body {
   width: 100%;
   max-width: 640px;
   height: calc(100vh - 90px);
-  padding: 24px;
+  padding: 0 24px 24px;
   background: #fff;
   color: #2a2a2a;
   text-align: left;
@@ -3459,6 +3459,7 @@ body {
   margin-top: 0;
   max-width: 640px;
   height: calc(100vh - 90px);
+  padding-top: 0;
   overflow: hidden;
 }
 
@@ -3469,8 +3470,7 @@ body {
 }
 
 #songbookView .songbook-header {
-  align-items: flex-start;
-  flex-shrink: 0;
+  display: none;
 }
 
 #songbookView .songbook-body {
