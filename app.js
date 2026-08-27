@@ -1493,18 +1493,21 @@ function openCalendarPostModal() {
     : " 오늘은 일정이 없습니다";
 
   calendarPostModal.classList.remove("hidden");
+  calendarPostModal.classList.remove("open");
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      calendarPostModal.classList.add("open");
+    });
+  });
 }
 
 function closeCalendarPostModal() {
   calendarPostModal.classList.add("hidden");
+  calendarPostModal.classList.remove("open");
   calendarPostModalBody.innerHTML = "";
 }
 
 document.getElementById("backMenuCalendarBtn").addEventListener("click", openCalendarPostModal);
-document.getElementById("calendarPostMusicLink").addEventListener("click", (e) => {
-  e.stopPropagation();
-  window.open("https://youtu.be/dV1IEiiSBJ0?si=MQ6NcJ0wwrc-AuJk", "_blank", "noopener");
-});
 calendarPostModal.addEventListener("click", (e) => {
   if (e.target === calendarPostModal) closeCalendarPostModal();
 });
