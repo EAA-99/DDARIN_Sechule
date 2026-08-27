@@ -1438,7 +1438,7 @@ function showMainView(view) {
     "hidden",
     view === "backmenu" || view === "cafephotos" || view === "songbook" || view === "songbook2"
   );
-  backToCalendarBtn.classList.toggle("hidden", view === "backmenu" || view === "cafephotos");
+  backToCalendarBtn.classList.toggle("hidden", view === "backmenu" || view === "cafephotos" || view === "songbook");
 
   if (currentMainView === "backmenu" && view !== "backmenu") {
     const openedViewEl = { songbook: songbookView, songbook2: songbook2View, cafephotos: cafePhotosView }[view];
@@ -1538,8 +1538,35 @@ document.addEventListener("click", (e) => {
   }
 });
 
+function wireNavMenu(prefix, hamburgerId, menuId) {
+  const hamburgerBtn = document.getElementById(hamburgerId);
+  const menu = document.getElementById(menuId);
+  hamburgerBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    menu.classList.toggle("hidden");
+  });
+  menu.addEventListener("click", (e) => {
+    if (e.target.closest(".back-menu-nav-item")) menu.classList.add("hidden");
+  });
+  document.addEventListener("click", (e) => {
+    if (!menu.classList.contains("hidden") && !menu.contains(e.target) && e.target !== hamburgerBtn) {
+      menu.classList.add("hidden");
+    }
+  });
+  document.getElementById(`${prefix}HomeBtn`).addEventListener("click", () => showMainView("backmenu"));
+  document.getElementById(`${prefix}CalendarBtn`).addEventListener("click", () => showMainView("calendar"));
+  document.getElementById(`${prefix}PlaylistBtn`).addEventListener("click", openSongbook);
+  document.getElementById(`${prefix}PostsBtn`).addEventListener("click", () => {
+    switchCafePhotosTab(cafePhotosTabEls[0], { menuId: "27", titleContains: "" });
+    showMainView("cafephotos");
+  });
+  document.getElementById(`${prefix}SongbookBtn`).addEventListener("click", openSongbook2);
+}
+
+wireNavMenu("cafePhotosNav", "cafePhotosHamburgerBtn", "cafePhotosNavMenu");
+wireNavMenu("songbookNav", "songbookHamburgerBtn", "songbookNavMenu");
+
 const cafePhotosList = document.getElementById("cafePhotosList");
-document.getElementById("cafePhotosHomeBtn").addEventListener("click", () => showMainView("backmenu"));
 
 const cafePhotosProfileMenuBtn = document.getElementById("cafePhotosProfileMenuBtn");
 const cafePhotosProfileMenu = document.getElementById("cafePhotosProfileMenu");

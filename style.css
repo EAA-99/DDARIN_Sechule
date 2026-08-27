@@ -105,6 +105,23 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
+.songbook-hamburger {
+  position: absolute;
+  top: 12px;
+  right: 24px;
+  z-index: 21;
+}
+
+.songbook-nav-menu {
+  top: 50px;
+  right: 24px;
+}
+
+.cafe-photos-nav-menu {
+  top: 106px;
+  right: 0;
+}
+
 .back-menu-nav-menu.hidden {
   display: none;
 }
@@ -1280,20 +1297,13 @@ body {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
-.cafe-photos-home-btn,
 .cafe-photos-profile-top,
 .cafe-photos-follow-btn,
 .cafe-photos-tabs {
   flex-shrink: 0;
 }
 
-.cafe-photos-home-btn {
-  border: none;
-  background: none;
-  color: #2a2a2a;
-  font-weight: 700;
-  font-size: 1.1rem;
-  cursor: pointer;
+.cafe-photos-hamburger {
   margin-left: auto;
   flex-shrink: 0;
   align-self: flex-start;
