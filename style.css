@@ -3566,48 +3566,92 @@ body {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
   text-align: left;
-  border: 1px solid #eee;
+  border: none;
   border-radius: 16px;
-  background: #fafafa;
-  padding: 16px;
+  background: #2a2a2a;
+  padding: 0;
   cursor: pointer;
+  overflow: hidden;
 }
 
-.clip-source-label {
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: #4a7fd6;
+.clip-source-art {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+  background: #eee;
+}
+
+.clip-source-info {
+  padding: 14px 16px 16px;
+  background: linear-gradient(180deg, #4a3540, #2a2028);
+}
+
+.clip-source-info-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
   margin-bottom: 10px;
+}
+
+.clip-source-info-text {
+  min-width: 0;
 }
 
 .clip-source-song-title {
   font-size: 1.05rem;
   font-weight: 800;
-  color: #2a2a2a;
+  color: #fff;
   margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .clip-source-song-artist {
   font-size: 0.85rem;
-  color: #888;
-  margin-bottom: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.clip-source-wave-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .clip-source-progress {
   width: 100%;
   height: 4px;
   border-radius: 2px;
-  background: #eee;
+  background: rgba(255, 255, 255, 0.25);
   overflow: hidden;
+  margin-bottom: 14px;
 }
 
 .clip-source-progress-fill {
   display: block;
   width: 35%;
   height: 100%;
-  background: #4a7fd6;
+  background: #fff;
+}
+
+.clip-source-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #fff;
+}
+
+.clip-source-controls svg {
+  width: 22px;
+  height: 22px;
 }
 
 .clip-source-dots {
@@ -3710,7 +3754,7 @@ body {
 
 #songGrid .song-card {
   display: grid;
-  grid-template-columns: 60px 1fr auto;
+  grid-template-columns: 60px 1fr;
   grid-template-rows: auto auto;
   align-items: center;
   column-gap: 14px;
@@ -3740,12 +3784,14 @@ body {
 #songGrid .song-card-title {
   grid-column: 2;
   grid-row: 1;
+  padding-right: 40px;
 }
 
 #songGrid .song-card-artist {
   grid-column: 2;
   grid-row: 2;
   margin-bottom: 0;
+  padding-right: 40px;
 }
 
 #songGrid .song-card-genre {
@@ -3753,9 +3799,6 @@ body {
 }
 
 #songGrid .song-card-fav-btn {
-  grid-column: 3;
-  grid-row: 1 / 3;
-  position: static;
   background: none;
   box-shadow: none;
 }

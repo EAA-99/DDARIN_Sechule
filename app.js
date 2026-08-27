@@ -1328,8 +1328,13 @@ function renderClipSourcePreviews() {
     if (!song) return;
     const titleEl = document.getElementById(`clipSourceTitle-${source}`);
     const artistEl = document.getElementById(`clipSourceArtist-${source}`);
+    const artEl = document.getElementById(`clipSourceArt-${source}`);
     if (titleEl) titleEl.textContent = song.title;
     if (artistEl) artistEl.textContent = song.artist;
+    if (artEl) {
+      const key = albumArtCacheKey(song);
+      artEl.src = (thumbMap && thumbMap[key]) || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E";
+    }
   });
 }
 
