@@ -1425,6 +1425,7 @@ function renderSongGrid2() {
 }
 
 function showMainView(view) {
+  if (view === "backmenu") hideBackMenuCalendar();
   appViewEl.classList.toggle("hidden", view !== "calendar");
   songbookView.classList.toggle("hidden", view !== "songbook");
   songbook2View.classList.toggle("hidden", view !== "songbook2");
@@ -1471,51 +1472,41 @@ document.getElementById("calendarBtn").addEventListener("click", () => showMainV
 
 const backToCalendarBtn = document.getElementById("backToCalendarBtn");
 backToCalendarBtn.addEventListener("click", () => showMainView("backmenu"));
-const calendarPostModal = document.getElementById("calendarPostModal");
-const calendarPostModalBody = document.getElementById("calendarPostModalBody");
-const calendarPostModalCard = document.querySelector(".calendar-post-modal-card");
+const backMenuMedia = document.querySelector(".back-menu-media");
+const backMenuCalendarBox = document.getElementById("backMenuCalendarBox");
+const backMenuCalendarBody = document.getElementById("backMenuCalendarBody");
 
-function openCalendarPostModal() {
-  const homeView = document.querySelector(".back-menu-view");
-  if (homeView) {
-    calendarPostModalCard.style.height = `${homeView.getBoundingClientRect().height}px`;
-  }
-
+function showBackMenuCalendar() {
   const clone = document.querySelector(".app").cloneNode(true);
   clone.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
-  clone.addEventListener("click", () => {
-    closeCalendarPostModal();
-    showMainView("calendar");
-  });
-  calendarPostModalBody.innerHTML = "";
-  calendarPostModalBody.appendChild(clone);
+  clone.addEventListener("click", () => showMainView("calendar"));
+  backMenuCalendarBody.innerHTML = "";
+  backMenuCalendarBody.appendChild(clone);
 
   const now = new Date();
-  document.getElementById("calendarPostTodayDate").textContent = `${now.getMonth() + 1}월 ${now.getDate()}일`;
+  document.getElementById("backMenuTodayDate").textContent = `${now.getMonth() + 1}월 ${now.getDate()}일`;
 
   const todayEvents = loadEvents()[todayKey()] || [];
-  document.getElementById("calendarPostTodaySchedule").textContent = todayEvents.length
+  document.getElementById("backMenuTodaySchedule").textContent = todayEvents.length
     ? " " + todayEvents.map((ev) => ev.title).join(", ")
     : " 오늘은 일정이 없습니다";
 
-  calendarPostModal.classList.remove("hidden");
-  calendarPostModal.classList.remove("open");
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      calendarPostModal.classList.add("open");
-    });
-  });
+  backMenuMedia.classList.add("hidden");
+  backMenuCalendarBox.classList.remove("hidden");
 }
 
-function closeCalendarPostModal() {
-  calendarPostModal.classList.add("hidden");
-  calendarPostModal.classList.remove("open");
-  calendarPostModalBody.innerHTML = "";
+function hideBackMenuCalendar() {
+  backMenuCalendarBox.classList.add("hidden");
+  backMenuMedia.classList.remove("hidden");
+  backMenuCalendarBody.innerHTML = "";
 }
 
-document.getElementById("backMenuCalendarBtn").addEventListener("click", openCalendarPostModal);
-calendarPostModal.addEventListener("click", (e) => {
-  if (e.target === calendarPostModal) closeCalendarPostModal();
+document.getElementById("backMenuCalendarBtn").addEventListener("click", () => {
+  if (backMenuCalendarBox.classList.contains("hidden")) {
+    showBackMenuCalendar();
+  } else {
+    hideBackMenuCalendar();
+  }
 });
 document.getElementById("backMenuSongbookBtn").addEventListener("click", openSongbook2);
 document.getElementById("backMenuPlaylistBtn").addEventListener("click", openSongbook);
