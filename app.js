@@ -229,7 +229,6 @@ let songbookArtist = "전체";
 const sortTabs = document.getElementById("sortTabs");
 const sortTabsToggle = document.getElementById("sortTabsToggle");
 const sortTabsMenu = document.getElementById("sortTabsMenu");
-const playerEmpty = document.getElementById("playerEmpty");
 const playerNoClip = document.getElementById("playerNoClip");
 const playerNoClipSong = document.getElementById("playerNoClipSong");
 const songGrid = document.getElementById("songGrid");
@@ -877,7 +876,6 @@ async function playSong(song) {
     favoritesQueueActive = false;
   }
 
-  playerEmpty.classList.add("hidden");
   currentClipId = clipId || null;
   currentSongKey = key;
   currentSong = song;
