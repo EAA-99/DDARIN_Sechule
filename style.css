@@ -37,6 +37,7 @@
   position: relative;
   width: min(640px, 100%);
   margin: -50px auto 0;
+  padding-top: env(safe-area-inset-top);
   background: #fff;
   border: 3px solid #e5e5e5;
   border-radius: 18px;
@@ -236,6 +237,7 @@ body {
   min-width: 0;
   max-width: 1500px;
   margin-top: -62.5px;
+  padding-top: calc(env(safe-area-inset-top) / 0.8);
   text-align: left;
   zoom: 0.8;
 }
@@ -1338,6 +1340,7 @@ body {
   height: calc(100dvh - 40px);
   margin-top: -50px;
   padding: 0 24px 24px;
+  padding-top: env(safe-area-inset-top);
   background: #fff;
   color: #2a2a2a;
   text-align: left;
@@ -3484,7 +3487,7 @@ body {
   margin-top: -50px;
   max-width: 640px;
   height: calc(100vh - 40px);
-  padding-top: 0;
+  padding-top: env(safe-area-inset-top);
   padding-left: 14px;
   padding-right: 14px;
   overflow: hidden;
