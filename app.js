@@ -219,9 +219,11 @@ const backMenuView = document.getElementById("backMenuView");
 const cafePhotosView = document.getElementById("cafePhotosView");
 const sideNavEl = document.querySelector(".side-nav");
 const songSearchInput = document.getElementById("songSearchInput");
-const genreTabs = document.getElementById("genreTabs");
 const genreTabsMenu = document.getElementById("genreTabsMenu");
-const clipSourceTab = document.querySelector('.clip-source-tab[data-source="clip"]');
+const clipSourceCarousel = document.getElementById("clipSourceCarousel");
+const clipSourceTrack = document.getElementById("clipSourceTrack");
+const clipSourceDots = document.getElementById("clipSourceDots");
+const CLIP_SOURCE_ORDER = ["clip", "youtube", "playlist"];
 const artistList = document.getElementById("artistList");
 let songbookArtist = "전체";
 const sortTabs = document.getElementById("sortTabs");
@@ -1283,7 +1285,7 @@ function renderYoutubePlaylistGrid(songs) {
 }
 
 function switchSongSource(newSource) {
-  document.querySelectorAll(".clip-source-tab").forEach((el) => el.classList.toggle("active", el.dataset.source === newSource));
+  document.querySelectorAll(".clip-source-slide").forEach((el) => el.classList.toggle("active", el.dataset.source === newSource));
   songSource = newSource;
   youtubeSourceFilter = "전체";
   genreTabsMenu.classList.add("hidden");
@@ -1299,20 +1301,77 @@ function switchSongSource(newSource) {
   }
 }
 
-clipSourceTab.addEventListener("click", () => {
-  if (songSource !== "clip") {
-    switchSongSource("clip");
-  } else {
-    genreTabsMenu.classList.toggle("hidden");
-  }
-});
+let clipSourceIndex = 0;
+let clipSourceDragMoved = false;
 
-document.querySelectorAll('.clip-source-tab:not([data-source="clip"])').forEach((tab) => {
-  tab.addEventListener("click", () => {
-    if (tab.classList.contains("active")) return;
-    switchSongSource(tab.dataset.source);
+function updateClipSourceTrackPosition() {
+  const w = clipSourceCarousel.clientWidth;
+  clipSourceTrack.style.transform = `translateX(${-clipSourceIndex * w}px)`;
+}
+
+function setClipSourceIndex(index) {
+  clipSourceIndex = index;
+  updateClipSourceTrackPosition();
+  clipSourceDots.querySelectorAll(".back-menu-dot").forEach((dot, i) => dot.classList.toggle("active", i === index));
+  const source = CLIP_SOURCE_ORDER[index];
+  if (source !== songSource) switchSongSource(source);
+}
+
+clipSourceTrack.querySelectorAll(".clip-source-slide").forEach((slide, index) => {
+  slide.addEventListener("click", () => {
+    if (clipSourceDragMoved) return;
+    if (index === clipSourceIndex) {
+      if (index === 0) genreTabsMenu.classList.toggle("hidden");
+      return;
+    }
+    setClipSourceIndex(index);
   });
 });
+
+(function makeClipSourceDraggable() {
+  let dragging = false;
+  let startX = 0;
+
+  clipSourceTrack.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    clipSourceDragMoved = false;
+    startX = e.clientX;
+    clipSourceTrack.setPointerCapture(e.pointerId);
+    clipSourceTrack.style.transition = "none";
+  });
+
+  clipSourceTrack.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 5) clipSourceDragMoved = true;
+    const w = clipSourceCarousel.clientWidth;
+    clipSourceTrack.style.transform = `translateX(${-clipSourceIndex * w + dx}px)`;
+  });
+
+  function endDrag(e) {
+    if (!dragging) return;
+    dragging = false;
+    const dx = e.clientX - startX;
+    clipSourceTrack.style.transition = "";
+
+    if (clipSourceDragMoved && Math.abs(dx) > 50) {
+      if (dx < 0 && clipSourceIndex < CLIP_SOURCE_ORDER.length - 1) {
+        setClipSourceIndex(clipSourceIndex + 1);
+        return;
+      }
+      if (dx > 0 && clipSourceIndex > 0) {
+        setClipSourceIndex(clipSourceIndex - 1);
+        return;
+      }
+    }
+    updateClipSourceTrackPosition();
+  }
+
+  clipSourceTrack.addEventListener("pointerup", endDrag);
+  clipSourceTrack.addEventListener("pointerleave", (e) => {
+    if (dragging) endDrag(e);
+  });
+})();
 
 renderSortMenu();
 
@@ -2474,7 +2533,7 @@ genreTabsMenu.addEventListener("click", (e) => {
 });
 
 document.addEventListener("click", (e) => {
-  if (!genreTabs.contains(e.target)) genreTabsMenu.classList.add("hidden");
+  if (!clipSourceCarousel.contains(e.target)) genreTabsMenu.classList.add("hidden");
   if (!sortTabs.contains(e.target)) sortTabsMenu.classList.add("hidden");
 });
 

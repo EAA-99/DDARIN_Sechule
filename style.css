@@ -1335,6 +1335,7 @@ body {
   width: 100%;
   max-width: 640px;
   height: calc(100vh - 40px);
+  height: calc(100dvh - 40px);
   margin-top: -50px;
   padding: 0 24px 24px;
   background: #fff;
@@ -3479,6 +3480,8 @@ body {
   max-width: 640px;
   height: calc(100vh - 40px);
   padding-top: 0;
+  padding-left: 14px;
+  padding-right: 14px;
   overflow: hidden;
   border: 3px solid #e5e5e5;
   border-radius: 18px;
@@ -3493,7 +3496,8 @@ body {
 }
 
 #songbookView .back-menu-top {
-  margin: 0 -24px;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 #songbookView .songbook-header {
@@ -3537,35 +3541,52 @@ body {
   position: relative;
 }
 
-.clip-source-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.clip-source-item {
+.clip-source-carousel {
   position: relative;
-  display: flex;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  background: #000;
 }
 
-.clip-source-tab {
+.clip-source-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  transition: transform 0.25s ease;
+}
+
+.clip-source-slide {
+  width: 100%;
+  height: 100%;
+  flex-shrink: 0;
   border: none;
-  background: none;
   padding: 0;
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: #ccc;
   cursor: pointer;
 }
 
-.clip-source-tab.active {
-  color: #2a2a2a;
+.clip-source-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
 }
 
-.clip-source-sep {
-  color: #ccc;
-  font-weight: 800;
+.clip-source-dots {
+  position: static;
+  padding: 0 0 10px;
+}
+
+.clip-source-dots .back-menu-dot {
+  background: #ddd;
+}
+
+.clip-source-dots .back-menu-dot.active {
+  background: #4a7fd6;
 }
 
 .genre-tabs-toggle {
