@@ -72,6 +72,12 @@
     </div>
 
     <div id="backMenuNavMenu" class="back-menu-nav-menu hidden">
+      <button type="button" id="backMenuNavHomeBtn" class="back-menu-nav-item" aria-label="home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12 12 4l9 8"/>
+          <path d="M5 10v10h14V10"/>
+        </svg>
+      </button>
       <button type="button" id="backMenuCalendarBtn" class="back-menu-nav-item" aria-label="calendar">
         <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="8" r="4"/>
@@ -105,10 +111,24 @@
       </button>
     </div>
 
-    <div class="back-menu-media">
-      <video class="back-menu-bg-video" autoplay loop muted playsinline>
-        <source src="따린_배경.mp4" type="video/mp4">
-      </video>
+    <div id="backMenuMedia" class="back-menu-media">
+      <div id="backMenuMediaTrack" class="back-menu-media-track">
+        <div class="back-menu-media-slide">
+          <video class="back-menu-bg-video" autoplay loop muted playsinline>
+            <source src="따린_배경.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="back-menu-media-slide">
+          <video class="back-menu-bg-video" autoplay loop muted playsinline>
+            <source src="따린_배경2.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </div>
+
+    <div id="backMenuDots" class="back-menu-dots">
+      <span class="back-menu-dot active"></span>
+      <span class="back-menu-dot"></span>
     </div>
 
     <div id="backMenuCalendarBox" class="back-menu-calendar-box hidden">
