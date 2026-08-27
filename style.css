@@ -282,6 +282,7 @@ body {
   aspect-ratio: 4 / 5;
   display: flex;
   flex-direction: column;
+  text-align: left;
 }
 
 .back-menu-calendar-box.hidden {
