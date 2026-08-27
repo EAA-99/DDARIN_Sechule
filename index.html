@@ -316,15 +316,34 @@
 
     <div class="songbook-body">
       <div class="player-panel">
-        <div class="clip-source-row">
-          <div id="genreTabs" class="clip-source-item">
-            <button type="button" class="clip-source-tab active" data-source="clip">Clip</button>
-            <div id="genreTabsMenu" class="genre-tabs-menu hidden"></div>
+        <div id="clipSourceCarousel" class="clip-source-carousel">
+          <div id="clipSourceTrack" class="clip-source-track">
+            <button type="button" class="clip-source-slide active" data-source="clip">
+              <span class="clip-source-label">Soop</span>
+              <div class="clip-source-song-title" id="clipSourceTitle-clip"></div>
+              <div class="clip-source-song-artist" id="clipSourceArtist-clip"></div>
+              <div class="clip-source-progress"><span class="clip-source-progress-fill"></span></div>
+            </button>
+            <button type="button" class="clip-source-slide" data-source="youtube">
+              <span class="clip-source-label">Youtube</span>
+              <div class="clip-source-song-title" id="clipSourceTitle-youtube"></div>
+              <div class="clip-source-song-artist" id="clipSourceArtist-youtube"></div>
+              <div class="clip-source-progress"><span class="clip-source-progress-fill"></span></div>
+            </button>
+            <button type="button" class="clip-source-slide" data-source="playlist">
+              <span class="clip-source-label">Playlist</span>
+              <div class="clip-source-song-title" id="clipSourceTitle-playlist"></div>
+              <div class="clip-source-song-artist" id="clipSourceArtist-playlist"></div>
+              <div class="clip-source-progress"><span class="clip-source-progress-fill"></span></div>
+            </button>
           </div>
-          <span class="clip-source-sep">/</span>
-          <button type="button" class="clip-source-tab" data-source="youtube">Youtube</button>
-          <span class="clip-source-sep">/</span>
-          <button type="button" class="clip-source-tab" data-source="playlist">Playlist</button>
+          <div id="genreTabsMenu" class="genre-tabs-menu hidden"></div>
+        </div>
+
+        <div id="clipSourceDots" class="back-menu-dots clip-source-dots">
+          <span class="back-menu-dot active"></span>
+          <span class="back-menu-dot"></span>
+          <span class="back-menu-dot"></span>
         </div>
 
         <p id="playerStats" class="player-stats"></p>
