@@ -230,9 +230,6 @@ const sortTabsMenu = document.getElementById("sortTabsMenu");
 const playerEmpty = document.getElementById("playerEmpty");
 const playerNoClip = document.getElementById("playerNoClip");
 const playerNoClipSong = document.getElementById("playerNoClipSong");
-const playerPlayBtn = document.getElementById("playerPlayBtn");
-const playerPrevBtn = document.getElementById("playerPrevBtn");
-const playerNextBtn = document.getElementById("playerNextBtn");
 const songGrid = document.getElementById("songGrid");
 const songPlayerModalBackdrop = document.getElementById("songPlayerModalBackdrop");
 const songPlayerModal = document.getElementById("songPlayerModal");
@@ -882,11 +879,8 @@ async function playSong(song) {
   currentClipId = clipId || null;
   currentSongKey = key;
   currentSong = song;
-  playerPrevBtn.disabled = !(favoritesQueueActive && favoritesQueueIndex > 0);
-  playerNextBtn.disabled = !(favoritesQueueActive && favoritesQueueIndex < favoritesQueue.length - 1);
 
   if (!clipId) {
-    playerPlayBtn.disabled = true;
     playerNoClip.classList.remove("hidden");
     playerNoClipSong.textContent = `${song.title} - ${song.artist}`;
     closeSongPlayerModal();
@@ -894,31 +888,10 @@ async function playSong(song) {
   }
 
   playerNoClip.classList.add("hidden");
-  playerPlayBtn.disabled = false;
 
   openSongPlayerModal(song, clipId);
   scheduleAutoAdvance();
 }
-
-function goToFavoritesQueueOffset(offset) {
-  if (!favoritesQueueActive) return;
-  const newIndex = favoritesQueueIndex + offset;
-  if (newIndex < 0 || newIndex >= favoritesQueue.length) return;
-  playSong(favoritesQueue[newIndex]);
-}
-
-playerPrevBtn.addEventListener("click", () => goToFavoritesQueueOffset(-1));
-playerNextBtn.addEventListener("click", () => goToFavoritesQueueOffset(1));
-
-playerPlayBtn.addEventListener("click", () => {
-  if (currentClipId && currentSong) {
-    openSongPlayerModal(currentSong, currentClipId);
-    scheduleAutoAdvance();
-    return;
-  }
-  const favSongs = songFavoritesOrder.map((k) => songByKey[k]).filter(Boolean);
-  if (favSongs.length) playSong(favSongs[0]);
-});
 
 let songSortMode = "artist"; // "artist" | "title"
 
@@ -947,8 +920,6 @@ function renderFavoritesList() {
   favoritesListEl.innerHTML = "";
 
   const favSongs = songFavoritesOrder.map((key) => songByKey[key]).filter(Boolean);
-
-  if (!currentClipId) playerPlayBtn.disabled = favSongs.length === 0;
 
   if (!favSongs.length) {
     const empty = document.createElement("p");
@@ -1163,6 +1134,17 @@ function buildSongCard(song, options) {
   return card;
 }
 
+function appendDecorativeSongIcons(card) {
+  const icons = document.createElement("div");
+  icons.className = "song-card-icons";
+  icons.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-9.5-8.5C1 9 2.5 5 6.5 5c2 0 3.5 1.5 4.5 3 1-1.5 2.5-3 4.5-3 4 0 5.5 4 4 7.5C19 16.65 12 21 12 21z"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.3 0-2.5-.3-3.6-.8L3 21l1.8-5.4A8.5 8.5 0 1 1 21 11.5z"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+  `;
+  card.appendChild(icons);
+}
+
 function renderSongGrid() {
   const query = songSearchInput.value.trim().toLowerCase();
 
@@ -1193,7 +1175,11 @@ function renderSongGrid() {
   }
 
   if (songSortMode !== "artist") {
-    filtered.forEach((song) => songGrid.appendChild(buildSongCard(song)));
+    filtered.forEach((song) => {
+      const card = buildSongCard(song);
+      appendDecorativeSongIcons(card);
+      songGrid.appendChild(card);
+    });
     return;
   }
 
@@ -1222,7 +1208,11 @@ function renderSongGrid() {
     header.append(nameEl, countEl);
     songGrid.appendChild(header);
 
-    group.songs.forEach((song) => songGrid.appendChild(buildSongCard(song)));
+    group.songs.forEach((song) => {
+      const card = buildSongCard(song);
+      appendDecorativeSongIcons(card);
+      songGrid.appendChild(card);
+    });
   });
 }
 

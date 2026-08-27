@@ -2949,12 +2949,6 @@ body {
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
-.player-hashtags {
-  margin: 0 0 20px;
-  font-size: 0.8rem;
-  color: #999;
-}
-
 .player-stats {
   margin: 0 0 20px;
   font-size: 0.82rem;
@@ -3142,13 +3136,6 @@ body {
   border: 2px solid #fff;
 }
 
-.player-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-}
-
 .player-favorites {
   margin-top: 24px;
   padding-top: 16px;
@@ -3294,27 +3281,6 @@ body {
   font-size: 0.8rem;
   color: #999;
   text-align: center;
-}
-
-.player-btn {
-  border: none;
-  background: #f2f2f2;
-  color: #888;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: not-allowed;
-}
-
-.player-btn-play {
-  width: 52px;
-  height: 52px;
-  background: #f0d060;
-  color: #fff;
-}
-
-.player-btn:not(:disabled) {
-  cursor: pointer;
 }
 
 .songbook-main {
@@ -3517,6 +3483,14 @@ body {
   flex-direction: column;
 }
 
+#songbookView .back-menu-top {
+  margin: 0 -24px;
+}
+
+#songbookView #songbookNavMenu {
+  right: -10px;
+}
+
 #songbookView .songbook-header {
   display: none;
 }
@@ -3655,10 +3629,6 @@ body {
   width: fit-content;
 }
 
-#songbookView .player-hashtags {
-  color: #999;
-}
-
 #songbookView .player-stats {
   color: #999;
 }
@@ -3679,10 +3649,10 @@ body {
 
 #songGrid .song-card {
   display: grid;
-  grid-template-columns: 60px 1fr auto;
+  grid-template-columns: 50px 1fr auto auto;
   grid-template-rows: auto auto;
   align-items: center;
-  column-gap: 14px;
+  column-gap: 10px;
   row-gap: 2px;
   background: transparent;
   border: none;
@@ -3700,9 +3670,24 @@ body {
 #songGrid .song-card-art {
   grid-column: 1;
   grid-row: 1 / 3;
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 88px;
   margin-bottom: 0;
+}
+
+#songGrid .song-card-icons {
+  grid-column: 4;
+  grid-row: 1 / 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #999;
+}
+
+#songGrid .song-card-icons svg {
+  width: 16px;
+  height: 16px;
 }
 
 #songGrid .song-card-title {
