@@ -1523,6 +1523,21 @@ document.getElementById("backMenuCalendarBtn").addEventListener("click", () => {
 document.getElementById("backMenuSongbookBtn").addEventListener("click", openSongbook2);
 document.getElementById("backMenuPlaylistBtn").addEventListener("click", openSongbook);
 
+const backMenuHamburgerBtn = document.getElementById("backMenuHamburgerBtn");
+const backMenuNavMenu = document.getElementById("backMenuNavMenu");
+backMenuHamburgerBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  backMenuNavMenu.classList.toggle("hidden");
+});
+backMenuNavMenu.addEventListener("click", (e) => {
+  if (e.target.closest(".back-menu-nav-item")) backMenuNavMenu.classList.add("hidden");
+});
+document.addEventListener("click", (e) => {
+  if (!backMenuNavMenu.classList.contains("hidden") && !backMenuNavMenu.contains(e.target) && e.target !== backMenuHamburgerBtn) {
+    backMenuNavMenu.classList.add("hidden");
+  }
+});
+
 const cafePhotosList = document.getElementById("cafePhotosList");
 document.getElementById("cafePhotosHomeBtn").addEventListener("click", () => showMainView("backmenu"));
 

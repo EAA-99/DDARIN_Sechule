@@ -64,6 +64,13 @@
   display: flex;
 }
 
+.back-menu-hamburger {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
 .back-menu-hamburger svg {
   width: 22px;
   height: 22px;
@@ -72,7 +79,7 @@
 .back-menu-media {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 3 / 4;
   background: #000;
 }
 
@@ -83,12 +90,23 @@
   display: block;
 }
 
-.back-menu-bottom-nav {
+.back-menu-nav-menu {
+  position: absolute;
+  top: 54px;
+  right: 14px;
+  z-index: 20;
   display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 12px 10px;
-  border-top: 1px solid #eee;
+  flex-direction: column;
+  gap: 4px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.back-menu-nav-menu.hidden {
+  display: none;
 }
 
 .back-menu-nav-item {
@@ -98,7 +116,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
+  padding: 8px;
 }
 
 .back-menu-nav-item svg {
@@ -290,7 +308,7 @@ body {
 }
 
 .back-menu-calendar-box {
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 3 / 4;
   display: flex;
   flex-direction: column;
   text-align: left;
