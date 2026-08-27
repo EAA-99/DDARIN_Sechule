@@ -278,18 +278,33 @@ body {
   flex: 1;
 }
 
+.back-menu-calendar-box {
+  aspect-ratio: 4 / 5;
+  display: flex;
+  flex-direction: column;
+}
+
 .back-menu-calendar-box.hidden {
   display: none;
 }
 
 .back-menu-calendar-body {
   padding: 0 16px;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
 
 .back-menu-calendar-body .app {
   padding: 0;
   border: 1px solid #000;
   border-radius: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .back-menu-calendar-body .toolbar,
@@ -297,14 +312,31 @@ body {
   display: none;
 }
 
+.back-menu-calendar-body .calendar-header {
+  flex-shrink: 0;
+}
+
+.back-menu-calendar-body .grid {
+  flex: 1;
+  min-height: 0;
+  grid-auto-rows: 1fr;
+}
+
 .back-menu-calendar-body .event-single-text {
   display: none;
 }
 
 .back-menu-calendar-body .day-cell {
-  height: 46px;
+  height: auto;
+  min-height: 0;
   padding: 4px;
   gap: 2px;
+}
+
+.calendar-post-actions,
+.calendar-post-caption,
+.calendar-post-timestamp {
+  flex-shrink: 0;
 }
 
 .back-menu-calendar-body .day-num {
