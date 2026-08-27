@@ -45,7 +45,7 @@
 }
 
 .back-menu-avatar {
-  position: relative;
+  box-sizing: border-box;
   width: 34px;
   height: 34px;
   border-radius: 50%;
@@ -54,16 +54,10 @@
 }
 
 .back-menu-avatar.live {
-  box-shadow: 0 0 0 2px #fff;
-}
-
-.back-menu-avatar.live::before {
-  content: "";
-  position: absolute;
-  inset: -5px;
-  border-radius: 50%;
-  background: conic-gradient(from 180deg, #f9ce34, #ee2a7b, #6228d7, #f9ce34);
-  z-index: -1;
+  padding: 3px;
+  background:
+    url("DDARIN_아바타.jpg") center/cover no-repeat content-box,
+    conic-gradient(from 180deg, #f9ce34, #ee2a7b, #6228d7, #f9ce34);
 }
 
 .back-menu-name {
@@ -121,19 +115,28 @@
   pointer-events: none;
 }
 
+.back-menu-bg-video-scaled {
+  transform: scale(0.85);
+}
+
 .back-menu-dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  z-index: 5;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 6px;
-  padding: 10px 0;
+  pointer-events: none;
 }
 
 .back-menu-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #ccc;
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .back-menu-dot.active {
@@ -327,7 +330,7 @@ body {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: #eee;
+  background: #eee url("DDARIN_아바타.jpg") center/cover no-repeat;
   flex-shrink: 0;
 }
 

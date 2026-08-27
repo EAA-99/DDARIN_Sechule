@@ -1505,14 +1505,12 @@ function showBackMenuCalendar() {
     : " 오늘은 일정이 없습니다";
 
   backMenuMedia.classList.add("hidden");
-  backMenuDots.classList.add("hidden");
   backMenuCalendarBox.classList.remove("hidden");
 }
 
 function hideBackMenuCalendar() {
   backMenuCalendarBox.classList.add("hidden");
   backMenuMedia.classList.remove("hidden");
-  backMenuDots.classList.remove("hidden");
   backMenuCalendarBody.innerHTML = "";
 }
 
