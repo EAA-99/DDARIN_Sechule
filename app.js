@@ -1424,6 +1424,8 @@ function renderSongGrid2() {
   });
 }
 
+let currentMainView = "calendar";
+
 function showMainView(view) {
   if (view === "backmenu") hideBackMenuCalendar();
   appViewEl.classList.toggle("hidden", view !== "calendar");
@@ -1437,6 +1439,16 @@ function showMainView(view) {
     view === "backmenu" || view === "cafephotos" || view === "songbook" || view === "songbook2"
   );
   backToCalendarBtn.classList.toggle("hidden", view === "backmenu" || view === "cafephotos");
+
+  if (currentMainView === "backmenu" && view !== "backmenu") {
+    const openedViewEl = { songbook: songbookView, songbook2: songbook2View, cafephotos: cafePhotosView }[view];
+    if (openedViewEl) {
+      openedViewEl.classList.remove("view-opening");
+      void openedViewEl.offsetWidth;
+      openedViewEl.classList.add("view-opening");
+    }
+  }
+  currentMainView = view;
 }
 
 async function openSongbook() {
