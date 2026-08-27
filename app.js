@@ -895,7 +895,7 @@ async function playSong(song) {
   scheduleAutoAdvance();
 }
 
-let songSortMode = "artist"; // "artist" | "title"
+let songSortMode = "title"; // "artist" | "title"
 
 const SONG_FAVORITES_KEY = "songbook-favorites";
 let songFavoritesOrder = [];

@@ -3518,13 +3518,10 @@ body {
 #songbookView .player-panel {
   width: 100%;
   height: auto;
-  max-height: 45%;
   flex-shrink: 0;
-  overflow-y: auto;
-  scrollbar-width: none;
 }
 
-#songbookView .player-panel::-webkit-scrollbar {
+#songbookView .songbook-main {
   display: none;
 }
 
