@@ -1438,7 +1438,10 @@ function showMainView(view) {
     "hidden",
     view === "backmenu" || view === "cafephotos" || view === "songbook" || view === "songbook2"
   );
-  backToCalendarBtn.classList.toggle("hidden", view === "backmenu" || view === "cafephotos" || view === "songbook");
+  backToCalendarBtn.classList.toggle(
+    "hidden",
+    view === "backmenu" || view === "cafephotos" || view === "songbook" || view === "calendar"
+  );
 
   if (currentMainView === "backmenu" && view !== "backmenu") {
     const openedViewEl = { songbook: songbookView, songbook2: songbook2View, cafephotos: cafePhotosView }[view];
@@ -3105,7 +3108,9 @@ function fillEventContent(el, title) {
 function renderGrid() {
   const events = loadEvents();
   monthTitle.textContent = `${currentMonth + 1}월`;
-  document.getElementById("calendarPostDate").textContent = `${YEAR}.${String(currentMonth + 1).padStart(2, "0")}`;
+  const todayDay = String(new Date().getDate()).padStart(2, "0");
+  document.getElementById("calendarPostDate").textContent =
+    `${YEAR}.${String(currentMonth + 1).padStart(2, "0")}.${todayDay}`;
   prevBtn.disabled = currentMonth === 0;
   nextBtn.disabled = currentMonth === 11;
 
@@ -3766,12 +3771,20 @@ async function init() {
 }
 init();
 
-const backMenuAvatarEls = document.querySelectorAll(".back-menu-avatar");
+const liveAvatarEls = document.querySelectorAll(".back-menu-avatar, .cafe-photos-avatar, .calendar-post-avatar");
+const SOOP_LIVE_URL = "https://www.sooplive.com/insome0319";
+
+liveAvatarEls.forEach((el) => {
+  el.addEventListener("click", () => {
+    if (el.classList.contains("live")) window.open(SOOP_LIVE_URL, "_blank", "noopener");
+  });
+});
+
 async function refreshSoopLiveStatus() {
   try {
     const res = await fetch("/api/soop-live");
     const data = await res.json();
-    backMenuAvatarEls.forEach((el) => el.classList.toggle("live", Boolean(data.live)));
+    liveAvatarEls.forEach((el) => el.classList.toggle("live", Boolean(data.live)));
   } catch {
     // 실패 시 이전 상태 유지
   }

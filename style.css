@@ -53,11 +53,14 @@
   flex-shrink: 0;
 }
 
-.back-menu-avatar.live {
+.back-menu-avatar.live,
+.cafe-photos-avatar.live,
+.calendar-post-avatar.live {
   padding: 3px;
   background:
     url("DDARIN_아바타.jpg") center/cover no-repeat content-box,
     conic-gradient(from 180deg, #f9ce34, #ee2a7b, #6228d7, #f9ce34);
+  cursor: pointer;
 }
 
 .back-menu-name {
@@ -113,10 +116,6 @@
   object-fit: cover;
   display: block;
   pointer-events: none;
-}
-
-.back-menu-bg-video-scaled {
-  transform: scale(0.85);
 }
 
 .back-menu-dots {
@@ -239,6 +238,7 @@ body {
   flex: 1;
   min-width: 0;
   max-width: 1500px;
+  margin-top: -62.5px;
   text-align: left;
   zoom: 0.8;
 }
@@ -327,6 +327,7 @@ body {
 }
 
 .calendar-post-avatar {
+  box-sizing: border-box;
   width: 52px;
   height: 52px;
   border-radius: 50%;
@@ -1370,6 +1371,7 @@ body {
 }
 
 .cafe-photos-avatar {
+  box-sizing: border-box;
   width: 90px;
   height: 90px;
   border-radius: 50%;
