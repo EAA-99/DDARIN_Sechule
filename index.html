@@ -261,11 +261,15 @@
   <div id="songbookView" class="songbook-view hidden">
     <img src="today-mascot2.png" alt="" class="page-top-mascot">
 
-    <button type="button" id="songbookHamburgerBtn" class="back-menu-hamburger songbook-hamburger" aria-label="메뉴">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
-    </button>
+    <div class="back-menu-top">
+      <span class="back-menu-avatar"></span>
+      <span class="back-menu-name">DDARIN</span>
+      <button type="button" id="songbookHamburgerBtn" class="back-menu-hamburger" aria-label="메뉴">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      </button>
+    </div>
 
-    <div id="songbookNavMenu" class="back-menu-nav-menu songbook-nav-menu hidden">
+    <div id="songbookNavMenu" class="back-menu-nav-menu hidden">
       <button type="button" id="songbookNavHomeBtn" class="back-menu-nav-item" aria-label="home">
         <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 12 12 4l9 8"/>
@@ -323,10 +327,6 @@
           <button type="button" class="clip-source-tab" data-source="playlist">Playlist</button>
         </div>
 
-        <div class="player-owner-row">
-          <span class="player-owner-avatar"></span>
-          <span class="player-owner-name">따린 DDARIN</span>
-        </div>
         <p id="playerStats" class="player-stats"></p>
         <p class="player-hashtags">#따린 #Soop Clip #Youtube playlist #커버곡</p>
 

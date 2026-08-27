@@ -157,18 +157,6 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
-.songbook-hamburger {
-  position: absolute;
-  top: 12px;
-  right: 24px;
-  z-index: 21;
-}
-
-.songbook-nav-menu {
-  top: 50px;
-  right: 24px;
-}
-
 .cafe-photos-nav-menu {
   top: 40px;
   right: 14px;
@@ -2965,26 +2953,6 @@ body {
   margin: 0 0 20px;
   font-size: 0.8rem;
   color: #999;
-}
-
-.player-owner-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.player-owner-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #eee;
-  flex-shrink: 0;
-}
-
-.player-owner-name {
-  font-weight: 700;
-  font-size: 0.9rem;
 }
 
 .player-stats {
