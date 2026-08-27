@@ -2964,6 +2964,28 @@ body {
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
+.player-stats {
+  margin: 0 0 20px;
+  font-size: 0.82rem;
+  color: #999;
+}
+
+.player-empty {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.player-empty-title {
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.player-empty-sub {
+  font-size: 0.82rem;
+  color: #999;
+  margin: 0;
+}
+
 .song-player-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -3496,7 +3518,14 @@ body {
 #songbookView .player-panel {
   width: 100%;
   height: auto;
+  max-height: 45%;
   flex-shrink: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+#songbookView .player-panel::-webkit-scrollbar {
+  display: none;
 }
 
 #songbookView .songbook-main {
@@ -3625,21 +3654,6 @@ body {
   height: 22px;
 }
 
-.clip-source-controls svg:nth-child(2) {
-  width: 30px;
-  height: 30px;
-}
-
-.clip-source-controls svg:nth-child(4) {
-  width: 30px;
-  height: 30px;
-  padding: 5px;
-  box-sizing: border-box;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.85);
-}
-
 .clip-source-dots {
   position: static;
   padding: 0 0 10px;
@@ -3717,6 +3731,10 @@ body {
 #songbookView .song-sort-row {
   margin-bottom: 14px;
   width: fit-content;
+}
+
+#songbookView .player-stats {
+  color: #999;
 }
 
 #songGrid {

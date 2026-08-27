@@ -229,6 +229,9 @@ let songbookArtist = "전체";
 const sortTabs = document.getElementById("sortTabs");
 const sortTabsToggle = document.getElementById("sortTabsToggle");
 const sortTabsMenu = document.getElementById("sortTabsMenu");
+const playerEmpty = document.getElementById("playerEmpty");
+const playerNoClip = document.getElementById("playerNoClip");
+const playerNoClipSong = document.getElementById("playerNoClipSong");
 const songGrid = document.getElementById("songGrid");
 const songPlayerModalBackdrop = document.getElementById("songPlayerModalBackdrop");
 const songPlayerModal = document.getElementById("songPlayerModal");
@@ -874,14 +877,19 @@ async function playSong(song) {
     favoritesQueueActive = false;
   }
 
+  playerEmpty.classList.add("hidden");
   currentClipId = clipId || null;
   currentSongKey = key;
   currentSong = song;
 
   if (!clipId) {
+    playerNoClip.classList.remove("hidden");
+    playerNoClipSong.textContent = `${song.title} - ${song.artist}`;
     closeSongPlayerModal();
     return;
   }
+
+  playerNoClip.classList.add("hidden");
 
   openSongPlayerModal(song, clipId);
   scheduleAutoAdvance();
@@ -1145,6 +1153,8 @@ function renderSongGrid() {
     return a[field].localeCompare(b[field], "ko");
   });
 
+  document.getElementById("playerStats").textContent = `트랙 ${filtered.length}개`;
+
   songGrid.innerHTML = "";
 
   if (!filtered.length) {
@@ -1238,6 +1248,7 @@ async function loadYoutubeGroup(group) {
 function renderYoutubePlaylistGrid(songs) {
   const filtered = youtubeSourceFilter === "전체" ? songs : songs.filter((s) => s.source === youtubeSourceFilter);
 
+  document.getElementById("playerStats").textContent = `트랙 ${filtered.length}개`;
   songGrid.innerHTML = "";
 
   if (!filtered.length) {
@@ -1284,6 +1295,7 @@ function switchSongSource(newSource) {
   if (songSource === "clip") {
     renderSongGrid();
   } else {
+    document.getElementById("playerStats").textContent = "";
     songGrid.innerHTML = `<div class="song-empty">불러오는 중...</div>`;
     loadYoutubeGroup(songSource).then(renderYoutubePlaylistGrid);
   }
@@ -1306,9 +1318,8 @@ function setClipSourceIndex(index) {
 }
 
 function pickRandomSong() {
-  const withArt = (allSongs || []).filter((s) => thumbMap && thumbMap[albumArtCacheKey(s)]);
-  if (!withArt.length) return null;
-  return withArt[Math.floor(Math.random() * withArt.length)];
+  if (!allSongs || !allSongs.length) return null;
+  return allSongs[Math.floor(Math.random() * allSongs.length)];
 }
 
 function renderClipSourcePreviews() {
@@ -1365,12 +1376,14 @@ clipSourceTrack.querySelectorAll(".clip-source-slide").forEach((slide, index) =>
     clipSourceTrack.style.transition = "";
 
     if (clipSourceDragMoved && Math.abs(dx) > 50) {
-      if (dx < 0) {
-        setClipSourceIndex((clipSourceIndex + 1) % CLIP_SOURCE_ORDER.length);
+      if (dx < 0 && clipSourceIndex < CLIP_SOURCE_ORDER.length - 1) {
+        setClipSourceIndex(clipSourceIndex + 1);
         return;
       }
-      setClipSourceIndex((clipSourceIndex - 1 + CLIP_SOURCE_ORDER.length) % CLIP_SOURCE_ORDER.length);
-      return;
+      if (dx > 0 && clipSourceIndex > 0) {
+        setClipSourceIndex(clipSourceIndex - 1);
+        return;
+      }
     }
     updateClipSourceTrackPosition();
   }
