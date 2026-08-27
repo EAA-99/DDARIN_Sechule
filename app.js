@@ -1473,8 +1473,14 @@ const backToCalendarBtn = document.getElementById("backToCalendarBtn");
 backToCalendarBtn.addEventListener("click", () => showMainView("backmenu"));
 const calendarPostModal = document.getElementById("calendarPostModal");
 const calendarPostModalBody = document.getElementById("calendarPostModalBody");
+const calendarPostModalCard = document.querySelector(".calendar-post-modal-card");
 
 function openCalendarPostModal() {
+  const homeView = document.querySelector(".back-menu-view");
+  if (homeView) {
+    calendarPostModalCard.style.height = `${homeView.getBoundingClientRect().height}px`;
+  }
+
   const clone = document.querySelector(".app").cloneNode(true);
   clone.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
   clone.addEventListener("click", () => {
