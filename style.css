@@ -1266,14 +1266,15 @@ body {
 }
 
 .cafe-photos-home-btn {
-  display: block;
   border: none;
   background: none;
   color: #2a2a2a;
   font-weight: 700;
   font-size: 1.1rem;
   cursor: pointer;
-  margin-bottom: 16px;
+  margin-left: auto;
+  flex-shrink: 0;
+  align-self: flex-start;
 }
 
 .cafe-photos-profile-top {
