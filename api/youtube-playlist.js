@@ -30,7 +30,7 @@ async function fetchPlaylistItems(playlistId) {
         id: videoId,
         title: s.title,
         artist: s.videoOwnerChannelTitle || "",
-        url: `https://music.youtube.com/watch?v=${videoId}`,
+        url: `https://music.youtube.com/watch?v=${videoId}&list=${playlistId}`,
         thumbnail:
           (s.thumbnails && (s.thumbnails.medium || s.thumbnails.default || {}).url) ||
           `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
