@@ -1537,6 +1537,18 @@ function renderSongGrid2() {
 
 let currentMainView = "calendar";
 
+function applyHomeMatchedHeight(el) {
+  const width = el.getBoundingClientRect().width;
+  if (!width) return;
+  const mediaHeight = ((width - 6) * 4) / 3;
+  el.style.height = `${mediaHeight + 55 + 6}px`;
+}
+
+window.addEventListener("resize", () => {
+  if (currentMainView === "songbook") applyHomeMatchedHeight(songbookView);
+  if (currentMainView === "cafephotos") applyHomeMatchedHeight(cafePhotosView);
+});
+
 function showMainView(view) {
   if (view === "backmenu") hideBackMenuCalendar();
   appViewEl.classList.toggle("hidden", view !== "calendar");
@@ -1545,6 +1557,9 @@ function showMainView(view) {
   gameView.classList.toggle("hidden", view !== "game");
   backMenuView.classList.toggle("hidden", view !== "backmenu");
   cafePhotosView.classList.toggle("hidden", view !== "cafephotos");
+
+  if (view === "songbook") applyHomeMatchedHeight(songbookView);
+  if (view === "cafephotos") applyHomeMatchedHeight(cafePhotosView);
   sideNavEl.classList.toggle(
     "hidden",
     view === "backmenu" || view === "cafephotos" || view === "songbook" || view === "songbook2"

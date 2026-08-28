@@ -1351,7 +1351,7 @@ body {
   position: relative;
   width: 100%;
   max-width: 640px;
-  height: calc(6px + 55px + (min(640px, 100%) - 6px) * 4 / 3);
+  height: calc(100vh - 40px);
   margin-top: -50px;
   padding: 0 24px 24px;
   padding-top: env(safe-area-inset-top);
@@ -3500,7 +3500,7 @@ body {
 #songbookView {
   margin-top: -50px;
   max-width: 640px;
-  height: calc(6px + 55px + (min(640px, 100%) - 6px) * 4 / 3);
+  height: calc(100vh - 40px);
   padding-top: env(safe-area-inset-top);
   padding-left: 14px;
   padding-right: 14px;
