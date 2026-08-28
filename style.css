@@ -3662,6 +3662,19 @@ body {
   height: 22px;
 }
 
+.clip-source-chat-icon {
+  cursor: pointer;
+}
+
+.clip-source-song-list-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: #fff;
+  overflow-y: auto;
+  padding: 14px;
+}
+
 .clip-source-dots {
   position: static;
   padding: 0 0 10px;
