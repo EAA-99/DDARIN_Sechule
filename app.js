@@ -1705,7 +1705,7 @@ document.getElementById("backMenuCalendarBtn").addEventListener("click", () => {
 });
 document.getElementById("backMenuSongbookBtn").addEventListener("click", openSongbook2);
 document.getElementById("backMenuPlaylistBtn").addEventListener("click", openSongbook);
-document.getElementById("backMenuMailBtn").addEventListener("click", openMemoPanel);
+document.getElementById("backMenuMailBtn").addEventListener("click", openSoopChatPanel);
 document.getElementById("backMenuNavHomeBtn").addEventListener("click", () => showMainView("backmenu"));
 
 const backMenuHamburgerBtn = document.getElementById("backMenuHamburgerBtn");
@@ -2638,7 +2638,7 @@ function closeSoopChatPanel() {
   soopChatOverlay.classList.add("hidden");
 }
 
-memoBtn.addEventListener("click", openSoopChatPanel);
+memoBtn.addEventListener("click", openMemoPanel);
 closeSoopChatBtn.addEventListener("click", closeSoopChatPanel);
 soopChatOverlay.addEventListener("click", closeSoopChatPanel);
 
