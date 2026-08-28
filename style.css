@@ -2276,6 +2276,31 @@ body {
   background: rgba(0, 0, 0, 0.3);
 }
 
+.soop-chat-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 200;
+  width: min(640px, 92vw);
+  height: min(80vh, 700px);
+  background: #fff;
+  border: 3px solid #e5e5e5;
+  border-radius: 18px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.soop-chat-panel .back-menu-top {
+  flex-shrink: 0;
+}
+
+.soop-chat-list {
+  padding: 16px;
+}
+
 .memo-panel {
   position: fixed;
   top: 80px;
