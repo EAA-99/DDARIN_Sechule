@@ -2322,6 +2322,20 @@ body {
   text-align: left;
 }
 
+.soop-chat-delete-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  border: none;
+  border-radius: 999px;
+  background: #e12e2e;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+
 .soop-chat-avatar {
   flex-shrink: 0;
   width: 44px;

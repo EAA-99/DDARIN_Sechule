@@ -39,7 +39,18 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    const { key, message, time } = req.body || {};
+    const { key, message, time, action, date: deleteDate, username, password } = req.body || {};
+
+    if (action === "delete") {
+      if (username !== process.env.EDIT_USERNAME || password !== process.env.EDIT_PASSWORD) {
+        res.status(401).json({ success: false });
+        return;
+      }
+      await kvCommand(["DEL", `soop_chat:${deleteDate}`]);
+      res.status(200).json({ success: true });
+      return;
+    }
+
     if (key !== process.env.SOOP_CHAT_INGEST_KEY) {
       res.status(401).json({ success: false });
       return;
