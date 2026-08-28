@@ -2,12 +2,19 @@
 
 .hidden { display: none !important; }
 
-.songbook-bg-video {
+.songbook-bg-video-wrap {
   width: 100%;
   flex: 1;
   min-height: 0;
-  object-fit: cover;
+  overflow: hidden;
   border-radius: 16px;
+}
+
+.songbook-bg-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .view-opening {
@@ -3551,6 +3558,7 @@ body {
   bottom: 100%;
   margin-top: 0;
   margin-bottom: 6px;
+  z-index: 20;
 }
 
 #songbookView .song-search,
