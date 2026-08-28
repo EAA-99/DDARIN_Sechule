@@ -2611,6 +2611,21 @@ const soopChatList = document.getElementById("soopChatList");
 const soopChatDayList = document.getElementById("soopChatDayList");
 let currentSoopChatDayItems = [];
 
+let activeSoopChatDeleteBtn = null;
+let activeSoopChatDeleteBtnJustShown = false;
+
+document.addEventListener("click", (e) => {
+  if (!activeSoopChatDeleteBtn) return;
+  if (activeSoopChatDeleteBtnJustShown) {
+    activeSoopChatDeleteBtnJustShown = false;
+    return;
+  }
+  if (!activeSoopChatDeleteBtn.contains(e.target)) {
+    activeSoopChatDeleteBtn.remove();
+    activeSoopChatDeleteBtn = null;
+  }
+});
+
 const SOOP_CHAT_SEEN_KEY = "soopChatSeenUntil";
 
 function getSoopChatSeenUntil() {
@@ -2748,9 +2763,12 @@ async function loadSoopChatView() {
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ username, password, action: "delete", date: formatSoopChatStorageDate(first.time) }),
             });
+            activeSoopChatDeleteBtn = null;
             loadSoopChatView();
           });
           card.appendChild(delBtn);
+          activeSoopChatDeleteBtn = delBtn;
+          activeSoopChatDeleteBtnJustShown = true;
         }, 500);
       });
       card.addEventListener("pointerup", () => clearTimeout(longPressTimer));
@@ -2759,16 +2777,17 @@ async function loadSoopChatView() {
       card.addEventListener("click", () => {
         if (longPressed) return;
         if (badge) badge.remove();
+        const groupMaxTime = group.items.reduce((max, it) => (it.time > max ? it.time : max), "");
+        if (groupMaxTime > getSoopChatSeenUntil()) {
+          setSoopChatSeenUntil(groupMaxTime);
+          refreshSoopChatIconBadges();
+        }
         if (rest.length) {
           currentSoopChatDayItems = group.items;
           showMainView("soopchatday");
         }
       });
     });
-
-    const maxTime = items.reduce((max, it) => (it.time > max ? it.time : max), "");
-    setSoopChatSeenUntil(maxTime);
-    refreshSoopChatIconBadges();
   } catch {
     soopChatList.innerHTML = "";
   }
