@@ -1347,6 +1347,15 @@ clipSourceTrack.querySelectorAll(".clip-source-slide").forEach((slide, index) =>
   });
 });
 
+const clipSourceSongListOverlay = document.getElementById("clipSourceSongListOverlay");
+document.querySelectorAll(".clip-source-chat-icon").forEach((icon) => {
+  icon.addEventListener("pointerdown", (e) => e.stopPropagation());
+  icon.addEventListener("click", (e) => {
+    e.stopPropagation();
+    clipSourceSongListOverlay.classList.toggle("hidden");
+  });
+});
+
 (function makeClipSourceDraggable() {
   let dragging = false;
   let startX = 0;
