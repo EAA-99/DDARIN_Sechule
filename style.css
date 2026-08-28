@@ -3581,6 +3581,18 @@ body {
   overflow: hidden;
 }
 
+.clip-source-slide[data-source="clip"] {
+  background: url("soop 배경.png") center/cover no-repeat;
+}
+
+.clip-source-slide[data-source="youtube"] {
+  background: url("youtube배경.png") center/cover no-repeat;
+}
+
+.clip-source-slide[data-source="playlist"] {
+  background: url("playlist배경.jpg") center/cover no-repeat;
+}
+
 .clip-source-art {
   position: absolute;
   inset: 0;
@@ -3666,7 +3678,14 @@ body {
   flex-direction: column;
   padding: 14px;
   touch-action: pan-y;
+}
+
+.clip-source-song-list-overlay,
+.clip-source-song-list-overlay * {
+  -webkit-user-select: none;
+  -moz-user-select: none;
   user-select: none;
+  -webkit-user-drag: none;
 }
 
 .clip-source-song-list-overlay .song-search {
@@ -3675,9 +3694,22 @@ body {
   margin-top: 10px;
 }
 
+.clip-source-dots-row {
+  display: flex;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.clip-source-dots-row #sortTabs {
+  margin-bottom: 0;
+}
+
+.clip-source-dots-row .clip-source-dots {
+  flex: 1;
+}
+
 .clip-source-dots {
   position: static;
-  margin-top: 30px;
   padding: 0 0 10px;
 }
 

@@ -1362,6 +1362,8 @@ document.addEventListener("click", (e) => {
   clipSourceSongListOverlay.classList.add("hidden");
 });
 
+clipSourceSongListOverlay.addEventListener("dragstart", (e) => e.preventDefault());
+
 (function makeClipSourceSongListSwipeable() {
   let dragging = false;
   let horizontal = false;
