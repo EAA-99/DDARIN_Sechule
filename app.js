@@ -1705,6 +1705,7 @@ document.getElementById("backMenuCalendarBtn").addEventListener("click", () => {
 });
 document.getElementById("backMenuSongbookBtn").addEventListener("click", openSongbook2);
 document.getElementById("backMenuPlaylistBtn").addEventListener("click", openSongbook);
+document.getElementById("backMenuMailBtn").addEventListener("click", openMemoPanel);
 document.getElementById("backMenuNavHomeBtn").addEventListener("click", () => showMainView("backmenu"));
 
 const backMenuHamburgerBtn = document.getElementById("backMenuHamburgerBtn");
@@ -1745,6 +1746,7 @@ function wireNavMenu(prefix, hamburgerId, menuId) {
     showMainView("cafephotos");
   });
   document.getElementById(`${prefix}SongbookBtn`).addEventListener("click", openSongbook2);
+  document.getElementById(`${prefix}MailBtn`).addEventListener("click", openMemoPanel);
 }
 
 wireNavMenu("cafePhotosNav", "cafePhotosHamburgerBtn", "cafePhotosNavMenu");
