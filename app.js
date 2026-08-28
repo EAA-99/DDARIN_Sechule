@@ -2619,6 +2619,7 @@ async function loadSoopChatView() {
     const res = await fetch("/api/soop-chat");
     const data = await res.json();
     const items = (data && data.items) || [];
+    items.push({ time: new Date().toISOString(), message: "오늘 예시 메시지입니다!" }); // TODO: 확인 후 이 줄 삭제
 
     soopChatList.innerHTML = "";
     items.forEach((item) => {
