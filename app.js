@@ -2697,9 +2697,15 @@ async function loadSoopChatView() {
 
 function renderSoopChatDayView() {
   soopChatDayList.innerHTML = "";
-  currentSoopChatDayItems.forEach((item) => {
+  currentSoopChatDayItems.forEach((item, index) => {
+    const next = currentSoopChatDayItems[index + 1];
+    const sameMinuteAsNext = next && formatSoopChatTime(item.time) === formatSoopChatTime(next.time);
+
     const row = document.createElement("div");
     row.className = "soop-chat-bubble-row";
+
+    const avatar = document.createElement("span");
+    avatar.className = "back-menu-avatar soop-chat-bubble-avatar";
 
     const bubble = document.createElement("div");
     bubble.className = "soop-chat-bubble";
@@ -2707,9 +2713,9 @@ function renderSoopChatDayView() {
 
     const timeEl = document.createElement("span");
     timeEl.className = "soop-chat-bubble-time";
-    timeEl.textContent = formatSoopChatTime(item.time);
+    timeEl.textContent = sameMinuteAsNext ? "" : formatSoopChatTime(item.time);
 
-    row.append(bubble, timeEl);
+    row.append(avatar, bubble, timeEl);
     soopChatDayList.appendChild(row);
   });
 }
