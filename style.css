@@ -3597,7 +3597,7 @@ body {
 }
 
 .clip-source-slide[data-source="clip"] {
-  background: url("soop 배경.png") center/cover no-repeat;
+  background: url("playlist배경.jpg") center/cover no-repeat;
 }
 
 .clip-source-slide[data-source="youtube"] {
@@ -3605,7 +3605,7 @@ body {
 }
 
 .clip-source-slide[data-source="playlist"] {
-  background: url("playlist배경.jpg") center/cover no-repeat;
+  background: url("soop 배경.png") center/cover no-repeat;
 }
 
 .clip-source-art {
