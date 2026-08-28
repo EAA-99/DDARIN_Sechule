@@ -1413,22 +1413,18 @@ document.addEventListener("click", (e) => {
     clipSourceDragMoved = false;
     startX = e.clientX;
     clipSourceTrack.setPointerCapture(e.pointerId);
-    clipSourceTrack.style.transition = "none";
   });
 
   clipSourceTrack.addEventListener("pointermove", (e) => {
     if (!dragging) return;
     const dx = e.clientX - startX;
     if (Math.abs(dx) > 5) clipSourceDragMoved = true;
-    const w = clipSourceCarousel.clientWidth;
-    clipSourceTrack.style.transform = `translateX(${-clipSourceIndex * w + dx}px)`;
   });
 
   function endDrag(e) {
     if (!dragging) return;
     dragging = false;
     const dx = e.clientX - startX;
-    clipSourceTrack.style.transition = "";
 
     if (clipSourceDragMoved && Math.abs(dx) > 50) {
       if (dx < 0 && clipSourceIndex < CLIP_SOURCE_ORDER.length - 1) {
@@ -3879,7 +3875,7 @@ async function init() {
 init();
 
 const liveAvatarEls = document.querySelectorAll(".back-menu-avatar, .cafe-photos-avatar, .calendar-post-avatar");
-const SOOP_LIVE_URL = "https://www.sooplive.com/insome0319";
+const SOOP_LIVE_URL = "https://play.sooplive.com/insome0319";
 
 liveAvatarEls.forEach((el) => {
   el.addEventListener("click", () => {
