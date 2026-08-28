@@ -214,6 +214,7 @@ const loginBtnLabel = document.getElementById("loginBtnLabel");
 
 const appViewEl = document.querySelector(".calendar-post-column");
 const songbookView = document.getElementById("songbookView");
+const songbookBgVideo = document.getElementById("songbookBgVideo");
 const gameView = document.getElementById("gameView");
 const backMenuView = document.getElementById("backMenuView");
 const cafePhotosView = document.getElementById("cafePhotosView");
@@ -1534,6 +1535,7 @@ function showMainView(view) {
   if (view === "backmenu") hideBackMenuCalendar();
   appViewEl.classList.toggle("hidden", view !== "calendar");
   songbookView.classList.toggle("hidden", view !== "songbook");
+  songbookBgVideo.classList.toggle("hidden", view !== "songbook");
   songbook2View.classList.toggle("hidden", view !== "songbook2");
   gameView.classList.toggle("hidden", view !== "game");
   backMenuView.classList.toggle("hidden", view !== "backmenu");
