@@ -217,6 +217,7 @@ const songbookView = document.getElementById("songbookView");
 const gameView = document.getElementById("gameView");
 const backMenuView = document.getElementById("backMenuView");
 const cafePhotosView = document.getElementById("cafePhotosView");
+const soopChatView = document.getElementById("soopChatView");
 const sideNavEl = document.querySelector(".side-nav");
 const songSearchInput = document.getElementById("songSearchInput");
 const genreTabsMenu = document.getElementById("genreTabsMenu");
@@ -1559,20 +1560,27 @@ function showMainView(view) {
   gameView.classList.toggle("hidden", view !== "game");
   backMenuView.classList.toggle("hidden", view !== "backmenu");
   cafePhotosView.classList.toggle("hidden", view !== "cafephotos");
+  soopChatView.classList.toggle("hidden", view !== "soopchat");
 
   if (view === "songbook") applyHomeMatchedHeight(songbookView);
   if (view === "cafephotos") applyHomeMatchedHeight(cafePhotosView);
+  if (view === "soopchat") loadSoopChatView();
   sideNavEl.classList.toggle(
     "hidden",
-    view === "backmenu" || view === "cafephotos" || view === "songbook" || view === "songbook2"
+    view === "backmenu" || view === "cafephotos" || view === "songbook" || view === "songbook2" || view === "soopchat"
   );
   backToCalendarBtn.classList.toggle(
     "hidden",
-    view === "backmenu" || view === "cafephotos" || view === "songbook" || view === "calendar"
+    view === "backmenu" || view === "cafephotos" || view === "songbook" || view === "calendar" || view === "soopchat"
   );
 
   if (currentMainView === "backmenu" && view !== "backmenu") {
-    const openedViewEl = { songbook: songbookView, songbook2: songbook2View, cafephotos: cafePhotosView }[view];
+    const openedViewEl = {
+      songbook: songbookView,
+      songbook2: songbook2View,
+      cafephotos: cafePhotosView,
+      soopchat: soopChatView,
+    }[view];
     if (openedViewEl) {
       openedViewEl.classList.remove("view-opening");
       void openedViewEl.offsetWidth;
@@ -1705,7 +1713,7 @@ document.getElementById("backMenuCalendarBtn").addEventListener("click", () => {
 });
 document.getElementById("backMenuSongbookBtn").addEventListener("click", openSongbook2);
 document.getElementById("backMenuPlaylistBtn").addEventListener("click", openSongbook);
-document.getElementById("backMenuMailBtn").addEventListener("click", openSoopChatPanel);
+document.getElementById("backMenuMailBtn").addEventListener("click", () => showMainView("soopchat"));
 document.getElementById("backMenuNavHomeBtn").addEventListener("click", () => showMainView("backmenu"));
 
 const backMenuHamburgerBtn = document.getElementById("backMenuHamburgerBtn");
@@ -2590,10 +2598,7 @@ function closeMemoPanel() {
 closeMemoBtn.addEventListener("click", closeMemoPanel);
 memoOverlay.addEventListener("click", closeMemoPanel);
 
-const soopChatOverlay = document.getElementById("soopChatOverlay");
-const soopChatPanel = document.getElementById("soopChatPanel");
 const soopChatList = document.getElementById("soopChatList");
-const closeSoopChatBtn = document.getElementById("closeSoopChatBtn");
 
 function formatSoopChatTime(iso) {
   try {
@@ -2603,20 +2608,13 @@ function formatSoopChatTime(iso) {
   }
 }
 
-async function openSoopChatPanel() {
-  soopChatPanel.classList.remove("hidden");
-  soopChatOverlay.classList.remove("hidden");
+async function loadSoopChatView() {
   soopChatList.innerHTML = `<div class="memo-card-empty">불러오는 중...</div>`;
 
   try {
     const res = await fetch("/api/soop-chat");
     const data = await res.json();
     const items = (data && data.items) || [];
-
-    if (!items.length) {
-      soopChatList.innerHTML = `<div class="memo-card-empty">오늘 수집된 채팅이 없습니다.</div>`;
-      return;
-    }
 
     soopChatList.innerHTML = "";
     items.forEach((item) => {
@@ -2629,18 +2627,11 @@ async function openSoopChatPanel() {
       soopChatList.appendChild(card);
     });
   } catch {
-    soopChatList.innerHTML = `<div class="memo-card-empty">불러오지 못했습니다.</div>`;
+    soopChatList.innerHTML = "";
   }
 }
 
-function closeSoopChatPanel() {
-  soopChatPanel.classList.add("hidden");
-  soopChatOverlay.classList.add("hidden");
-}
-
 memoBtn.addEventListener("click", openMemoPanel);
-closeSoopChatBtn.addEventListener("click", closeSoopChatPanel);
-soopChatOverlay.addEventListener("click", closeSoopChatPanel);
 
 (function makeMemoPanelDraggable() {
   const header = document.querySelector(".memo-panel-header");
