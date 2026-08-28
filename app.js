@@ -2636,6 +2636,7 @@ async function refreshSoopChatIconBadges() {
 }
 
 refreshSoopChatIconBadges();
+setInterval(refreshSoopChatIconBadges, 30 * 1000);
 
 function formatSoopChatTime(iso) {
   try {
@@ -2708,20 +2709,22 @@ async function loadSoopChatView() {
       infoTop.append(nameEl, dateEl);
       info.append(infoTop, messageEl);
       card.append(avatar, info);
+      let badge = null;
       if (isUnread) {
-        const badge = document.createElement("span");
+        badge = document.createElement("span");
         badge.className = "soop-chat-badge";
         card.appendChild(badge);
       }
       soopChatList.appendChild(card);
 
-      if (rest.length) {
-        card.style.cursor = "pointer";
-        card.addEventListener("click", () => {
+      card.style.cursor = "pointer";
+      card.addEventListener("click", () => {
+        if (badge) badge.remove();
+        if (rest.length) {
           currentSoopChatDayItems = group.items;
           showMainView("soopchatday");
-        });
-      }
+        }
+      });
     });
 
     const maxTime = items.reduce((max, it) => (it.time > max ? it.time : max), "");
