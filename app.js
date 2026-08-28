@@ -1575,12 +1575,7 @@ function showMainView(view) {
   );
 
   if (currentMainView === "backmenu" && view !== "backmenu") {
-    const openedViewEl = {
-      songbook: songbookView,
-      songbook2: songbook2View,
-      cafephotos: cafePhotosView,
-      soopchat: soopChatView,
-    }[view];
+    const openedViewEl = { songbook: songbookView, songbook2: songbook2View, cafephotos: cafePhotosView }[view];
     if (openedViewEl) {
       openedViewEl.classList.remove("view-opening");
       void openedViewEl.offsetWidth;
@@ -1759,6 +1754,7 @@ function wireNavMenu(prefix, hamburgerId, menuId) {
 
 wireNavMenu("cafePhotosNav", "cafePhotosHamburgerBtn", "cafePhotosNavMenu");
 wireNavMenu("songbookNav", "songbookHamburgerBtn", "songbookNavMenu");
+wireNavMenu("soopChatNav", "soopChatHamburgerBtn", "soopChatNavMenu");
 
 const cafePhotosList = document.getElementById("cafePhotosList");
 
