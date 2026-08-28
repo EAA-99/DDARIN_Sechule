@@ -83,6 +83,7 @@
 .back-menu-hamburger {
   flex-shrink: 0;
   display: flex;
+  position: relative;
 }
 
 .back-menu-hamburger {
@@ -90,6 +91,28 @@
   background: none;
   padding: 0;
   cursor: pointer;
+}
+
+.soop-chat-icon-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #e12e2e;
+  border: 1.5px solid #fff;
+}
+
+.soop-chat-badge {
+  position: absolute;
+  top: 8px;
+  right: 4px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #e12e2e;
+  border: 1.5px solid #fff;
 }
 
 .back-menu-hamburger svg {
@@ -177,6 +200,7 @@
 }
 
 .back-menu-nav-item {
+  position: relative;
   border: none;
   background: transparent;
   cursor: pointer;
@@ -275,6 +299,7 @@ body {
 }
 
 .side-nav-btn {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2288,6 +2313,7 @@ body {
 }
 
 .soop-chat-row {
+  position: relative;
   display: flex;
   align-items: flex-start;
   gap: 12px;

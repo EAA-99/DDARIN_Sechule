@@ -2611,6 +2611,32 @@ const soopChatList = document.getElementById("soopChatList");
 const soopChatDayList = document.getElementById("soopChatDayList");
 let currentSoopChatDayItems = [];
 
+const SOOP_CHAT_SEEN_KEY = "soopChatSeenUntil";
+
+function getSoopChatSeenUntil() {
+  return localStorage.getItem(SOOP_CHAT_SEEN_KEY) || "";
+}
+
+function setSoopChatSeenUntil(iso) {
+  if (iso) localStorage.setItem(SOOP_CHAT_SEEN_KEY, iso);
+}
+
+async function refreshSoopChatIconBadges() {
+  let hasUnread = false;
+  try {
+    const res = await fetch("/api/soop-chat");
+    const data = await res.json();
+    const items = (data && data.items) || [];
+    const seenUntil = getSoopChatSeenUntil();
+    hasUnread = items.some((it) => it.time > seenUntil);
+  } catch {
+    hasUnread = false;
+  }
+  document.querySelectorAll(".soop-chat-icon-badge").forEach((el) => el.classList.toggle("hidden", !hasUnread));
+}
+
+refreshSoopChatIconBadges();
+
 function formatSoopChatTime(iso) {
   try {
     return new Date(iso).toLocaleTimeString("ko-KR", { timeZone: "Asia/Seoul", hour: "2-digit", minute: "2-digit" });
@@ -2648,10 +2674,12 @@ async function loadSoopChatView() {
     const res = await fetch("/api/soop-chat");
     const data = await res.json();
     const items = (data && data.items) || [];
+    const seenUntil = getSoopChatSeenUntil();
 
     soopChatList.innerHTML = "";
     groupSoopChatByDate(items).forEach((group) => {
       const [first, ...rest] = group.items;
+      const isUnread = group.items.some((it) => it.time > seenUntil);
 
       const card = document.createElement("div");
       card.className = "soop-chat-row";
@@ -2680,6 +2708,11 @@ async function loadSoopChatView() {
       infoTop.append(nameEl, dateEl);
       info.append(infoTop, messageEl);
       card.append(avatar, info);
+      if (isUnread) {
+        const badge = document.createElement("span");
+        badge.className = "soop-chat-badge";
+        card.appendChild(badge);
+      }
       soopChatList.appendChild(card);
 
       if (rest.length) {
@@ -2690,6 +2723,10 @@ async function loadSoopChatView() {
         });
       }
     });
+
+    const maxTime = items.reduce((max, it) => (it.time > max ? it.time : max), "");
+    setSoopChatSeenUntil(maxTime);
+    refreshSoopChatIconBadges();
   } catch {
     soopChatList.innerHTML = "";
   }
