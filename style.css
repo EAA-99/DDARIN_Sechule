@@ -43,7 +43,7 @@
   border-radius: 18px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  zoom: 0.8;
+  zoom: 0.96;
 }
 
 .back-menu-top {
@@ -3579,10 +3579,11 @@ body {
 
 .clip-source-art {
   width: 100%;
-  aspect-ratio: 1;
+  aspect-ratio: 3 / 1;
   object-fit: cover;
   display: block;
   background: #eee;
+  visibility: hidden;
 }
 
 .clip-source-info {
