@@ -2815,6 +2815,45 @@ function renderSoopChatDayView() {
 
     row.append(avatar, bubble, timeEl);
     soopChatDayList.appendChild(row);
+
+    let longPressTimer = null;
+    row.addEventListener("pointerdown", () => {
+      longPressTimer = setTimeout(() => {
+        if (row.querySelector(".soop-chat-delete-btn")) return;
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "soop-chat-delete-btn";
+        delBtn.textContent = "삭제";
+        delBtn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          const { username, password } = getStoredCreds();
+          if (!username || !password) return;
+          await fetch("/api/soop-chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username,
+              password,
+              action: "delete",
+              date: formatSoopChatStorageDate(item.time),
+              time: item.time,
+            }),
+          });
+          activeSoopChatDeleteBtn = null;
+          currentSoopChatDayItems = currentSoopChatDayItems.filter((it) => it.time !== item.time);
+          if (currentSoopChatDayItems.length) {
+            renderSoopChatDayView();
+          } else {
+            showMainView("soopchat");
+          }
+        });
+        row.appendChild(delBtn);
+        activeSoopChatDeleteBtn = delBtn;
+        activeSoopChatDeleteBtnJustShown = true;
+      }, 500);
+    });
+    row.addEventListener("pointerup", () => clearTimeout(longPressTimer));
+    row.addEventListener("pointerleave", () => clearTimeout(longPressTimer));
   });
 }
 

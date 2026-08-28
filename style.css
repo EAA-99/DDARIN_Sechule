@@ -2385,6 +2385,7 @@ body {
 }
 
 .soop-chat-bubble-row {
+  position: relative;
   display: flex;
   align-items: flex-end;
   gap: 6px;

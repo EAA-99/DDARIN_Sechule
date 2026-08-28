@@ -46,6 +46,12 @@ export default async function handler(req, res) {
         res.status(401).json({ success: false });
         return;
       }
+      if (time) {
+        const items = (await getItems(deleteDate)).filter((it) => it.time !== time);
+        await kvCommand(["SET", `soop_chat:${deleteDate}`, JSON.stringify(items)]);
+        res.status(200).json({ success: true, items });
+        return;
+      }
       await kvCommand(["DEL", `soop_chat:${deleteDate}`]);
       res.status(200).json({ success: true });
       return;
