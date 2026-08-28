@@ -2334,6 +2334,18 @@ body {
   word-break: break-word;
 }
 
+.soop-chat-extra {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 0 10px 56px;
+  border-bottom: 1px solid #eee;
+}
+
+.soop-chat-extra .soop-chat-message {
+  margin-top: 0;
+}
+
 .memo-panel {
   position: fixed;
   top: 80px;

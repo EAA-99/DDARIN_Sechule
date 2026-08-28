@@ -2612,6 +2612,20 @@ function formatSoopChatDate(iso) {
   }
 }
 
+function groupSoopChatByDate(items) {
+  const groups = [];
+  items.forEach((item) => {
+    const dateKey = formatSoopChatDate(item.time);
+    const lastGroup = groups[groups.length - 1];
+    if (lastGroup && lastGroup.dateKey === dateKey) {
+      lastGroup.items.push(item);
+    } else {
+      groups.push({ dateKey, items: [item] });
+    }
+  });
+  return groups;
+}
+
 async function loadSoopChatView() {
   soopChatList.innerHTML = `<div class="memo-card-empty">불러오는 중...</div>`;
 
@@ -2621,7 +2635,9 @@ async function loadSoopChatView() {
     const items = (data && data.items) || [];
 
     soopChatList.innerHTML = "";
-    items.forEach((item) => {
+    groupSoopChatByDate(items).forEach((group) => {
+      const [first, ...rest] = group.items;
+
       const card = document.createElement("div");
       card.className = "soop-chat-row";
 
@@ -2640,16 +2656,31 @@ async function loadSoopChatView() {
 
       const dateEl = document.createElement("span");
       dateEl.className = "soop-chat-date";
-      dateEl.textContent = formatSoopChatDate(item.time);
+      dateEl.textContent = group.dateKey;
 
       const messageEl = document.createElement("div");
       messageEl.className = "soop-chat-message";
-      messageEl.textContent = `${formatSoopChatTime(item.time)}  ${item.message}`;
+      messageEl.textContent = `${formatSoopChatTime(first.time)}  ${first.message}`;
 
       infoTop.append(nameEl, dateEl);
       info.append(infoTop, messageEl);
       card.append(avatar, info);
       soopChatList.appendChild(card);
+
+      if (rest.length) {
+        const extra = document.createElement("div");
+        extra.className = "soop-chat-extra hidden";
+        rest.forEach((item) => {
+          const extraMessage = document.createElement("div");
+          extraMessage.className = "soop-chat-message";
+          extraMessage.textContent = `${formatSoopChatTime(item.time)}  ${item.message}`;
+          extra.appendChild(extraMessage);
+        });
+        soopChatList.appendChild(extra);
+
+        card.style.cursor = "pointer";
+        card.addEventListener("click", () => extra.classList.toggle("hidden"));
+      }
     });
   } catch {
     soopChatList.innerHTML = "";
