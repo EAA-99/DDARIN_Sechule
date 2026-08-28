@@ -3495,10 +3495,13 @@ body {
   border-radius: 18px;
   background: #fff;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
 }
 
 #songbookView .songbook-inner {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
@@ -3627,11 +3630,13 @@ body {
   text-overflow: ellipsis;
 }
 
-.clip-source-wave-icon {
-  width: 20px;
-  height: 20px;
+.clip-source-tag {
   flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
   color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
 }
 
 .clip-source-progress {
@@ -3673,6 +3678,7 @@ body {
   background: #fff;
   overflow-y: auto;
   padding: 14px;
+  touch-action: pan-y;
 }
 
 .clip-source-dots {

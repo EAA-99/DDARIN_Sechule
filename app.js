@@ -1362,6 +1362,48 @@ document.addEventListener("click", (e) => {
   clipSourceSongListOverlay.classList.add("hidden");
 });
 
+(function makeClipSourceSongListSwipeable() {
+  let dragging = false;
+  let horizontal = false;
+  let startX = 0;
+  let startY = 0;
+
+  clipSourceSongListOverlay.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    horizontal = false;
+    startX = e.clientX;
+    startY = e.clientY;
+  });
+
+  clipSourceSongListOverlay.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    if (!horizontal && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) {
+      horizontal = true;
+      clipSourceSongListOverlay.setPointerCapture(e.pointerId);
+    }
+    if (horizontal) e.preventDefault();
+  });
+
+  function endDrag(e) {
+    if (!dragging) return;
+    dragging = false;
+    if (horizontal) {
+      const dx = e.clientX - startX;
+      if (dx < -50 && clipSourceIndex < CLIP_SOURCE_ORDER.length - 1) {
+        setClipSourceIndex(clipSourceIndex + 1);
+      } else if (dx > 50 && clipSourceIndex > 0) {
+        setClipSourceIndex(clipSourceIndex - 1);
+      }
+    }
+    horizontal = false;
+  }
+
+  clipSourceSongListOverlay.addEventListener("pointerup", endDrag);
+  clipSourceSongListOverlay.addEventListener("pointercancel", endDrag);
+})();
+
 (function makeClipSourceDraggable() {
   let dragging = false;
   let startX = 0;
