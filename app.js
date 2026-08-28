@@ -2587,9 +2587,60 @@ function closeMemoPanel() {
   memoOverlay.classList.add("hidden");
 }
 
-memoBtn.addEventListener("click", openMemoPanel);
 closeMemoBtn.addEventListener("click", closeMemoPanel);
 memoOverlay.addEventListener("click", closeMemoPanel);
+
+const soopChatOverlay = document.getElementById("soopChatOverlay");
+const soopChatPanel = document.getElementById("soopChatPanel");
+const soopChatList = document.getElementById("soopChatList");
+const closeSoopChatBtn = document.getElementById("closeSoopChatBtn");
+
+function formatSoopChatTime(iso) {
+  try {
+    return new Date(iso).toLocaleTimeString("ko-KR", { timeZone: "Asia/Seoul", hour: "2-digit", minute: "2-digit" });
+  } catch {
+    return "";
+  }
+}
+
+async function openSoopChatPanel() {
+  soopChatPanel.classList.remove("hidden");
+  soopChatOverlay.classList.remove("hidden");
+  soopChatList.innerHTML = `<div class="memo-card-empty">불러오는 중...</div>`;
+
+  try {
+    const res = await fetch("/api/soop-chat");
+    const data = await res.json();
+    const items = (data && data.items) || [];
+
+    if (!items.length) {
+      soopChatList.innerHTML = `<div class="memo-card-empty">오늘 수집된 채팅이 없습니다.</div>`;
+      return;
+    }
+
+    soopChatList.innerHTML = "";
+    items.forEach((item) => {
+      const card = document.createElement("div");
+      card.className = "memo-card";
+      const textEl = document.createElement("div");
+      textEl.className = "memo-card-text";
+      textEl.textContent = `${formatSoopChatTime(item.time)}  ${item.message}`;
+      card.appendChild(textEl);
+      soopChatList.appendChild(card);
+    });
+  } catch {
+    soopChatList.innerHTML = `<div class="memo-card-empty">불러오지 못했습니다.</div>`;
+  }
+}
+
+function closeSoopChatPanel() {
+  soopChatPanel.classList.add("hidden");
+  soopChatOverlay.classList.add("hidden");
+}
+
+memoBtn.addEventListener("click", openSoopChatPanel);
+closeSoopChatBtn.addEventListener("click", closeSoopChatPanel);
+soopChatOverlay.addEventListener("click", closeSoopChatPanel);
 
 (function makeMemoPanelDraggable() {
   const header = document.querySelector(".memo-panel-header");
