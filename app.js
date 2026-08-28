@@ -1544,10 +1544,12 @@ function applyHomeMatchedHeight(el) {
   el.style.height = `${mediaHeight + 55 + 6}px`;
 }
 
-window.addEventListener("resize", () => {
-  if (currentMainView === "songbook") applyHomeMatchedHeight(songbookView);
-  if (currentMainView === "cafephotos") applyHomeMatchedHeight(cafePhotosView);
-});
+new ResizeObserver((entries) => {
+  entries.forEach((entry) => applyHomeMatchedHeight(entry.target));
+}).observe(songbookView);
+new ResizeObserver((entries) => {
+  entries.forEach((entry) => applyHomeMatchedHeight(entry.target));
+}).observe(cafePhotosView);
 
 function showMainView(view) {
   if (view === "backmenu") hideBackMenuCalendar();
