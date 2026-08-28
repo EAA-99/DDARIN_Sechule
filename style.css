@@ -5,7 +5,7 @@
 .songbook-bg-video-wrap {
   width: 100%;
   flex: 1;
-  min-height: 120px;
+  min-height: 0;
   overflow: hidden;
   border-radius: 16px;
 }
