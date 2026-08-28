@@ -2604,6 +2604,14 @@ function formatSoopChatTime(iso) {
   }
 }
 
+function formatSoopChatDate(iso) {
+  try {
+    return new Date(iso).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul", month: "long", day: "numeric" });
+  } catch {
+    return "";
+  }
+}
+
 async function loadSoopChatView() {
   soopChatList.innerHTML = `<div class="memo-card-empty">불러오는 중...</div>`;
 
@@ -2615,11 +2623,32 @@ async function loadSoopChatView() {
     soopChatList.innerHTML = "";
     items.forEach((item) => {
       const card = document.createElement("div");
-      card.className = "memo-card";
-      const textEl = document.createElement("div");
-      textEl.className = "memo-card-text";
-      textEl.textContent = `${formatSoopChatTime(item.time)}  ${item.message}`;
-      card.appendChild(textEl);
+      card.className = "soop-chat-row";
+
+      const avatar = document.createElement("span");
+      avatar.className = "back-menu-avatar soop-chat-avatar";
+
+      const info = document.createElement("div");
+      info.className = "soop-chat-info";
+
+      const infoTop = document.createElement("div");
+      infoTop.className = "soop-chat-info-top";
+
+      const nameEl = document.createElement("span");
+      nameEl.className = "soop-chat-name";
+      nameEl.textContent = "DDARIN";
+
+      const dateEl = document.createElement("span");
+      dateEl.className = "soop-chat-date";
+      dateEl.textContent = formatSoopChatDate(item.time);
+
+      const messageEl = document.createElement("div");
+      messageEl.className = "soop-chat-message";
+      messageEl.textContent = `${formatSoopChatTime(item.time)}  ${item.message}`;
+
+      infoTop.append(nameEl, dateEl);
+      info.append(infoTop, messageEl);
+      card.append(avatar, info);
       soopChatList.appendChild(card);
     });
   } catch {
