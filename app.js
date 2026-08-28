@@ -218,6 +218,7 @@ const gameView = document.getElementById("gameView");
 const backMenuView = document.getElementById("backMenuView");
 const cafePhotosView = document.getElementById("cafePhotosView");
 const soopChatView = document.getElementById("soopChatView");
+const soopChatDayView = document.getElementById("soopChatDayView");
 const sideNavEl = document.querySelector(".side-nav");
 const songSearchInput = document.getElementById("songSearchInput");
 const genreTabsMenu = document.getElementById("genreTabsMenu");
@@ -1561,17 +1562,29 @@ function showMainView(view) {
   backMenuView.classList.toggle("hidden", view !== "backmenu");
   cafePhotosView.classList.toggle("hidden", view !== "cafephotos");
   soopChatView.classList.toggle("hidden", view !== "soopchat");
+  soopChatDayView.classList.toggle("hidden", view !== "soopchatday");
 
   if (view === "songbook") applyHomeMatchedHeight(songbookView);
   if (view === "cafephotos") applyHomeMatchedHeight(cafePhotosView);
   if (view === "soopchat") loadSoopChatView();
+  if (view === "soopchatday") renderSoopChatDayView();
   sideNavEl.classList.toggle(
     "hidden",
-    view === "backmenu" || view === "cafephotos" || view === "songbook" || view === "songbook2" || view === "soopchat"
+    view === "backmenu" ||
+      view === "cafephotos" ||
+      view === "songbook" ||
+      view === "songbook2" ||
+      view === "soopchat" ||
+      view === "soopchatday"
   );
   backToCalendarBtn.classList.toggle(
     "hidden",
-    view === "backmenu" || view === "cafephotos" || view === "songbook" || view === "calendar" || view === "soopchat"
+    view === "backmenu" ||
+      view === "cafephotos" ||
+      view === "songbook" ||
+      view === "calendar" ||
+      view === "soopchat" ||
+      view === "soopchatday"
   );
 
   if (currentMainView === "backmenu" && view !== "backmenu") {
@@ -2595,6 +2608,8 @@ closeMemoBtn.addEventListener("click", closeMemoPanel);
 memoOverlay.addEventListener("click", closeMemoPanel);
 
 const soopChatList = document.getElementById("soopChatList");
+const soopChatDayList = document.getElementById("soopChatDayList");
+let currentSoopChatDayItems = [];
 
 function formatSoopChatTime(iso) {
   try {
@@ -2668,24 +2683,38 @@ async function loadSoopChatView() {
       soopChatList.appendChild(card);
 
       if (rest.length) {
-        const extra = document.createElement("div");
-        extra.className = "soop-chat-extra hidden";
-        rest.forEach((item) => {
-          const extraMessage = document.createElement("div");
-          extraMessage.className = "soop-chat-message";
-          extraMessage.textContent = `${formatSoopChatTime(item.time)}  ${item.message}`;
-          extra.appendChild(extraMessage);
-        });
-        soopChatList.appendChild(extra);
-
         card.style.cursor = "pointer";
-        card.addEventListener("click", () => extra.classList.toggle("hidden"));
+        card.addEventListener("click", () => {
+          currentSoopChatDayItems = group.items;
+          showMainView("soopchatday");
+        });
       }
     });
   } catch {
     soopChatList.innerHTML = "";
   }
 }
+
+function renderSoopChatDayView() {
+  soopChatDayList.innerHTML = "";
+  currentSoopChatDayItems.forEach((item) => {
+    const row = document.createElement("div");
+    row.className = "soop-chat-bubble-row";
+
+    const bubble = document.createElement("div");
+    bubble.className = "soop-chat-bubble";
+    bubble.textContent = item.message;
+
+    const timeEl = document.createElement("span");
+    timeEl.className = "soop-chat-bubble-time";
+    timeEl.textContent = formatSoopChatTime(item.time);
+
+    row.append(bubble, timeEl);
+    soopChatDayList.appendChild(row);
+  });
+}
+
+document.getElementById("soopChatDayBackBtn").addEventListener("click", () => showMainView("soopchat"));
 
 memoBtn.addEventListener("click", openMemoPanel);
 
