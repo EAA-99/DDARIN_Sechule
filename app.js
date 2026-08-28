@@ -1356,6 +1356,12 @@ document.querySelectorAll(".clip-source-chat-icon").forEach((icon) => {
   });
 });
 
+document.addEventListener("click", (e) => {
+  if (clipSourceSongListOverlay.classList.contains("hidden")) return;
+  if (clipSourceSongListOverlay.contains(e.target)) return;
+  clipSourceSongListOverlay.classList.add("hidden");
+});
+
 (function makeClipSourceDraggable() {
   let dragging = false;
   let startX = 0;
