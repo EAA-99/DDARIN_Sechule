@@ -3562,6 +3562,7 @@ body {
   display: flex;
   width: 100%;
   height: 100%;
+  touch-action: pan-y;
   cursor: grab;
   transition: transform 0.25s ease;
 }
@@ -3660,15 +3661,18 @@ body {
   inset: 0;
   z-index: 10;
   background: #fff;
-  overflow-y: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   padding: 14px;
   touch-action: pan-y;
   user-select: none;
-  scrollbar-width: none;
 }
 
-.clip-source-song-list-overlay::-webkit-scrollbar {
-  display: none;
+.clip-source-song-list-overlay .song-search {
+  flex-shrink: 0;
+  margin-bottom: 0;
+  margin-top: 10px;
 }
 
 .clip-source-dots {
@@ -3758,6 +3762,7 @@ body {
 #songGrid {
   flex: 1;
   min-height: 0;
+  max-height: none;
   overflow-y: auto;
   scrollbar-width: none;
   display: flex;
