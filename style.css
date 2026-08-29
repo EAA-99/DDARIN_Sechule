@@ -678,7 +678,8 @@ body {
   }
 
   .app {
-    margin-top: 50px;
+    margin-top: 0;
+    padding-bottom: 50px !important;
     box-sizing: border-box;
     width: 100vw !important;
     max-width: 100vw !important;
