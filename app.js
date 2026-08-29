@@ -1540,6 +1540,10 @@ function renderSongGrid2() {
 let currentMainView = "calendar";
 
 function applyHomeMatchedHeight(el) {
+  if (window.innerWidth <= 900) {
+    el.style.height = "";
+    return;
+  }
   const width = el.getBoundingClientRect().width;
   if (!width) return;
   const mediaHeight = ((width - 6) * 4) / 3;
@@ -2636,12 +2640,30 @@ function setSoopChatSeenUntil(iso) {
   if (iso) localStorage.setItem(SOOP_CHAT_SEEN_KEY, iso);
 }
 
+const SOOP_CHAT_HIDDEN_KEY = "soopChatHiddenTimes";
+
+function getSoopChatHiddenTimes() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(SOOP_CHAT_HIDDEN_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function hideSoopChatMessageLocally(time) {
+  const hidden = getSoopChatHiddenTimes();
+  if (!hidden.includes(time)) hidden.push(time);
+  localStorage.setItem(SOOP_CHAT_HIDDEN_KEY, JSON.stringify(hidden));
+}
+
 async function refreshSoopChatIconBadges() {
   let hasUnread = false;
   try {
     const res = await fetch("/api/soop-chat");
     const data = await res.json();
-    const items = (data && data.items) || [];
+    const hiddenTimes = getSoopChatHiddenTimes();
+    const items = ((data && data.items) || []).filter((it) => !hiddenTimes.includes(it.time));
     const seenUntil = getSoopChatSeenUntil();
     hasUnread = items.some((it) => it.time > seenUntil);
   } catch {
@@ -2669,14 +2691,6 @@ function formatSoopChatDate(iso) {
   }
 }
 
-function formatSoopChatStorageDate(iso) {
-  try {
-    return new Date(iso).toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
-  } catch {
-    return "";
-  }
-}
-
 function groupSoopChatByDate(items) {
   const groups = [];
   items.forEach((item) => {
@@ -2697,7 +2711,8 @@ async function loadSoopChatView() {
   try {
     const res = await fetch("/api/soop-chat");
     const data = await res.json();
-    const items = (data && data.items) || [];
+    const hiddenTimes = getSoopChatHiddenTimes();
+    const items = ((data && data.items) || []).filter((it) => !hiddenTimes.includes(it.time));
     const seenUntil = getSoopChatSeenUntil();
 
     soopChatList.innerHTML = "";
@@ -2756,13 +2771,7 @@ async function loadSoopChatView() {
           delBtn.textContent = "삭제";
           delBtn.addEventListener("click", async (e) => {
             e.stopPropagation();
-            const { username, password } = getStoredCreds();
-            if (!username || !password) return;
-            await fetch("/api/soop-chat", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ username, password, action: "delete", date: formatSoopChatStorageDate(first.time) }),
-            });
+            group.items.forEach((it) => hideSoopChatMessageLocally(it.time));
             activeSoopChatDeleteBtn = null;
             loadSoopChatView();
           });
@@ -2824,21 +2833,9 @@ function renderSoopChatDayView() {
         delBtn.type = "button";
         delBtn.className = "soop-chat-delete-btn";
         delBtn.textContent = "삭제";
-        delBtn.addEventListener("click", async (e) => {
+        delBtn.addEventListener("click", (e) => {
           e.stopPropagation();
-          const { username, password } = getStoredCreds();
-          if (!username || !password) return;
-          await fetch("/api/soop-chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              username,
-              password,
-              action: "delete",
-              date: formatSoopChatStorageDate(item.time),
-              time: item.time,
-            }),
-          });
+          hideSoopChatMessageLocally(item.time);
           activeSoopChatDeleteBtn = null;
           currentSoopChatDayItems = currentSoopChatDayItems.filter((it) => it.time !== item.time);
           if (currentSoopChatDayItems.length) {

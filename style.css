@@ -51,6 +51,7 @@
     height: calc(100dvh - 40px);
     display: flex;
     flex-direction: column;
+    overscroll-behavior: none;
   }
 
   .back-menu-top {
@@ -147,6 +148,7 @@
     flex: 1;
     aspect-ratio: unset;
     min-height: 0;
+    touch-action: pan-x;
   }
 }
 
@@ -930,29 +932,36 @@ body {
 
   .card-list {
     grid-template-columns: 1fr;
-    gap: 12px;
-    min-height: 0;
+    gap: 6px;
+    min-height: auto;
   }
 
   .day-card {
     flex-direction: row;
     align-items: stretch;
-    gap: 12px;
+    gap: 8px;
   }
 
   .day-card-date {
     flex-direction: column;
     justify-content: center;
     min-width: 52px;
+    padding: 4px 4px;
   }
 
   .day-card-body {
     flex-direction: column;
+    gap: 4px;
   }
 
   .day-card-event {
     justify-content: flex-start;
     text-align: left;
+    padding: 6px 8px;
+  }
+
+  .app {
+    padding: 10px;
   }
 }
 
