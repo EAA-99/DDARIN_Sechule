@@ -864,6 +864,7 @@ body {
 
 .day-card-event {
   flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -873,6 +874,7 @@ body {
   font-size: 0.9rem;
   text-align: center;
   word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .grid {
@@ -1419,6 +1421,7 @@ body {
   .cafe-photos-view {
     margin-top: 0;
     height: calc(100dvh - 40px);
+    overscroll-behavior: none;
   }
 }
 
@@ -3688,6 +3691,7 @@ body {
   #songbookView {
     margin-top: 0;
     height: calc(100dvh - 40px);
+    overscroll-behavior: none;
   }
 }
 
@@ -3765,6 +3769,12 @@ body {
   touch-action: pan-y;
   cursor: grab;
   transition: transform 0.25s ease;
+}
+
+@media (max-width: 900px) {
+  .clip-source-track {
+    touch-action: pan-x;
+  }
 }
 
 .clip-source-slide {
