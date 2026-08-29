@@ -553,6 +553,14 @@ body {
     margin-top: 0;
   }
 
+  .back-menu-view {
+    margin-top: 0;
+  }
+
+  .cafe-photos-view {
+    margin-top: 0;
+  }
+
   #todayYoutubeCard,
   .page-top-mascot {
     display: none !important;
@@ -884,6 +892,18 @@ body {
 @media (max-width: 700px) {
   .day-cell {
     height: 120px;
+  }
+
+  .event-single {
+    padding: 4px;
+  }
+
+  .event-single-text {
+    font-size: 0.68rem;
+  }
+
+  .day-cell-events {
+    gap: 3px;
   }
 
   .grid {
