@@ -1711,9 +1711,7 @@ function updateBackMenuSlide() {
   }
 
   backMenuMediaTrack.addEventListener("pointerup", endDrag);
-  backMenuMediaTrack.addEventListener("pointerleave", (e) => {
-    if (dragging) endDrag(e);
-  });
+  backMenuMediaTrack.addEventListener("pointercancel", endDrag);
 })();
 
 document.getElementById("backMenuCalendarBtn").addEventListener("click", () => {
@@ -1766,7 +1764,7 @@ function wireNavMenu(prefix, hamburgerId, menuId) {
     showMainView("cafephotos");
   });
   document.getElementById(`${prefix}SongbookBtn`).addEventListener("click", openSongbook2);
-  document.getElementById(`${prefix}MailBtn`).addEventListener("click", openMemoPanel);
+  document.getElementById(`${prefix}MailBtn`).addEventListener("click", () => showMainView("soopchat"));
 }
 
 wireNavMenu("cafePhotosNav", "cafePhotosHamburgerBtn", "cafePhotosNavMenu");
