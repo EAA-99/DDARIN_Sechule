@@ -587,6 +587,36 @@ body {
 @media (max-width: 900px) {
   .calendar-post-column {
     margin-top: 0;
+    height: calc((100dvh - 40px) / 0.8);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .calendar-post-header {
+    flex-shrink: 0;
+  }
+
+  .app {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .calendar-header {
+    flex-shrink: 0;
+  }
+
+  .grid {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .card-view {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
   }
 
   #todayYoutubeCard,
@@ -974,7 +1004,9 @@ body {
   .card-list {
     grid-template-columns: 1fr;
     gap: 6px;
-    min-height: auto;
+    height: 60vh;
+    min-height: 0;
+    overflow-y: auto;
   }
 
   .day-card {
@@ -1003,7 +1035,7 @@ body {
 
   .app {
     padding: 2px;
-    border-width: 5px;
+    border-width: 3px;
   }
 }
 
