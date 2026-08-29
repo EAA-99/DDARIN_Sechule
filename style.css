@@ -679,6 +679,11 @@ body {
 
   .app {
     margin-top: 0;
+    box-sizing: border-box;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
   }
 
   .songbook-view {
