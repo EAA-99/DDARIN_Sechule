@@ -587,36 +587,6 @@ body {
 @media (max-width: 900px) {
   .calendar-post-column {
     margin-top: 0;
-    height: calc((100dvh - 40px) / 0.8);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .calendar-post-header {
-    flex-shrink: 0;
-  }
-
-  .app {
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .calendar-header {
-    flex-shrink: 0;
-  }
-
-  .grid {
-    flex: 1;
-    min-height: 0;
-  }
-
-  .card-view {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
   }
 
   #todayYoutubeCard,
