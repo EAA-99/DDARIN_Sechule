@@ -686,6 +686,20 @@ body {
     margin-right: calc(-50vw + 50%);
   }
 
+  .calendar-post-header {
+    justify-content: flex-start !important;
+    text-align: left !important;
+  }
+
+  .calendar-post-header-text {
+    align-items: flex-start !important;
+    text-align: left !important;
+  }
+
+  .calendar-post-menu {
+    margin-left: auto !important;
+  }
+
   .songbook-view {
     margin-top: 0 !important;
   }
@@ -981,7 +995,7 @@ body {
   }
 
   .app {
-    padding: 10px;
+    padding: 4px;
   }
 }
 
