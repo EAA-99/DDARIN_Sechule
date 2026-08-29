@@ -148,7 +148,7 @@
     flex: 1;
     aspect-ratio: unset;
     min-height: 0;
-    touch-action: pan-x;
+    touch-action: none;
   }
 }
 
@@ -302,6 +302,8 @@ body {
   padding: 24px;
   border: 3px solid #cfe2f7;
   border-radius: 30px;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .side-nav {
@@ -3773,7 +3775,7 @@ body {
 
 @media (max-width: 900px) {
   .clip-source-track {
-    touch-action: pan-x;
+    touch-action: none;
   }
 }
 
