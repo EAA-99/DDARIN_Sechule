@@ -465,12 +465,22 @@ body {
 
 .back-menu-calendar-body .calendar-header {
   flex-shrink: 0;
+  position: static;
+}
+
+.back-menu-calendar-body .weekday-row {
+  grid-template-columns: repeat(7, 1fr) !important;
+  overflow: visible !important;
 }
 
 .back-menu-calendar-body .grid {
   flex: 1;
   min-height: 0;
+  min-width: 0;
   grid-auto-rows: 1fr;
+  grid-template-columns: repeat(7, 1fr) !important;
+  max-height: none !important;
+  overflow: visible !important;
 }
 
 .back-menu-calendar-body .event-single-text {
