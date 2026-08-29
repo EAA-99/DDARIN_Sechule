@@ -995,7 +995,8 @@ body {
   }
 
   .app {
-    padding: 4px;
+    padding: 2px;
+    border-width: 1px;
   }
 }
 
