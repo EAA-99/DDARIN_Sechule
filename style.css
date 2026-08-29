@@ -678,7 +678,7 @@ body {
   }
 
   .app {
-    margin-top: 0;
+    margin-top: 20px;
     padding-bottom: 4px !important;
     box-sizing: border-box;
     width: calc(100vw + 10px) !important;
