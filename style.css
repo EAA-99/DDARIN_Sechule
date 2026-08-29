@@ -409,6 +409,7 @@ body {
   color: #999;
   font-weight: 700;
   flex-shrink: 0;
+  cursor: pointer;
 }
 
 .calendar-post-actions {
@@ -4202,6 +4203,14 @@ body {
   .side-nav-icon {
     width: 28px;
     height: 28px;
+  }
+
+  .calendar-post-column:not(.hidden) ~ .side-nav {
+    display: none;
+  }
+
+  .calendar-post-column:not(.hidden) ~ .side-nav.side-nav-open {
+    display: flex;
   }
 
   .page {

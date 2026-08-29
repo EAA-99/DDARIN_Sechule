@@ -220,6 +220,7 @@ const cafePhotosView = document.getElementById("cafePhotosView");
 const soopChatView = document.getElementById("soopChatView");
 const soopChatDayView = document.getElementById("soopChatDayView");
 const sideNavEl = document.querySelector(".side-nav");
+const calendarPostMenuBtn = document.querySelector(".calendar-post-menu");
 const songSearchInput = document.getElementById("songSearchInput");
 const genreTabsMenu = document.getElementById("genreTabsMenu");
 const clipSourceCarousel = document.getElementById("clipSourceCarousel");
@@ -2855,6 +2856,10 @@ function renderSoopChatDayView() {
 document.getElementById("soopChatDayBackBtn").addEventListener("click", () => showMainView("soopchat"));
 
 memoBtn.addEventListener("click", openMemoPanel);
+
+calendarPostMenuBtn.addEventListener("click", () => {
+  sideNavEl.classList.toggle("side-nav-open");
+});
 
 (function makeMemoPanelDraggable() {
   const header = document.querySelector(".memo-panel-header");
