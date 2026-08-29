@@ -549,6 +549,10 @@ body {
 }
 
 @media (max-width: 900px) {
+  .calendar-post-column {
+    margin-top: 0;
+  }
+
   #todayYoutubeCard,
   .page-top-mascot {
     display: none !important;
