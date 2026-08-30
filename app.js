@@ -1764,7 +1764,10 @@ function wireNavMenu(prefix, hamburgerId, menuId) {
     }
   });
   document.getElementById(`${prefix}HomeBtn`).addEventListener("click", () => showMainView("backmenu"));
-  document.getElementById(`${prefix}CalendarBtn`).addEventListener("click", () => showMainView("calendar"));
+  document.getElementById(`${prefix}CalendarBtn`).addEventListener("click", () => {
+    showMainView("backmenu");
+    showBackMenuCalendar();
+  });
   document.getElementById(`${prefix}PlaylistBtn`).addEventListener("click", openSongbook);
   document.getElementById(`${prefix}PostsBtn`).addEventListener("click", () => {
     switchCafePhotosTab(cafePhotosTabEls[0], { menuId: "27", titleContains: "" });
