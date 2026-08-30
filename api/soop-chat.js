@@ -28,13 +28,36 @@ async function getItems(date) {
   }
 }
 
+async function getAllItems() {
+  const { result: keys } = await kvCommand(["KEYS", "soop_chat:*"]);
+  if (!Array.isArray(keys) || !keys.length) return [];
+  const results = await Promise.all(keys.map((k) => kvCommand(["GET", k])));
+  let all = [];
+  results.forEach(({ result }) => {
+    if (!result) return;
+    try {
+      const parsed = JSON.parse(result);
+      if (Array.isArray(parsed)) all = all.concat(parsed);
+    } catch {
+      /* skip */
+    }
+  });
+  all.sort((a, b) => (a.time > b.time ? 1 : a.time < b.time ? -1 : 0));
+  return all;
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json");
 
   if (req.method === "GET") {
-    const date = String(req.query.date || todayKeySeoul());
-    const items = await getItems(date);
-    res.status(200).json({ date, items });
+    if (req.query.date) {
+      const date = String(req.query.date);
+      const items = await getItems(date);
+      res.status(200).json({ date, items });
+      return;
+    }
+    const items = await getAllItems();
+    res.status(200).json({ items });
     return;
   }
 
