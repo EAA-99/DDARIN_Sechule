@@ -1540,15 +1540,23 @@ function renderSongGrid2() {
 
 let currentMainView = "calendar";
 
+let photoCardHeightPx = null;
+
 function applyHomeMatchedHeight(el) {
   if (window.innerWidth <= 900) {
     el.style.height = "";
     return;
   }
+  if (el === songbookView && photoCardHeightPx) {
+    el.style.height = `${photoCardHeightPx}px`;
+    return;
+  }
   const width = el.getBoundingClientRect().width;
   if (!width) return;
   const mediaHeight = ((width - 6) * 4) / 3;
-  el.style.height = `${mediaHeight + 55 + 6}px`;
+  const height = mediaHeight + 55 + 6;
+  if (el === cafePhotosView) photoCardHeightPx = height;
+  el.style.height = `${height}px`;
 }
 
 new ResizeObserver((entries) => {
