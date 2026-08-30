@@ -94,6 +94,13 @@
   color: #2a2a2a;
 }
 
+.soop-chat-retention-note {
+  margin-left: 6px;
+  font-weight: 500;
+  font-size: 0.7rem;
+  color: #999;
+}
+
 .back-menu-hamburger {
   flex-shrink: 0;
   display: flex;

@@ -13,8 +13,15 @@ async function kvCommand(cmd) {
   return res.json();
 }
 
+const RETENTION_DAYS = 7;
+
 function todayKeySeoul() {
   return new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
+}
+
+function dateKeyDaysAgoSeoul(daysAgo) {
+  const d = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000);
+  return d.toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
 }
 
 async function getItems(date) {
@@ -31,7 +38,16 @@ async function getItems(date) {
 async function getAllItems() {
   const { result: keys } = await kvCommand(["KEYS", "soop_chat:*"]);
   if (!Array.isArray(keys) || !keys.length) return [];
-  const results = await Promise.all(keys.map((k) => kvCommand(["GET", k])));
+
+  const cutoff = dateKeyDaysAgoSeoul(RETENTION_DAYS);
+  const validKeys = keys.filter((k) => k.slice("soop_chat:".length) >= cutoff);
+  const expiredKeys = keys.filter((k) => k.slice("soop_chat:".length) < cutoff);
+  if (expiredKeys.length) {
+    await Promise.all(expiredKeys.map((k) => kvCommand(["DEL", k])));
+  }
+  if (!validKeys.length) return [];
+
+  const results = await Promise.all(validKeys.map((k) => kvCommand(["GET", k])));
   let all = [];
   results.forEach(({ result }) => {
     if (!result) return;
