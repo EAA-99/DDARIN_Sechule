@@ -2694,11 +2694,12 @@ function groupSoopChatByDate(items) {
   const groups = [];
   items.forEach((item) => {
     const dateKey = formatSoopChatDate(item.time);
+    const groupKey = item.broadcastId || dateKey;
     const lastGroup = groups[groups.length - 1];
-    if (lastGroup && lastGroup.dateKey === dateKey) {
+    if (lastGroup && lastGroup.groupKey === groupKey) {
       lastGroup.items.push(item);
     } else {
-      groups.push({ dateKey, items: [item] });
+      groups.push({ groupKey, dateKey, items: [item] });
     }
   });
   return groups;

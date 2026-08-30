@@ -62,7 +62,7 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    const { key, message, time, action, date: deleteDate, username, password } = req.body || {};
+    const { key, message, time, action, date: deleteDate, username, password, broadcastId } = req.body || {};
 
     if (action === "delete") {
       if (username !== process.env.EDIT_USERNAME || password !== process.env.EDIT_PASSWORD) {
@@ -99,7 +99,7 @@ export default async function handler(req, res) {
       return;
     }
 
-    items.push({ time: time || new Date().toISOString(), message: text });
+    items.push({ time: time || new Date().toISOString(), message: text, broadcastId: broadcastId || null });
     await kvCommand(["SET", `soop_chat:${date}`, JSON.stringify(items)]);
     res.status(200).json({ success: true, count: items.length });
     return;
