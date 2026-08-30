@@ -1540,23 +1540,21 @@ function renderSongGrid2() {
 
 let currentMainView = "calendar";
 
-let photoCardHeightPx = null;
-
 function applyHomeMatchedHeight(el) {
   if (window.innerWidth <= 900) {
     el.style.height = "";
     return;
   }
-  if (el === songbookView && photoCardHeightPx) {
-    el.style.height = `${photoCardHeightPx}px`;
-    return;
-  }
-  const width = el.getBoundingClientRect().width;
+  // songbookView/cafePhotosView share the same "width:100%; max-width:640px" sizing
+  // inside .page, so always derive the height from .page's width (always rendered,
+  // unlike the cards themselves which are hidden when not active) instead of each
+  // card's own measured width — that way playlist always matches photo, even before
+  // photo has ever been opened.
+  const pageWidth = document.querySelector(".page").getBoundingClientRect().width;
+  const width = Math.min(pageWidth, 640);
   if (!width) return;
   const mediaHeight = ((width - 6) * 4) / 3;
-  const height = mediaHeight + 55 + 6;
-  if (el === cafePhotosView) photoCardHeightPx = height;
-  el.style.height = `${height}px`;
+  el.style.height = `${mediaHeight + 55 + 6}px`;
 }
 
 new ResizeObserver((entries) => {
