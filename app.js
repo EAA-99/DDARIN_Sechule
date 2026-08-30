@@ -252,6 +252,23 @@ const artist2List = document.getElementById("artist2List");
 const song2SortSelect = document.getElementById("song2SortSelect");
 const song2Grid = document.getElementById("song2Grid");
 const favorites2ListEl = document.getElementById("favorites2List");
+const favorites2OpenBtn = document.getElementById("favorites2OpenBtn");
+const favorites2ModalBackdrop = document.getElementById("favorites2ModalBackdrop");
+const closeFavorites2ModalBtn = document.getElementById("closeFavorites2ModalBtn");
+
+function closeFavorites2Modal() {
+  favorites2ModalBackdrop.classList.add("hidden");
+}
+
+favorites2OpenBtn.addEventListener("click", () => {
+  renderFavorites2List();
+  favorites2ModalBackdrop.classList.remove("hidden");
+});
+closeFavorites2ModalBtn.addEventListener("click", closeFavorites2Modal);
+favorites2ModalBackdrop.addEventListener("click", (e) => {
+  if (e.target === favorites2ModalBackdrop) closeFavorites2Modal();
+});
+
 const singQueueListEl = document.getElementById("singQueueList");
 const songManageBtn = document.getElementById("songManageBtn");
 const songManageToolbar = document.getElementById("songManageToolbar");

@@ -521,10 +521,7 @@
 
     <div class="songbook-body">
       <div class="player-panel">
-        <div class="player-favorites">
-          <h3>즐겨찾기</h3>
-          <div id="favorites2List" class="favorites-list"></div>
-        </div>
+        <button type="button" id="favorites2OpenBtn" class="favorites-open-btn">⭐ 즐겨찾기</button>
 
         <div class="player-favorites">
           <h3>대기열</h3>
@@ -547,6 +544,16 @@
         <div id="song2Grid" class="song-grid no-image-mode"></div>
       </div>
     </div>
+    </div>
+  </div>
+
+  <div id="favorites2ModalBackdrop" class="modal-backdrop hidden">
+    <div class="modal favorites-modal">
+      <div class="modal-header-row">
+        <h2>즐겨찾기</h2>
+        <button type="button" id="closeFavorites2ModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
+      </div>
+      <div id="favorites2List" class="favorites-list"></div>
     </div>
   </div>
 

@@ -3404,6 +3404,27 @@ body {
   border-top: 1px solid #eee;
 }
 
+.favorites-open-btn {
+  width: 100%;
+  margin-top: 24px;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  background: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.favorites-open-btn:hover {
+  background: #f7f7f7;
+}
+
+.favorites-modal .favorites-list {
+  max-height: 50vh;
+}
+
 .player-favorites h3 {
   font-size: 0.95rem;
   margin: 0 0 10px;
