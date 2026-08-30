@@ -2698,6 +2698,20 @@ function formatSoopChatDate(iso) {
   }
 }
 
+const SOOP_CHAT_RETENTION_DAYS = 7;
+
+function soopChatDateKeySeoul(input) {
+  const d = input ? new Date(input) : new Date();
+  return d.toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
+}
+
+function soopChatDaysUntilDeletion(iso) {
+  const msgDate = new Date(`${soopChatDateKeySeoul(iso)}T00:00:00+09:00`);
+  const today = new Date(`${soopChatDateKeySeoul()}T00:00:00+09:00`);
+  const daysSince = Math.round((today - msgDate) / (24 * 60 * 60 * 1000));
+  return SOOP_CHAT_RETENTION_DAYS - daysSince;
+}
+
 function groupSoopChatByDate(items) {
   const groups = [];
   items.forEach((item) => {
@@ -2723,12 +2737,6 @@ async function loadSoopChatView() {
     const items = ((data && data.items) || []).filter((it) => !hiddenTimes.includes(it.time));
     const seenUntil = getSoopChatSeenUntil();
 
-    const retentionNote = document.getElementById("soopChatRetentionNote");
-    if (retentionNote) {
-      retentionNote.textContent =
-        typeof data.daysUntilDeletion === "number" ? `${data.daysUntilDeletion}일 후 삭제` : "";
-    }
-
     soopChatList.innerHTML = "";
     groupSoopChatByDate(items).forEach((group) => {
       const [first, ...rest] = group.items;
@@ -2749,6 +2757,11 @@ async function loadSoopChatView() {
       const nameEl = document.createElement("span");
       nameEl.className = "soop-chat-name";
       nameEl.textContent = "DDARIN";
+
+      const retentionNote = document.createElement("span");
+      retentionNote.className = "soop-chat-retention-note";
+      retentionNote.textContent = `${soopChatDaysUntilDeletion(first.time)}일 후 삭제`;
+      nameEl.appendChild(retentionNote);
 
       const dateEl = document.createElement("span");
       dateEl.className = "soop-chat-date";

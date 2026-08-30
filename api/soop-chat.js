@@ -24,12 +24,6 @@ function dateKeyDaysAgoSeoul(daysAgo) {
   return d.toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
 }
 
-function daysBetweenDateKeys(fromDateStr, toDateStr) {
-  const from = new Date(`${fromDateStr}T00:00:00+09:00`);
-  const to = new Date(`${toDateStr}T00:00:00+09:00`);
-  return Math.round((to - from) / (24 * 60 * 60 * 1000));
-}
-
 async function getItems(date) {
   const { result } = await kvCommand(["GET", `soop_chat:${date}`]);
   if (!result) return [];
@@ -43,7 +37,7 @@ async function getItems(date) {
 
 async function getAllItems() {
   const { result: keys } = await kvCommand(["KEYS", "soop_chat:*"]);
-  if (!Array.isArray(keys) || !keys.length) return { items: [], oldestDate: null };
+  if (!Array.isArray(keys) || !keys.length) return [];
 
   const cutoff = dateKeyDaysAgoSeoul(RETENTION_DAYS);
   const validKeys = keys.filter((k) => k.slice("soop_chat:".length) >= cutoff);
@@ -51,7 +45,7 @@ async function getAllItems() {
   if (expiredKeys.length) {
     await Promise.all(expiredKeys.map((k) => kvCommand(["DEL", k])));
   }
-  if (!validKeys.length) return { items: [], oldestDate: null };
+  if (!validKeys.length) return [];
 
   const results = await Promise.all(validKeys.map((k) => kvCommand(["GET", k])));
   let all = [];
@@ -65,9 +59,7 @@ async function getAllItems() {
     }
   });
   all.sort((a, b) => (a.time > b.time ? 1 : a.time < b.time ? -1 : 0));
-
-  const oldestDate = validKeys.map((k) => k.slice("soop_chat:".length)).sort()[0];
-  return { items: all, oldestDate };
+  return all;
 }
 
 export default async function handler(req, res) {
@@ -80,13 +72,8 @@ export default async function handler(req, res) {
       res.status(200).json({ date, items });
       return;
     }
-    const { items, oldestDate } = await getAllItems();
-    let daysUntilDeletion = null;
-    if (oldestDate) {
-      const today = todayKeySeoul();
-      daysUntilDeletion = RETENTION_DAYS - daysBetweenDateKeys(oldestDate, today);
-    }
-    res.status(200).json({ items, daysUntilDeletion });
+    const items = await getAllItems();
+    res.status(200).json({ items });
     return;
   }
 
