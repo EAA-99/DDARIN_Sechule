@@ -2723,6 +2723,12 @@ async function loadSoopChatView() {
     const items = ((data && data.items) || []).filter((it) => !hiddenTimes.includes(it.time));
     const seenUntil = getSoopChatSeenUntil();
 
+    const retentionNote = document.getElementById("soopChatRetentionNote");
+    if (retentionNote) {
+      retentionNote.textContent =
+        typeof data.daysUntilDeletion === "number" ? `${data.daysUntilDeletion}일 후 삭제` : "";
+    }
+
     soopChatList.innerHTML = "";
     groupSoopChatByDate(items).forEach((group) => {
       const [first, ...rest] = group.items;
