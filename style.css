@@ -57,6 +57,12 @@
   .back-menu-top {
     flex-shrink: 0;
   }
+
+  .back-menu-calendar-box {
+    aspect-ratio: unset;
+    flex: 1;
+    min-height: 0;
+  }
 }
 
 .back-menu-top {
