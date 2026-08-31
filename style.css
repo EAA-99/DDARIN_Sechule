@@ -458,6 +458,10 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
 
 .back-menu-calendar-body .toolbar,
