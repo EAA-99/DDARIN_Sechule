@@ -857,6 +857,9 @@ body {
   gap: 8px;
   min-width: 0;
   cursor: pointer;
+  background: #fff;
+  border-radius: 14px;
+  padding: 8px;
 }
 
 .day-card.today {
@@ -961,7 +964,7 @@ body {
 
 @media (max-width: 700px) {
   .day-cell {
-    height: 205px;
+    height: 155px;
   }
 
   .toolbar h1 {
@@ -3581,6 +3584,7 @@ body {
   font-size: 0.95rem;
   margin-bottom: 14px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .song-search:focus {
