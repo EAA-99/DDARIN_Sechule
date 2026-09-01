@@ -816,6 +816,10 @@ body {
   padding: 8px 0;
 }
 
+.weekday-row.card-mode {
+  gap: 10px;
+}
+
 .weekday-row .sun { color: #e0577a; }
 .weekday-row .sat { color: #4a7fd6; }
 
