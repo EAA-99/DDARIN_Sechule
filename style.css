@@ -3583,6 +3583,11 @@ body {
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
+.song-search:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #cfe2f7;
+}
+
 .genre-tabs {
   display: flex;
   flex-wrap: wrap;
