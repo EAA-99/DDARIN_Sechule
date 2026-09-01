@@ -558,6 +558,10 @@ body {
   padding-top: 4px;
 }
 
+.calendar-header.card-mode {
+  background: transparent;
+}
+
 #todayScheduleCard {
   position: absolute;
   bottom: calc(100% + 4px);
@@ -818,6 +822,8 @@ body {
 
 .weekday-row.card-mode {
   gap: 10px;
+  padding-left: 50px;
+  padding-right: 50px;
 }
 
 .weekday-row .sun { color: #e0577a; }
