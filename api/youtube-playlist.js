@@ -6,6 +6,7 @@ const GROUPS = {
   playlist: [
     { id: "PLO1Oy6ecS9Sp8_V9ATKJIuZ1tD0muxiAu", label: "출근용" },
     { id: "PLO1Oy6ecS9SqKtqUkTyFFpaABWoMLJAcj", label: "퇴근용" },
+    { id: "PLBMq-xKLTYBs", label: "따린픽" },
   ],
 };
 const API_KEY = process.env.YOUTUBE_API_KEY;

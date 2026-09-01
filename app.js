@@ -1235,6 +1235,7 @@ const SORT_OPTIONS = {
     { value: "전체", label: "전체" },
     { value: "출근용", label: "출근용" },
     { value: "퇴근용", label: "퇴근용" },
+    { value: "따린픽", label: "따린픽" },
   ],
 };
 
@@ -1668,6 +1669,10 @@ const backMenuCalendarBody = document.getElementById("backMenuCalendarBody");
 function showBackMenuCalendar() {
   const clone = document.querySelector(".app").cloneNode(true);
   clone.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+  const cloneGrid = clone.querySelector(".grid");
+  const cloneCardView = clone.querySelector(".card-view");
+  if (cloneGrid) cloneGrid.classList.remove("hidden");
+  if (cloneCardView) cloneCardView.classList.add("hidden");
   clone.addEventListener("click", () => showMainView("calendar"));
   backMenuCalendarBody.innerHTML = "";
   backMenuCalendarBody.appendChild(clone);
