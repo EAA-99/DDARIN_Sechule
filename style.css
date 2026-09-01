@@ -1002,6 +1002,9 @@ body {
     flex-direction: row;
     align-items: stretch;
     gap: 8px;
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
   }
 
   .day-card-date {
@@ -3583,7 +3586,6 @@ body {
   border-radius: 999px;
   font-size: 0.95rem;
   margin-bottom: 14px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
   -webkit-tap-highlight-color: transparent;
 }
 
