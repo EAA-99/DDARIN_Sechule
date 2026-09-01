@@ -830,7 +830,6 @@ body {
   width: 100%;
   margin: 0 auto;
   padding: 12px 0 24px;
-  background: #fff;
 }
 
 .week-nav-btn {
@@ -862,9 +861,6 @@ body {
   gap: 8px;
   min-width: 0;
   cursor: pointer;
-  background: #fff;
-  border-radius: 14px;
-  padding: 8px;
 }
 
 .day-card.today {
@@ -993,6 +989,10 @@ body {
     display: none;
   }
 
+  .card-view {
+    background: #fff;
+  }
+
   .card-list {
     grid-template-columns: 1fr;
     gap: 6px;
@@ -1001,6 +1001,7 @@ body {
     overflow-y: auto;
     padding-left: 8px;
     padding-right: 8px;
+    background: #fff;
   }
 
   .day-card {

@@ -1341,20 +1341,31 @@ function pickRandomSong() {
   return allSongs[Math.floor(Math.random() * allSongs.length)];
 }
 
-function renderClipSourcePreviews() {
-  CLIP_SOURCE_ORDER.forEach((source) => {
-    const song = pickRandomSong();
-    if (!song) return;
+async function renderClipSourcePreviews() {
+  for (const source of CLIP_SOURCE_ORDER) {
+    let song;
+    if (source === "clip") {
+      song = pickRandomSong();
+    } else {
+      const songs = await loadYoutubeGroup(source);
+      song = songs && songs.length ? songs[Math.floor(Math.random() * songs.length)] : null;
+    }
+    if (!song) continue;
+
     const titleEl = document.getElementById(`clipSourceTitle-${source}`);
     const artistEl = document.getElementById(`clipSourceArtist-${source}`);
     const artEl = document.getElementById(`clipSourceArt-${source}`);
     if (titleEl) titleEl.textContent = song.title;
     if (artistEl) artistEl.textContent = song.artist;
     if (artEl) {
-      const key = albumArtCacheKey(song);
-      artEl.src = (thumbMap && thumbMap[key]) || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E";
+      if (source === "clip") {
+        const key = albumArtCacheKey(song);
+        artEl.src = (thumbMap && thumbMap[key]) || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E";
+      } else {
+        artEl.src = song.thumbnail || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E";
+      }
     }
-  });
+  }
 }
 
 clipSourceTrack.querySelectorAll(".clip-source-slide").forEach((slide, index) => {
@@ -1926,16 +1937,19 @@ let cafePhotosLoading = false;
 let cafePhotosHasMore = true;
 let cafePhotosAllItems = [];
 let cafePhotosSource = { menuId: "27", titleContains: "" };
+let cafePhotosRequestId = 0;
 
 async function loadCafePhotosPage() {
   if (cafePhotosLoading || !cafePhotosHasMore) return;
   cafePhotosLoading = true;
+  const requestId = cafePhotosRequestId;
 
   try {
     const params = new URLSearchParams({ page: cafePhotosPage, menuId: cafePhotosSource.menuId });
     if (cafePhotosSource.titleContains) params.set("titleContains", cafePhotosSource.titleContains);
     const res = await fetch(`/api/cafe-photos?${params}`);
     const data = await res.json();
+    if (requestId !== cafePhotosRequestId) return;
     const items = data.items || [];
     cafePhotosHasMore = Boolean(data.hasMore);
     cafePhotosPage += 1;
@@ -1971,6 +1985,7 @@ async function loadCafePhotosPage() {
   }
 
   if (
+    requestId === cafePhotosRequestId &&
     cafePhotosHasMore &&
     !cafePhotosView.classList.contains("hidden") &&
     cafePhotosList.scrollHeight <= cafePhotosList.clientHeight
@@ -1986,6 +2001,7 @@ cafePhotosList.addEventListener("scroll", () => {
 });
 
 function switchCafePhotosTab(tabEl, source) {
+  cafePhotosRequestId += 1;
   document.querySelectorAll(".cafe-photos-tab").forEach((el) => el.classList.toggle("active", el === tabEl));
   cafePhotosSource = source;
   cafePhotosPage = 1;
