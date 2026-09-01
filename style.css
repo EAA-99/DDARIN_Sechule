@@ -1002,8 +1002,6 @@ body {
     flex-direction: row;
     align-items: stretch;
     gap: 8px;
-    background: transparent;
-    border-radius: 0;
     padding: 0;
   }
 
@@ -4002,6 +4000,12 @@ body {
 
 .clip-source-dots-row #sortTabs {
   margin-bottom: 0;
+}
+
+@media (max-width: 900px) {
+  .clip-source-dots-row {
+    margin-top: -10px;
+  }
 }
 
 .clip-source-dots-row .clip-source-dots {
