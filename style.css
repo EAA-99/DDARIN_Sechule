@@ -303,7 +303,7 @@ body {
   max-width: 1500px;
   margin-top: 0;
   padding: 24px;
-  background: #cfe2f7;
+  background: #eaf3fc;
   border: 3px solid #cfe2f7;
   border-radius: 30px;
   overflow-x: hidden;
@@ -3809,8 +3809,8 @@ body {
 }
 
 #songbookView .clip-source-carousel {
-  flex: 0 0 90%;
-  height: 90%;
+  flex: 0 0 calc(90% + 50px);
+  height: calc(90% + 50px);
 }
 
 #sortTabsMenu {
