@@ -861,6 +861,8 @@ body {
   gap: 8px;
   min-width: 0;
   cursor: pointer;
+  background: #fff;
+  border-radius: 14px;
 }
 
 .day-card.today {
