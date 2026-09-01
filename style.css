@@ -3986,7 +3986,7 @@ body {
 .clip-source-dots-row {
   display: flex;
   align-items: center;
-  margin-top: 30px;
+  margin-top: 10px;
 }
 
 .clip-source-dots-row #sortTabs {
