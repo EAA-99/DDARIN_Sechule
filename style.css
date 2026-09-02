@@ -1861,12 +1861,12 @@ body {
   align-items: center;
   gap: 4px;
   font-weight: 700;
-  font-size: 1.15rem;
+  font-size: 0.9rem;
 }
 
 #calendarAnnounceBackdrop .cafe-photo-post-actions svg {
-  width: 26px;
-  height: 26px;
+  width: 18px;
+  height: 18px;
 }
 
 .calendar-announce-writer {
