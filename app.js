@@ -3631,9 +3631,9 @@ function fillEventContent(el, title) {
 function renderGrid() {
   const events = loadEvents();
   monthTitle.textContent = `${currentMonth + 1}월`;
-  const todayDay = String(new Date().getDate()).padStart(2, "0");
+  const today = new Date();
   document.getElementById("calendarPostDate").textContent =
-    `${YEAR}.${String(currentMonth + 1).padStart(2, "0")}.${todayDay}`;
+    `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, "0")}.${String(today.getDate()).padStart(2, "0")}`;
   prevBtn.disabled = currentMonth === 0;
   nextBtn.disabled = currentMonth === 11;
 
