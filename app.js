@@ -2909,6 +2909,80 @@ calendarPostMenuBtn.addEventListener("click", () => {
   sideNavEl.classList.toggle("side-nav-open");
 });
 
+// ===== 일정 검색 (이전 달 포함 전체 일정에서 제목 검색) =====
+const scheduleSearchBtn = document.getElementById("scheduleSearchBtn");
+const scheduleSearchModalBackdrop = document.getElementById("scheduleSearchModalBackdrop");
+const closeScheduleSearchModalBtn = document.getElementById("closeScheduleSearchModalBtn");
+const scheduleSearchInput = document.getElementById("scheduleSearchInput");
+const scheduleSearchResults = document.getElementById("scheduleSearchResults");
+
+function closeScheduleSearchModal() {
+  scheduleSearchModalBackdrop.classList.add("hidden");
+}
+
+function renderScheduleSearchResults(query) {
+  scheduleSearchResults.innerHTML = "";
+  const q = query.trim().toLowerCase();
+  if (!q) return;
+
+  const events = loadEvents();
+  const matches = [];
+  Object.keys(events).forEach((date) => {
+    events[date].forEach((ev) => {
+      if (ev.title.toLowerCase().includes(q)) matches.push({ date, title: ev.title });
+    });
+  });
+  matches.sort((a, b) => (a.date < b.date ? 1 : -1));
+
+  if (!matches.length) {
+    const empty = document.createElement("div");
+    empty.className = "schedule-search-empty";
+    empty.textContent = "검색 결과가 없습니다.";
+    scheduleSearchResults.appendChild(empty);
+    return;
+  }
+
+  matches.forEach((m) => {
+    const [, mo, d] = m.date.split("-");
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "schedule-search-result";
+
+    const dateEl = document.createElement("span");
+    dateEl.className = "schedule-search-result-date";
+    dateEl.textContent = `${parseInt(mo)}.${parseInt(d)}`;
+
+    const titleEl = document.createElement("span");
+    titleEl.className = "schedule-search-result-title";
+    titleEl.textContent = m.title;
+
+    item.append(dateEl, titleEl);
+    item.addEventListener("click", () => {
+      closeScheduleSearchModal();
+      currentMonth = parseInt(mo) - 1;
+      setViewMode("list");
+      renderGrid();
+      showMainView("calendar");
+      openModal(m.date);
+    });
+
+    scheduleSearchResults.appendChild(item);
+  });
+}
+
+scheduleSearchBtn.addEventListener("click", () => {
+  scheduleSearchModalBackdrop.classList.remove("hidden");
+  scheduleSearchInput.value = "";
+  scheduleSearchResults.innerHTML = "";
+  scheduleSearchInput.focus();
+});
+closeScheduleSearchModalBtn.addEventListener("click", closeScheduleSearchModal);
+scheduleSearchModalBackdrop.addEventListener("click", (e) => {
+  if (e.target === scheduleSearchModalBackdrop) closeScheduleSearchModal();
+});
+scheduleSearchInput.addEventListener("input", () => renderScheduleSearchResults(scheduleSearchInput.value));
+// ================================================
+
 (function makeMemoPanelDraggable() {
   const header = document.querySelector(".memo-panel-header");
   let dragging = false;

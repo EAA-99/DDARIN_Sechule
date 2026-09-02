@@ -3444,6 +3444,54 @@ body {
   max-height: 50vh;
 }
 
+.schedule-search-results {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.schedule-search-result {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: none;
+  background: #f7f9fc;
+  border-radius: 12px;
+  padding: 10px 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.schedule-search-result:hover {
+  background: #eef4fb;
+}
+
+.schedule-search-result-date {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #4a7fd6;
+}
+
+.schedule-search-result-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  color: #2a2a2a;
+}
+
+.schedule-search-empty {
+  text-align: center;
+  color: #999;
+  padding: 24px 0;
+  font-size: 0.9rem;
+}
+
 .player-favorites h3 {
   font-size: 0.95rem;
   margin: 0 0 10px;
