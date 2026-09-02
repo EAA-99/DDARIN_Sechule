@@ -1832,6 +1832,11 @@ body {
   height: auto;
 }
 
+#calendarAnnounceBackdrop .cafe-photo-post {
+  width: 85vw;
+  max-width: 480px;
+}
+
 .calendar-announce-dday {
   margin-left: 8px;
   font-weight: 800;
