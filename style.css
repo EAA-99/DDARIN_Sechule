@@ -1833,8 +1833,28 @@ body {
 }
 
 #calendarAnnounceBackdrop .cafe-photo-post {
-  width: 85vw;
-  max-width: 480px;
+  position: relative;
+  width: 95vw;
+  max-width: 620px;
+}
+
+#calendarAnnounceBackdrop .calendar-announce-header {
+  display: none;
+}
+
+#calendarAnnounceCloseBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
 }
 
 .calendar-announce-dday {
