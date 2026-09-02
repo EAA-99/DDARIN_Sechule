@@ -1883,6 +1883,10 @@ function updateCalendarAnnounceDday() {
 }
 
 function openCalendarAnnounce() {
+  const expireAfter = new Date(2026, 8, 6);
+  expireAfter.setHours(23, 59, 59, 999);
+  if (new Date() > expireAfter) return;
+
   updateCalendarAnnounceDday();
   calendarAnnounceLikeCountEl.textContent = CALENDAR_ANNOUNCE_LIKE_COUNT.toLocaleString();
   calendarAnnounceCommentCountEl.textContent = CALENDAR_ANNOUNCE_COMMENT_COUNT.toLocaleString();
