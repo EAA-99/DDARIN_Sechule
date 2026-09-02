@@ -1820,7 +1820,18 @@ body {
 }
 
 .calendar-announce-header {
-  justify-content: flex-end;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.calendar-announce-avatar {
+  width: 28px;
+  height: 28px;
+}
+
+.calendar-announce-brand {
+  font-weight: 800;
+  color: #2a2a2a;
 }
 
 .calendar-announce-title {
@@ -1834,13 +1845,12 @@ body {
 }
 
 #calendarAnnounceBackdrop .cafe-photo-post {
-  position: relative;
   width: 95vw;
   max-width: 620px;
 }
 
-#calendarAnnounceBackdrop .calendar-announce-header {
-  display: none;
+.calendar-announce-media {
+  position: relative;
 }
 
 #calendarAnnounceCloseBtn {
