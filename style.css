@@ -1827,6 +1827,11 @@ body {
   font-weight: 700;
 }
 
+.calendar-announce-img {
+  aspect-ratio: auto;
+  height: auto;
+}
+
 .calendar-announce-dday {
   margin-left: 8px;
   font-weight: 800;
