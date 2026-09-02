@@ -1868,7 +1868,8 @@ document.getElementById("cafePhotoCloseBtn").addEventListener("click", closeCafe
 // ===== 일정표 공지 팝업 (청백가요제) =====
 const calendarAnnounceBackdrop = document.getElementById("calendarAnnounceBackdrop");
 const calendarAnnounceDdayEl = document.getElementById("calendarAnnounceDday");
-const calendarAnnounceLikesEl = document.getElementById("calendarAnnounceLikes");
+const calendarAnnounceLikeCountEl = document.getElementById("calendarAnnounceLikeCount");
+const calendarAnnounceCommentCountEl = document.getElementById("calendarAnnounceCommentCount");
 const CALENDAR_ANNOUNCE_LIKE_COUNT = 1040;
 const CALENDAR_ANNOUNCE_COMMENT_COUNT = 0;
 
@@ -1883,8 +1884,8 @@ function updateCalendarAnnounceDday() {
 
 function openCalendarAnnounce() {
   updateCalendarAnnounceDday();
-  calendarAnnounceLikesEl.textContent =
-    `좋아요 ${CALENDAR_ANNOUNCE_LIKE_COUNT.toLocaleString()}개 · 댓글 ${CALENDAR_ANNOUNCE_COMMENT_COUNT.toLocaleString()}개`;
+  calendarAnnounceLikeCountEl.textContent = CALENDAR_ANNOUNCE_LIKE_COUNT.toLocaleString();
+  calendarAnnounceCommentCountEl.textContent = CALENDAR_ANNOUNCE_COMMENT_COUNT.toLocaleString();
   calendarAnnounceBackdrop.classList.remove("hidden");
 }
 
