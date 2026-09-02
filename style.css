@@ -1836,7 +1836,7 @@ body {
 
 .calendar-announce-title {
   font-weight: 700;
-  font-size: 1.15rem;
+  font-size: 0.9rem;
 }
 
 .calendar-announce-img {
@@ -1852,7 +1852,7 @@ body {
 .calendar-announce-dday {
   margin-left: 8px;
   font-weight: 800;
-  font-size: 1.15rem;
+  font-size: 0.9rem;
   color: #e0577a;
 }
 
@@ -1870,8 +1870,7 @@ body {
 }
 
 .calendar-announce-writer {
-  margin-left: 8px;
-  font-size: 1.15rem;
+  font-size: 0.9rem;
 }
 
 .cafe-photo-post-likes {
