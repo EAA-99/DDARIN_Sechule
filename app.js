@@ -1868,6 +1868,9 @@ document.getElementById("cafePhotoCloseBtn").addEventListener("click", closeCafe
 // ===== 일정표 공지 팝업 (청백가요제) =====
 const calendarAnnounceBackdrop = document.getElementById("calendarAnnounceBackdrop");
 const calendarAnnounceDdayEl = document.getElementById("calendarAnnounceDday");
+const calendarAnnounceLikesEl = document.getElementById("calendarAnnounceLikes");
+const CALENDAR_ANNOUNCE_LIKE_COUNT = 1040;
+const CALENDAR_ANNOUNCE_COMMENT_COUNT = 0;
 
 function updateCalendarAnnounceDday() {
   const target = new Date(2026, 8, 6);
@@ -1880,6 +1883,8 @@ function updateCalendarAnnounceDday() {
 
 function openCalendarAnnounce() {
   updateCalendarAnnounceDday();
+  calendarAnnounceLikesEl.textContent =
+    `좋아요 ${CALENDAR_ANNOUNCE_LIKE_COUNT.toLocaleString()}개 · 댓글 ${CALENDAR_ANNOUNCE_COMMENT_COUNT.toLocaleString()}개`;
   calendarAnnounceBackdrop.classList.remove("hidden");
 }
 
