@@ -1819,6 +1819,20 @@ body {
   fill: currentColor;
 }
 
+.calendar-announce-header {
+  justify-content: flex-end;
+}
+
+.calendar-announce-title {
+  font-weight: 700;
+}
+
+.calendar-announce-dday {
+  margin-left: 8px;
+  font-weight: 800;
+  color: #e0577a;
+}
+
 .cafe-photo-post-likes {
   margin: 4px 14px 0;
   text-align: left;
