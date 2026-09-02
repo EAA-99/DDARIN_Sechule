@@ -3695,6 +3695,7 @@ body {
   max-height: 65vh;
   overflow-y: auto;
   padding-right: 4px;
+  touch-action: pan-y;
 }
 
 .song-group-header {
@@ -4037,7 +4038,7 @@ body {
   display: flex;
   flex-direction: column;
   padding: 14px;
-  touch-action: pan-y;
+  touch-action: none;
 }
 
 .clip-source-song-list-overlay,

@@ -1636,7 +1636,23 @@ function showMainView(view) {
     }
   }
   currentMainView = view;
+  if (view !== "backmenu") armBackNav();
 }
+
+let backNavArmed = false;
+
+function armBackNav() {
+  if (backNavArmed) return;
+  backNavArmed = true;
+  history.pushState({ ddarinNav: true }, "", location.href);
+}
+
+window.addEventListener("popstate", () => {
+  backNavArmed = false;
+  if (currentMainView !== "backmenu") {
+    showMainView("backmenu");
+  }
+});
 
 async function openSongbook() {
   showMainView("songbook");
