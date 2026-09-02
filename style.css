@@ -900,11 +900,6 @@ body {
   color: #2a2a2a;
 }
 
-.day-card.today .day-card-date {
-  background: #cfe2f7;
-  border-color: #cfe2f7;
-}
-
 .day-card-body {
   flex: 1;
   display: flex;
@@ -1809,6 +1804,19 @@ body {
 
 .cafe-photo-post-spacer {
   flex: 1;
+}
+
+.cafe-photo-bookmark-btn {
+  display: flex;
+  border: none;
+  background: none;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+}
+
+.cafe-photo-bookmark-btn.pinned svg {
+  fill: currentColor;
 }
 
 .cafe-photo-post-likes {

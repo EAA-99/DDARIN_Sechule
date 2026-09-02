@@ -1654,6 +1654,8 @@ window.addEventListener("popstate", () => {
   }
 });
 
+if (currentMainView !== "backmenu") armBackNav();
+
 async function openSongbook() {
   showMainView("songbook");
 
@@ -1889,7 +1891,17 @@ function renderCafePhotoLightbox() {
   cafePhotoLikes.textContent = `좋아요 ${(item.likeCount || 0).toLocaleString()}개`;
   cafePhotoWriter.textContent = item.writer || "";
   cafePhotoTitle.textContent = item.title || "";
+  cafePhotoBookmarkBtn.classList.toggle("pinned", isCafePhotoPinned(item.url));
 }
+
+const cafePhotoBookmarkBtn = document.getElementById("cafePhotoBookmarkBtn");
+cafePhotoBookmarkBtn.addEventListener("click", () => {
+  const item = cafePhotoItems[cafePhotoIndex];
+  if (!item) return;
+  toggleCafePhotoPinned(item.url);
+  cafePhotoBookmarkBtn.classList.toggle("pinned", isCafePhotoPinned(item.url));
+  renderCafePhotosGrid();
+});
 
 function openCafePhotoLightbox(items, index) {
   cafePhotoItems = items;
@@ -1955,6 +1967,54 @@ let cafePhotosAllItems = [];
 let cafePhotosSource = { menuId: "27", titleContains: "" };
 let cafePhotosRequestId = 0;
 
+const CAFE_PHOTOS_PINNED_KEY = "cafe-photos-pinned";
+
+function getPinnedCafePhotos() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(CAFE_PHOTOS_PINNED_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function isCafePhotoPinned(url) {
+  return getPinnedCafePhotos().includes(url);
+}
+
+function toggleCafePhotoPinned(url) {
+  const pinned = getPinnedCafePhotos();
+  const idx = pinned.indexOf(url);
+  if (idx === -1) pinned.unshift(url);
+  else pinned.splice(idx, 1);
+  localStorage.setItem(CAFE_PHOTOS_PINNED_KEY, JSON.stringify(pinned));
+}
+
+function renderCafePhotosGrid() {
+  const pinned = getPinnedCafePhotos();
+  cafePhotosAllItems.sort((a, b) => (pinned.includes(b.url) ? 1 : 0) - (pinned.includes(a.url) ? 1 : 0));
+
+  const scrollTop = cafePhotosList.scrollTop;
+  cafePhotosList.innerHTML = "";
+  cafePhotosAllItems.forEach((item, index) => {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "cafe-photo-card";
+
+    const img = document.createElement("img");
+    img.className = "cafe-photo-img";
+    img.src = `/api/naver-image?url=${encodeURIComponent(item.image)}`;
+    img.alt = "";
+    card.appendChild(img);
+
+    card.addEventListener("click", () => openCafePhotoLightbox(cafePhotosAllItems, index));
+    cafePhotosList.appendChild(card);
+  });
+  cafePhotosList.scrollTop = scrollTop;
+
+  document.getElementById("cafePhotosPostCount").textContent = cafePhotosAllItems.length;
+}
+
 async function loadCafePhotosPage() {
   if (cafePhotosLoading || !cafePhotosHasMore) return;
   cafePhotosLoading = true;
@@ -1970,26 +2030,8 @@ async function loadCafePhotosPage() {
     cafePhotosHasMore = Boolean(data.hasMore);
     cafePhotosPage += 1;
 
-    items.forEach((item) => {
-      const index = cafePhotosAllItems.length;
-      cafePhotosAllItems.push(item);
-
-      const card = document.createElement("button");
-      card.type = "button";
-      card.className = "cafe-photo-card";
-
-      const img = document.createElement("img");
-      img.className = "cafe-photo-img";
-      img.src = `/api/naver-image?url=${encodeURIComponent(item.image)}`;
-      img.alt = "";
-      card.appendChild(img);
-
-      card.addEventListener("click", () => openCafePhotoLightbox(cafePhotosAllItems, index));
-
-      cafePhotosList.appendChild(card);
-    });
-
-    document.getElementById("cafePhotosPostCount").textContent = cafePhotosAllItems.length;
+    cafePhotosAllItems.push(...items);
+    renderCafePhotosGrid();
 
     if (!cafePhotosAllItems.length && !cafePhotosHasMore) {
       cafePhotosList.innerHTML = `<p class="cafe-photos-status">게시글을 불러오지 못했습니다.</p>`;
