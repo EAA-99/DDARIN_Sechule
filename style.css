@@ -1825,6 +1825,7 @@ body {
 
 .calendar-announce-title {
   font-weight: 700;
+  font-size: 1.15rem;
 }
 
 .calendar-announce-img {
@@ -1852,14 +1853,15 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.5);
-  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #000;
 }
 
 .calendar-announce-dday {
   margin-left: 8px;
   font-weight: 800;
+  font-size: 1.15rem;
   color: #e0577a;
 }
 
