@@ -1865,6 +1865,34 @@ cafePhotoLightbox.addEventListener("click", (e) => {
 });
 document.getElementById("cafePhotoCloseBtn").addEventListener("click", closeCafePhotoLightbox);
 
+// ===== 일정표 공지 팝업 (청백가요제) =====
+const calendarAnnounceBackdrop = document.getElementById("calendarAnnounceBackdrop");
+const calendarAnnounceDdayEl = document.getElementById("calendarAnnounceDday");
+
+function updateCalendarAnnounceDday() {
+  const target = new Date(2026, 8, 6);
+  target.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((target - today) / (24 * 60 * 60 * 1000));
+  calendarAnnounceDdayEl.textContent = diffDays > 0 ? `D-${diffDays}` : diffDays === 0 ? "D-DAY" : `D+${-diffDays}`;
+}
+
+function openCalendarAnnounce() {
+  updateCalendarAnnounceDday();
+  calendarAnnounceBackdrop.classList.remove("hidden");
+}
+
+function closeCalendarAnnounce() {
+  calendarAnnounceBackdrop.classList.add("hidden");
+}
+
+calendarAnnounceBackdrop.addEventListener("click", (e) => {
+  if (e.target === calendarAnnounceBackdrop) closeCalendarAnnounce();
+});
+document.getElementById("calendarAnnounceCloseBtn").addEventListener("click", closeCalendarAnnounce);
+// ================================================
+
 cafePhotoMenuBtn.addEventListener("click", () => {
   cafePhotoMenu.classList.toggle("hidden");
 });
@@ -1992,11 +2020,16 @@ function toggleCafePhotoPinned(url) {
 
 function renderCafePhotosGrid() {
   const pinned = getPinnedCafePhotos();
-  cafePhotosAllItems.sort((a, b) => (pinned.includes(b.url) ? 1 : 0) - (pinned.includes(a.url) ? 1 : 0));
+  const sorted = [...cafePhotosAllItems].sort((a, b) => {
+    const aPinned = pinned.includes(a.url) ? 1 : 0;
+    const bPinned = pinned.includes(b.url) ? 1 : 0;
+    if (aPinned !== bPinned) return bPinned - aPinned;
+    return a._order - b._order;
+  });
 
   const scrollTop = cafePhotosList.scrollTop;
   cafePhotosList.innerHTML = "";
-  cafePhotosAllItems.forEach((item, index) => {
+  sorted.forEach((item, index) => {
     const card = document.createElement("button");
     card.type = "button";
     card.className = "cafe-photo-card";
@@ -2007,7 +2040,7 @@ function renderCafePhotosGrid() {
     img.alt = "";
     card.appendChild(img);
 
-    card.addEventListener("click", () => openCafePhotoLightbox(cafePhotosAllItems, index));
+    card.addEventListener("click", () => openCafePhotoLightbox(sorted, index));
     cafePhotosList.appendChild(card);
   });
   cafePhotosList.scrollTop = scrollTop;
@@ -2030,7 +2063,10 @@ async function loadCafePhotosPage() {
     cafePhotosHasMore = Boolean(data.hasMore);
     cafePhotosPage += 1;
 
-    cafePhotosAllItems.push(...items);
+    items.forEach((item) => {
+      item._order = cafePhotosAllItems.length;
+      cafePhotosAllItems.push(item);
+    });
     renderCafePhotosGrid();
 
     if (!cafePhotosAllItems.length && !cafePhotosHasMore) {
@@ -4340,6 +4376,7 @@ async function init() {
   applyDefaultMobileViewMode();
 
   loadingScreen.classList.add("hidden");
+  openCalendarAnnounce();
 
   prefetchTodayNotices();
   prefetchSongbookInBackground();
