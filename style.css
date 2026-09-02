@@ -1861,7 +1861,17 @@ body {
   align-items: center;
   gap: 4px;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 1.15rem;
+}
+
+#calendarAnnounceBackdrop .cafe-photo-post-actions svg {
+  width: 26px;
+  height: 26px;
+}
+
+.calendar-announce-writer {
+  margin-left: 8px;
+  font-size: 1.15rem;
 }
 
 .cafe-photo-post-likes {
