@@ -2227,113 +2227,7 @@ todayMemoModalBackdrop.addEventListener("click", (e) => {
   if (e.target === todayMemoModalBackdrop) closeTodayMemoModal();
 });
 
-const TODAY_YOUTUBE_POPUP_API_URL = "/api/youtube-recent";
-const YOUTUBE_POPUP_DISMISS_KEY = "today-youtube-popup-dismissed";
-const YOUTUBE_POPUP_WINDOW_DAYS = 3;
-
-const todayYoutubeModalBackdrop = document.getElementById("todayYoutubeModalBackdrop");
-const todayYoutubeModalList = document.getElementById("todayYoutubeModalList");
-const todayYoutubeHideTodayBtn = document.getElementById("todayYoutubeHideTodayBtn");
-const todayYoutubeHideWeekBtn = document.getElementById("todayYoutubeHideWeekBtn");
-const todayYoutubeCloseBtn = document.getElementById("todayYoutubeCloseBtn");
-const closeTodayYoutubeModalBtn = document.getElementById("closeTodayYoutubeModalBtn");
-
-let todayYoutubePopupVideoIds = [];
-
-function loadYoutubeDismissMap() {
-  try {
-    return JSON.parse(localStorage.getItem(YOUTUBE_POPUP_DISMISS_KEY)) || {};
-  } catch {
-    return {};
-  }
-}
-
-function saveYoutubeDismissMap(map) {
-  localStorage.setItem(YOUTUBE_POPUP_DISMISS_KEY, JSON.stringify(map));
-}
-
-function formatYoutubeDateLabel(iso) {
-  const d = new Date(iso);
-  return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
-}
-
-function renderTodayYoutubeList(videos) {
-  todayYoutubeModalList.innerHTML = "";
-  videos.forEach((v) => {
-    const item = document.createElement("a");
-    item.className = "today-video-item";
-    item.href = v.url;
-    item.target = "_blank";
-    item.rel = "noopener";
-
-    const dateEl = document.createElement("div");
-    dateEl.className = "today-video-date";
-    dateEl.textContent = formatYoutubeDateLabel(v.published);
-
-    const titleEl = document.createElement("div");
-    titleEl.className = "today-video-title";
-    titleEl.textContent = v.title;
-
-    const thumb = document.createElement("img");
-    thumb.className = "today-video-thumb";
-    thumb.src = v.thumbnail;
-    thumb.alt = "";
-
-    item.append(dateEl, titleEl, thumb);
-    todayYoutubeModalList.appendChild(item);
-  });
-}
-
-async function showTodayYoutubePopupIfNeeded() {
-  let videos = [];
-  try {
-    const res = await fetch(TODAY_YOUTUBE_POPUP_API_URL);
-    videos = res.ok ? await res.json() : [];
-  } catch {
-    videos = [];
-  }
-
-  const cutoff = Date.now() - YOUTUBE_POPUP_WINDOW_DAYS * 24 * 60 * 60 * 1000;
-  const dismissMap = loadYoutubeDismissMap();
-  const today = todayKey();
-
-  const recent = (videos || []).filter((v) => {
-    if (!v.published || new Date(v.published).getTime() < cutoff) return false;
-    const dismissedUntil = dismissMap[v.id];
-    if (dismissedUntil && dismissedUntil >= today) return false;
-    return true;
-  });
-
-  if (!recent.length) return;
-
-  todayYoutubePopupVideoIds = recent.map((v) => v.id);
-  renderTodayYoutubeList(recent);
-  todayYoutubeModalBackdrop.classList.remove("hidden");
-}
-
-function closeTodayYoutubeModal() {
-  todayYoutubeModalBackdrop.classList.add("hidden");
-}
-
-function dismissTodayYoutubePopup(days) {
-  const dismissMap = loadYoutubeDismissMap();
-  const until = new Date();
-  until.setDate(until.getDate() + days);
-  const untilKey = dateKey(until.getFullYear(), until.getMonth(), until.getDate());
-  todayYoutubePopupVideoIds.forEach((id) => {
-    dismissMap[id] = untilKey;
-  });
-  saveYoutubeDismissMap(dismissMap);
-  closeTodayYoutubeModal();
-}
-
-closeTodayYoutubeModalBtn.addEventListener("click", closeTodayYoutubeModal);
-todayYoutubeCloseBtn.addEventListener("click", closeTodayYoutubeModal);
-todayYoutubeHideTodayBtn.addEventListener("click", () => dismissTodayYoutubePopup(0));
-todayYoutubeHideWeekBtn.addEventListener("click", () => dismissTodayYoutubePopup(7));
-todayYoutubeModalBackdrop.addEventListener("click", (e) => {
-  if (e.target === todayYoutubeModalBackdrop) closeTodayYoutubeModal();
-});
+const YOUTUBE_RECENT_API_URL = "/api/youtube-recent";
 
 // ===== 일정표 좌측 유튜브 아이콘 새 영상 알림 점 =====
 const YOUTUBE_SIDEBAR_SEEN_KEY = "sidebar-youtube-seen-until";
@@ -2341,7 +2235,7 @@ const sideNavYoutubeBadge = document.getElementById("sideNavYoutubeBadge");
 
 async function refreshYoutubeSidebarBadge() {
   try {
-    const res = await fetch(TODAY_YOUTUBE_POPUP_API_URL);
+    const res = await fetch(YOUTUBE_RECENT_API_URL);
     const videos = res.ok ? await res.json() : [];
     const latest = (videos || [])[0];
     const seenUntil = localStorage.getItem(YOUTUBE_SIDEBAR_SEEN_KEY) || "";
@@ -4416,7 +4310,7 @@ async function init() {
 
   prefetchTodayNotices();
   prefetchSongbookInBackground();
-  loadSharedMemoList().then(() => showTodayMemoPopupIfNeeded(showTodayYoutubePopupIfNeeded));
+  loadSharedMemoList().then(() => showTodayMemoPopupIfNeeded());
 
   tryAutoUnlock().then(() => {
     updateLockUi();
