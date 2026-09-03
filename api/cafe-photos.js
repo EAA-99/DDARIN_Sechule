@@ -27,6 +27,7 @@ export default async function handler(req, res) {
         image: entry.item.representImage,
         published: entry.item.writeDateTimestamp || null,
         likeCount: entry.item.likeCount || 0,
+        commentCount: entry.item.commentCount || 0,
       }));
   } catch {
     // items가 비어있는 채로 반환
