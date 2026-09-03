@@ -2833,24 +2833,6 @@ function hideSoopChatMessageLocally(time) {
   localStorage.setItem(SOOP_CHAT_HIDDEN_KEY, JSON.stringify(hidden));
 }
 
-async function refreshSoopChatIconBadges() {
-  let hasUnread = false;
-  try {
-    const res = await fetch("/api/soop-chat");
-    const data = await res.json();
-    const hiddenTimes = getSoopChatHiddenTimes();
-    const items = ((data && data.items) || []).filter((it) => !hiddenTimes.includes(it.time));
-    const seenUntil = getSoopChatSeenUntil();
-    hasUnread = items.some((it) => it.time > seenUntil);
-  } catch {
-    hasUnread = false;
-  }
-  document.querySelectorAll(".soop-unread-badge").forEach((el) => el.classList.toggle("hidden", !hasUnread));
-}
-
-refreshSoopChatIconBadges();
-setInterval(refreshSoopChatIconBadges, 30 * 1000);
-
 function formatSoopChatTime(iso) {
   try {
     return new Date(iso).toLocaleTimeString("ko-KR", { timeZone: "Asia/Seoul", hour: "2-digit", minute: "2-digit" });
@@ -2985,7 +2967,6 @@ async function loadSoopChatView() {
         const groupMaxTime = group.items.reduce((max, it) => (it.time > max ? it.time : max), "");
         if (groupMaxTime > getSoopChatSeenUntil()) {
           setSoopChatSeenUntil(groupMaxTime);
-          refreshSoopChatIconBadges();
         }
         if (rest.length) {
           currentSoopChatDayItems = group.items;
