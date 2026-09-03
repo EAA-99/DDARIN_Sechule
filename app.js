@@ -2233,7 +2233,6 @@ const todayYoutubeModalBackdrop = document.getElementById("todayYoutubeModalBack
 const todayYoutubeModalList = document.getElementById("todayYoutubeModalList");
 const todayYoutubeHideTodayBtn = document.getElementById("todayYoutubeHideTodayBtn");
 const todayYoutubeHideWeekBtn = document.getElementById("todayYoutubeHideWeekBtn");
-const todayYoutubeCloseBtn = document.getElementById("todayYoutubeCloseBtn");
 const closeTodayYoutubeModalBtn = document.getElementById("closeTodayYoutubeModalBtn");
 
 let todayYoutubePopupVideoIds = [];
@@ -2258,27 +2257,51 @@ function formatYoutubeDateLabel(iso) {
 function renderTodayYoutubeList(videos) {
   todayYoutubeModalList.innerHTML = "";
   videos.forEach((v) => {
-    const item = document.createElement("a");
-    item.className = "today-video-item";
-    item.href = v.url;
-    item.target = "_blank";
-    item.rel = "noopener";
+    const card = document.createElement("div");
+    card.className = "today-video-card";
 
-    const dateEl = document.createElement("div");
+    const link = document.createElement("a");
+    link.className = "cafe-photo-post-imgwrap";
+    link.href = v.url;
+    link.target = "_blank";
+    link.rel = "noopener";
+
+    const thumb = document.createElement("img");
+    thumb.className = "cafe-photo-lightbox-img calendar-announce-img";
+    thumb.src = v.thumbnail;
+    thumb.alt = "";
+    link.appendChild(thumb);
+
+    const actions = document.createElement("div");
+    actions.className = "cafe-photo-post-actions";
+    actions.innerHTML = `
+      <span class="calendar-announce-stat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-9.5-8.5C1 9 2.5 5 6.5 5c2 0 3.5 1.5 4.5 3 1-1.5 2.5-3 4.5-3 4 0 5.5 4 4 7.5C19 16.65 12 21 12 21z"/></svg>
+        <span>${(v.likeCount || 0).toLocaleString()}</span>
+      </span>
+      <span class="calendar-announce-stat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.3 0-2.5-.3-3.6-.8L3 21l1.8-5.4A8.5 8.5 0 1 1 21 11.5z"/></svg>
+        <span>${(v.commentCount || 0).toLocaleString()}</span>
+      </span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>
+    `;
+
+    const caption = document.createElement("p");
+    caption.className = "cafe-photo-post-caption";
+    const writerEl = document.createElement("span");
+    writerEl.className = "cafe-photo-post-writer calendar-announce-writer";
+    writerEl.textContent = "DDARIN";
+    const titleEl = document.createElement("span");
+    titleEl.className = "today-video-title";
+    titleEl.textContent = v.title;
+    caption.append(writerEl, titleEl);
+
+    const dateEl = document.createElement("p");
     dateEl.className = "today-video-date";
     dateEl.textContent = formatYoutubeDateLabel(v.published);
 
-    const titleEl = document.createElement("div");
-    titleEl.className = "today-video-title";
-    titleEl.textContent = v.title;
-
-    const thumb = document.createElement("img");
-    thumb.className = "today-video-thumb";
-    thumb.src = v.thumbnail;
-    thumb.alt = "";
-
-    item.append(dateEl, titleEl, thumb);
-    todayYoutubeModalList.appendChild(item);
+    card.append(link, actions, caption, dateEl);
+    todayYoutubeModalList.appendChild(card);
   });
 }
 
@@ -2326,7 +2349,6 @@ function dismissTodayYoutubePopup(days) {
 }
 
 closeTodayYoutubeModalBtn.addEventListener("click", closeTodayYoutubeModal);
-todayYoutubeCloseBtn.addEventListener("click", closeTodayYoutubeModal);
 todayYoutubeHideTodayBtn.addEventListener("click", () => dismissTodayYoutubePopup(0));
 todayYoutubeHideWeekBtn.addEventListener("click", () => dismissTodayYoutubePopup(7));
 todayYoutubeModalBackdrop.addEventListener("click", (e) => {

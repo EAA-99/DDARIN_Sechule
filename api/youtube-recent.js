@@ -29,6 +29,28 @@ export default async function handler(req, res) {
           thumbnail:
             (s.thumbnails && (s.thumbnails.medium || s.thumbnails.default || {}).url) ||
             `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+          likeCount: 0,
+          commentCount: 0,
+        });
+      }
+    }
+
+    if (results.length) {
+      const statsUrl =
+        `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${results.map((r) => r.id).join(",")}&key=${API_KEY}`;
+      const statsRes = await fetch(statsUrl);
+      if (statsRes.ok) {
+        const statsData = await statsRes.json();
+        const statsById = {};
+        (statsData.items || []).forEach((item) => {
+          statsById[item.id] = item.statistics || {};
+        });
+        results.forEach((r) => {
+          const stats = statsById[r.id];
+          if (stats) {
+            r.likeCount = Number(stats.likeCount) || 0;
+            r.commentCount = Number(stats.commentCount) || 0;
+          }
         });
       }
     }
