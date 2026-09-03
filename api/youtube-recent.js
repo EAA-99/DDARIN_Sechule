@@ -26,6 +26,7 @@ export default async function handler(req, res) {
           title: s.title,
           url: `https://www.youtube.com/watch?v=${videoId}`,
           published: s.publishedAt,
+          channelTitle: s.channelTitle || "DDARIN",
           thumbnail:
             (s.thumbnails && (s.thumbnails.medium || s.thumbnails.default || {}).url) ||
             `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,

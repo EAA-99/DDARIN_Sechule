@@ -2773,6 +2773,11 @@ body {
   margin-bottom: 16px;
 }
 
+#todayYoutubeModalBackdrop .cafe-photo-post {
+  width: 95vw;
+  max-width: 620px;
+}
+
 .today-video-card {
   border-bottom: 1px solid #eee;
   padding-bottom: 12px;
@@ -2784,7 +2789,8 @@ body {
 }
 
 .today-video-date {
-  margin: 0 14px 10px;
+  margin: 0 0 10px;
+  text-align: left;
   font-size: 0.75rem;
   color: #999;
 }

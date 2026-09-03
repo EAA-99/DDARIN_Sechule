@@ -2251,7 +2251,7 @@ function saveYoutubeDismissMap(map) {
 
 function formatYoutubeDateLabel(iso) {
   const d = new Date(iso);
-  return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
+  return `${d.getMonth() + 1}월 ${d.getDate()}일`;
 }
 
 function renderTodayYoutubeList(videos) {
@@ -2290,7 +2290,7 @@ function renderTodayYoutubeList(videos) {
     caption.className = "cafe-photo-post-caption";
     const writerEl = document.createElement("span");
     writerEl.className = "cafe-photo-post-writer calendar-announce-writer";
-    writerEl.textContent = "DDARIN";
+    writerEl.textContent = v.channelTitle || "DDARIN";
     const titleEl = document.createElement("span");
     titleEl.className = "today-video-title";
     titleEl.textContent = v.title;
