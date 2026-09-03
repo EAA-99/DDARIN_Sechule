@@ -120,6 +120,17 @@
   cursor: pointer;
 }
 
+.soop-chat-icon-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #e12e2e;
+  border: 1.5px solid #fff;
+}
+
 .soop-chat-badge {
   position: absolute;
   top: 8px;

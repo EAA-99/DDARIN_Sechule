@@ -2335,6 +2335,30 @@ todayYoutubeModalBackdrop.addEventListener("click", (e) => {
   if (e.target === todayYoutubeModalBackdrop) closeTodayYoutubeModal();
 });
 
+// ===== 일정표 좌측 유튜브 아이콘 새 영상 알림 점 =====
+const YOUTUBE_SIDEBAR_SEEN_KEY = "sidebar-youtube-seen-until";
+const sideNavYoutubeBadge = document.getElementById("sideNavYoutubeBadge");
+
+async function refreshYoutubeSidebarBadge() {
+  try {
+    const res = await fetch(TODAY_YOUTUBE_POPUP_API_URL);
+    const videos = res.ok ? await res.json() : [];
+    const latest = (videos || [])[0];
+    const seenUntil = localStorage.getItem(YOUTUBE_SIDEBAR_SEEN_KEY) || "";
+    sideNavYoutubeBadge.classList.toggle("hidden", !latest || latest.published <= seenUntil);
+  } catch {
+    // 실패 시 배지 상태 유지
+  }
+}
+
+refreshYoutubeSidebarBadge();
+
+document.getElementById("sideNavYoutubeBtn").addEventListener("click", () => {
+  localStorage.setItem(YOUTUBE_SIDEBAR_SEEN_KEY, new Date().toISOString());
+  sideNavYoutubeBadge.classList.add("hidden");
+});
+// ================================================
+
 let memoAddExtraRowCount = 0;
 
 function clearMemoExtraTitleRows() {
@@ -2809,6 +2833,24 @@ function hideSoopChatMessageLocally(time) {
   localStorage.setItem(SOOP_CHAT_HIDDEN_KEY, JSON.stringify(hidden));
 }
 
+async function refreshSoopChatIconBadges() {
+  let hasUnread = false;
+  try {
+    const res = await fetch("/api/soop-chat");
+    const data = await res.json();
+    const hiddenTimes = getSoopChatHiddenTimes();
+    const items = ((data && data.items) || []).filter((it) => !hiddenTimes.includes(it.time));
+    const seenUntil = getSoopChatSeenUntil();
+    hasUnread = items.some((it) => it.time > seenUntil);
+  } catch {
+    hasUnread = false;
+  }
+  document.querySelectorAll(".soop-unread-badge").forEach((el) => el.classList.toggle("hidden", !hasUnread));
+}
+
+refreshSoopChatIconBadges();
+setInterval(refreshSoopChatIconBadges, 30 * 1000);
+
 function formatSoopChatTime(iso) {
   try {
     return new Date(iso).toLocaleTimeString("ko-KR", { timeZone: "Asia/Seoul", hour: "2-digit", minute: "2-digit" });
@@ -2943,6 +2985,7 @@ async function loadSoopChatView() {
         const groupMaxTime = group.items.reduce((max, it) => (it.time > max ? it.time : max), "");
         if (groupMaxTime > getSoopChatSeenUntil()) {
           setSoopChatSeenUntil(groupMaxTime);
+          refreshSoopChatIconBadges();
         }
         if (rest.length) {
           currentSoopChatDayItems = group.items;
