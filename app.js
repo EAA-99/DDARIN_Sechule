@@ -4425,6 +4425,8 @@ async function init() {
 }
 init();
 
+setTimeout(() => location.reload(), 12 * 60 * 60 * 1000);
+
 const liveAvatarEls = document.querySelectorAll(".back-menu-avatar, .cafe-photos-avatar, .calendar-post-avatar");
 const SOOP_LIVE_URL = "https://play.sooplive.com/insome0319";
 
