@@ -1834,6 +1834,11 @@ body {
   color: #f0b429;
 }
 
+#soopChatDayPinBtn svg {
+  width: 22px;
+  height: 22px;
+}
+
 .calendar-announce-header {
   justify-content: flex-start;
   gap: 8px;
