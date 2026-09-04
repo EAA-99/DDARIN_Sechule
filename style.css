@@ -2565,6 +2565,18 @@ body {
   color: #999;
 }
 
+.soop-chat-pin-icon {
+  display: inline-flex;
+  margin-right: 4px;
+  color: #f0b429;
+}
+
+.soop-chat-pin-icon svg {
+  width: 12px;
+  height: 12px;
+  vertical-align: -1px;
+}
+
 .soop-chat-message {
   margin-top: 4px;
   font-size: 0.9rem;

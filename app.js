@@ -2815,6 +2815,15 @@ async function loadSoopChatView() {
       dateEl.className = "soop-chat-date";
       dateEl.textContent = group.dateKey;
 
+      const groupDates = [...new Set(group.items.map((it) => soopChatDateKeySeoul(it.time)))];
+      if (groupDates.some((d) => soopChatPinnedDates.includes(d))) {
+        const pinIcon = document.createElement("span");
+        pinIcon.className = "soop-chat-pin-icon";
+        pinIcon.innerHTML =
+          '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg>';
+        dateEl.prepend(pinIcon);
+      }
+
       const messageEl = document.createElement("div");
       messageEl.className = "soop-chat-message";
       messageEl.textContent = `${formatSoopChatTime(first.time)}  ${first.message}`;
