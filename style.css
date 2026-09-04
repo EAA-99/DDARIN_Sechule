@@ -1830,15 +1830,6 @@ body {
   fill: currentColor;
 }
 
-#soopChatDayPinBtn.pinned {
-  color: #f0b429;
-}
-
-#soopChatDayPinBtn svg {
-  width: 22px;
-  height: 22px;
-}
-
 .calendar-announce-header {
   justify-content: flex-start;
   gap: 8px;
@@ -2563,18 +2554,6 @@ body {
   flex-shrink: 0;
   font-size: 0.78rem;
   color: #999;
-}
-
-.soop-chat-pin-icon {
-  display: inline-flex;
-  margin-right: 4px;
-  color: #f0b429;
-}
-
-.soop-chat-pin-icon svg {
-  width: 12px;
-  height: 12px;
-  vertical-align: -1px;
 }
 
 .soop-chat-message {
