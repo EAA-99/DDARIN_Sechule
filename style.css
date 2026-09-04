@@ -2572,6 +2572,12 @@ body {
   flex-direction: column;
   gap: 8px;
   background: #fff;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.soop-chat-day-list::-webkit-scrollbar {
+  display: none;
 }
 
 .soop-chat-bubble-row {
