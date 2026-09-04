@@ -1830,6 +1830,10 @@ body {
   fill: currentColor;
 }
 
+#soopChatDayPinBtn.pinned {
+  color: #f0b429;
+}
+
 .calendar-announce-header {
   justify-content: flex-start;
   gap: 8px;

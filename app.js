@@ -2684,6 +2684,8 @@ memoOverlay.addEventListener("click", closeMemoPanel);
 const soopChatList = document.getElementById("soopChatList");
 const soopChatDayList = document.getElementById("soopChatDayList");
 let currentSoopChatDayItems = [];
+let currentSoopChatDates = [];
+let soopChatPinnedDates = [];
 
 let activeSoopChatDeleteBtn = null;
 let activeSoopChatDeleteBtnJustShown = false;
@@ -2781,6 +2783,7 @@ async function loadSoopChatView() {
     const hiddenTimes = getSoopChatHiddenTimes();
     const items = ((data && data.items) || []).filter((it) => !hiddenTimes.includes(it.time));
     const seenUntil = getSoopChatSeenUntil();
+    soopChatPinnedDates = (data && data.pinnedDates) || [];
 
     soopChatList.innerHTML = "";
     groupSoopChatByDate(items).forEach((group) => {
@@ -2864,6 +2867,7 @@ async function loadSoopChatView() {
         }
         if (rest.length) {
           currentSoopChatDayItems = group.items;
+          currentSoopChatDates = [...new Set(group.items.map((it) => soopChatDateKeySeoul(it.time)))];
           showMainView("soopchatday");
         }
       });
@@ -2874,6 +2878,9 @@ async function loadSoopChatView() {
 }
 
 function renderSoopChatDayView() {
+  const isPinned = currentSoopChatDates.some((d) => soopChatPinnedDates.includes(d));
+  soopChatDayPinBtn.classList.toggle("pinned", isPinned);
+
   soopChatDayList.innerHTML = "";
   currentSoopChatDayItems.forEach((item, index) => {
     const next = currentSoopChatDayItems[index + 1];
@@ -2926,6 +2933,24 @@ function renderSoopChatDayView() {
 }
 
 document.getElementById("soopChatDayBackBtn").addEventListener("click", () => showMainView("soopchat"));
+
+const soopChatDayPinBtn = document.getElementById("soopChatDayPinBtn");
+soopChatDayPinBtn.addEventListener("click", async () => {
+  if (!currentSoopChatDates.length) return;
+  const nextPinned = !currentSoopChatDates.some((d) => soopChatPinnedDates.includes(d));
+  soopChatDayPinBtn.classList.toggle("pinned", nextPinned);
+  try {
+    const res = await fetch("/api/soop-chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "setPinned", dates: currentSoopChatDates, pinned: nextPinned }),
+    });
+    const data = await res.json();
+    if (data && data.pinnedDates) soopChatPinnedDates = data.pinnedDates;
+  } catch {
+    soopChatDayPinBtn.classList.toggle("pinned", !nextPinned);
+  }
+});
 
 memoBtn.addEventListener("click", openMemoPanel);
 

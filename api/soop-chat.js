@@ -35,17 +35,39 @@ async function getItems(date) {
   }
 }
 
+const PINNED_DATES_KEY = "soop_chat_pinned_dates";
+
+async function getPinnedDates() {
+  const { result } = await kvCommand(["GET", PINNED_DATES_KEY]);
+  if (!result) return [];
+  try {
+    const parsed = JSON.parse(result);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+async function setPinnedDates(dates) {
+  await kvCommand(["SET", PINNED_DATES_KEY, JSON.stringify(dates)]);
+}
+
 async function getAllItems() {
   const { result: keys } = await kvCommand(["KEYS", "soop_chat:*"]);
-  if (!Array.isArray(keys) || !keys.length) return [];
+  if (!Array.isArray(keys) || !keys.length) return { items: [], pinnedDates: [] };
 
+  const pinnedDates = await getPinnedDates();
   const cutoff = dateKeyDaysAgoSeoul(RETENTION_DAYS);
-  const validKeys = keys.filter((k) => k.slice("soop_chat:".length) >= cutoff);
-  const expiredKeys = keys.filter((k) => k.slice("soop_chat:".length) < cutoff);
+  const isExpired = (k) => {
+    const date = k.slice("soop_chat:".length);
+    return date < cutoff && !pinnedDates.includes(date);
+  };
+  const validKeys = keys.filter((k) => !isExpired(k));
+  const expiredKeys = keys.filter(isExpired);
   if (expiredKeys.length) {
     await Promise.all(expiredKeys.map((k) => kvCommand(["DEL", k])));
   }
-  if (!validKeys.length) return [];
+  if (!validKeys.length) return { items: [], pinnedDates };
 
   const results = await Promise.all(validKeys.map((k) => kvCommand(["GET", k])));
   let all = [];
@@ -59,7 +81,7 @@ async function getAllItems() {
     }
   });
   all.sort((a, b) => (a.time > b.time ? 1 : a.time < b.time ? -1 : 0));
-  return all;
+  return { items: all, pinnedDates };
 }
 
 export default async function handler(req, res) {
@@ -80,13 +102,13 @@ export default async function handler(req, res) {
       res.status(200).json({ date, items });
       return;
     }
-    const items = await getAllItems();
-    res.status(200).json({ items });
+    const { items, pinnedDates } = await getAllItems();
+    res.status(200).json({ items, pinnedDates });
     return;
   }
 
   if (req.method === "POST") {
-    const { key, message, time, action, date: deleteDate, username, password, broadcastId } = req.body || {};
+    const { key, message, time, action, date: deleteDate, username, password, broadcastId, dates, pinned } = req.body || {};
 
     if (action === "delete") {
       if (username !== process.env.EDIT_USERNAME || password !== process.env.EDIT_PASSWORD) {
@@ -101,6 +123,17 @@ export default async function handler(req, res) {
       }
       await kvCommand(["DEL", `soop_chat:${deleteDate}`]);
       res.status(200).json({ success: true });
+      return;
+    }
+
+    if (action === "setPinned") {
+      const targetDates = Array.isArray(dates) ? dates.filter((d) => typeof d === "string") : [];
+      const current = await getPinnedDates();
+      const next = pinned
+        ? [...new Set([...current, ...targetDates])]
+        : current.filter((d) => !targetDates.includes(d));
+      await setPinnedDates(next);
+      res.status(200).json({ success: true, pinnedDates: next });
       return;
     }
 
