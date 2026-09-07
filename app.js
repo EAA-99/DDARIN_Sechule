@@ -4240,7 +4240,12 @@ async function tryAutoUnlock() {
     return;
   }
   const res = await apiPost({ action: "checkPassword", username: user, password: pw });
-  const ok = !!(res && res.ok);
+  if (res === null) {
+    // 서버 응답을 못 받은 경우(네트워크 오류 등) - 자격 증명은 그대로 두고 이번 로드만 읽기 전용으로 처리
+    isReadOnly = true;
+    return;
+  }
+  const ok = !!res.ok;
   isReadOnly = !ok;
   if (!ok) clearStoredCreds();
 }
