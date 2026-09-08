@@ -1902,7 +1902,7 @@ function closeCalendarAnnounce() {
   const dx = iconRect.left + iconRect.width / 2 - (popupRect.left + popupRect.width / 2);
   const dy = iconRect.top + iconRect.height / 2 - (popupRect.top + popupRect.height / 2);
 
-  popup.style.transition = "transform 0.4s ease-in, opacity 0.4s ease-in";
+  popup.style.transition = "transform 0.2s ease-in, opacity 0.2s ease-in";
   popup.style.transform = `translate(${dx}px, ${dy}px) scale(0.05)`;
   popup.style.opacity = "0";
 
@@ -1911,7 +1911,7 @@ function closeCalendarAnnounce() {
     popup.style.transition = "";
     popup.style.transform = "";
     popup.style.opacity = "";
-  }, 400);
+  }, 200);
 }
 
 calendarAnnounceBackdrop.addEventListener("click", (e) => {
