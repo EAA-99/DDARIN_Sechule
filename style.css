@@ -251,45 +251,6 @@
   height: 24px;
 }
 
-#backMenuNavMenu:not(.hidden) {
-  position: absolute;
-  bottom: 16px;
-  left: 16px;
-  width: 200px;
-  z-index: 15;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  padding: 0;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  border-radius: 0;
-}
-
-#backMenuNavMenu .back-menu-nav-item {
-  flex-direction: column;
-  gap: 6px;
-  padding: 14px 6px;
-  background: transparent;
-}
-
-#backMenuNavMenu .back-menu-nav-item svg {
-  width: 26px;
-  height: 26px;
-}
-
-.back-menu-nav-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #fff;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-}
-
-#backMenuNavMenu .back-menu-nav-item svg {
-  stroke: #fff;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
-}
 
 .loading-screen {
   position: fixed;

@@ -1772,28 +1772,6 @@ function updateBackMenuSlide() {
   backMenuMediaTrack.addEventListener("pointercancel", endDrag);
 })();
 
-(function makeBackMenuMediaTapToggleMenu() {
-  let startX = 0;
-  let startY = 0;
-  let moved = false;
-
-  backMenuMedia.addEventListener("pointerdown", (e) => {
-    startX = e.clientX;
-    startY = e.clientY;
-    moved = false;
-  });
-
-  backMenuMedia.addEventListener("pointermove", (e) => {
-    if (Math.abs(e.clientX - startX) > 10 || Math.abs(e.clientY - startY) > 10) moved = true;
-  });
-
-  backMenuMedia.addEventListener("pointerup", (e) => {
-    if (moved) return;
-    if (e.target.closest(".back-menu-dots")) return;
-    backMenuNavMenu.classList.toggle("hidden");
-  });
-})();
-
 document.getElementById("backMenuCalendarBtn").addEventListener("click", () => {
   if (backMenuCalendarBox.classList.contains("hidden")) {
     showBackMenuCalendar();
@@ -1811,6 +1789,14 @@ const backMenuNavMenu = document.getElementById("backMenuNavMenu");
 backMenuHamburgerBtn.addEventListener("click", (e) => {
   e.stopPropagation();
   backMenuNavMenu.classList.toggle("hidden");
+});
+backMenuNavMenu.addEventListener("click", (e) => {
+  if (e.target.closest(".back-menu-nav-item")) backMenuNavMenu.classList.add("hidden");
+});
+document.addEventListener("click", (e) => {
+  if (!backMenuNavMenu.classList.contains("hidden") && !backMenuNavMenu.contains(e.target) && e.target !== backMenuHamburgerBtn) {
+    backMenuNavMenu.classList.add("hidden");
+  }
 });
 
 function wireNavMenu(prefix, hamburgerId, menuId) {
