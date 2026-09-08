@@ -608,11 +608,6 @@ body {
   bottom: calc(100% - 17px);
 }
 
-#songbook2View .page-top-mascot {
-  bottom: calc(100% - 17px);
-  max-height: 180px;
-}
-
 @media (max-width: 900px) {
   .calendar-post-column {
     margin-top: 0;
@@ -2965,6 +2960,10 @@ body {
   border: 3px solid #cfe2f7;
   border-radius: 30px;
   background: #f3f9ff;
+}
+
+#songbook2View {
+  margin-top: -50px;
 }
 
 #gameView {
