@@ -1871,6 +1871,8 @@ const calendarAnnounceBackdrop = document.getElementById("calendarAnnounceBackdr
 const calendarAnnounceLikeCountEl = document.getElementById("calendarAnnounceLikeCount");
 const calendarAnnounceCommentCountEl = document.getElementById("calendarAnnounceCommentCount");
 const CALENDAR_ANNOUNCE_VIDEO_ID = "FVIbkuZhtq0";
+const CALENDAR_ANNOUNCE_HIDE_KEY = "calendarAnnounceHideUntil";
+const CALENDAR_ANNOUNCE_EXPIRE = new Date("2026-09-16T00:00:00+09:00");
 
 async function loadCalendarAnnounceStats() {
   try {
@@ -1883,7 +1885,16 @@ async function loadCalendarAnnounceStats() {
   }
 }
 
+function shouldShowCalendarAnnounce() {
+  const now = new Date();
+  if (now >= CALENDAR_ANNOUNCE_EXPIRE) return false;
+  const hideUntil = localStorage.getItem(CALENDAR_ANNOUNCE_HIDE_KEY);
+  if (hideUntil && now < new Date(hideUntil)) return false;
+  return true;
+}
+
 function openCalendarAnnounce() {
+  if (!shouldShowCalendarAnnounce()) return;
   loadCalendarAnnounceStats();
   calendarAnnounceBackdrop.classList.remove("hidden");
 }
@@ -1923,6 +1934,12 @@ calendarAnnounceBackdrop.addEventListener("click", (e) => {
   if (e.target === calendarAnnounceBackdrop) closeCalendarAnnounce();
 });
 document.getElementById("calendarAnnounceCloseBtn").addEventListener("click", closeCalendarAnnounce);
+document.getElementById("calendarAnnounceHideWeekBtn").addEventListener("click", () => {
+  const until = new Date();
+  until.setDate(until.getDate() + 7);
+  localStorage.setItem(CALENDAR_ANNOUNCE_HIDE_KEY, until.toISOString());
+  closeCalendarAnnounce();
+});
 // ================================================
 
 cafePhotoMenuBtn.addEventListener("click", () => {
