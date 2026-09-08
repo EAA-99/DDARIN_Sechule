@@ -1866,31 +1866,10 @@ cafePhotoLightbox.addEventListener("click", (e) => {
 });
 document.getElementById("cafePhotoCloseBtn").addEventListener("click", closeCafePhotoLightbox);
 
-// ===== 일정표 공지 팝업 (청백가요제) =====
+// ===== 일정표 공지 팝업 =====
 const calendarAnnounceBackdrop = document.getElementById("calendarAnnounceBackdrop");
-const calendarAnnounceDdayEl = document.getElementById("calendarAnnounceDday");
-const calendarAnnounceLikeCountEl = document.getElementById("calendarAnnounceLikeCount");
-const calendarAnnounceCommentCountEl = document.getElementById("calendarAnnounceCommentCount");
-const CALENDAR_ANNOUNCE_LIKE_COUNT = 1040;
-const CALENDAR_ANNOUNCE_COMMENT_COUNT = 0;
-
-function updateCalendarAnnounceDday() {
-  const target = new Date(2026, 8, 6);
-  target.setHours(0, 0, 0, 0);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const diffDays = Math.round((target - today) / (24 * 60 * 60 * 1000));
-  calendarAnnounceDdayEl.textContent = diffDays > 0 ? `D-${diffDays}` : diffDays === 0 ? "D-DAY" : `D+${-diffDays}`;
-}
 
 function openCalendarAnnounce() {
-  const expireAfter = new Date(2026, 8, 6);
-  expireAfter.setHours(23, 59, 59, 999);
-  if (new Date() > expireAfter) return;
-
-  updateCalendarAnnounceDday();
-  calendarAnnounceLikeCountEl.textContent = CALENDAR_ANNOUNCE_LIKE_COUNT.toLocaleString();
-  calendarAnnounceCommentCountEl.textContent = CALENDAR_ANNOUNCE_COMMENT_COUNT.toLocaleString();
   calendarAnnounceBackdrop.classList.remove("hidden");
 }
 
