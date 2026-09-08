@@ -1857,7 +1857,12 @@ body {
 
 #calendarAnnounceBackdrop .cafe-photo-post {
   width: 95vw;
-  max-width: 620px;
+  max-width: 900px;
+}
+
+#calendarAnnounceBackdrop .cafe-photo-post-caption {
+  white-space: nowrap;
+  overflow-x: auto;
 }
 
 .calendar-announce-stat {
