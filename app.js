@@ -1889,7 +1889,29 @@ function openCalendarAnnounce() {
 }
 
 function closeCalendarAnnounce() {
-  calendarAnnounceBackdrop.classList.add("hidden");
+  const popup = calendarAnnounceBackdrop.querySelector(".cafe-photo-post");
+  const icon = document.getElementById("sideNavYoutubeBtn");
+
+  if (!popup || !icon) {
+    calendarAnnounceBackdrop.classList.add("hidden");
+    return;
+  }
+
+  const popupRect = popup.getBoundingClientRect();
+  const iconRect = icon.getBoundingClientRect();
+  const dx = iconRect.left + iconRect.width / 2 - (popupRect.left + popupRect.width / 2);
+  const dy = iconRect.top + iconRect.height / 2 - (popupRect.top + popupRect.height / 2);
+
+  popup.style.transition = "transform 0.4s ease-in, opacity 0.4s ease-in";
+  popup.style.transform = `translate(${dx}px, ${dy}px) scale(0.05)`;
+  popup.style.opacity = "0";
+
+  setTimeout(() => {
+    calendarAnnounceBackdrop.classList.add("hidden");
+    popup.style.transition = "";
+    popup.style.transform = "";
+    popup.style.opacity = "";
+  }, 400);
 }
 
 calendarAnnounceBackdrop.addEventListener("click", (e) => {
