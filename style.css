@@ -251,6 +251,41 @@
   height: 24px;
 }
 
+#backMenuNavMenu:not(.hidden) {
+  position: absolute;
+  top: 54px;
+  left: 16px;
+  right: 16px;
+  z-index: 15;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  border: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  border-radius: 16px;
+}
+
+#backMenuNavMenu .back-menu-nav-item {
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 6px;
+  background: #fff;
+  border-radius: 14px;
+}
+
+#backMenuNavMenu .back-menu-nav-item svg {
+  width: 26px;
+  height: 26px;
+}
+
+.back-menu-nav-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #555;
+}
+
 .loading-screen {
   position: fixed;
   inset: 0;
