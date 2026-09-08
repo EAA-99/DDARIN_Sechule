@@ -1868,8 +1868,23 @@ document.getElementById("cafePhotoCloseBtn").addEventListener("click", closeCafe
 
 // ===== 일정표 공지 팝업 =====
 const calendarAnnounceBackdrop = document.getElementById("calendarAnnounceBackdrop");
+const calendarAnnounceLikeCountEl = document.getElementById("calendarAnnounceLikeCount");
+const calendarAnnounceCommentCountEl = document.getElementById("calendarAnnounceCommentCount");
+const CALENDAR_ANNOUNCE_VIDEO_ID = "FVIbkuZhtq0";
+
+async function loadCalendarAnnounceStats() {
+  try {
+    const res = await fetch(`/api/youtube-video-stats?id=${CALENDAR_ANNOUNCE_VIDEO_ID}`);
+    const data = await res.json();
+    calendarAnnounceLikeCountEl.textContent = (data.likeCount || 0).toLocaleString();
+    calendarAnnounceCommentCountEl.textContent = (data.commentCount || 0).toLocaleString();
+  } catch {
+    // 실패 시 기존 값 유지
+  }
+}
 
 function openCalendarAnnounce() {
+  loadCalendarAnnounceStats();
   calendarAnnounceBackdrop.classList.remove("hidden");
 }
 
