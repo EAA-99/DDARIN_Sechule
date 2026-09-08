@@ -1906,8 +1906,13 @@ function closeCalendarAnnounce() {
   popup.style.transform = `translate(${dx}px, ${dy}px) scale(0.05)`;
   popup.style.opacity = "0";
 
+  calendarAnnounceBackdrop.style.transition = "background-color 0.2s ease-in";
+  calendarAnnounceBackdrop.style.backgroundColor = "rgba(0, 0, 0, 0)";
+
   setTimeout(() => {
     calendarAnnounceBackdrop.classList.add("hidden");
+    calendarAnnounceBackdrop.style.transition = "";
+    calendarAnnounceBackdrop.style.backgroundColor = "";
     popup.style.transition = "";
     popup.style.transform = "";
     popup.style.opacity = "";
