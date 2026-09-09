@@ -2967,90 +2967,36 @@ body {
 }
 
 #songbookGwView {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  max-width: 640px;
   margin-top: -50px;
+  gap: 10px;
+}
+
+@media (max-width: 900px) {
+  #songbookGwView {
+    margin-top: 0;
+  }
 }
 
 .songbook-gw-go-btn {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   width: 100%;
   border: none;
-  border-radius: 12px;
+  border-radius: 999px;
   padding: 14px;
-  margin-bottom: 20px;
-  background: #eaf2fc;
-  color: #1c5fa8;
+  background: linear-gradient(135deg, #6fb3f2, #3f8fe0);
+  color: #fff;
   font-weight: 800;
   font-size: 1rem;
   cursor: pointer;
-}
-
-.songbook-gw-card {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  border-radius: 16px;
-  overflow: hidden;
-  background: #2a2a2a;
-}
-
-.songbook-gw-art {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.songbook-gw-info {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 16px 18px 18px;
-  background: linear-gradient(180deg, rgba(42, 32, 40, 0) 0%, #2a2028 70%);
-}
-
-.songbook-gw-info-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.songbook-gw-title {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: #fff;
-}
-
-.songbook-gw-artist {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.songbook-gw-tag {
-  flex-shrink: 0;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.songbook-gw-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 32px;
-  color: #fff;
-}
-
-.songbook-gw-controls svg {
-  width: 24px;
-  height: 24px;
 }
 
 #gameView {
@@ -4239,7 +4185,8 @@ body {
 }
 
 /* Playlist(Live Clip) 전용 레이아웃 - #songbookView로 범위를 좁혀서 노래책/게임 화면엔 영향 없음. 바깥 프레임은 .songbook-view(일정표와 동일) 그대로 두고 안쪽만 흰 테마로 커스텀 */
-#songbookView {
+#songbookView,
+.songbook-view-clone {
   margin-top: -50px;
   max-width: 640px;
   height: calc(100vh - 40px);
@@ -4257,36 +4204,42 @@ body {
 }
 
 @media (max-width: 900px) {
-  #songbookView {
+  #songbookView,
+  .songbook-view-clone {
     margin-top: 0;
     height: calc(100dvh - 40px);
     overscroll-behavior: none;
   }
 }
 
-#songbookView .songbook-inner {
+#songbookView .songbook-inner,
+.songbook-view-clone .songbook-inner {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
 }
 
-#songbookView .back-menu-top {
+#songbookView .back-menu-top,
+.songbook-view-clone .back-menu-top {
   padding-left: 0;
   padding-right: 0;
 }
 
-#songbookView .songbook-header {
+#songbookView .songbook-header,
+.songbook-view-clone .songbook-header {
   display: none;
 }
 
-#songbookView .songbook-body {
+#songbookView .songbook-body,
+.songbook-view-clone .songbook-body {
   flex: 1;
   min-height: 0;
   flex-direction: column;
 }
 
-#songbookView .player-panel {
+#songbookView .player-panel,
+.songbook-view-clone .player-panel {
   width: 100%;
   flex: 1;
   min-height: 0;
@@ -4294,11 +4247,13 @@ body {
   flex-direction: column;
 }
 
-#songbookView .songbook-main {
+#songbookView .songbook-main,
+.songbook-view-clone .songbook-main {
   display: none;
 }
 
-#songbookView .clip-source-carousel {
+#songbookView .clip-source-carousel,
+.songbook-view-clone .clip-source-carousel {
   flex: 0 0 calc(90% + 50px);
   height: calc(90% + 50px);
 }
@@ -4312,7 +4267,9 @@ body {
 }
 
 #songbookView .song-search,
-#songbookView .song-sort-row {
+#songbookView .song-sort-row,
+.songbook-view-clone .song-search,
+.songbook-view-clone .song-sort-row {
   flex-shrink: 0;
 }
 
@@ -4567,12 +4524,14 @@ body {
   background: #eef0f4;
 }
 
-#songbookView .song-sort-row {
+#songbookView .song-sort-row,
+.songbook-view-clone .song-sort-row {
   margin-bottom: 14px;
   width: fit-content;
 }
 
-#songbookView .player-stats {
+#songbookView .player-stats,
+.songbook-view-clone .player-stats {
   color: #999;
 }
 

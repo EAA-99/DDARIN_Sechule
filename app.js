@@ -247,6 +247,7 @@ const songPlayerModalFavLabel = document.getElementById("songPlayerModalFavLabel
 const favoritesListEl = document.getElementById("favoritesList");
 const songbook2View = document.getElementById("songbook2View");
 const songbookGwView = document.getElementById("songbookGwView");
+const songbookGwBody = document.getElementById("songbookGwBody");
 const song2SearchInput = document.getElementById("song2SearchInput");
 const genre2Tabs = document.getElementById("genre2Tabs");
 const artist2List = document.getElementById("artist2List");
@@ -1689,6 +1690,13 @@ async function openSongbook() {
 }
 
 function openSongbook2() {
+  const clone = songbookView.cloneNode(true);
+  clone.removeAttribute("id");
+  clone.classList.remove("hidden", "view-opening");
+  clone.classList.add("songbook-view-clone");
+  clone.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+  songbookGwBody.innerHTML = "";
+  songbookGwBody.appendChild(clone);
   showMainView("songbookgw");
 }
 
