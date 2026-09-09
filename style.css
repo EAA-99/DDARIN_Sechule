@@ -2972,14 +2972,7 @@ body {
   align-items: stretch;
   width: 100%;
   max-width: 640px;
-  margin-top: -50px;
   gap: 10px;
-}
-
-@media (max-width: 900px) {
-  #songbookGwView {
-    margin-top: 0;
-  }
 }
 
 .songbook-gw-inline-link {
