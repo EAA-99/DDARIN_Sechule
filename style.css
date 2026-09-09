@@ -3939,6 +3939,10 @@ body {
   color: #1c6dd0;
 }
 
+.song2-sortable.active.desc::after {
+  content: "\25BC";
+}
+
 .song2-col-num {
   width: 50px;
   color: #999;
@@ -4029,6 +4033,15 @@ body {
   padding: 18px;
   text-align: left;
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+}
+
+.song-roulette-popover-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 0.95rem;
+  color: #1c5fa8;
 }
 
 .song-roulette-status {

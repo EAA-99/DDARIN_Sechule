@@ -280,6 +280,7 @@ const songManageCloseBtn = document.getElementById("songManageCloseBtn");
 let songbook2Genre = "전체";
 let songbook2Artist = "전체";
 let songSortMode2 = "artist";
+let songSortDir2 = "asc";
 let songManageMode = false;
 let selectedSongKeys = new Set();
 let allSongs = null;
@@ -1499,9 +1500,9 @@ function getFilteredSongs2() {
   });
 
   filtered.sort((a, b) => {
-    if (songSortMode2 === "recent") return (b.seq || 0) - (a.seq || 0);
     const field = songSortMode2 === "title" ? "title" : "artist";
-    return a[field].localeCompare(b[field], "ko");
+    const cmp = a[field].localeCompare(b[field], "ko");
+    return songSortDir2 === "asc" ? cmp : -cmp;
   });
 
   return filtered;
@@ -1561,7 +1562,9 @@ function renderSongGrid2() {
 
   song2Table.classList.toggle("manage-mode", songManageMode);
   song2Table.querySelectorAll(".song2-sortable").forEach((th) => {
-    th.classList.toggle("active", th.dataset.sort === songSortMode2);
+    const isActive = th.dataset.sort === songSortMode2;
+    th.classList.toggle("active", isActive);
+    th.classList.toggle("desc", isActive && songSortDir2 === "desc");
   });
   song2CountEl.innerHTML = `총 <b>${filtered.length}</b>개의 노래가 있어요.`;
 
@@ -3138,7 +3141,12 @@ genre2Tabs.addEventListener("click", (e) => {
 song2Table.querySelector("thead").addEventListener("click", (e) => {
   const th = e.target.closest(".song2-sortable");
   if (!th) return;
-  songSortMode2 = th.dataset.sort;
+  if (songSortMode2 === th.dataset.sort) {
+    songSortDir2 = songSortDir2 === "asc" ? "desc" : "asc";
+  } else {
+    songSortMode2 = th.dataset.sort;
+    songSortDir2 = "asc";
+  }
   renderSongGrid2();
 });
 
