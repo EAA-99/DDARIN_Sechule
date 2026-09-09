@@ -540,11 +540,6 @@
           <button type="button" id="songQueueAddBtn" class="song-manage-btn">대기열 추가</button>
           <button type="button" id="songManageCloseBtn" class="song-manage-close-btn" aria-label="곡 관리 닫기" title="닫기">✕</button>
         </div>
-        <select id="song2SortSelect" class="song-sort-select">
-          <option value="artist">가수이름순</option>
-          <option value="title">가나다순</option>
-          <option value="recent">최근 등록순</option>
-        </select>
       </div>
     </div>
 
@@ -564,13 +559,32 @@
       </div>
 
       <div class="songbook-main">
-        <input type="text" id="song2SearchInput" class="song-search" placeholder="노래 제목 또는 가수를 검색하세요">
+        <div class="song-search-wrap">
+          <svg class="song-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="song2SearchInput" class="song-search" placeholder="원하는 곡을 제목이나 가수 이름으로 검색해보세요!">
+        </div>
 
         <div id="genre2Tabs" class="genre-tabs">
           <button type="button" class="genre-tab active" data-genre="전체">전체</button>
         </div>
 
-        <div id="song2Grid" class="song-grid no-image-mode"></div>
+        <p id="song2Count" class="song2-count"></p>
+
+        <div class="song2-table-wrap">
+          <table id="song2Table" class="song2-table">
+            <thead>
+              <tr>
+                <th class="song2-col-check"></th>
+                <th class="song2-col-fav"></th>
+                <th class="song2-col-num song2-sortable" data-sort="recent">번호</th>
+                <th class="song2-col-title song2-sortable" data-sort="title">제목</th>
+                <th class="song2-col-artist song2-sortable" data-sort="artist">가수</th>
+                <th class="song2-col-genre">장르</th>
+              </tr>
+            </thead>
+            <tbody id="song2Grid"></tbody>
+          </table>
+        </div>
       </div>
     </div>
     </div>
