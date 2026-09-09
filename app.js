@@ -3148,27 +3148,54 @@ const songRouletteModalBackdrop = document.getElementById("songRouletteModalBack
 const songRouletteCloseBtn = document.getElementById("songRouletteCloseBtn");
 const songRouletteStatus = document.getElementById("songRouletteStatus");
 const songRouletteStatusText = document.getElementById("songRouletteStatusText");
+const songRouletteFilterToggle = document.getElementById("songRouletteFilterToggle");
 const songRouletteFilterValue = document.getElementById("songRouletteFilterValue");
+const songRouletteFilterMenu = document.getElementById("songRouletteFilterMenu");
 const songRouletteSpinBtn = document.getElementById("songRouletteSpinBtn");
+let songRouletteGenre = "전체";
 
 function closeSongRouletteModal() {
   songRouletteModalBackdrop.classList.add("hidden");
+  songRouletteFilterMenu.classList.add("hidden");
 }
 
-songRouletteBtn.addEventListener("click", () => {
+songRouletteBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  songRouletteGenre = "전체";
+  songRouletteFilterValue.textContent = songRouletteGenre;
+  songRouletteFilterMenu.querySelectorAll(".genre-tab").forEach((el) => {
+    el.classList.toggle("active", el.dataset.genre === songRouletteGenre);
+  });
   songRouletteStatus.className = "song-roulette-status";
   songRouletteStatusText.textContent = "대기 중";
-  songRouletteFilterValue.textContent = songbook2Genre === "전체" ? "장르 없음" : songbook2Genre;
   songRouletteSpinBtn.disabled = false;
   songRouletteModalBackdrop.classList.remove("hidden");
 });
 songRouletteCloseBtn.addEventListener("click", closeSongRouletteModal);
-songRouletteModalBackdrop.addEventListener("click", (e) => {
-  if (e.target === songRouletteModalBackdrop) closeSongRouletteModal();
+
+songRouletteFilterToggle.addEventListener("click", (e) => {
+  e.stopPropagation();
+  songRouletteFilterMenu.classList.toggle("hidden");
+});
+songRouletteFilterMenu.addEventListener("click", (e) => {
+  const btn = e.target.closest(".genre-tab");
+  if (!btn) return;
+  songRouletteGenre = btn.dataset.genre;
+  songRouletteFilterValue.textContent = songRouletteGenre;
+  songRouletteFilterMenu.querySelectorAll(".genre-tab").forEach((el) => el.classList.toggle("active", el === btn));
+  songRouletteFilterMenu.classList.add("hidden");
+});
+
+document.addEventListener("click", (e) => {
+  if (!songRouletteModalBackdrop.classList.contains("hidden") && !songRouletteModalBackdrop.contains(e.target) && e.target !== songRouletteBtn) {
+    closeSongRouletteModal();
+  } else if (!songRouletteFilterMenu.classList.contains("hidden") && !songRouletteFilterMenu.contains(e.target) && !songRouletteFilterToggle.contains(e.target)) {
+    songRouletteFilterMenu.classList.add("hidden");
+  }
 });
 
 songRouletteSpinBtn.addEventListener("click", () => {
-  const pool = (allSongs || []).filter((s) => songbook2Genre === "전체" || s.genre === songbook2Genre);
+  const pool = (allSongs || []).filter((s) => songRouletteGenre === "전체" || s.genre === songRouletteGenre);
   if (!pool.length) {
     songRouletteStatus.className = "song-roulette-status";
     songRouletteStatusText.textContent = "곡이 없습니다";

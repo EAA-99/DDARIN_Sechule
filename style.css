@@ -4003,17 +4003,32 @@ body {
   border: none;
   border-radius: 999px;
   padding: 8px 16px;
-  background: linear-gradient(135deg, #ffa93c, #ff7a1a);
-  color: #fff;
+  background: linear-gradient(135deg, #dceefb, #b8dcf5);
+  color: #1c5fa8;
   font-weight: 700;
   font-size: 0.85rem;
   white-space: nowrap;
   cursor: pointer;
 }
 
-.song-roulette-modal {
-  max-width: 360px;
+.song-roulette-anchor {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.song-roulette-popover {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 10px;
+  z-index: 30;
+  width: 300px;
+  max-width: calc(100vw - 32px);
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
   text-align: left;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
 }
 
 .song-roulette-status {
@@ -4023,7 +4038,7 @@ body {
   padding: 14px 16px;
   margin-bottom: 18px;
   border-radius: 12px;
-  background: #f7f1e6;
+  background: #eef6fd;
 }
 
 .song-roulette-status-dot {
@@ -4041,11 +4056,11 @@ body {
 }
 
 .song-roulette-status.spinning .song-roulette-status-dot {
-  background: #ff9a3c;
+  background: #4a9eea;
 }
 
 .song-roulette-status.spinning .song-roulette-status-text {
-  color: #ff7a1a;
+  color: #2b7cc9;
 }
 
 .song-roulette-status.result .song-roulette-status-dot {
@@ -4056,17 +4071,41 @@ body {
   color: #1f8a4d;
 }
 
-.song-roulette-filter-label {
-  margin: 0 0 4px;
+.song-roulette-filter {
+  position: relative;
+  margin-bottom: 18px;
+}
+
+.song-roulette-filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: none;
+  background: none;
+  padding: 0;
   font-size: 0.85rem;
   font-weight: 700;
   color: #333;
+  cursor: pointer;
 }
 
 .song-roulette-filter-value {
-  margin: 0 0 18px;
-  font-size: 0.85rem;
-  color: #aaa;
+  color: #1c5fa8;
+}
+
+.song-roulette-filter-toggle svg {
+  margin-left: auto;
+  color: #999;
+  flex-shrink: 0;
+}
+
+.song-roulette-filter .genre-tabs-menu {
+  top: 100%;
+  left: 0;
+  right: 0;
+  width: auto;
+  min-width: 0;
 }
 
 .song-roulette-spin-btn {
@@ -4074,7 +4113,7 @@ body {
   border: none;
   border-radius: 999px;
   padding: 14px;
-  background: linear-gradient(135deg, #ffb23c, #ff7a1a);
+  background: linear-gradient(135deg, #6fb3f2, #3f8fe0);
   color: #fff;
   font-weight: 700;
   font-size: 1rem;
