@@ -2982,25 +2982,34 @@ body {
   }
 }
 
-.songbook-gw-go-btn {
-  flex-shrink: 0;
-  display: flex;
+.songbook-gw-inline-link {
+  display: inline-flex;
+  align-self: flex-start;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-  border: 1px solid #e5e5e5;
+  gap: 4px;
+  margin: 8px 16px 0;
+  border: none;
   border-radius: 999px;
-  padding: 14px;
-  background: #fff;
-  color: #333;
-  font-weight: 800;
-  font-size: 1rem;
+  padding: 6px 14px;
+  background: #eaf2fc;
+  color: #1c5fa8;
+  font-weight: 700;
+  font-size: 0.85rem;
   cursor: pointer;
 }
 
 .songbook-view-clone .clip-source-dots {
   display: none;
+}
+
+.songbook-view-clone .clip-source-tag,
+.songbook-view-clone .clip-source-chat-icon {
+  display: none;
+}
+
+.songbook-view-clone .clip-source-controls {
+  justify-content: center;
+  gap: 32px;
 }
 
 #gameView {

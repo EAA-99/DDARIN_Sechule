@@ -1692,6 +1692,21 @@ async function openSongbook() {
 let songbookGwHamburgerBtn = null;
 let songbookGwNavMenu = null;
 
+const SONGBOOK_GW_NAV_ACTIONS = {
+  home: () => showMainView("backmenu"),
+  calendar: () => {
+    showMainView("backmenu");
+    showBackMenuCalendar();
+  },
+  playlist: openSongbook,
+  Photo: () => {
+    switchCafePhotosTab(cafePhotosTabEls[0], { menuId: "27", titleContains: "" });
+    showMainView("cafephotos");
+  },
+  songbook: openSongbook2Table,
+  mail: () => showMainView("soopchat"),
+};
+
 function openSongbook2() {
   const clone = songbookView.cloneNode(true);
   clone.removeAttribute("id");
@@ -1706,6 +1721,21 @@ function openSongbook2() {
       e.stopPropagation();
       songbookGwNavMenu.classList.toggle("hidden");
     });
+    Object.entries(SONGBOOK_GW_NAV_ACTIONS).forEach(([label, action]) => {
+      const btn = songbookGwNavMenu.querySelector(`[aria-label="${label}"]`);
+      if (btn) btn.addEventListener("click", action);
+    });
+  }
+
+  const backMenuTop = clone.querySelector(".back-menu-top");
+  if (backMenuTop) {
+    const gwLinkBtn = document.createElement("button");
+    gwLinkBtn.type = "button";
+    gwLinkBtn.className = "songbook-gw-inline-link";
+    gwLinkBtn.innerHTML =
+      '노래책 보기 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+    gwLinkBtn.addEventListener("click", openSongbook2Table);
+    backMenuTop.insertAdjacentElement("afterend", gwLinkBtn);
   }
 
   songbookGwBody.innerHTML = "";
@@ -1738,7 +1768,6 @@ async function openSongbook2Table() {
   renderArtistList2();
 }
 
-document.getElementById("songbookGwGoBtn").addEventListener("click", openSongbook2Table);
 
 document.getElementById("calendarBtn").addEventListener("click", () => showMainView("backmenu"));
 
@@ -4513,8 +4542,6 @@ async function init() {
   });
 }
 init();
-
-setTimeout(() => location.reload(), 12 * 60 * 60 * 1000);
 
 const liveAvatarEls = document.querySelectorAll(".back-menu-avatar, .cafe-photos-avatar, .calendar-post-avatar");
 const SOOP_LIVE_URL = "https://play.sooplive.com/insome0319";
