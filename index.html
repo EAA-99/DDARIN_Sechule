@@ -1021,10 +1021,13 @@
   <script>
     if ("serviceWorker" in navigator) {
       let swRefreshed = false;
+      const pageLoadedAt = Date.now();
       navigator.serviceWorker.addEventListener("controllerchange", () => {
         if (swRefreshed) return;
         swRefreshed = true;
-        location.reload();
+        // 앱을 연 직후(3초 이내) 업데이트가 잡히면 바로 새로고침, 이미 쓰고 있는 도중이면
+        // 갑자기 새로고침하지 않고 다음에 열 때 자연스럽게 반영되도록 둔다.
+        if (Date.now() - pageLoadedAt < 3000) location.reload();
       });
       window.addEventListener("load", () => {
         navigator.serviceWorker
