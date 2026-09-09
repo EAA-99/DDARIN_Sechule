@@ -1727,15 +1727,15 @@ function openSongbook2() {
     });
   }
 
-  const backMenuTop = clone.querySelector(".back-menu-top");
-  if (backMenuTop) {
+  const backMenuName = clone.querySelector(".back-menu-name");
+  if (backMenuName) {
     const gwLinkBtn = document.createElement("button");
     gwLinkBtn.type = "button";
     gwLinkBtn.className = "songbook-gw-inline-link";
     gwLinkBtn.innerHTML =
-      '노래책 보기 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+      '노래책 보기 <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
     gwLinkBtn.addEventListener("click", openSongbook2Table);
-    backMenuTop.insertAdjacentElement("afterend", gwLinkBtn);
+    backMenuName.appendChild(gwLinkBtn);
   }
 
   songbookGwBody.innerHTML = "";
