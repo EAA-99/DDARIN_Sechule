@@ -2989,14 +2989,18 @@ body {
   justify-content: center;
   gap: 6px;
   width: 100%;
-  border: none;
+  border: 1px solid #e5e5e5;
   border-radius: 999px;
   padding: 14px;
-  background: linear-gradient(135deg, #6fb3f2, #3f8fe0);
-  color: #fff;
+  background: #fff;
+  color: #333;
   font-weight: 800;
   font-size: 1rem;
   cursor: pointer;
+}
+
+.songbook-view-clone .clip-source-dots {
+  display: none;
 }
 
 #gameView {

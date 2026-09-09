@@ -1689,16 +1689,40 @@ async function openSongbook() {
   renderClipSourcePreviews();
 }
 
+let songbookGwHamburgerBtn = null;
+let songbookGwNavMenu = null;
+
 function openSongbook2() {
   const clone = songbookView.cloneNode(true);
   clone.removeAttribute("id");
   clone.classList.remove("hidden", "view-opening");
   clone.classList.add("songbook-view-clone");
   clone.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+
+  songbookGwHamburgerBtn = clone.querySelector(".back-menu-hamburger");
+  songbookGwNavMenu = clone.querySelector(".back-menu-nav-menu");
+  if (songbookGwHamburgerBtn && songbookGwNavMenu) {
+    songbookGwHamburgerBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      songbookGwNavMenu.classList.toggle("hidden");
+    });
+  }
+
   songbookGwBody.innerHTML = "";
   songbookGwBody.appendChild(clone);
   showMainView("songbookgw");
 }
+
+document.addEventListener("click", (e) => {
+  if (
+    songbookGwNavMenu &&
+    !songbookGwNavMenu.classList.contains("hidden") &&
+    !songbookGwNavMenu.contains(e.target) &&
+    e.target !== songbookGwHamburgerBtn
+  ) {
+    songbookGwNavMenu.classList.add("hidden");
+  }
+});
 
 async function openSongbook2Table() {
   showMainView("songbook2");
