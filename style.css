@@ -3871,16 +3871,6 @@ body {
   color: #fff;
 }
 
-.song2-count {
-  margin: 0 0 10px;
-  font-size: 0.85rem;
-  color: #777;
-}
-
-.song2-count b {
-  color: #1c6dd0;
-}
-
 .song2-table-wrap {
   max-height: 65vh;
   overflow: auto;
@@ -3921,6 +3911,29 @@ body {
 .song2-sortable {
   cursor: pointer;
   user-select: none;
+}
+
+.song2-genre-filter {
+  position: relative;
+}
+
+.song2-genre-filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  font-weight: 700;
+  color: inherit;
+  cursor: pointer;
+}
+
+.song2-genre-filter .genre-tabs-menu {
+  left: auto;
+  right: 0;
 }
 
 .song2-sortable::after {
@@ -4035,13 +4048,9 @@ body {
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
 }
 
-.song-roulette-popover-title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
-  font-size: 0.95rem;
-  color: #1c5fa8;
+.song-roulette-header-row {
+  justify-content: flex-end;
+  margin-bottom: 8px;
 }
 
 .song-roulette-status {
@@ -4092,6 +4101,7 @@ body {
 .song-roulette-filter-toggle {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   width: 100%;
   border: none;
@@ -4108,7 +4118,6 @@ body {
 }
 
 .song-roulette-filter-toggle svg {
-  margin-left: auto;
   color: #999;
   flex-shrink: 0;
 }
@@ -4122,6 +4131,10 @@ body {
 }
 
 .song-roulette-spin-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   width: 100%;
   border: none;
   border-radius: 999px;

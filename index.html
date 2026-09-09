@@ -574,11 +574,7 @@
               룰렛
             </button>
             <div id="songRouletteModalBackdrop" class="song-roulette-popover hidden">
-              <div class="modal-header-row">
-                <h2 class="song-roulette-popover-title">
-                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
-                  룰렛
-                </h2>
+              <div class="modal-header-row song-roulette-header-row">
                 <button type="button" id="songRouletteCloseBtn" class="modal-close-x" aria-label="닫기">✕</button>
               </div>
               <div id="songRouletteStatus" class="song-roulette-status">
@@ -598,12 +594,13 @@
                   <button type="button" class="genre-tab" data-genre="양식">양식</button>
                 </div>
               </div>
-              <button type="button" id="songRouletteSpinBtn" class="song-roulette-spin-btn">⚡ 룰렛 시작</button>
+              <button type="button" id="songRouletteSpinBtn" class="song-roulette-spin-btn">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+                룰렛 시작
+              </button>
             </div>
           </div>
         </div>
-
-        <p id="song2Count" class="song2-count"></p>
 
         <div class="song2-table-wrap">
           <table id="song2Table" class="song2-table">
@@ -614,7 +611,15 @@
                 <th class="song2-col-num">번호</th>
                 <th class="song2-col-title song2-sortable" data-sort="title">제목</th>
                 <th class="song2-col-artist song2-sortable" data-sort="artist">가수</th>
-                <th class="song2-col-genre">장르</th>
+                <th class="song2-col-genre">
+                  <div class="song2-genre-filter">
+                    <button type="button" id="song2GenreFilterToggle" class="song2-genre-filter-toggle">
+                      장르
+                      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div id="song2GenreFilterMenu" class="genre-tabs-menu hidden"></div>
+                  </div>
+                </th>
               </tr>
             </thead>
             <tbody id="song2Grid"></tbody>
