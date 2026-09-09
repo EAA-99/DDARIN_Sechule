@@ -246,6 +246,7 @@ const songPlayerModalFavIcon = document.getElementById("songPlayerModalFavIcon")
 const songPlayerModalFavLabel = document.getElementById("songPlayerModalFavLabel");
 const favoritesListEl = document.getElementById("favoritesList");
 const songbook2View = document.getElementById("songbook2View");
+const songbookGwView = document.getElementById("songbookGwView");
 const song2SearchInput = document.getElementById("song2SearchInput");
 const genre2Tabs = document.getElementById("genre2Tabs");
 const artist2List = document.getElementById("artist2List");
@@ -1611,6 +1612,7 @@ function showMainView(view) {
   appViewEl.classList.toggle("hidden", view !== "calendar");
   songbookView.classList.toggle("hidden", view !== "songbook");
   songbook2View.classList.toggle("hidden", view !== "songbook2");
+  songbookGwView.classList.toggle("hidden", view !== "songbookgw");
   gameView.classList.toggle("hidden", view !== "game");
   backMenuView.classList.toggle("hidden", view !== "backmenu");
   cafePhotosView.classList.toggle("hidden", view !== "cafephotos");
@@ -1627,6 +1629,7 @@ function showMainView(view) {
       view === "cafephotos" ||
       view === "songbook" ||
       view === "songbook2" ||
+      view === "songbookgw" ||
       view === "soopchat" ||
       view === "soopchatday"
   );
@@ -1641,7 +1644,7 @@ function showMainView(view) {
   );
 
   if (currentMainView === "backmenu" && view !== "backmenu") {
-    const openedViewEl = { songbook: songbookView, songbook2: songbook2View, cafephotos: cafePhotosView }[view];
+    const openedViewEl = { songbook: songbookView, songbook2: songbook2View, songbookgw: songbookGwView, cafephotos: cafePhotosView }[view];
     if (openedViewEl) {
       openedViewEl.classList.remove("view-opening");
       void openedViewEl.offsetWidth;
@@ -1685,7 +1688,11 @@ async function openSongbook() {
   renderClipSourcePreviews();
 }
 
-async function openSongbook2() {
+function openSongbook2() {
+  showMainView("songbookgw");
+}
+
+async function openSongbook2Table() {
   showMainView("songbook2");
 
   if (!allSongs) {
@@ -1698,6 +1705,8 @@ async function openSongbook2() {
   renderSingQueueList();
   renderArtistList2();
 }
+
+document.getElementById("songbookGwGoBtn").addEventListener("click", openSongbook2Table);
 
 document.getElementById("calendarBtn").addEventListener("click", () => showMainView("backmenu"));
 
