@@ -564,8 +564,14 @@
           <input type="text" id="song2SearchInput" class="song-search" placeholder="원하는 곡을 제목이나 가수 이름으로 검색해보세요!">
         </div>
 
-        <div id="genre2Tabs" class="genre-tabs">
-          <button type="button" class="genre-tab active" data-genre="전체">전체</button>
+        <div class="songbook-filter-row">
+          <div id="genre2Tabs" class="genre-tabs">
+            <button type="button" class="genre-tab active" data-genre="전체">전체</button>
+          </div>
+          <button type="button" id="songRouletteBtn" class="song-roulette-btn">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>
+            룰렛
+          </button>
         </div>
 
         <p id="song2Count" class="song2-count"></p>
@@ -587,6 +593,22 @@
         </div>
       </div>
     </div>
+    </div>
+  </div>
+
+  <div id="songRouletteModalBackdrop" class="modal-backdrop hidden">
+    <div class="modal song-roulette-modal">
+      <div class="modal-header-row">
+        <h2>룰렛</h2>
+        <button type="button" id="songRouletteCloseBtn" class="modal-close-x" aria-label="닫기">✕</button>
+      </div>
+      <div id="songRouletteStatus" class="song-roulette-status">
+        <span id="songRouletteStatusDot" class="song-roulette-status-dot"></span>
+        <span id="songRouletteStatusText" class="song-roulette-status-text">대기 중</span>
+      </div>
+      <p class="song-roulette-filter-label">장르 필터</p>
+      <p id="songRouletteFilterValue" class="song-roulette-filter-value">장르 없음</p>
+      <button type="button" id="songRouletteSpinBtn" class="song-roulette-spin-btn">⚡ 룰렛 시작</button>
     </div>
   </div>
 

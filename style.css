@@ -3983,6 +3983,109 @@ body {
   display: none;
 }
 
+.songbook-filter-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.songbook-filter-row #genre2Tabs {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.song-roulette-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #ffa93c, #ff7a1a);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.song-roulette-modal {
+  max-width: 360px;
+  text-align: left;
+}
+
+.song-roulette-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  border-radius: 12px;
+  background: #f7f1e6;
+}
+
+.song-roulette-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #bbb;
+  flex-shrink: 0;
+}
+
+.song-roulette-status-text {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.song-roulette-status.spinning .song-roulette-status-dot {
+  background: #ff9a3c;
+}
+
+.song-roulette-status.spinning .song-roulette-status-text {
+  color: #ff7a1a;
+}
+
+.song-roulette-status.result .song-roulette-status-dot {
+  background: #3cb46e;
+}
+
+.song-roulette-status.result .song-roulette-status-text {
+  color: #1f8a4d;
+}
+
+.song-roulette-filter-label {
+  margin: 0 0 4px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.song-roulette-filter-value {
+  margin: 0 0 18px;
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+.song-roulette-spin-btn {
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 14px;
+  background: linear-gradient(135deg, #ffb23c, #ff7a1a);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.song-roulette-spin-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 /* Playlist(Live Clip) 전용 레이아웃 - #songbookView로 범위를 좁혀서 노래책/게임 화면엔 영향 없음. 바깥 프레임은 .songbook-view(일정표와 동일) 그대로 두고 안쪽만 흰 테마로 커스텀 */
 #songbookView {
   margin-top: -50px;

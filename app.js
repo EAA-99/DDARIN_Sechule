@@ -3142,6 +3142,51 @@ song2Table.querySelector("thead").addEventListener("click", (e) => {
   renderSongGrid2();
 });
 
+// ===== 노래책 룰렛 =====
+const songRouletteBtn = document.getElementById("songRouletteBtn");
+const songRouletteModalBackdrop = document.getElementById("songRouletteModalBackdrop");
+const songRouletteCloseBtn = document.getElementById("songRouletteCloseBtn");
+const songRouletteStatus = document.getElementById("songRouletteStatus");
+const songRouletteStatusText = document.getElementById("songRouletteStatusText");
+const songRouletteFilterValue = document.getElementById("songRouletteFilterValue");
+const songRouletteSpinBtn = document.getElementById("songRouletteSpinBtn");
+
+function closeSongRouletteModal() {
+  songRouletteModalBackdrop.classList.add("hidden");
+}
+
+songRouletteBtn.addEventListener("click", () => {
+  songRouletteStatus.className = "song-roulette-status";
+  songRouletteStatusText.textContent = "대기 중";
+  songRouletteFilterValue.textContent = songbook2Genre === "전체" ? "장르 없음" : songbook2Genre;
+  songRouletteSpinBtn.disabled = false;
+  songRouletteModalBackdrop.classList.remove("hidden");
+});
+songRouletteCloseBtn.addEventListener("click", closeSongRouletteModal);
+songRouletteModalBackdrop.addEventListener("click", (e) => {
+  if (e.target === songRouletteModalBackdrop) closeSongRouletteModal();
+});
+
+songRouletteSpinBtn.addEventListener("click", () => {
+  const pool = (allSongs || []).filter((s) => songbook2Genre === "전체" || s.genre === songbook2Genre);
+  if (!pool.length) {
+    songRouletteStatus.className = "song-roulette-status";
+    songRouletteStatusText.textContent = "곡이 없습니다";
+    return;
+  }
+
+  songRouletteSpinBtn.disabled = true;
+  songRouletteStatus.className = "song-roulette-status spinning";
+  songRouletteStatusText.textContent = "룰렛 돌리는 중...";
+
+  setTimeout(() => {
+    const song = pool[Math.floor(Math.random() * pool.length)];
+    songRouletteStatus.className = "song-roulette-status result";
+    songRouletteStatusText.textContent = `${song.title} - ${song.artist}`;
+    songRouletteSpinBtn.disabled = false;
+  }, 600);
+});
+
 const songAddBtn = document.getElementById("songAddBtn");
 const songAddModalBackdrop = document.getElementById("songAddModalBackdrop");
 const songAddModalTitle = document.getElementById("songAddModalTitle");
