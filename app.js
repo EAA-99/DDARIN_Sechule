@@ -2396,7 +2396,6 @@ const YOUTUBE_CHANNEL_URLS = {
   shorts: "https://www.youtube.com/channel/UCuROXT7djegOJSyVp1lhx-w",
   longform: "https://www.youtube.com/channel/UC5YFkTsmwnAm__Cvt66BRhA",
 };
-const YOUTUBE_GROUP_LABELS = { shorts: "따린", longform: "세이브따린" };
 let youtubeActiveGroup = "shorts";
 
 function formatTimeAgo(isoDate) {
@@ -2437,7 +2436,7 @@ function renderYoutubeCards() {
     thumbWrap.className = "youtube-card-thumb-wrap";
     const thumb = document.createElement("img");
     thumb.className = "youtube-card-thumb";
-    thumb.src = v.thumbnail;
+    thumb.src = v.thumbnailLarge || v.thumbnail;
     thumb.alt = "";
     thumbWrap.appendChild(thumb);
     if (v.isShorts) {
@@ -2496,10 +2495,11 @@ async function openYoutubeView() {
 document.getElementById("sideNavYoutubeBtn").addEventListener("click", openYoutubeView);
 youtubeBackBtn.addEventListener("click", () => showMainView("calendar"));
 
-youtubeChannelToggle.addEventListener("click", () => {
-  youtubeActiveGroup = youtubeActiveGroup === "shorts" ? "longform" : "shorts";
-  youtubeChannelToggle.textContent = YOUTUBE_GROUP_LABELS[youtubeActiveGroup];
-  youtubeChannelToggle.dataset.group = youtubeActiveGroup;
+youtubeChannelToggle.addEventListener("click", (e) => {
+  const btn = e.target.closest(".youtube-channel-seg");
+  if (!btn) return;
+  youtubeActiveGroup = btn.dataset.group;
+  youtubeChannelToggle.querySelectorAll(".youtube-channel-seg").forEach((el) => el.classList.toggle("active", el === btn));
   youtubeChannelLink.href = YOUTUBE_CHANNEL_URLS[youtubeActiveGroup];
   youtubeCardTrack.scrollLeft = 0;
   renderYoutubeCards();

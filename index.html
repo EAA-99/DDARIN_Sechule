@@ -226,13 +226,10 @@
       </button>
       <span class="back-menu-avatar"></span>
       <span class="back-menu-name">DDARIN</span>
+      <a id="youtubeChannelLink" href="https://www.youtube.com/channel/UCuROXT7djegOJSyVp1lhx-w" target="_blank" rel="noopener" class="youtube-watch-channel-link">채널 바로가기 ↗</a>
     </div>
 
     <div class="youtube-watch-panel">
-      <div class="youtube-watch-header">
-        <a id="youtubeChannelLink" href="https://www.youtube.com/channel/UCuROXT7djegOJSyVp1lhx-w" target="_blank" rel="noopener" class="youtube-watch-channel-link">채널 바로가기 ↗</a>
-      </div>
-
       <a id="youtubeHeroCard" class="youtube-hero-card hidden" target="_blank" rel="noopener">
         <img id="youtubeHeroThumb" class="youtube-hero-thumb" alt="">
         <div class="youtube-hero-overlay">
@@ -245,7 +242,10 @@
       </a>
 
       <div class="youtube-list-controls">
-        <button type="button" id="youtubeChannelToggle" class="youtube-channel-toggle" data-group="shorts">따린</button>
+        <div id="youtubeChannelToggle" class="youtube-channel-toggle">
+          <button type="button" class="youtube-channel-seg active" data-group="shorts">따린</button>
+          <button type="button" class="youtube-channel-seg" data-group="longform">세이브따린</button>
+        </div>
         <div class="youtube-watch-nav">
           <button type="button" id="youtubeCarouselPrevBtn" class="youtube-watch-nav-btn" aria-label="이전">‹</button>
           <button type="button" id="youtubeCarouselNextBtn" class="youtube-watch-nav-btn" aria-label="다음">›</button>

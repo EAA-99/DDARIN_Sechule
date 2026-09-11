@@ -2606,20 +2606,10 @@ body {
 #youtubeView {
   width: 100%;
   max-width: 1500px;
-  background: #0d0d12;
+  background: #fff;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-}
-
-#youtubeView .back-menu-top {
-  border-bottom: 1px solid #232330;
-}
-
-#youtubeView .back-menu-hamburger svg,
-#youtubeView .back-menu-name {
-  color: #fff;
-  stroke: #fff;
 }
 
 .youtube-watch-panel {
@@ -2631,16 +2621,11 @@ body {
   overflow: hidden;
 }
 
-.youtube-watch-header {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 12px;
-}
-
 .youtube-watch-channel-link {
+  flex-shrink: 0;
   font-size: 0.8rem;
   font-weight: 700;
-  color: #6fa8e8;
+  color: #1c6dd0;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -2654,14 +2639,24 @@ body {
 }
 
 .youtube-channel-toggle {
-  border: 1px solid #3a3a48;
-  background: #1c6dd0;
-  color: #fff;
+  display: flex;
   border-radius: 999px;
-  padding: 6px 16px;
+  overflow: hidden;
+}
+
+.youtube-channel-seg {
+  border: none;
+  background: #111a33;
+  color: #fff;
+  padding: 8px 16px;
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
+}
+
+.youtube-channel-seg.active {
+  background: #6ec3f4;
+  color: #0a1f33;
 }
 
 .youtube-watch-nav {
@@ -2673,16 +2668,16 @@ body {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: none;
-  background: #1c1c26;
-  color: #fff;
+  border: 1px solid #eee;
+  background: #f5f6f8;
+  color: #333;
   font-size: 1rem;
   line-height: 1;
   cursor: pointer;
 }
 
 .youtube-watch-nav-btn:hover {
-  background: #29293a;
+  background: #eaeaee;
 }
 
 .youtube-hero-card {
@@ -2693,7 +2688,7 @@ body {
   max-height: 45vh;
   border-radius: 16px;
   overflow: hidden;
-  background: #1c1c26;
+  background: #f0f0f0;
   margin-bottom: 16px;
   flex-shrink: 0;
   text-decoration: none;
@@ -2774,7 +2769,7 @@ body {
   aspect-ratio: 3 / 4;
   border-radius: 12px;
   overflow: hidden;
-  background: #1c1c26;
+  background: #f0f0f0;
 }
 
 .youtube-card-thumb {
@@ -2801,7 +2796,7 @@ body {
   margin: 0;
   font-size: 0.95rem;
   font-weight: 700;
-  color: #fff;
+  color: #1a1a1a;
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -2818,7 +2813,7 @@ body {
 }
 
 .youtube-card-channel {
-  color: #ccc;
+  color: #555;
   font-weight: 700;
 }
 
