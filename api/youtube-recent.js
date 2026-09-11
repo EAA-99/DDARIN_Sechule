@@ -1,7 +1,10 @@
 // 따린(DDARINEE)의 유튜브 채널 두 개.
-// UC5YFkTsmwnAm__Cvt66BRhA = "@DDARINEE"/"@세이브따일" (세이브파일 : 따린, 롱폼)
+// UC5YFkTsmwnAm__Cvt66BRhA = "@DDARINEE"/"@세이브따일" (세이브따린 : 따린, 롱폼)
 // UCuROXT7djegOJSyVp1lhx-w = 따린 DDARIN (쇼츠)
-const CHANNEL_IDS = ["UC5YFkTsmwnAm__Cvt66BRhA", "UCuROXT7djegOJSyVp1lhx-w"];
+const CHANNELS = [
+  { id: "UC5YFkTsmwnAm__Cvt66BRhA", group: "longform", label: "세이브따린" },
+  { id: "UCuROXT7djegOJSyVp1lhx-w", group: "shorts", label: "따린" },
+];
 const API_KEY = process.env.YOUTUBE_API_KEY;
 
 export default async function handler(req, res) {
@@ -9,8 +12,8 @@ export default async function handler(req, res) {
 
   const results = [];
   try {
-    for (const channelId of CHANNEL_IDS) {
-      const uploadsPlaylistId = "UU" + channelId.slice(2);
+    for (const channel of CHANNELS) {
+      const uploadsPlaylistId = "UU" + channel.id.slice(2);
       const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&maxResults=15&key=${API_KEY}`;
       const r = await fetch(url);
       if (!r.ok) continue;
@@ -29,6 +32,10 @@ export default async function handler(req, res) {
           thumbnail:
             (s.thumbnails && (s.thumbnails.medium || s.thumbnails.default || {}).url) ||
             `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+          channelId: channel.id,
+          group: channel.group,
+          channelLabel: channel.label,
+          isShorts: channel.group === "shorts",
         });
       }
     }

@@ -1619,6 +1619,7 @@ function showMainView(view) {
   cafePhotosView.classList.toggle("hidden", view !== "cafephotos");
   soopChatView.classList.toggle("hidden", view !== "soopchat");
   soopChatDayView.classList.toggle("hidden", view !== "soopchatday");
+  youtubeView.classList.toggle("hidden", view !== "youtube");
 
   if (view === "songbook") applyHomeMatchedHeight(songbookView);
   if (view === "cafephotos") applyHomeMatchedHeight(cafePhotosView);
@@ -1632,7 +1633,8 @@ function showMainView(view) {
       view === "songbook2" ||
       view === "songbookgw" ||
       view === "soopchat" ||
-      view === "soopchatday"
+      view === "soopchatday" ||
+      view === "youtube"
   );
   backToCalendarBtn.classList.toggle(
     "hidden",
@@ -1641,7 +1643,8 @@ function showMainView(view) {
       view === "songbook" ||
       view === "calendar" ||
       view === "soopchat" ||
-      view === "soopchatday"
+      view === "soopchatday" ||
+      view === "youtube"
   );
 
   if (currentMainView === "backmenu" && view !== "backmenu") {
@@ -2349,28 +2352,143 @@ todayMemoModalBackdrop.addEventListener("click", (e) => {
 });
 
 const YOUTUBE_RECENT_API_URL = "/api/youtube-recent";
+let youtubeRecentVideos = null;
+
+async function loadYoutubeRecentVideos() {
+  if (youtubeRecentVideos) return youtubeRecentVideos;
+  try {
+    const res = await fetch(YOUTUBE_RECENT_API_URL);
+    youtubeRecentVideos = res.ok ? await res.json() : [];
+  } catch {
+    youtubeRecentVideos = [];
+  }
+  return youtubeRecentVideos;
+}
 
 // ===== 일정표 좌측 유튜브 아이콘 새 영상 알림 점 =====
 const YOUTUBE_SIDEBAR_SEEN_KEY = "sidebar-youtube-seen-until";
 const sideNavYoutubeBadge = document.getElementById("sideNavYoutubeBadge");
 
 async function refreshYoutubeSidebarBadge() {
-  try {
-    const res = await fetch(YOUTUBE_RECENT_API_URL);
-    const videos = res.ok ? await res.json() : [];
-    const latest = (videos || [])[0];
-    const seenUntil = localStorage.getItem(YOUTUBE_SIDEBAR_SEEN_KEY) || "";
-    sideNavYoutubeBadge.classList.toggle("hidden", !latest || latest.published <= seenUntil);
-  } catch {
-    // 실패 시 배지 상태 유지
-  }
+  const videos = await loadYoutubeRecentVideos();
+  const latest = (videos || [])[0];
+  const seenUntil = localStorage.getItem(YOUTUBE_SIDEBAR_SEEN_KEY) || "";
+  sideNavYoutubeBadge.classList.toggle("hidden", !latest || latest.published <= seenUntil);
 }
 
 refreshYoutubeSidebarBadge();
+// ================================================
 
-document.getElementById("sideNavYoutubeBtn").addEventListener("click", () => {
+// ===== 유튜브 업로드(WATCH) 화면 =====
+const youtubeView = document.getElementById("youtubeView");
+const youtubeBackBtn = document.getElementById("youtubeBackBtn");
+const youtubeTabs = document.getElementById("youtubeTabs");
+const youtubeCardTrack = document.getElementById("youtubeCardTrack");
+const youtubeCarouselPrevBtn = document.getElementById("youtubeCarouselPrevBtn");
+const youtubeCarouselNextBtn = document.getElementById("youtubeCarouselNextBtn");
+const youtubeLastCheckedLabel = document.getElementById("youtubeLastCheckedLabel");
+const youtubeChannelLink = document.getElementById("youtubeChannelLink");
+const YOUTUBE_CHANNEL_URLS = {
+  shorts: "https://www.youtube.com/channel/UCuROXT7djegOJSyVp1lhx-w",
+  longform: "https://www.youtube.com/channel/UC5YFkTsmwnAm__Cvt66BRhA",
+};
+let youtubeActiveGroup = "shorts";
+
+function formatTimeAgo(isoDate) {
+  const diffMs = Date.now() - new Date(isoDate).getTime();
+  const minutes = Math.floor(diffMs / 60000);
+  if (minutes < 60) return `${Math.max(minutes, 0)}분 전`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}시간 전`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}일 전`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5) return `${weeks}주 전`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}개월 전`;
+  return `${Math.floor(days / 365)}년 전`;
+}
+
+function renderYoutubeCards() {
+  const videos = (youtubeRecentVideos || []).filter((v) => v.group === youtubeActiveGroup);
+  youtubeCardTrack.innerHTML = "";
+
+  if (!videos.length) {
+    const empty = document.createElement("p");
+    empty.className = "youtube-card-empty";
+    empty.textContent = "업로드된 영상이 없습니다.";
+    youtubeCardTrack.appendChild(empty);
+    return;
+  }
+
+  videos.forEach((v) => {
+    const card = document.createElement("a");
+    card.className = "youtube-card";
+    card.href = v.url;
+    card.target = "_blank";
+    card.rel = "noopener";
+
+    const thumbWrap = document.createElement("div");
+    thumbWrap.className = "youtube-card-thumb-wrap";
+    const thumb = document.createElement("img");
+    thumb.className = "youtube-card-thumb";
+    thumb.src = v.thumbnail;
+    thumb.alt = "";
+    thumbWrap.appendChild(thumb);
+    if (v.isShorts) {
+      const badge = document.createElement("span");
+      badge.className = "youtube-card-shorts-badge";
+      badge.textContent = "SHORTS";
+      thumbWrap.appendChild(badge);
+    }
+
+    const title = document.createElement("p");
+    title.className = "youtube-card-title";
+    title.textContent = v.title;
+
+    const meta = document.createElement("div");
+    meta.className = "youtube-card-meta";
+    const channel = document.createElement("span");
+    channel.className = "youtube-card-channel";
+    channel.textContent = v.channelLabel;
+    const time = document.createElement("span");
+    time.textContent = formatTimeAgo(v.published);
+    meta.append(channel, time);
+
+    card.append(thumbWrap, title, meta);
+    youtubeCardTrack.appendChild(card);
+  });
+}
+
+async function openYoutubeView() {
+  const seenUntil = localStorage.getItem(YOUTUBE_SIDEBAR_SEEN_KEY);
+  youtubeLastCheckedLabel.textContent = seenUntil ? `최근 확인 ${formatTimeAgo(seenUntil)}` : "";
   localStorage.setItem(YOUTUBE_SIDEBAR_SEEN_KEY, new Date().toISOString());
   sideNavYoutubeBadge.classList.add("hidden");
+
+  showMainView("youtube");
+  await loadYoutubeRecentVideos();
+  renderYoutubeCards();
+}
+
+document.getElementById("sideNavYoutubeBtn").addEventListener("click", openYoutubeView);
+youtubeBackBtn.addEventListener("click", () => showMainView("calendar"));
+
+youtubeTabs.addEventListener("click", (e) => {
+  const btn = e.target.closest(".youtube-watch-tab");
+  if (!btn) return;
+  youtubeActiveGroup = btn.dataset.group;
+  youtubeTabs.querySelectorAll(".youtube-watch-tab").forEach((el) => el.classList.toggle("active", el === btn));
+  youtubeChannelLink.href = YOUTUBE_CHANNEL_URLS[youtubeActiveGroup];
+  youtubeCardTrack.scrollLeft = 0;
+  renderYoutubeCards();
+});
+
+youtubeCarouselPrevBtn.addEventListener("click", () => {
+  youtubeCardTrack.scrollBy({ left: -320, behavior: "smooth" });
+});
+youtubeCarouselNextBtn.addEventListener("click", () => {
+  youtubeCardTrack.scrollBy({ left: 320, behavior: "smooth" });
 });
 // ================================================
 
@@ -4174,6 +4292,12 @@ function editEvent(idx) {
 
 colorPickerBtn.addEventListener("click", (e) => {
   e.stopPropagation();
+  if (colorPickerList.classList.contains("hidden")) {
+    const rect = colorPickerBtn.getBoundingClientRect();
+    colorPickerList.style.top = `${rect.bottom + 4}px`;
+    colorPickerList.style.left = `${rect.left}px`;
+    colorPickerList.style.width = `${rect.width}px`;
+  }
   colorPickerList.classList.toggle("hidden");
 });
 

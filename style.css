@@ -2444,11 +2444,8 @@ body {
 }
 
 .color-picker-list {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  z-index: 50;
+  position: fixed;
+  z-index: 150;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -2603,6 +2600,222 @@ body {
 
 .soop-chat-day-list::-webkit-scrollbar {
   display: none;
+}
+
+/* ===== 유튜브 업로드(WATCH) 화면 ===== */
+#youtubeView {
+  background: #0d0d12;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+#youtubeView .back-menu-top {
+  border-bottom: 1px solid #232330;
+}
+
+#youtubeView .back-menu-hamburger svg,
+#youtubeView .back-menu-name {
+  color: #fff;
+  stroke: #fff;
+}
+
+.youtube-watch-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 16px;
+  overflow: hidden;
+}
+
+.youtube-watch-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin-bottom: 16px;
+}
+
+.youtube-watch-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.youtube-watch-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #f5a623;
+}
+
+.youtube-watch-heading h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #fff;
+}
+
+.youtube-watch-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.youtube-watch-seen {
+  font-size: 0.75rem;
+  color: #777;
+  white-space: nowrap;
+}
+
+.youtube-watch-channel-link {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #6fa8e8;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.youtube-watch-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.youtube-watch-tab {
+  border: 1px solid #3a3a48;
+  background: none;
+  color: #ccc;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.youtube-watch-tab.active {
+  border-color: #1c6dd0;
+  background: #1c6dd0;
+  color: #fff;
+}
+
+.youtube-watch-nav {
+  display: flex;
+  gap: 6px;
+}
+
+.youtube-watch-nav-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: #1c1c26;
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.youtube-watch-nav-btn:hover {
+  background: #29293a;
+}
+
+.youtube-card-track {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.youtube-card-track::-webkit-scrollbar {
+  display: none;
+}
+
+.youtube-card {
+  flex-shrink: 0;
+  width: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.youtube-card-thumb-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #1c1c26;
+}
+
+.youtube-card-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.youtube-card-shorts-badge {
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  background: #f5c518;
+  color: #1a1a1a;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.youtube-card-title {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.youtube-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: #888;
+}
+
+.youtube-card-channel {
+  color: #ccc;
+  font-weight: 700;
+}
+
+.youtube-card-empty {
+  color: #777;
+  font-size: 0.85rem;
+  padding: 20px 0;
+}
+
+@media (max-width: 900px) {
+  #youtubeView {
+    height: calc(100dvh - 40px);
+  }
+
+  .youtube-card {
+    width: 130px;
+  }
 }
 
 .soop-chat-bubble-row {
