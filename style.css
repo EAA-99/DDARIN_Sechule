@@ -3922,6 +3922,7 @@ body {
 .song2-table {
   width: 100%;
   min-width: 480px;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 0.88rem;
 }
@@ -4003,18 +4004,22 @@ body {
 }
 
 .song2-col-title {
+  width: 40%;
   font-weight: 700;
-  max-width: 260px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .song2-col-artist {
-  max-width: 160px;
+  width: 25%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.song2-col-genre {
+  width: 25%;
 }
 
 .song2-col-fav,

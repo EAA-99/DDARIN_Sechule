@@ -3311,14 +3311,19 @@ songRouletteSpinBtn.addEventListener("click", () => {
 
   songRouletteSpinBtn.disabled = true;
   songRouletteStatus.className = "song-roulette-status spinning";
-  songRouletteStatusText.textContent = "룰렛 돌리는 중...";
+
+  const spinInterval = setInterval(() => {
+    const s = pool[Math.floor(Math.random() * pool.length)];
+    songRouletteStatusText.textContent = `${s.title} - ${s.artist}`;
+  }, 80);
 
   setTimeout(() => {
+    clearInterval(spinInterval);
     const song = pool[Math.floor(Math.random() * pool.length)];
     songRouletteStatus.className = "song-roulette-status result";
     songRouletteStatusText.textContent = `${song.title} - ${song.artist}`;
     songRouletteSpinBtn.disabled = false;
-  }, 600);
+  }, 3000);
 });
 
 const songAddBtn = document.getElementById("songAddBtn");
