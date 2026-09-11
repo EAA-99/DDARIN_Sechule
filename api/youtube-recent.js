@@ -7,6 +7,29 @@ const CHANNELS = [
 ];
 const API_KEY = process.env.YOUTUBE_API_KEY;
 
+// "PT1M5S" 같은 ISO8601 duration을 초로 변환
+function parseDurationSeconds(iso) {
+  const m = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/.exec(iso || "");
+  if (!m) return null;
+  const [, h, min, s] = m;
+  return (Number(h) || 0) * 3600 + (Number(min) || 0) * 60 + (Number(s) || 0);
+}
+
+async function fetchDurations(videoIds) {
+  const durations = {};
+  for (let i = 0; i < videoIds.length; i += 50) {
+    const batch = videoIds.slice(i, i + 50);
+    const url = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${batch.join(",")}&key=${API_KEY}`;
+    const r = await fetch(url);
+    if (!r.ok) continue;
+    const data = await r.json();
+    for (const item of data.items || []) {
+      durations[item.id] = parseDurationSeconds(item.contentDetails && item.contentDetails.duration);
+    }
+  }
+  return durations;
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json");
 
@@ -38,10 +61,15 @@ export default async function handler(req, res) {
           channelId: channel.id,
           group: channel.group,
           channelLabel: channel.label,
-          isShorts: channel.group === "shorts",
         });
       }
     }
+
+    const durations = await fetchDurations(results.map((v) => v.id));
+    results.forEach((v) => {
+      const seconds = durations[v.id];
+      v.isShorts = seconds != null ? seconds <= 60 : v.group === "shorts";
+    });
   } catch {
     // results가 비어있는 채로 반환
   }

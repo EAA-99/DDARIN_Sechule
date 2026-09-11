@@ -230,22 +230,7 @@
 
     <div class="youtube-watch-panel">
       <div class="youtube-watch-header">
-        <div class="youtube-watch-heading">
-          <span class="youtube-watch-eyebrow">WATCH</span>
-          <h2>유튜브 업로드</h2>
-        </div>
-        <div class="youtube-watch-controls">
-          <span id="youtubeLastCheckedLabel" class="youtube-watch-seen"></span>
-          <a id="youtubeChannelLink" href="https://www.youtube.com/channel/UCuROXT7djegOJSyVp1lhx-w" target="_blank" rel="noopener" class="youtube-watch-channel-link">채널 바로가기 ↗</a>
-          <div id="youtubeTabs" class="youtube-watch-tabs">
-            <button type="button" class="youtube-watch-tab active" data-group="shorts">따린</button>
-            <button type="button" class="youtube-watch-tab" data-group="longform">세이브따린</button>
-          </div>
-          <div class="youtube-watch-nav">
-            <button type="button" id="youtubeCarouselPrevBtn" class="youtube-watch-nav-btn" aria-label="이전">‹</button>
-            <button type="button" id="youtubeCarouselNextBtn" class="youtube-watch-nav-btn" aria-label="다음">›</button>
-          </div>
-        </div>
+        <a id="youtubeChannelLink" href="https://www.youtube.com/channel/UCuROXT7djegOJSyVp1lhx-w" target="_blank" rel="noopener" class="youtube-watch-channel-link">채널 바로가기 ↗</a>
       </div>
 
       <a id="youtubeHeroCard" class="youtube-hero-card hidden" target="_blank" rel="noopener">
@@ -258,6 +243,14 @@
           </div>
         </div>
       </a>
+
+      <div class="youtube-list-controls">
+        <button type="button" id="youtubeChannelToggle" class="youtube-channel-toggle" data-group="shorts">따린</button>
+        <div class="youtube-watch-nav">
+          <button type="button" id="youtubeCarouselPrevBtn" class="youtube-watch-nav-btn" aria-label="이전">‹</button>
+          <button type="button" id="youtubeCarouselNextBtn" class="youtube-watch-nav-btn" aria-label="다음">›</button>
+        </div>
+      </div>
 
       <div id="youtubeCardTrack" class="youtube-card-track"></div>
     </div>

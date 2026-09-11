@@ -2382,11 +2382,10 @@ refreshYoutubeSidebarBadge();
 // ===== 유튜브 업로드(WATCH) 화면 =====
 const youtubeView = document.getElementById("youtubeView");
 const youtubeBackBtn = document.getElementById("youtubeBackBtn");
-const youtubeTabs = document.getElementById("youtubeTabs");
+const youtubeChannelToggle = document.getElementById("youtubeChannelToggle");
 const youtubeCardTrack = document.getElementById("youtubeCardTrack");
 const youtubeCarouselPrevBtn = document.getElementById("youtubeCarouselPrevBtn");
 const youtubeCarouselNextBtn = document.getElementById("youtubeCarouselNextBtn");
-const youtubeLastCheckedLabel = document.getElementById("youtubeLastCheckedLabel");
 const youtubeChannelLink = document.getElementById("youtubeChannelLink");
 const youtubeHeroCard = document.getElementById("youtubeHeroCard");
 const youtubeHeroThumb = document.getElementById("youtubeHeroThumb");
@@ -2397,6 +2396,7 @@ const YOUTUBE_CHANNEL_URLS = {
   shorts: "https://www.youtube.com/channel/UCuROXT7djegOJSyVp1lhx-w",
   longform: "https://www.youtube.com/channel/UC5YFkTsmwnAm__Cvt66BRhA",
 };
+const YOUTUBE_GROUP_LABELS = { shorts: "따린", longform: "세이브따린" };
 let youtubeActiveGroup = "shorts";
 
 function formatTimeAgo(isoDate) {
@@ -2484,8 +2484,6 @@ function renderYoutubeHero() {
 }
 
 async function openYoutubeView() {
-  const seenUntil = localStorage.getItem(YOUTUBE_SIDEBAR_SEEN_KEY);
-  youtubeLastCheckedLabel.textContent = seenUntil ? `최근 확인 ${formatTimeAgo(seenUntil)}` : "";
   localStorage.setItem(YOUTUBE_SIDEBAR_SEEN_KEY, new Date().toISOString());
   sideNavYoutubeBadge.classList.add("hidden");
 
@@ -2498,11 +2496,10 @@ async function openYoutubeView() {
 document.getElementById("sideNavYoutubeBtn").addEventListener("click", openYoutubeView);
 youtubeBackBtn.addEventListener("click", () => showMainView("calendar"));
 
-youtubeTabs.addEventListener("click", (e) => {
-  const btn = e.target.closest(".youtube-watch-tab");
-  if (!btn) return;
-  youtubeActiveGroup = btn.dataset.group;
-  youtubeTabs.querySelectorAll(".youtube-watch-tab").forEach((el) => el.classList.toggle("active", el === btn));
+youtubeChannelToggle.addEventListener("click", () => {
+  youtubeActiveGroup = youtubeActiveGroup === "shorts" ? "longform" : "shorts";
+  youtubeChannelToggle.textContent = YOUTUBE_GROUP_LABELS[youtubeActiveGroup];
+  youtubeChannelToggle.dataset.group = youtubeActiveGroup;
   youtubeChannelLink.href = YOUTUBE_CHANNEL_URLS[youtubeActiveGroup];
   youtubeCardTrack.scrollLeft = 0;
   renderYoutubeCards();
