@@ -426,6 +426,9 @@ body {
 
 .calendar-post-menu {
   display: flex;
+  position: relative;
+  top: 5px;
+  left: -10px;
   border: none;
   background: none;
   padding: 0;
@@ -2448,8 +2451,6 @@ body {
   border: 1px solid #ddd;
   border-radius: 10px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  max-height: 220px;
-  overflow-y: auto;
 }
 
 .color-picker-option {
@@ -3035,12 +3036,16 @@ body {
 
 .song-gear-btn {
   flex-shrink: 0;
-  width: 34px;
   height: 34px;
+  padding: 0 14px;
   border: 1px solid #eee;
-  border-radius: 50%;
+  border-radius: 999px;
   background: #fff;
-  font-size: 1rem;
+  color: #333;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -4118,9 +4123,14 @@ body {
 }
 
 .song-roulette-status-text {
+  flex: 1;
+  min-width: 0;
   font-weight: 700;
   font-size: 0.95rem;
   color: #444;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .song-roulette-status.spinning .song-roulette-status-dot {
