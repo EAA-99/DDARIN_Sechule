@@ -1620,6 +1620,7 @@ function showMainView(view) {
   soopChatView.classList.toggle("hidden", view !== "soopchat");
   soopChatDayView.classList.toggle("hidden", view !== "soopchatday");
   youtubeView.classList.toggle("hidden", view !== "youtube");
+  document.body.classList.toggle("youtube-view-open", view === "youtube");
 
   if (view === "songbook") applyHomeMatchedHeight(songbookView);
   if (view === "cafephotos") applyHomeMatchedHeight(cafePhotosView);

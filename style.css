@@ -2612,6 +2612,12 @@ body {
   flex-direction: column;
 }
 
+body.youtube-view-open {
+  overflow: hidden;
+  height: 100dvh;
+  overscroll-behavior: none;
+}
+
 .youtube-watch-panel {
   flex: 1;
   min-height: 0;
@@ -2640,7 +2646,7 @@ body {
 
 .youtube-channel-toggle {
   display: flex;
-  width: 220px;
+  width: 160px;
   border-radius: 999px;
   overflow: hidden;
 }
@@ -2650,9 +2656,9 @@ body {
   border: none;
   background: #111a33;
   color: #fff;
-  padding: 8px 10px;
+  padding: 5px 8px;
   text-align: center;
-  font-size: 0.85rem;
+  font-size: 0.72rem;
   font-weight: 700;
   cursor: pointer;
 }
