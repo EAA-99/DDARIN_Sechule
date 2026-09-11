@@ -2455,7 +2455,7 @@ function renderYoutubeCards() {
     meta.className = "youtube-card-meta";
     const channel = document.createElement("span");
     channel.className = "youtube-card-channel";
-    channel.textContent = v.channelLabel;
+    channel.textContent = v.isShorts ? "Shorts" : "Full";
     const time = document.createElement("span");
     time.textContent = formatTimeAgo(v.published);
     meta.append(channel, time);
@@ -2473,9 +2473,13 @@ function renderYoutubeHero() {
   }
   youtubeHeroCard.classList.remove("hidden");
   youtubeHeroCard.href = latest.url;
-  youtubeHeroThumb.src = latest.thumbnailLarge || latest.thumbnail;
+  youtubeHeroThumb.onerror = () => {
+    youtubeHeroThumb.onerror = null;
+    youtubeHeroThumb.src = latest.thumbnailLarge || latest.thumbnail;
+  };
+  youtubeHeroThumb.src = `https://i.ytimg.com/vi/${latest.id}/maxresdefault.jpg`;
   youtubeHeroTitle.textContent = latest.title;
-  youtubeHeroChannel.textContent = latest.channelLabel;
+  youtubeHeroChannel.textContent = latest.isShorts ? "Shorts" : "Full";
   youtubeHeroTime.textContent = formatTimeAgo(latest.published);
 }
 
