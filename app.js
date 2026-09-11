@@ -1862,7 +1862,7 @@ document.getElementById("backMenuCalendarBtn").addEventListener("click", () => {
     hideBackMenuCalendar();
   }
 });
-document.getElementById("backMenuSongbookBtn").addEventListener("click", openSongbook2);
+document.getElementById("backMenuSongbookBtn").addEventListener("click", openSongbook2Table);
 document.getElementById("backMenuPlaylistBtn").addEventListener("click", openSongbook);
 document.getElementById("backMenuMailBtn").addEventListener("click", () => showMainView("soopchat"));
 document.getElementById("backMenuNavHomeBtn").addEventListener("click", () => showMainView("backmenu"));
@@ -1907,7 +1907,7 @@ function wireNavMenu(prefix, hamburgerId, menuId) {
     switchCafePhotosTab(cafePhotosTabEls[0], { menuId: "27", titleContains: "" });
     showMainView("cafephotos");
   });
-  document.getElementById(`${prefix}SongbookBtn`).addEventListener("click", openSongbook2);
+  document.getElementById(`${prefix}SongbookBtn`).addEventListener("click", openSongbook2Table);
   document.getElementById(`${prefix}MailBtn`).addEventListener("click", () => showMainView("soopchat"));
 }
 
@@ -3049,9 +3049,22 @@ document.getElementById("soopChatDayBackBtn").addEventListener("click", () => sh
 
 memoBtn.addEventListener("click", openMemoPanel);
 
-calendarPostMenuBtn.addEventListener("click", () => {
-  sideNavEl.classList.toggle("side-nav-open");
-});
+async function hardRefreshApp() {
+  try {
+    if ("serviceWorker" in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map((reg) => reg.unregister()));
+    }
+    if (window.caches) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((key) => caches.delete(key)));
+    }
+  } finally {
+    location.reload();
+  }
+}
+
+calendarPostMenuBtn.addEventListener("click", hardRefreshApp);
 
 // ===== 일정 검색 (이전 달 포함 전체 일정에서 제목 검색) =====
 const scheduleSearchBtn = document.getElementById("scheduleSearchBtn");

@@ -425,6 +425,10 @@ body {
 }
 
 .calendar-post-menu {
+  display: flex;
+  border: none;
+  background: none;
+  padding: 0;
   color: #999;
   font-weight: 700;
   flex-shrink: 0;
