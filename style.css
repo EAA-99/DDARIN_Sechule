@@ -63,6 +63,12 @@
     flex: 1;
     min-height: 0;
   }
+
+  .soop-chat-day-list {
+    aspect-ratio: unset;
+    flex: 1;
+    min-height: 0;
+  }
 }
 
 .back-menu-top {
@@ -3056,6 +3062,24 @@ body {
   background: #f5f5f5;
 }
 
+.song-request-btn {
+  flex-shrink: 0;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid #eee;
+  border-radius: 999px;
+  background: #fff;
+  color: #333;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.song-request-btn:hover {
+  background: #f5f5f5;
+}
+
 .song-manage-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -3284,6 +3308,12 @@ body {
 .songbook-header h1 {
   font-size: 1.6rem;
   margin: 0;
+}
+
+.songbook-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .songbook-body {
@@ -4125,6 +4155,8 @@ body {
 .song-roulette-status-text {
   flex: 1;
   min-width: 0;
+  height: 22px;
+  line-height: 22px;
   font-weight: 700;
   font-size: 0.95rem;
   color: #444;
