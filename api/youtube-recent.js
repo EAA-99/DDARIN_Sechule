@@ -32,6 +32,9 @@ export default async function handler(req, res) {
           thumbnail:
             (s.thumbnails && (s.thumbnails.medium || s.thumbnails.default || {}).url) ||
             `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+          thumbnailLarge:
+            (s.thumbnails && (s.thumbnails.high || s.thumbnails.standard || {}).url) ||
+            `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
           channelId: channel.id,
           group: channel.group,
           channelLabel: channel.label,

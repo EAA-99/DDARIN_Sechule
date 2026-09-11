@@ -2388,6 +2388,11 @@ const youtubeCarouselPrevBtn = document.getElementById("youtubeCarouselPrevBtn")
 const youtubeCarouselNextBtn = document.getElementById("youtubeCarouselNextBtn");
 const youtubeLastCheckedLabel = document.getElementById("youtubeLastCheckedLabel");
 const youtubeChannelLink = document.getElementById("youtubeChannelLink");
+const youtubeHeroCard = document.getElementById("youtubeHeroCard");
+const youtubeHeroThumb = document.getElementById("youtubeHeroThumb");
+const youtubeHeroTitle = document.getElementById("youtubeHeroTitle");
+const youtubeHeroChannel = document.getElementById("youtubeHeroChannel");
+const youtubeHeroTime = document.getElementById("youtubeHeroTime");
 const YOUTUBE_CHANNEL_URLS = {
   shorts: "https://www.youtube.com/channel/UCuROXT7djegOJSyVp1lhx-w",
   longform: "https://www.youtube.com/channel/UC5YFkTsmwnAm__Cvt66BRhA",
@@ -2460,6 +2465,20 @@ function renderYoutubeCards() {
   });
 }
 
+function renderYoutubeHero() {
+  const latest = (youtubeRecentVideos || [])[0];
+  if (!latest) {
+    youtubeHeroCard.classList.add("hidden");
+    return;
+  }
+  youtubeHeroCard.classList.remove("hidden");
+  youtubeHeroCard.href = latest.url;
+  youtubeHeroThumb.src = latest.thumbnailLarge || latest.thumbnail;
+  youtubeHeroTitle.textContent = latest.title;
+  youtubeHeroChannel.textContent = latest.channelLabel;
+  youtubeHeroTime.textContent = formatTimeAgo(latest.published);
+}
+
 async function openYoutubeView() {
   const seenUntil = localStorage.getItem(YOUTUBE_SIDEBAR_SEEN_KEY);
   youtubeLastCheckedLabel.textContent = seenUntil ? `최근 확인 ${formatTimeAgo(seenUntil)}` : "";
@@ -2468,6 +2487,7 @@ async function openYoutubeView() {
 
   showMainView("youtube");
   await loadYoutubeRecentVideos();
+  renderYoutubeHero();
   renderYoutubeCards();
 }
 
