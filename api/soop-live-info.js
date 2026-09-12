@@ -1,4 +1,4 @@
-const STREAMER_ID = "insome0319";
+const STREAMER_ID = "gkarnfud2"; // TODO: 테스트 끝나면 "insome0319"로 되돌리기
 
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json");
