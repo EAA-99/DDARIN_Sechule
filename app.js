@@ -377,6 +377,7 @@ function handleSoopPacket(ws, info, packet) {
   const bodyStart = packet.length > 15 ? 15 : 14;
   const body = packet.length > bodyStart ? packet.slice(bodyStart) : "";
   const parts = body.split(SOOP_FS);
+  console.log("[신청곡] serviceCommand =", serviceCommand, "parts =", parts);
 
   if (serviceCommand === 1) {
     ws.send(buildSoopPacket(2, buildSoopJoinBody(info)));
@@ -425,7 +426,9 @@ async function startSongRequestCollection() {
   try {
     const res = await fetch("/api/soop-live-info");
     info = await res.json();
-  } catch {
+    console.log("[신청곡] soop-live-info 응답:", info);
+  } catch (err) {
+    console.error("[신청곡] soop-live-info 요청 실패:", err);
     setSongRequestChatStatus("연결 실패", "error");
     return;
   }
@@ -437,27 +440,34 @@ async function startSongRequestCollection() {
   }
 
   try {
-    const ws = new WebSocket(`wss://${info.host.toLowerCase()}:${info.port}/Websocket/${info.bjid}`);
+    const wsUrl = `wss://${info.host.toLowerCase()}:${info.port}/Websocket/${info.bjid}`;
+    console.log("[신청곡] 웹소켓 접속 시도:", wsUrl);
+    const ws = new WebSocket(wsUrl);
     soopChatSocket = ws;
     ws.binaryType = "arraybuffer";
 
     ws.addEventListener("open", () => {
+      console.log("[신청곡] 웹소켓 열림, CmdConnect 전송");
       ws.send(SOOP_CMD_CONNECT);
     });
     ws.addEventListener("message", (e) => {
       const text = typeof e.data === "string" ? e.data : new TextDecoder("utf-8").decode(new Uint8Array(e.data));
+      console.log("[신청곡] 패킷 수신:", JSON.stringify(text));
       handleSoopPacket(ws, info, text);
     });
-    ws.addEventListener("close", () => {
+    ws.addEventListener("close", (e) => {
+      console.warn("[신청곡] 웹소켓 닫힘:", e.code, e.reason);
       if (soopChatSocket === ws) {
         soopChatSocket = null;
         if (getSongRequestActiveSource()) setSongRequestChatStatus("연결 끊김", "error");
       }
     });
-    ws.addEventListener("error", () => {
+    ws.addEventListener("error", (e) => {
+      console.error("[신청곡] 웹소켓 오류:", e);
       setSongRequestChatStatus("연결 오류", "error");
     });
-  } catch {
+  } catch (err) {
+    console.error("[신청곡] 웹소켓 생성 실패:", err);
     setSongRequestChatStatus("연결 실패", "error");
   }
 }
