@@ -273,6 +273,45 @@ favorites2ModalBackdrop.addEventListener("click", (e) => {
   if (e.target === favorites2ModalBackdrop) closeFavorites2Modal();
 });
 
+// ===== 노래 신청 팝업 =====
+const songRequestOpenBtn = document.getElementById("songRequestOpenBtn");
+const songRequestModalBackdrop = document.getElementById("songRequestModalBackdrop");
+const songRequestCloseBtn = document.getElementById("songRequestCloseBtn");
+const songRequestAcceptToggle = document.getElementById("songRequestAcceptToggle");
+const songRequestOffNotice = document.getElementById("songRequestOffNotice");
+
+function closeSongRequestModal() {
+  songRequestModalBackdrop.classList.add("hidden");
+}
+
+songRequestOpenBtn.addEventListener("click", () => {
+  songRequestModalBackdrop.classList.remove("hidden");
+});
+songRequestCloseBtn.addEventListener("click", closeSongRequestModal);
+songRequestModalBackdrop.addEventListener("click", (e) => {
+  if (e.target === songRequestModalBackdrop) closeSongRequestModal();
+});
+
+document.querySelectorAll(".song-request-segmented").forEach((group) => {
+  group.addEventListener("click", (e) => {
+    const btn = e.target.closest(".song-request-seg");
+    if (!btn) return;
+    group.querySelectorAll(".song-request-seg").forEach((el) => el.classList.toggle("active", el === btn));
+  });
+});
+
+document.querySelector(".song-request-sort-tabs").addEventListener("click", (e) => {
+  const btn = e.target.closest(".song-request-sort-tab");
+  if (!btn) return;
+  document.querySelectorAll(".song-request-sort-tab").forEach((el) => el.classList.toggle("active", el === btn));
+});
+
+songRequestAcceptToggle.addEventListener("click", () => {
+  const isOn = songRequestAcceptToggle.getAttribute("aria-pressed") === "true";
+  songRequestAcceptToggle.setAttribute("aria-pressed", String(!isOn));
+  songRequestOffNotice.classList.toggle("hidden", !isOn);
+});
+
 const singQueueListEl = document.getElementById("singQueueList");
 const songManageBtn = document.getElementById("songManageBtn");
 const songManageToolbar = document.getElementById("songManageToolbar");
