@@ -3506,6 +3506,22 @@ body.youtube-view-open {
   background: #d99a1a;
 }
 
+.song-request-chat-status.is-live {
+  color: #1f8a4d;
+}
+
+.song-request-chat-status.is-live .song-request-chat-status-dot {
+  background: #1f8a4d;
+}
+
+.song-request-chat-status.is-error {
+  color: #c0392b;
+}
+
+.song-request-chat-status.is-error .song-request-chat-status-dot {
+  background: #c0392b;
+}
+
 .song-request-star-filter {
   display: flex;
   align-items: center;

@@ -279,6 +279,7 @@ const songRequestModalBackdrop = document.getElementById("songRequestModalBackdr
 const songRequestCloseBtn = document.getElementById("songRequestCloseBtn");
 const songRequestAcceptToggle = document.getElementById("songRequestAcceptToggle");
 const songRequestOffNotice = document.getElementById("songRequestOffNotice");
+const songRequestChatStatus = document.getElementById("songRequestChatStatus");
 
 function closeSongRequestModal() {
   songRequestModalBackdrop.classList.add("hidden");
@@ -298,10 +299,163 @@ document.querySelector(".song-request-sort-tabs").addEventListener("click", (e) 
   document.querySelectorAll(".song-request-sort-tab").forEach((el) => el.classList.toggle("active", el === btn));
 });
 
+// ===== SOOP 채팅에 직접 접속해서 "!신청 제목 - 가수" 메시지를 수집 =====
+// 프로토콜은 https://github.com/Gyeon-ai/- (DanPinball) 참고. 비공식/역공학된 프로토콜이라
+// SOOP 쪽 변경에 취약할 수 있음.
+const SOOP_FS = "";
+const SOOP_CMD_CONNECT = "	00010000060016";
+let soopChatSocket = null;
+
+function parseSongRequestMessage(text) {
+  const m = /^!신청\s+(.+?)\s*-\s*(.+)$/.exec(String(text || "").trim());
+  if (!m) return null;
+  return { title: m[1].trim(), artist: m[2].trim() };
+}
+
+function findSongForRequest(title, artist) {
+  const titleLower = title.toLowerCase();
+  const matches = (allSongs || []).filter((s) => s.title.toLowerCase() === titleLower);
+  if (!matches.length) return null;
+  if (matches.length === 1) return matches[0];
+  const artistLower = artist.toLowerCase();
+  return matches.find((s) => s.artist.toLowerCase() === artistLower) || null;
+}
+
+function setSongRequestChatStatus(text, tone) {
+  if (!songRequestChatStatus) return;
+  songRequestChatStatus.innerHTML = `<span class="song-request-chat-status-dot"></span>${text}`;
+  songRequestChatStatus.classList.toggle("is-live", tone === "live");
+  songRequestChatStatus.classList.toggle("is-error", tone === "error");
+}
+
+function buildSoopPacket(serviceCommand, body) {
+  const header = String(serviceCommand).padStart(4, "0") + String(body.length).padStart(6, "0") + "00";
+  return "	" + header + body;
+}
+
+function buildSoopJoinBody(info) {
+  let body = "";
+  body += SOOP_FS + info.chatNo;
+  body += SOOP_FS + info.token;
+  body += SOOP_FS + "0" + SOOP_FS + SOOP_FS + "log";
+  body += "&set_bps=" + info.bps;
+  body += "&view_bps=" + info.bps;
+  body += "&quality=ori";
+  body += "&geo_cc=" + info.geoCc;
+  body += "&geo_rc=" + info.geoRc;
+  body += "&acpt_lang=" + info.acceptLanguage;
+  body += "&svc_lang=" + info.serviceLanguage;
+  body += "&subscribe=0";
+  body += "&lowlatency=1";
+  body += "pwd";
+  body += "auth_infoNULL";
+  body += "pver2";
+  body += "access_systemhtml5";
+  body += SOOP_FS;
+  return body;
+}
+
+function handleSoopPacket(ws, info, packet) {
+  if (packet.length < 14) return;
+  const serviceCommand = parseInt(packet.substring(2, 6), 10);
+  const bodyStart = packet.length > 15 ? 15 : 14;
+  const body = packet.length > bodyStart ? packet.slice(bodyStart) : "";
+  const parts = body.split(SOOP_FS);
+
+  if (serviceCommand === 1) {
+    ws.send(buildSoopPacket(2, buildSoopJoinBody(info)));
+    return;
+  }
+
+  if (serviceCommand === 2) {
+    setSongRequestChatStatus("연결됨", "live");
+    return;
+  }
+
+  if (serviceCommand === 5 && parts.length >= 6) {
+    const message = parts[0];
+    if (!message) return;
+    const parsed = parseSongRequestMessage(message);
+    if (!parsed) return;
+    const song = findSongForRequest(parsed.title, parsed.artist);
+    if (song) addToSingQueue([albumArtCacheKey(song)]);
+    return;
+  }
+
+  if (serviceCommand === 88) {
+    setSongRequestChatStatus("방송이 종료됐어요", "error");
+    stopSongRequestCollection();
+  }
+}
+
+async function startSongRequestCollection() {
+  stopSongRequestCollection();
+  setSongRequestChatStatus("연결 중...");
+
+  let info;
+  try {
+    const res = await fetch("/api/soop-live-info");
+    info = await res.json();
+  } catch {
+    setSongRequestChatStatus("연결 실패", "error");
+    return;
+  }
+
+  if (!isSongRequestAcceptingViaChat()) return; // 응답 오는 사이 꺼졌으면 중단
+  if (!info || !info.ok) {
+    setSongRequestChatStatus(info && info.reason ? info.reason : "연결 실패", "error");
+    return;
+  }
+
+  try {
+    const ws = new WebSocket(`wss://${info.host.toLowerCase()}:${info.port}/Websocket/${info.bjid}`);
+    soopChatSocket = ws;
+    ws.binaryType = "arraybuffer";
+
+    ws.addEventListener("open", () => {
+      ws.send(SOOP_CMD_CONNECT);
+    });
+    ws.addEventListener("message", (e) => {
+      const text = typeof e.data === "string" ? e.data : new TextDecoder("utf-8").decode(new Uint8Array(e.data));
+      handleSoopPacket(ws, info, text);
+    });
+    ws.addEventListener("close", () => {
+      if (soopChatSocket === ws) {
+        soopChatSocket = null;
+        if (isSongRequestAcceptingViaChat()) setSongRequestChatStatus("연결 끊김", "error");
+      }
+    });
+    ws.addEventListener("error", () => {
+      setSongRequestChatStatus("연결 오류", "error");
+    });
+  } catch {
+    setSongRequestChatStatus("연결 실패", "error");
+  }
+}
+
+function stopSongRequestCollection() {
+  if (soopChatSocket) {
+    soopChatSocket.close();
+    soopChatSocket = null;
+  }
+}
+
+function isSongRequestAcceptingViaChat() {
+  const activeSourceBtn = document.querySelector(".song-request-source-btn.active");
+  return (
+    songRequestAcceptToggle.getAttribute("aria-pressed") === "true" &&
+    activeSourceBtn &&
+    activeSourceBtn.dataset.source === "chat"
+  );
+}
+
 songRequestAcceptToggle.addEventListener("click", () => {
   const isOn = songRequestAcceptToggle.getAttribute("aria-pressed") === "true";
   songRequestAcceptToggle.setAttribute("aria-pressed", String(!isOn));
   songRequestOffNotice.classList.toggle("hidden", !isOn);
+
+  if (isSongRequestAcceptingViaChat()) startSongRequestCollection();
+  else stopSongRequestCollection();
 });
 
 const songRequestSourceNoticeText = document.getElementById("songRequestSourceNoticeText");
@@ -314,6 +468,9 @@ document.querySelectorAll(".song-request-source-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".song-request-source-btn").forEach((el) => el.classList.toggle("active", el === btn));
     songRequestSourceNoticeText.innerHTML = SONG_REQUEST_SOURCE_NOTICES[btn.dataset.source];
+
+    if (isSongRequestAcceptingViaChat()) startSongRequestCollection();
+    else stopSongRequestCollection();
   });
 });
 
