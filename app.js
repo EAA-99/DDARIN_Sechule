@@ -302,8 +302,8 @@ document.querySelector(".song-request-sort-tabs").addEventListener("click", (e) 
 // ===== SOOP 채팅에 직접 접속해서 "!신청 제목 - 가수" 메시지를 수집 =====
 // 프로토콜은 https://github.com/Gyeon-ai/- (DanPinball) 참고. 비공식/역공학된 프로토콜이라
 // SOOP 쪽 변경에 취약할 수 있음.
-const SOOP_FS = "";
-const SOOP_CMD_CONNECT = "	00010000060016";
+const SOOP_FS = "\u000c";
+const SOOP_CMD_CONNECT = "\u001b\u0009000100000600\u000c\u000c\u000c16\u000c";
 let soopChatSocket = null;
 
 function parseSongRequestMessage(text) {
@@ -330,27 +330,27 @@ function setSongRequestChatStatus(text, tone) {
 
 function buildSoopPacket(serviceCommand, body) {
   const header = String(serviceCommand).padStart(4, "0") + String(body.length).padStart(6, "0") + "00";
-  return "	" + header + body;
+  return "\u001b\u0009" + header + body;
 }
 
 function buildSoopJoinBody(info) {
   let body = "";
   body += SOOP_FS + info.chatNo;
   body += SOOP_FS + info.token;
-  body += SOOP_FS + "0" + SOOP_FS + SOOP_FS + "log";
-  body += "&set_bps=" + info.bps;
-  body += "&view_bps=" + info.bps;
-  body += "&quality=ori";
-  body += "&geo_cc=" + info.geoCc;
-  body += "&geo_rc=" + info.geoRc;
-  body += "&acpt_lang=" + info.acceptLanguage;
-  body += "&svc_lang=" + info.serviceLanguage;
-  body += "&subscribe=0";
-  body += "&lowlatency=1";
-  body += "pwd";
-  body += "auth_infoNULL";
-  body += "pver2";
-  body += "access_systemhtml5";
+  body += SOOP_FS + "0" + SOOP_FS + SOOP_FS + "log\u0011";
+  body += "\u0006&\u0006set_bps\u0006=\u0006" + info.bps;
+  body += "\u0006&\u0006view_bps\u0006=\u0006" + info.bps;
+  body += "\u0006&\u0006quality\u0006=\u0006ori";
+  body += "\u0006&\u0006geo_cc\u0006=\u0006" + info.geoCc;
+  body += "\u0006&\u0006geo_rc\u0006=\u0006" + info.geoRc;
+  body += "\u0006&\u0006acpt_lang\u0006=\u0006" + info.acceptLanguage;
+  body += "\u0006&\u0006svc_lang\u0006=\u0006" + info.serviceLanguage;
+  body += "\u0006&\u0006subscribe\u0006=\u00060";
+  body += "\u0006&\u0006lowlatency\u0006=\u00061";
+  body += "\u0012pwd\u0011\u0012";
+  body += "auth_info\u0011NULL\u0012";
+  body += "pver\u00112\u0012";
+  body += "access_system\u0011html5\u0012";
   body += SOOP_FS;
   return body;
 }
