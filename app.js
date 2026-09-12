@@ -344,19 +344,31 @@ function tryQueueFromRequestMessage(message) {
 async function pollSongRequests() {
   try {
     const res = await fetch("/api/soop-chat?type=songRequest");
-    if (!res.ok) return;
+    if (!res.ok) {
+      console.warn("[신청곡] 폴링 응답 실패:", res.status);
+      return;
+    }
     const data = await res.json();
+    console.log("[신청곡] 폴링 전체 항목:", data.items, "sinceTime:", songRequestSinceTime);
     const items = (data.items || []).filter((it) => !songRequestSinceTime || it.time > songRequestSinceTime);
+    console.log("[신청곡] 새 항목:", items);
 
     if (getSongRequestActiveSource() === "chat") {
-      items.forEach((item) => tryQueueFromRequestMessage(item.message));
+      items.forEach((item) => {
+        const parsed = parseSongRequestMessage(item.message);
+        console.log("[신청곡] 파싱 결과:", item.message, "->", parsed);
+        if (!parsed) return;
+        const song = findSongForRequest(parsed.title, parsed.artist);
+        console.log("[신청곡] 매칭된 곡:", song);
+        if (song) addToSingQueue([albumArtCacheKey(song)]);
+      });
     }
 
     if (items.length) {
       songRequestSinceTime = items.reduce((max, it) => (it.time > max ? it.time : max), songRequestSinceTime || "");
     }
-  } catch {
-    // 다음 폴링에서 재시도
+  } catch (err) {
+    console.error("[신청곡] 폴링 오류:", err);
   }
 }
 
