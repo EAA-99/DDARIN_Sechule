@@ -304,6 +304,27 @@ document.querySelector(".song-request-sort-tabs").addEventListener("click", (e) 
 const SONG_REQUEST_POLL_MS = 5000;
 let songRequestPollInterval = null;
 let songRequestSinceTime = null;
+const songRequestListEl = document.getElementById("songRequestList");
+let songRequestReceivedList = [];
+
+function renderSongRequestList() {
+  songRequestListEl.innerHTML = "";
+  songRequestReceivedList.forEach((entry) => {
+    const item = document.createElement("div");
+    item.className = "song-request-item";
+
+    const titleEl = document.createElement("div");
+    titleEl.className = "favorite-item-title";
+    titleEl.textContent = entry.song.title;
+
+    const artistEl = document.createElement("div");
+    artistEl.className = "favorite-item-artist";
+    artistEl.textContent = entry.sender ? `${entry.song.artist} · ${entry.sender}` : entry.song.artist;
+
+    item.append(titleEl, artistEl);
+    songRequestListEl.appendChild(item);
+  });
+}
 const songRequestMinStarInput = document.getElementById("songRequestMinStarInput");
 const songRequestStarApplyBtn = document.getElementById("songRequestStarApplyBtn");
 let songRequestMinStars = Number(songRequestMinStarInput.value) || 0;
@@ -313,9 +334,13 @@ songRequestStarApplyBtn.addEventListener("click", () => {
 });
 
 function parseSongRequestMessage(text) {
-  const m = /^!신청\s+(.+?)\s*-\s*(.+)$/.exec(String(text || "").trim());
-  if (!m) return null;
-  return { title: m[1].trim(), artist: m[2].trim() };
+  const raw = String(text || "").trim();
+  if (!raw.startsWith("!")) return null;
+  const body = raw.slice(1).trim();
+  if (!body) return null;
+  const m = /^(.+?)\s*-\s*(.+)$/.exec(body);
+  if (m) return { title: m[1].trim(), artist: m[2].trim() };
+  return { title: body, artist: null };
 }
 
 function findSongForRequest(title, artist) {
@@ -323,6 +348,7 @@ function findSongForRequest(title, artist) {
   const matches = (allSongs || []).filter((s) => s.title.toLowerCase() === titleLower);
   if (!matches.length) return null;
   if (matches.length === 1) return matches[0];
+  if (!artist) return null;
   const artistLower = artist.toLowerCase();
   return matches.find((s) => s.artist.toLowerCase() === artistLower) || null;
 }
@@ -360,7 +386,10 @@ async function pollSongRequests() {
         if (!parsed) return;
         const song = findSongForRequest(parsed.title, parsed.artist);
         console.log("[신청곡] 매칭된 곡:", song);
-        if (song) addToSingQueue([albumArtCacheKey(song)]);
+        if (!song) return;
+        addToSingQueue([albumArtCacheKey(song)]);
+        songRequestReceivedList.push({ song, sender: item.sender || null });
+        renderSongRequestList();
       });
     }
 
@@ -374,6 +403,8 @@ async function pollSongRequests() {
 
 function startSongRequestCollection() {
   songRequestSinceTime = new Date().toISOString();
+  songRequestReceivedList = [];
+  renderSongRequestList();
   stopSongRequestCollection();
   const isStar = getSongRequestActiveSource() === "star";
   setSongRequestChatStatus(isStar ? "별풍선 감지는 아직 준비 중이에요" : "수집 중", isStar ? "error" : "live");
@@ -404,8 +435,8 @@ songRequestAcceptToggle.addEventListener("click", () => {
 
 const songRequestSourceNoticeText = document.getElementById("songRequestSourceNoticeText");
 const SONG_REQUEST_SOURCE_NOTICES = {
-  chat: "채팅창에 <b>'!신청 제목 - 가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.",
-  star: "후원메세지에 <b>'!신청 제목 - 가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.",
+  chat: "채팅창에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.",
+  star: "후원메세지에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.",
 };
 
 document.querySelectorAll(".song-request-source-btn").forEach((btn) => {
