@@ -440,7 +440,7 @@ async function startSongRequestCollection() {
   }
 
   try {
-    const wsUrl = `ws://${info.host.toLowerCase()}:${info.port}/Websocket/${info.bjid}`;
+    const wsUrl = `wss://${info.host.toLowerCase()}:${info.port}/Websocket/${info.bjid}`;
     console.log("[신청곡] 웹소켓 접속 시도:", wsUrl);
     const ws = new WebSocket(wsUrl);
     soopChatSocket = ws;
