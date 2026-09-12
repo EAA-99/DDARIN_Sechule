@@ -74,19 +74,23 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "GET") {
+    const wantType = req.query.type ? String(req.query.type) : null;
+    const filterByType = (items) =>
+      wantType ? items.filter((it) => it.type === wantType) : items.filter((it) => it.type !== "songRequest");
+
     if (req.query.date) {
       const date = String(req.query.date);
-      const items = await getItems(date);
+      const items = filterByType(await getItems(date));
       res.status(200).json({ date, items });
       return;
     }
-    const items = await getAllItems();
+    const items = filterByType(await getAllItems());
     res.status(200).json({ items });
     return;
   }
 
   if (req.method === "POST") {
-    const { key, message, time, action, date: deleteDate, username, password, broadcastId } = req.body || {};
+    const { key, message, time, action, date: deleteDate, username, password, broadcastId, type, sender } = req.body || {};
 
     if (action === "delete") {
       if (username !== process.env.EDIT_USERNAME || password !== process.env.EDIT_PASSWORD) {
@@ -123,7 +127,13 @@ export default async function handler(req, res) {
       return;
     }
 
-    items.push({ time: time || new Date().toISOString(), message: text, broadcastId: broadcastId || null });
+    items.push({
+      time: time || new Date().toISOString(),
+      message: text,
+      broadcastId: broadcastId || null,
+      type: type || "notice",
+      sender: sender || null,
+    });
     await kvCommand(["SET", `soop_chat:${date}`, JSON.stringify(items)]);
     res.status(200).json({ success: true, count: items.length });
     return;

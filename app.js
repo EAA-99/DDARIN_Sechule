@@ -299,12 +299,18 @@ document.querySelector(".song-request-sort-tabs").addEventListener("click", (e) 
   document.querySelectorAll(".song-request-sort-tab").forEach((el) => el.classList.toggle("active", el === btn));
 });
 
-// ===== SOOP 채팅에 직접 접속해서 "!신청 제목 - 가수" 메시지를 수집 =====
-// 프로토콜은 https://github.com/Gyeon-ai/- (DanPinball) 참고. 비공식/역공학된 프로토콜이라
-// SOOP 쪽 변경에 취약할 수 있음.
-const SOOP_FS = "\u000c";
-const SOOP_CMD_CONNECT = "\u001b\u0009000100000600\u000c\u000c\u000c16\u000c";
-let soopChatSocket = null;
+// ===== SOOP 신청곡 수집기 확장프로그램(soop-song-request-extension)이 보내주는
+// "!신청 제목 - 가수" 채팅을 폴링해서 대기열에 자동 추가 =====
+const SONG_REQUEST_POLL_MS = 5000;
+let songRequestPollInterval = null;
+let songRequestSinceTime = null;
+const songRequestMinStarInput = document.getElementById("songRequestMinStarInput");
+const songRequestStarApplyBtn = document.getElementById("songRequestStarApplyBtn");
+let songRequestMinStars = Number(songRequestMinStarInput.value) || 0;
+
+songRequestStarApplyBtn.addEventListener("click", () => {
+  songRequestMinStars = Number(songRequestMinStarInput.value) || 0;
+});
 
 function parseSongRequestMessage(text) {
   const m = /^!신청\s+(.+?)\s*-\s*(.+)$/.exec(String(text || "").trim());
@@ -328,42 +334,6 @@ function setSongRequestChatStatus(text, tone) {
   songRequestChatStatus.classList.toggle("is-error", tone === "error");
 }
 
-function buildSoopPacket(serviceCommand, body) {
-  const header = String(serviceCommand).padStart(4, "0") + String(body.length).padStart(6, "0") + "00";
-  return "\u001b\u0009" + header + body;
-}
-
-function buildSoopJoinBody(info) {
-  let body = "";
-  body += SOOP_FS + info.chatNo;
-  body += SOOP_FS + info.token;
-  body += SOOP_FS + "0" + SOOP_FS + SOOP_FS + "log\u0011";
-  body += "\u0006&\u0006set_bps\u0006=\u0006" + info.bps;
-  body += "\u0006&\u0006view_bps\u0006=\u0006" + info.bps;
-  body += "\u0006&\u0006quality\u0006=\u0006ori";
-  body += "\u0006&\u0006geo_cc\u0006=\u0006" + info.geoCc;
-  body += "\u0006&\u0006geo_rc\u0006=\u0006" + info.geoRc;
-  body += "\u0006&\u0006acpt_lang\u0006=\u0006" + info.acceptLanguage;
-  body += "\u0006&\u0006svc_lang\u0006=\u0006" + info.serviceLanguage;
-  body += "\u0006&\u0006subscribe\u0006=\u00060";
-  body += "\u0006&\u0006lowlatency\u0006=\u00061";
-  body += "\u0012pwd\u0011\u0012";
-  body += "auth_info\u0011NULL\u0012";
-  body += "pver\u00112\u0012";
-  body += "access_system\u0011html5\u0012";
-  body += SOOP_FS;
-  return body;
-}
-
-const songRequestMinStarInput = document.getElementById("songRequestMinStarInput");
-const songRequestStarApplyBtn = document.getElementById("songRequestStarApplyBtn");
-let songRequestMinStars = Number(songRequestMinStarInput.value) || 0;
-const songRequestPendingStarNicks = new Set();
-
-songRequestStarApplyBtn.addEventListener("click", () => {
-  songRequestMinStars = Number(songRequestMinStarInput.value) || 0;
-});
-
 function tryQueueFromRequestMessage(message) {
   const parsed = parseSongRequestMessage(message);
   if (!parsed) return;
@@ -371,112 +341,37 @@ function tryQueueFromRequestMessage(message) {
   if (song) addToSingQueue([albumArtCacheKey(song)]);
 }
 
-function handleSoopPacket(ws, info, packet) {
-  if (packet.length < 14) return;
-  const serviceCommand = parseInt(packet.substring(2, 6), 10);
-  const bodyStart = packet.length > 15 ? 15 : 14;
-  const body = packet.length > bodyStart ? packet.slice(bodyStart) : "";
-  const parts = body.split(SOOP_FS);
-  console.log("[신청곡] serviceCommand =", serviceCommand, "parts =", parts);
+async function pollSongRequests() {
+  try {
+    const res = await fetch("/api/soop-chat?type=songRequest");
+    if (!res.ok) return;
+    const data = await res.json();
+    const items = (data.items || []).filter((it) => !songRequestSinceTime || it.time > songRequestSinceTime);
 
-  if (serviceCommand === 1) {
-    ws.send(buildSoopPacket(2, buildSoopJoinBody(info)));
-    return;
-  }
-
-  if (serviceCommand === 2) {
-    setSongRequestChatStatus("연결됨", "live");
-    return;
-  }
-
-  if (serviceCommand === 5 && parts.length >= 6) {
-    const message = parts[0];
-    const nickname = parts[5];
-    if (!message) return;
-
-    const source = getSongRequestActiveSource();
-    if (source === "chat") {
-      tryQueueFromRequestMessage(message);
-    } else if (source === "star" && nickname && songRequestPendingStarNicks.has(nickname)) {
-      songRequestPendingStarNicks.delete(nickname);
-      tryQueueFromRequestMessage(message);
+    if (getSongRequestActiveSource() === "chat") {
+      items.forEach((item) => tryQueueFromRequestMessage(item.message));
     }
-    return;
-  }
 
-  if (serviceCommand === 18 && parts.length >= 4) {
-    if (getSongRequestActiveSource() !== "star") return;
-    const nickname = parts[2];
-    const count = parseInt(parts[3], 10);
-    if (nickname && count >= songRequestMinStars) songRequestPendingStarNicks.add(nickname);
-    return;
-  }
-
-  if (serviceCommand === 88) {
-    setSongRequestChatStatus("방송이 종료됐어요", "error");
-    stopSongRequestCollection();
+    if (items.length) {
+      songRequestSinceTime = items.reduce((max, it) => (it.time > max ? it.time : max), songRequestSinceTime || "");
+    }
+  } catch {
+    // 다음 폴링에서 재시도
   }
 }
 
-async function startSongRequestCollection() {
+function startSongRequestCollection() {
+  songRequestSinceTime = new Date().toISOString();
   stopSongRequestCollection();
-  setSongRequestChatStatus("연결 중...");
-
-  let info;
-  try {
-    const res = await fetch("/api/soop-live?info=chat");
-    info = await res.json();
-    console.log("[신청곡] soop-live-info 응답:", info);
-  } catch (err) {
-    console.error("[신청곡] soop-live-info 요청 실패:", err);
-    setSongRequestChatStatus("연결 실패", "error");
-    return;
-  }
-
-  if (!getSongRequestActiveSource()) return; // 응답 오는 사이 꺼졌으면 중단
-  if (!info || !info.ok) {
-    setSongRequestChatStatus(info && info.reason ? info.reason : "연결 실패", "error");
-    return;
-  }
-
-  try {
-    const wsUrl = `wss://${info.host.toLowerCase()}:${info.port}/Websocket/${info.bjid}`;
-    console.log("[신청곡] 웹소켓 접속 시도:", wsUrl);
-    const ws = new WebSocket(wsUrl);
-    soopChatSocket = ws;
-    ws.binaryType = "arraybuffer";
-
-    ws.addEventListener("open", () => {
-      console.log("[신청곡] 웹소켓 열림, CmdConnect 전송");
-      ws.send(SOOP_CMD_CONNECT);
-    });
-    ws.addEventListener("message", (e) => {
-      const text = typeof e.data === "string" ? e.data : new TextDecoder("utf-8").decode(new Uint8Array(e.data));
-      console.log("[신청곡] 패킷 수신:", JSON.stringify(text));
-      handleSoopPacket(ws, info, text);
-    });
-    ws.addEventListener("close", (e) => {
-      console.warn("[신청곡] 웹소켓 닫힘:", e.code, e.reason);
-      if (soopChatSocket === ws) {
-        soopChatSocket = null;
-        if (getSongRequestActiveSource()) setSongRequestChatStatus("연결 끊김", "error");
-      }
-    });
-    ws.addEventListener("error", (e) => {
-      console.error("[신청곡] 웹소켓 오류:", e);
-      setSongRequestChatStatus("연결 오류", "error");
-    });
-  } catch (err) {
-    console.error("[신청곡] 웹소켓 생성 실패:", err);
-    setSongRequestChatStatus("연결 실패", "error");
-  }
+  const isStar = getSongRequestActiveSource() === "star";
+  setSongRequestChatStatus(isStar ? "별풍선 감지는 아직 준비 중이에요" : "수집 중", isStar ? "error" : "live");
+  songRequestPollInterval = setInterval(pollSongRequests, SONG_REQUEST_POLL_MS);
 }
 
 function stopSongRequestCollection() {
-  songRequestPendingStarNicks.clear();
-  if (soopChatSocket) {
-    soopChatSocket.close();
-    soopChatSocket = null;
+  if (songRequestPollInterval) {
+    clearInterval(songRequestPollInterval);
+    songRequestPollInterval = null;
   }
 }
 
@@ -505,9 +400,8 @@ document.querySelectorAll(".song-request-source-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".song-request-source-btn").forEach((el) => el.classList.toggle("active", el === btn));
     songRequestSourceNoticeText.innerHTML = SONG_REQUEST_SOURCE_NOTICES[btn.dataset.source];
-    songRequestPendingStarNicks.clear();
 
-    if (getSongRequestActiveSource() && !soopChatSocket) startSongRequestCollection();
+    if (getSongRequestActiveSource()) startSongRequestCollection();
   });
 });
 
