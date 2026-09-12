@@ -292,14 +292,6 @@ songRequestModalBackdrop.addEventListener("click", (e) => {
   if (e.target === songRequestModalBackdrop) closeSongRequestModal();
 });
 
-document.querySelectorAll(".song-request-segmented").forEach((group) => {
-  group.addEventListener("click", (e) => {
-    const btn = e.target.closest(".song-request-seg");
-    if (!btn) return;
-    group.querySelectorAll(".song-request-seg").forEach((el) => el.classList.toggle("active", el === btn));
-  });
-});
-
 document.querySelector(".song-request-sort-tabs").addEventListener("click", (e) => {
   const btn = e.target.closest(".song-request-sort-tab");
   if (!btn) return;

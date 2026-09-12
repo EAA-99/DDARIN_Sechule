@@ -692,11 +692,6 @@
           <div class="song-request-panel-header">
             <h3>신청 목록</h3>
             <div class="song-request-panel-header-controls">
-              <span class="song-request-inline-label">수락 시</span>
-              <div class="song-request-segmented">
-                <button type="button" class="song-request-seg active" data-accept-mode="start">바로 시작</button>
-                <button type="button" class="song-request-seg" data-accept-mode="queue">대기열에 추가</button>
-              </div>
               <span class="song-request-inline-label">신청 받기</span>
               <button type="button" id="songRequestAcceptToggle" class="song-request-switch" aria-pressed="false"></button>
             </div>
@@ -704,21 +699,11 @@
 
           <div class="song-request-sort-tabs">
             <button type="button" class="song-request-sort-tab active" data-sort="order">선착순</button>
-            <button type="button" class="song-request-sort-tab" data-sort="count">신청자 많은 순</button>
-            <button type="button" class="song-request-sort-tab" data-sort="star">별풍선 많은 순</button>
           </div>
 
           <div class="song-request-notice song-request-notice-info">
             <span class="song-request-notice-icon">ⓘ</span>
             <p>채팅창에 <b>'!신청 제목 - 가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.</p>
-          </div>
-
-          <div class="song-request-notice song-request-notice-warning">
-            <span class="song-request-notice-icon">⚠</span>
-            <div>
-              <p><b>현재 노래책이 비공개로 설정되어 있어요!</b></p>
-              <p>노래책을 공개하면 시청자들이 노래책에서 쉽게 곡을 신청할 수 있어요.<br><a href="#" id="songRequestPrivacyLink">노래책 공개 설정</a>에서 노래책을 공개로 설정해보세요.</p>
-            </div>
           </div>
 
           <div id="songRequestList" class="song-request-list"></div>
