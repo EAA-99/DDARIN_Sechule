@@ -304,6 +304,10 @@ songRequestAcceptToggle.addEventListener("click", () => {
   songRequestOffNotice.classList.toggle("hidden", !isOn);
 });
 
+document.querySelectorAll(".song-request-source-btn").forEach((btn) => {
+  btn.addEventListener("click", () => btn.classList.toggle("active"));
+});
+
 const singQueueListEl = document.getElementById("singQueueList");
 const songManageBtn = document.getElementById("songManageBtn");
 const songManageToolbar = document.getElementById("songManageToolbar");

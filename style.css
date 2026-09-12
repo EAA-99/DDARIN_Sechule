@@ -3380,6 +3380,24 @@ body.youtube-view-open {
   white-space: nowrap;
 }
 
+.song-request-source-btn {
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #999;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.song-request-source-btn.active {
+  border-color: #1c6dd0;
+  background: #1c6dd0;
+  color: #fff;
+}
+
 .song-request-switch {
   position: relative;
   width: 40px;
