@@ -3426,6 +3426,11 @@ body.youtube-view-open {
   transform: translateX(18px);
 }
 
+.song-request-switch:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .song-request-sort-tabs {
   display: flex;
   gap: 6px;

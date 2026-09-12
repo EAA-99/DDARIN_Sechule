@@ -3401,7 +3401,9 @@ async function hardRefreshApp() {
       await Promise.all(keys.map((key) => caches.delete(key)));
     }
   } finally {
-    location.reload();
+    // location.reload()는 브라우저 HTTP 캐시를 그대로 쓸 수 있어서, 쿼리스트링을 바꿔
+    // 강제로 새 URL처럼 취급되게 만들어 Ctrl+Shift+R(강력 새로고침)과 동일하게 동작시킨다.
+    location.replace(location.pathname + "?_=" + Date.now());
   }
 }
 
@@ -4816,6 +4818,14 @@ function updateLockUi() {
   loginBtnLabel.textContent = isReadOnly ? "로그인" : "로그아웃";
   if (isReadOnly && songManageMode) closeSongManageMode();
   songManageBtn.classList.toggle("hidden", isReadOnly || songManageMode);
+
+  songRequestOpenBtn.classList.toggle("hidden", isReadOnly);
+  songRequestAcceptToggle.disabled = isReadOnly;
+  if (isReadOnly && songRequestAcceptToggle.getAttribute("aria-pressed") === "true") {
+    songRequestAcceptToggle.setAttribute("aria-pressed", "false");
+    songRequestOffNotice.classList.remove("hidden");
+    stopSongRequestCollection();
+  }
 }
 
 async function tryAutoUnlock() {
