@@ -27,18 +27,39 @@ async function getState() {
   }
 }
 
+async function getQueue() {
+  const { result } = await kvCommand(["GET", "songbook_queue"]);
+  if (!result) return [];
+  try {
+    const parsed = JSON.parse(result);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json");
 
   if (req.method === "GET") {
+    if (req.query.resource === "queue") {
+      res.status(200).json({ queue: await getQueue() });
+      return;
+    }
     res.status(200).json(await getState());
     return;
   }
 
   if (req.method === "POST") {
-    const { username, password, overrides, deletions } = req.body || {};
+    const { username, password, overrides, deletions, resource, queue } = req.body || {};
     if (username !== process.env.EDIT_USERNAME || password !== process.env.EDIT_PASSWORD) {
       res.status(401).json({ success: false });
+      return;
+    }
+
+    if (resource === "queue") {
+      await kvCommand(["SET", "songbook_queue", JSON.stringify(Array.isArray(queue) ? queue : [])]);
+      res.status(200).json({ success: true });
       return;
     }
 

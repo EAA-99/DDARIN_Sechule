@@ -1856,6 +1856,12 @@ function showMainView(view) {
 
   if (view === "songbook") applyHomeMatchedHeight(songbookView);
   if (view === "cafephotos") applyHomeMatchedHeight(cafePhotosView);
+  if (view === "songbook2") {
+    fetchSingQueue();
+    startQueuePolling();
+  } else {
+    stopQueuePolling();
+  }
   if (view === "soopchat") loadSoopChatView();
   if (view === "soopchatday") renderSoopChatDayView();
   sideNavEl.classList.toggle(
@@ -3945,16 +3951,43 @@ songQueueAddBtn.addEventListener("click", () => {
   addToSingQueue([...selectedSongKeys]);
 });
 
-const SING_QUEUE_KEY = "songbook-sing-queue";
 let singQueueOrder = [];
-try {
-  singQueueOrder = JSON.parse(localStorage.getItem(SING_QUEUE_KEY)) || [];
-} catch {
-  singQueueOrder = [];
+
+async function fetchSingQueue() {
+  try {
+    const res = await fetch("/api/songbook?resource=queue");
+    if (!res.ok) return;
+    const data = await res.json();
+    singQueueOrder = Array.isArray(data.queue) ? data.queue : [];
+    renderSingQueueList();
+    renderSongRequestList();
+  } catch (err) {
+    console.error("[대기열] 불러오기 실패:", err);
+  }
 }
 
 function saveSingQueue() {
-  localStorage.setItem(SING_QUEUE_KEY, JSON.stringify(singQueueOrder));
+  const { username, password } = getStoredCreds();
+  fetch("/api/songbook", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password, resource: "queue", queue: singQueueOrder }),
+  }).catch((err) => console.error("[대기열] 저장 실패:", err));
+}
+
+const QUEUE_POLL_MS = 5000;
+let queuePollInterval = null;
+
+function startQueuePolling() {
+  stopQueuePolling();
+  queuePollInterval = setInterval(fetchSingQueue, QUEUE_POLL_MS);
+}
+
+function stopQueuePolling() {
+  if (queuePollInterval) {
+    clearInterval(queuePollInterval);
+    queuePollInterval = null;
+  }
 }
 
 function addToSingQueue(keys) {
