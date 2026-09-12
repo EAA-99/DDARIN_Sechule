@@ -4115,6 +4115,33 @@ body.youtube-view-open {
   margin: 0 0 10px;
 }
 
+.player-favorites-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.player-favorites-header h3 {
+  margin: 0;
+}
+
+.sing-queue-clear-btn {
+  border: 1px solid #eee;
+  background: #fff;
+  color: #999;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sing-queue-clear-btn:hover {
+  background: #f5f5f5;
+  color: #666;
+}
+
 .favorites-list {
   display: flex;
   flex-direction: column;

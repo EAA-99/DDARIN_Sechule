@@ -465,8 +465,12 @@ songRequestAcceptToggle.addEventListener("click", () => {
   songRequestAcceptToggle.setAttribute("aria-pressed", String(!isOn));
   songRequestOffNotice.classList.toggle("hidden", !isOn);
 
-  if (getSongRequestActiveSource()) startSongRequestCollection();
-  else stopSongRequestCollection();
+  if (getSongRequestActiveSource()) {
+    startSongRequestCollection();
+  } else {
+    stopSongRequestCollection();
+    setSongRequestChatStatus("신청 받기 꺼짐");
+  }
 });
 
 const songRequestSourceNoticeText = document.getElementById("songRequestSourceNoticeText");
@@ -475,16 +479,33 @@ const SONG_REQUEST_SOURCE_NOTICES = {
   star: "후원메세지에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.",
 };
 
+const songRequestStarFilterEl = document.querySelector(".song-request-star-filter");
+
+function updateSongRequestStarFilterVisibility() {
+  const activeBtn = document.querySelector(".song-request-source-btn.active");
+  const isStar = activeBtn && activeBtn.dataset.source === "star";
+  songRequestStarFilterEl.classList.toggle("hidden", !isStar);
+}
+updateSongRequestStarFilterVisibility();
+
 document.querySelectorAll(".song-request-source-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".song-request-source-btn").forEach((el) => el.classList.toggle("active", el === btn));
     songRequestSourceNoticeText.innerHTML = SONG_REQUEST_SOURCE_NOTICES[btn.dataset.source];
+    updateSongRequestStarFilterVisibility();
 
     if (getSongRequestActiveSource()) startSongRequestCollection();
   });
 });
 
 const singQueueListEl = document.getElementById("singQueueList");
+const singQueueClearBtn = document.getElementById("singQueueClearBtn");
+singQueueClearBtn.addEventListener("click", () => {
+  singQueueOrder = [];
+  saveSingQueue();
+  renderSingQueueList();
+  renderSongRequestList();
+});
 const songManageBtn = document.getElementById("songManageBtn");
 const songManageToolbar = document.getElementById("songManageToolbar");
 const songSelectAllBtn = document.getElementById("songSelectAllBtn");
