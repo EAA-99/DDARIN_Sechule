@@ -305,23 +305,60 @@ const SONG_REQUEST_POLL_MS = 5000;
 let songRequestPollInterval = null;
 let songRequestSinceTime = null;
 const songRequestListEl = document.getElementById("songRequestList");
-let songRequestReceivedList = [];
+let songRequestSenderByKey = {};
 
 function renderSongRequestList() {
   songRequestListEl.innerHTML = "";
-  songRequestReceivedList.forEach((entry) => {
+  const queueSongs = singQueueOrder.map((key) => songByKey[key]).filter(Boolean);
+
+  if (!queueSongs.length) {
+    const empty = document.createElement("p");
+    empty.className = "favorites-empty";
+    empty.textContent = "아직 신청된 곡이 없습니다.";
+    songRequestListEl.appendChild(empty);
+    return;
+  }
+
+  queueSongs.forEach((song) => {
+    const key = albumArtCacheKey(song);
+    const sender = songRequestSenderByKey[key];
+
     const item = document.createElement("div");
     item.className = "song-request-item";
+    item.draggable = true;
 
     const titleEl = document.createElement("div");
     titleEl.className = "favorite-item-title";
-    titleEl.textContent = entry.song.title;
+    titleEl.textContent = song.title;
 
     const artistEl = document.createElement("div");
     artistEl.className = "favorite-item-artist";
-    artistEl.textContent = entry.sender ? `${entry.song.artist} · ${entry.sender}` : entry.song.artist;
+    artistEl.textContent = sender ? `${song.artist} · ${sender}` : song.artist;
 
     item.append(titleEl, artistEl);
+
+    item.addEventListener("dragstart", () => {
+      draggedQueueKey = key;
+      item.classList.add("dragging");
+    });
+    item.addEventListener("dragend", () => {
+      draggedQueueKey = null;
+      item.classList.remove("dragging");
+    });
+    item.addEventListener("dragover", (e) => e.preventDefault());
+    item.addEventListener("drop", (e) => {
+      e.preventDefault();
+      if (!draggedQueueKey || draggedQueueKey === key) return;
+      const fromIdx = singQueueOrder.indexOf(draggedQueueKey);
+      const toIdx = singQueueOrder.indexOf(key);
+      if (fromIdx === -1 || toIdx === -1) return;
+      singQueueOrder.splice(fromIdx, 1);
+      singQueueOrder.splice(toIdx, 0, draggedQueueKey);
+      saveSingQueue();
+      renderSingQueueList();
+      renderSongRequestList();
+    });
+
     songRequestListEl.appendChild(item);
   });
 }
@@ -387,9 +424,8 @@ async function pollSongRequests() {
         const song = findSongForRequest(parsed.title, parsed.artist);
         console.log("[신청곡] 매칭된 곡:", song);
         if (!song) return;
+        songRequestSenderByKey[albumArtCacheKey(song)] = item.sender || null;
         addToSingQueue([albumArtCacheKey(song)]);
-        songRequestReceivedList.push({ song, sender: item.sender || null });
-        renderSongRequestList();
       });
     }
 
@@ -403,7 +439,7 @@ async function pollSongRequests() {
 
 function startSongRequestCollection() {
   songRequestSinceTime = new Date().toISOString();
-  songRequestReceivedList = [];
+  songRequestSenderByKey = {};
   renderSongRequestList();
   stopSongRequestCollection();
   const isStar = getSongRequestActiveSource() === "star";
@@ -1944,6 +1980,7 @@ async function openSongbook2Table() {
   renderSongGrid2();
   renderFavorites2List();
   renderSingQueueList();
+  renderSongRequestList();
   renderArtistList2();
 }
 
@@ -3817,6 +3854,7 @@ songAddForm.addEventListener("submit", (e) => {
   renderSongGrid2();
   renderFavorites2List();
   renderSingQueueList();
+  renderSongRequestList();
 
   closeSongAddModal();
 });
@@ -3877,6 +3915,7 @@ songDeleteSelectedBtn.addEventListener("click", () => {
   renderSongGrid2();
   renderFavorites2List();
   renderSingQueueList();
+  renderSongRequestList();
 });
 
 
@@ -3903,6 +3942,7 @@ function addToSingQueue(keys) {
   });
   saveSingQueue();
   renderSingQueueList();
+  renderSongRequestList();
 }
 
 function removeFromSingQueue(key) {
@@ -3911,6 +3951,7 @@ function removeFromSingQueue(key) {
   singQueueOrder.splice(idx, 1);
   saveSingQueue();
   renderSingQueueList();
+  renderSongRequestList();
 }
 
 let draggedQueueKey = null;
@@ -3991,6 +4032,7 @@ function renderSingQueueList() {
       singQueueOrder.splice(toIdx, 0, draggedQueueKey);
       saveSingQueue();
       renderSingQueueList();
+      renderSongRequestList();
     });
 
     singQueueListEl.appendChild(item);
