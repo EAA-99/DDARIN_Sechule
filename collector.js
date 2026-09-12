@@ -152,7 +152,17 @@ async function connect() {
   const ws = new WebSocket(wsUrl);
   ws.binaryType = "arraybuffer";
 
+  let opened = false;
+  const connectTimeout = setTimeout(() => {
+    if (!opened) {
+      log("10초 동안 응답이 없어 접속 시도를 중단합니다 (방화벽/네트워크에서 포트가 막혀있을 수 있음). 10초 후 재시도합니다.");
+      ws.close();
+    }
+  }, 10000);
+
   ws.addEventListener("open", () => {
+    opened = true;
+    clearTimeout(connectTimeout);
     log("웹소켓 연결됨");
     ws.send(CMD_CONNECT);
   });
@@ -161,6 +171,7 @@ async function connect() {
     handlePacket(ws, info, text);
   });
   ws.addEventListener("close", (e) => {
+    clearTimeout(connectTimeout);
     log("웹소켓 닫힘 (code:", e.code, ") 10초 후 재접속합니다.");
     setTimeout(() => connect().catch((err) => log("재접속 실패:", err.message)), 10000);
   });
