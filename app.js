@@ -355,6 +355,22 @@ function buildSoopJoinBody(info) {
   return body;
 }
 
+const songRequestMinStarInput = document.getElementById("songRequestMinStarInput");
+const songRequestStarApplyBtn = document.getElementById("songRequestStarApplyBtn");
+let songRequestMinStars = Number(songRequestMinStarInput.value) || 0;
+const songRequestPendingStarNicks = new Set();
+
+songRequestStarApplyBtn.addEventListener("click", () => {
+  songRequestMinStars = Number(songRequestMinStarInput.value) || 0;
+});
+
+function tryQueueFromRequestMessage(message) {
+  const parsed = parseSongRequestMessage(message);
+  if (!parsed) return;
+  const song = findSongForRequest(parsed.title, parsed.artist);
+  if (song) addToSingQueue([albumArtCacheKey(song)]);
+}
+
 function handleSoopPacket(ws, info, packet) {
   if (packet.length < 14) return;
   const serviceCommand = parseInt(packet.substring(2, 6), 10);
@@ -374,11 +390,24 @@ function handleSoopPacket(ws, info, packet) {
 
   if (serviceCommand === 5 && parts.length >= 6) {
     const message = parts[0];
+    const nickname = parts[5];
     if (!message) return;
-    const parsed = parseSongRequestMessage(message);
-    if (!parsed) return;
-    const song = findSongForRequest(parsed.title, parsed.artist);
-    if (song) addToSingQueue([albumArtCacheKey(song)]);
+
+    const source = getSongRequestActiveSource();
+    if (source === "chat") {
+      tryQueueFromRequestMessage(message);
+    } else if (source === "star" && nickname && songRequestPendingStarNicks.has(nickname)) {
+      songRequestPendingStarNicks.delete(nickname);
+      tryQueueFromRequestMessage(message);
+    }
+    return;
+  }
+
+  if (serviceCommand === 18 && parts.length >= 4) {
+    if (getSongRequestActiveSource() !== "star") return;
+    const nickname = parts[2];
+    const count = parseInt(parts[3], 10);
+    if (nickname && count >= songRequestMinStars) songRequestPendingStarNicks.add(nickname);
     return;
   }
 
@@ -401,7 +430,7 @@ async function startSongRequestCollection() {
     return;
   }
 
-  if (!isSongRequestAcceptingViaChat()) return; // 응답 오는 사이 꺼졌으면 중단
+  if (!getSongRequestActiveSource()) return; // 응답 오는 사이 꺼졌으면 중단
   if (!info || !info.ok) {
     setSongRequestChatStatus(info && info.reason ? info.reason : "연결 실패", "error");
     return;
@@ -422,7 +451,7 @@ async function startSongRequestCollection() {
     ws.addEventListener("close", () => {
       if (soopChatSocket === ws) {
         soopChatSocket = null;
-        if (isSongRequestAcceptingViaChat()) setSongRequestChatStatus("연결 끊김", "error");
+        if (getSongRequestActiveSource()) setSongRequestChatStatus("연결 끊김", "error");
       }
     });
     ws.addEventListener("error", () => {
@@ -434,19 +463,17 @@ async function startSongRequestCollection() {
 }
 
 function stopSongRequestCollection() {
+  songRequestPendingStarNicks.clear();
   if (soopChatSocket) {
     soopChatSocket.close();
     soopChatSocket = null;
   }
 }
 
-function isSongRequestAcceptingViaChat() {
+function getSongRequestActiveSource() {
+  if (songRequestAcceptToggle.getAttribute("aria-pressed") !== "true") return null;
   const activeSourceBtn = document.querySelector(".song-request-source-btn.active");
-  return (
-    songRequestAcceptToggle.getAttribute("aria-pressed") === "true" &&
-    activeSourceBtn &&
-    activeSourceBtn.dataset.source === "chat"
-  );
+  return activeSourceBtn ? activeSourceBtn.dataset.source : null;
 }
 
 songRequestAcceptToggle.addEventListener("click", () => {
@@ -454,7 +481,7 @@ songRequestAcceptToggle.addEventListener("click", () => {
   songRequestAcceptToggle.setAttribute("aria-pressed", String(!isOn));
   songRequestOffNotice.classList.toggle("hidden", !isOn);
 
-  if (isSongRequestAcceptingViaChat()) startSongRequestCollection();
+  if (getSongRequestActiveSource()) startSongRequestCollection();
   else stopSongRequestCollection();
 });
 
@@ -468,9 +495,9 @@ document.querySelectorAll(".song-request-source-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".song-request-source-btn").forEach((el) => el.classList.toggle("active", el === btn));
     songRequestSourceNoticeText.innerHTML = SONG_REQUEST_SOURCE_NOTICES[btn.dataset.source];
+    songRequestPendingStarNicks.clear();
 
-    if (isSongRequestAcceptingViaChat()) startSongRequestCollection();
-    else stopSongRequestCollection();
+    if (getSongRequestActiveSource() && !soopChatSocket) startSongRequestCollection();
   });
 });
 
