@@ -435,8 +435,7 @@ body {
   align-items: baseline;
   flex-wrap: wrap;
   gap: 6px 8px;
-  background: #1f2430;
-  color: #b7bcc9;
+  color: #2a2a2a;
   border-radius: 8px;
   padding: 10px 14px;
   margin: 0 12px 12px;
@@ -445,7 +444,7 @@ body {
 }
 
 .calendar-page-notice-label {
-  color: #fff;
+  color: #2a2a2a;
   font-weight: 800;
   font-size: 0.75rem;
   letter-spacing: 0.03em;
