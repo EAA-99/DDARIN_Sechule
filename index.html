@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=559">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen">
@@ -1122,13 +1122,13 @@
 
 
 
-  <script src="app.js"></script>
-  <script src="games.js"></script>
+  <script src="app.js?v=559"></script>
+  <script src="games.js?v=559"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
-        navigator.serviceWorker.register("service-worker.js").catch(() => {});
+        navigator.serviceWorker.register("service-worker.js", { updateViaCache: "none" }).catch(() => {});
       });
     }
   </script>

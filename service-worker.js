@@ -1,10 +1,10 @@
-const CACHE_NAME = "ddarin-calendar-v557";
+﻿const CACHE_NAME = "ddarin-calendar-v559";
 const ASSETS = [
   "./",
   "./index.html",
-  "./style.css",
-  "./app.js",
-  "./games.js",
+  "./style.css?v=559",
+  "./app.js?v=559",
+  "./games.js?v=559",
   "./manifest.json",
   "./DDARIN_아바타.jpg",
   "./높은양갈래따린윙크.gif",
@@ -24,12 +24,6 @@ const ASSETS = [
   "./로그인.png",
   "./메뉴판2.png",
   "./게임메뉴.png",
-  "./룰렛 꽝 이미지.png",
-  "./룰렛 꽝 이미지 2.png",
-  "./룰렛 꽝 이미지3.png",
-  "./룰렛 이미지.png",
-  "./룰렛 이미지2.png",
-  "./룰렛 이미지3.png",
   "./soop 배경.png",
   "./youtube배경.png",
   "./playlist배경.jpg",
