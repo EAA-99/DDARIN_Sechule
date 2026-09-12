@@ -1,4 +1,4 @@
-const CACHE_NAME = "ddarin-calendar-v556";
+const CACHE_NAME = "ddarin-calendar-v557";
 const ASSETS = [
   "./",
   "./index.html",
@@ -36,7 +36,15 @@ const ASSETS = [
 ];
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
+  e.waitUntil(
+    caches.open(CACHE_NAME).then((cache) =>
+      Promise.all(
+        ASSETS.map((url) =>
+          cache.add(url).catch((err) => console.warn("[service-worker] 캐시 실패, 건너뜀:", url, err))
+        )
+      )
+    )
+  );
   self.skipWaiting();
 });
 
