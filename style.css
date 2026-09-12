@@ -430,31 +430,6 @@ body {
   font-weight: 600;
 }
 
-.calendar-post-name-row {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.calendar-page-notice {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 6px;
-  color: #2a2a2a;
-  font-size: 0.95rem;
-  text-align: left;
-}
-
-.calendar-page-notice-label {
-  color: #2a2a2a;
-  font-weight: 800;
-  font-size: 0.85rem;
-  letter-spacing: 0.03em;
-  flex-shrink: 0;
-}
-
 .calendar-post-menu {
   display: flex;
   border: none;
