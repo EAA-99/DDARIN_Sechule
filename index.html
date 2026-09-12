@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=565">
+<link rel="stylesheet" href="style.css?v=566">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen">
@@ -727,6 +727,10 @@
             </span>
           </div>
 
+          <a href="ddarinsong://start" id="songRequestCollectorLaunchBtn" class="song-request-collector-launch-btn">
+            🎧 신청곡 수집 프로그램 열기
+          </a>
+
           <div class="song-request-star-filter">
             <span class="song-request-inline-label">최소 별풍선</span>
             <input type="number" id="songRequestMinStarInput" class="song-request-star-input" value="100" min="0">
@@ -848,7 +852,7 @@
       <div class="roulette-body">
         <div class="roulette-wheel-wrap">
           <div class="roulette-canvas-clip">
-            <canvas id="rouletteCanvas" class="roulette-canvas" width="565" height="565"></canvas>
+            <canvas id="rouletteCanvas" class="roulette-canvas" width="566" height="566"></canvas>
           </div>
           <div class="roulette-pointer">▼</div>
         </div>
@@ -1122,8 +1126,8 @@
 
 
 
-  <script src="app.js?v=565"></script>
-  <script src="games.js?v=565"></script>
+  <script src="app.js?v=566"></script>
+  <script src="games.js?v=566"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {
