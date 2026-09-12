@@ -304,8 +304,17 @@ songRequestAcceptToggle.addEventListener("click", () => {
   songRequestOffNotice.classList.toggle("hidden", !isOn);
 });
 
+const songRequestSourceNoticeText = document.getElementById("songRequestSourceNoticeText");
+const SONG_REQUEST_SOURCE_NOTICES = {
+  chat: "채팅창에 <b>'!신청 제목 - 가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.",
+  star: "후원메세지에 <b>'!신청 제목 - 가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.",
+};
+
 document.querySelectorAll(".song-request-source-btn").forEach((btn) => {
-  btn.addEventListener("click", () => btn.classList.toggle("active"));
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".song-request-source-btn").forEach((el) => el.classList.toggle("active", el === btn));
+    songRequestSourceNoticeText.innerHTML = SONG_REQUEST_SOURCE_NOTICES[btn.dataset.source];
+  });
 });
 
 const singQueueListEl = document.getElementById("singQueueList");

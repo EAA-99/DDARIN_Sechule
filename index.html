@@ -693,7 +693,7 @@
             <h3>신청 목록</h3>
             <div class="song-request-panel-header-controls">
               <button type="button" id="songRequestSourceChatBtn" class="song-request-source-btn active" data-source="chat">채팅</button>
-              <button type="button" id="songRequestSourceStarBtn" class="song-request-source-btn active" data-source="star">별풍선</button>
+              <button type="button" id="songRequestSourceStarBtn" class="song-request-source-btn" data-source="star">별풍선</button>
               <span class="song-request-inline-label">신청 받기</span>
               <button type="button" id="songRequestAcceptToggle" class="song-request-switch" aria-pressed="false"></button>
             </div>
@@ -705,7 +705,7 @@
 
           <div class="song-request-notice song-request-notice-info">
             <span class="song-request-notice-icon">ⓘ</span>
-            <p>채팅창에 <b>'!신청 제목 - 가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.</p>
+            <p id="songRequestSourceNoticeText">채팅창에 <b>'!신청 제목 - 가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.</p>
           </div>
 
           <div id="songRequestList" class="song-request-list"></div>
