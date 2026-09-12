@@ -3491,6 +3491,10 @@ body.youtube-view-open {
   font-weight: 800;
 }
 
+.song-request-notice-collapsed {
+  visibility: hidden;
+}
+
 .song-request-list {
   height: 260px;
   overflow-y: auto;
@@ -4150,7 +4154,7 @@ body.youtube-view-open {
 }
 
 #singQueueList {
-  height: 210px;
+  height: 153px;
   max-height: none;
 }
 

@@ -463,7 +463,7 @@ function getSongRequestActiveSource() {
 songRequestAcceptToggle.addEventListener("click", () => {
   const isOn = songRequestAcceptToggle.getAttribute("aria-pressed") === "true";
   songRequestAcceptToggle.setAttribute("aria-pressed", String(!isOn));
-  songRequestOffNotice.classList.toggle("hidden", !isOn);
+  songRequestOffNotice.classList.toggle("song-request-notice-collapsed", !isOn);
 
   if (getSongRequestActiveSource()) {
     startSongRequestCollection();
@@ -4893,7 +4893,7 @@ function updateLockUi() {
   songRequestAcceptToggle.disabled = isReadOnly;
   if (isReadOnly && songRequestAcceptToggle.getAttribute("aria-pressed") === "true") {
     songRequestAcceptToggle.setAttribute("aria-pressed", "false");
-    songRequestOffNotice.classList.remove("hidden");
+    songRequestOffNotice.classList.remove("song-request-notice-collapsed");
     stopSongRequestCollection();
   }
 }
