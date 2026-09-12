@@ -424,7 +424,7 @@ async function startSongRequestCollection() {
 
   let info;
   try {
-    const res = await fetch("/api/soop-live-info");
+    const res = await fetch("/api/soop-live?info=chat");
     info = await res.json();
     console.log("[신청곡] soop-live-info 응답:", info);
   } catch (err) {
