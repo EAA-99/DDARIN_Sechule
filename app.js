@@ -383,14 +383,19 @@ function parseSongRequestMessage(text) {
   return { title: body, artist: null };
 }
 
-function findSongForRequest(title, artist) {
+function matchSongForRequest(title, artist) {
   const titleLower = title.toLowerCase();
   const matches = (allSongs || []).filter((s) => s.title.toLowerCase() === titleLower);
-  if (!matches.length) return null;
-  if (matches.length === 1) return matches[0];
-  if (!artist) return null;
+  if (!matches.length) return { song: null, reason: "notfound" };
+  if (matches.length === 1) return { song: matches[0], reason: null };
+  if (!artist) return { song: null, reason: "ambiguous" };
   const artistLower = artist.toLowerCase();
-  return matches.find((s) => s.artist.toLowerCase() === artistLower) || null;
+  const song = matches.find((s) => s.artist.toLowerCase() === artistLower) || null;
+  return song ? { song, reason: null } : { song: null, reason: "ambiguous" };
+}
+
+function findSongForRequest(title, artist) {
+  return matchSongForRequest(title, artist).song;
 }
 
 function setSongRequestChatStatus(text, tone) {
@@ -398,6 +403,20 @@ function setSongRequestChatStatus(text, tone) {
   songRequestChatStatus.innerHTML = `<span class="song-request-chat-status-dot"></span>${text}`;
   songRequestChatStatus.classList.toggle("is-live", tone === "live");
   songRequestChatStatus.classList.toggle("is-error", tone === "error");
+}
+
+const songRequestChatLogEl = document.getElementById("songRequestChatLog");
+
+function logSongRequestFailure(item, parsed, reason) {
+  if (!songRequestChatLogEl) return;
+  const sender = item.sender ? `${item.sender}: ` : "";
+  const reasonText =
+    reason === "ambiguous" ? "노래제목이 중복입니다. 가수 이름을 적어주세요." : "노래책 목록에 없는 곡입니다.";
+  const line = document.createElement("div");
+  line.className = "song-request-chat-log-line";
+  line.textContent = `${sender}"${parsed.title}" - ${reasonText}`;
+  songRequestChatLogEl.appendChild(line);
+  songRequestChatLogEl.scrollTop = songRequestChatLogEl.scrollHeight;
 }
 
 function tryQueueFromRequestMessage(message) {
@@ -413,9 +432,12 @@ function tryQueueChatItem(item) {
   const parsed = parseSongRequestMessage(item.message);
   console.log("[신청곡] 파싱 결과:", item.message, "->", parsed);
   if (!parsed) return false;
-  const song = findSongForRequest(parsed.title, parsed.artist);
-  console.log("[신청곡] 매칭된 곡:", song);
-  if (!song) return false;
+  const { song, reason } = matchSongForRequest(parsed.title, parsed.artist);
+  console.log("[신청곡] 매칭 결과:", song, reason);
+  if (!song) {
+    logSongRequestFailure(item, parsed, reason);
+    return false;
+  }
   songRequestSenderByKey[albumArtCacheKey(song)] = item.sender || null;
   addToSingQueue([albumArtCacheKey(song)]);
   return true;
@@ -470,6 +492,7 @@ function startSongRequestCollection() {
   songRequestSinceTime = new Date().toISOString();
   songRequestSenderByKey = {};
   songRequestPendingStarSenders = {};
+  if (songRequestChatLogEl) songRequestChatLogEl.innerHTML = "";
   renderSongRequestList();
   stopSongRequestCollection();
   const isStar = getSongRequestActiveSource() === "star";

@@ -3595,8 +3595,17 @@ body.youtube-view-open {
 
 .song-request-chat-log {
   min-height: 200px;
+  max-height: 260px;
+  overflow-y: auto;
   border-top: 1px solid #eee;
   padding-top: 10px;
+}
+
+.song-request-chat-log-line {
+  padding: 6px 0;
+  font-size: 0.8rem;
+  color: #c0392b;
+  border-bottom: 1px solid #f2f2f2;
 }
 
 .song-manage-toolbar {
