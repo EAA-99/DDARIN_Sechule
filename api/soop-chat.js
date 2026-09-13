@@ -14,6 +14,7 @@ async function kvCommand(cmd) {
 }
 
 const RETENTION_DAYS = 7;
+const KEY_PREFIX = "soop_chat_v2:";
 
 function todayKeySeoul() {
   return new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
@@ -24,39 +25,40 @@ function dateKeyDaysAgoSeoul(daysAgo) {
   return d.toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
 }
 
+function parseItems(rawList) {
+  if (!Array.isArray(rawList)) return [];
+  return rawList
+    .map((raw) => {
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean);
+}
+
 async function getItems(date) {
-  const { result } = await kvCommand(["GET", `soop_chat:${date}`]);
-  if (!result) return [];
-  try {
-    const parsed = JSON.parse(result);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+  const { result } = await kvCommand(["LRANGE", `${KEY_PREFIX}${date}`, "0", "-1"]);
+  return parseItems(result);
 }
 
 async function getAllItems() {
-  const { result: keys } = await kvCommand(["KEYS", "soop_chat:*"]);
+  const { result: keys } = await kvCommand(["KEYS", `${KEY_PREFIX}*`]);
   if (!Array.isArray(keys) || !keys.length) return [];
 
   const cutoff = dateKeyDaysAgoSeoul(RETENTION_DAYS);
-  const validKeys = keys.filter((k) => k.slice("soop_chat:".length) >= cutoff);
-  const expiredKeys = keys.filter((k) => k.slice("soop_chat:".length) < cutoff);
+  const validKeys = keys.filter((k) => k.slice(KEY_PREFIX.length) >= cutoff);
+  const expiredKeys = keys.filter((k) => k.slice(KEY_PREFIX.length) < cutoff);
   if (expiredKeys.length) {
     await Promise.all(expiredKeys.map((k) => kvCommand(["DEL", k])));
   }
   if (!validKeys.length) return [];
 
-  const results = await Promise.all(validKeys.map((k) => kvCommand(["GET", k])));
+  const results = await Promise.all(validKeys.map((k) => kvCommand(["LRANGE", k, "0", "-1"])));
   let all = [];
   results.forEach(({ result }) => {
-    if (!result) return;
-    try {
-      const parsed = JSON.parse(result);
-      if (Array.isArray(parsed)) all = all.concat(parsed);
-    } catch {
-      /* skip */
-    }
+    all = all.concat(parseItems(result));
   });
   all.sort((a, b) => (a.time > b.time ? 1 : a.time < b.time ? -1 : 0));
   return all;
@@ -101,11 +103,14 @@ export default async function handler(req, res) {
       }
       if (time) {
         const items = (await getItems(deleteDate)).filter((it) => it.time !== time);
-        await kvCommand(["SET", `soop_chat:${deleteDate}`, JSON.stringify(items)]);
+        await kvCommand(["DEL", `${KEY_PREFIX}${deleteDate}`]);
+        if (items.length) {
+          await kvCommand(["RPUSH", `${KEY_PREFIX}${deleteDate}`, ...items.map((it) => JSON.stringify(it))]);
+        }
         res.status(200).json({ success: true, items });
         return;
       }
-      await kvCommand(["DEL", `soop_chat:${deleteDate}`]);
+      await kvCommand(["DEL", `${KEY_PREFIX}${deleteDate}`]);
       res.status(200).json({ success: true });
       return;
     }
@@ -122,22 +127,22 @@ export default async function handler(req, res) {
     }
 
     const date = todayKeySeoul();
-    const items = await getItems(date);
+    const existing = await getItems(date);
 
-    if (items.some((it) => it.message === text && it.time === time)) {
-      res.status(200).json({ success: true, deduped: true, count: items.length });
+    if (existing.some((it) => it.message === text && it.time === time)) {
+      res.status(200).json({ success: true, deduped: true, count: existing.length });
       return;
     }
 
-    items.push({
+    const item = {
       time: time || new Date().toISOString(),
       message: text,
       broadcastId: broadcastId || null,
       type: type || "notice",
       sender: sender || null,
-    });
-    await kvCommand(["SET", `soop_chat:${date}`, JSON.stringify(items)]);
-    res.status(200).json({ success: true, count: items.length });
+    };
+    await kvCommand(["RPUSH", `${KEY_PREFIX}${date}`, JSON.stringify(item)]);
+    res.status(200).json({ success: true, count: existing.length + 1 });
     return;
   }
 
