@@ -570,6 +570,7 @@ const singQueueListEl = document.getElementById("singQueueList");
 const singQueueClearBtn = document.getElementById("singQueueClearBtn");
 const songRequestListClearBtn = document.getElementById("songRequestListClearBtn");
 function clearSingQueue() {
+  if (isReadOnly) return;
   singQueueOrder = [];
   saveSingQueue();
   renderSingQueueList();
@@ -3711,7 +3712,9 @@ const songRouletteFilterToggle = document.getElementById("songRouletteFilterTogg
 const songRouletteFilterValue = document.getElementById("songRouletteFilterValue");
 const songRouletteFilterMenu = document.getElementById("songRouletteFilterMenu");
 const songRouletteSpinBtn = document.getElementById("songRouletteSpinBtn");
+const songRouletteQueueAddBtn = document.getElementById("songRouletteQueueAddBtn");
 let songRouletteGenre = "전체";
+let songRouletteResultSong = null;
 
 function closeSongRouletteModal() {
   songRouletteModalBackdrop.classList.add("hidden");
@@ -3728,6 +3731,7 @@ songRouletteBtn.addEventListener("click", (e) => {
   songRouletteStatus.className = "song-roulette-status";
   songRouletteStatusText.textContent = "대기 중";
   songRouletteSpinBtn.disabled = false;
+  songRouletteResultSong = null;
   songRouletteModalBackdrop.classList.remove("hidden");
 });
 songRouletteCloseBtn.addEventListener("click", closeSongRouletteModal);
@@ -3761,6 +3765,7 @@ songRouletteSpinBtn.addEventListener("click", () => {
     return;
   }
 
+  songRouletteResultSong = null;
   songRouletteSpinBtn.disabled = true;
   songRouletteStatus.className = "song-roulette-status spinning";
 
@@ -3775,7 +3780,13 @@ songRouletteSpinBtn.addEventListener("click", () => {
     songRouletteStatus.className = "song-roulette-status result";
     songRouletteStatusText.textContent = `${song.title} - ${song.artist}`;
     songRouletteSpinBtn.disabled = false;
+    songRouletteResultSong = song;
   }, 3000);
+});
+
+songRouletteQueueAddBtn.addEventListener("click", () => {
+  if (isReadOnly || !songRouletteResultSong) return;
+  addToSingQueue([albumArtCacheKey(songRouletteResultSong)]);
 });
 
 const songAddBtn = document.getElementById("songAddBtn");
@@ -4959,6 +4970,8 @@ function updateLockUi() {
   loginBtnLabel.textContent = isReadOnly ? "로그인" : "로그아웃";
   if (isReadOnly && songManageMode) closeSongManageMode();
   songManageBtn.classList.toggle("hidden", isReadOnly || songManageMode);
+  singQueueClearBtn.classList.toggle("hidden", isReadOnly);
+  songRouletteQueueAddBtn.classList.toggle("hidden", isReadOnly);
 
   songRequestOpenBtn.classList.toggle("hidden", isReadOnly);
   songRequestAcceptToggle.disabled = isReadOnly;

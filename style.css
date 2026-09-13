@@ -4763,9 +4763,33 @@ body.youtube-view-open {
   color: #1f8a4d;
 }
 
+.song-roulette-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
 .song-roulette-filter {
   position: relative;
-  margin-bottom: 18px;
+  flex: 1;
+}
+
+.song-roulette-queue-add-btn {
+  flex-shrink: 0;
+  border: 1px solid #eee;
+  background: #fff;
+  color: #666;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.song-roulette-queue-add-btn:hover {
+  background: #f5f5f5;
 }
 
 .song-roulette-filter-toggle {
