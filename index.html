@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=578">
+<link rel="stylesheet" href="style.css?v=580">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen">
@@ -724,7 +724,10 @@
 
         <div class="song-request-panel song-request-chat-panel">
           <div class="song-request-panel-header">
-            <h3>채팅</h3>
+            <span class="song-request-chat-title-group">
+              <h3>채팅</h3>
+              <button type="button" id="songRequestChatLogClearBtn" class="song-request-chat-log-clear-btn">지우기</button>
+            </span>
             <span id="songRequestChatStatus" class="song-request-chat-status">
               <span class="song-request-chat-status-dot"></span>연결 중...
             </span>
@@ -1129,8 +1132,8 @@
 
 
 
-  <script src="app.js?v=578"></script>
-  <script src="games.js?v=578"></script>
+  <script src="app.js?v=580"></script>
+  <script src="games.js?v=580"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {

@@ -406,17 +406,25 @@ function setSongRequestChatStatus(text, tone) {
 }
 
 const songRequestChatLogEl = document.getElementById("songRequestChatLog");
+const songRequestChatLogClearBtn = document.getElementById("songRequestChatLogClearBtn");
+songRequestChatLogClearBtn.addEventListener("click", () => {
+  songRequestChatLogEl.innerHTML = "";
+});
+
+function logSongRequestNote(text) {
+  if (!songRequestChatLogEl) return;
+  const line = document.createElement("div");
+  line.className = "song-request-chat-log-line";
+  line.textContent = text;
+  songRequestChatLogEl.appendChild(line);
+  songRequestChatLogEl.scrollTop = songRequestChatLogEl.scrollHeight;
+}
 
 function logSongRequestFailure(item, parsed, reason) {
-  if (!songRequestChatLogEl) return;
   const sender = item.sender ? `${item.sender}: ` : "";
   const reasonText =
     reason === "ambiguous" ? "노래제목이 중복입니다. 가수 이름을 적어주세요." : "노래책 목록에 없는 곡입니다.";
-  const line = document.createElement("div");
-  line.className = "song-request-chat-log-line";
-  line.textContent = `${sender}"${parsed.title}" - ${reasonText}`;
-  songRequestChatLogEl.appendChild(line);
-  songRequestChatLogEl.scrollTop = songRequestChatLogEl.scrollHeight;
+  logSongRequestNote(`${sender}"${parsed.title}" - ${reasonText}`);
 }
 
 function tryQueueFromRequestMessage(message) {
@@ -466,14 +474,21 @@ async function pollSongRequests() {
         if (item.type === "star") {
           const count = Number(item.message) || 0;
           const sender = item.sender;
-          if (!sender || count < songRequestMinStars) return;
+          if (!sender) return;
+          if (count < songRequestMinStars) {
+            logSongRequestNote(`${sender}: 별풍선 ${count}개 - 최소 별풍선 개수(${songRequestMinStars}개) 미달`);
+            return;
+          }
           songRequestPendingStarSenders[sender] = (songRequestPendingStarSenders[sender] || 0) + 1;
           console.log("[신청곡] 별풍선 대기 등록:", sender, "개수:", count, "누적 대기:", songRequestPendingStarSenders[sender]);
           return;
         }
         if (item.type !== "songRequest") return;
         const sender = item.sender;
-        if (!sender || !songRequestPendingStarSenders[sender]) return;
+        if (!sender || !songRequestPendingStarSenders[sender]) {
+          if (sender) logSongRequestNote(`${sender}: "${item.message}" - 확인된 별풍선 후원이 없어요.`);
+          return;
+        }
         if (!tryQueueChatItem(item)) return;
         songRequestPendingStarSenders[sender] -= 1;
         if (songRequestPendingStarSenders[sender] <= 0) delete songRequestPendingStarSenders[sender];
