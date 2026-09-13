@@ -568,12 +568,15 @@ document.querySelectorAll(".song-request-source-btn").forEach((btn) => {
 
 const singQueueListEl = document.getElementById("singQueueList");
 const singQueueClearBtn = document.getElementById("singQueueClearBtn");
-singQueueClearBtn.addEventListener("click", () => {
+const songRequestListClearBtn = document.getElementById("songRequestListClearBtn");
+function clearSingQueue() {
   singQueueOrder = [];
   saveSingQueue();
   renderSingQueueList();
   renderSongRequestList();
-});
+}
+singQueueClearBtn.addEventListener("click", clearSingQueue);
+songRequestListClearBtn.addEventListener("click", clearSingQueue);
 const songManageBtn = document.getElementById("songManageBtn");
 const songManageToolbar = document.getElementById("songManageToolbar");
 const songSelectAllBtn = document.getElementById("songSelectAllBtn");
