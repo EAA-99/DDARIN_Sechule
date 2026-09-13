@@ -74,9 +74,11 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "GET") {
-    const wantType = req.query.type ? String(req.query.type) : null;
+    const wantTypes = req.query.type ? String(req.query.type).split(",") : null;
     const filterByType = (items) =>
-      wantType ? items.filter((it) => it.type === wantType) : items.filter((it) => it.type !== "songRequest");
+      wantTypes
+        ? items.filter((it) => wantTypes.includes(it.type))
+        : items.filter((it) => it.type !== "songRequest" && it.type !== "star");
 
     if (req.query.date) {
       const date = String(req.query.date);

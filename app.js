@@ -368,6 +368,9 @@ let songRequestMinStars = Number(songRequestMinStarInput.value) || 0;
 
 songRequestStarApplyBtn.addEventListener("click", () => {
   songRequestMinStars = Number(songRequestMinStarInput.value) || 0;
+  if (getSongRequestActiveSource() === "star") {
+    setSongRequestChatStatus(`별풍선 ${songRequestMinStars}개 이상 감지 중`, "live");
+  }
 });
 
 function parseSongRequestMessage(text) {
@@ -404,9 +407,23 @@ function tryQueueFromRequestMessage(message) {
   if (song) addToSingQueue([albumArtCacheKey(song)]);
 }
 
+let songRequestPendingStarSenders = {};
+
+function tryQueueChatItem(item) {
+  const parsed = parseSongRequestMessage(item.message);
+  console.log("[신청곡] 파싱 결과:", item.message, "->", parsed);
+  if (!parsed) return false;
+  const song = findSongForRequest(parsed.title, parsed.artist);
+  console.log("[신청곡] 매칭된 곡:", song);
+  if (!song) return false;
+  songRequestSenderByKey[albumArtCacheKey(song)] = item.sender || null;
+  addToSingQueue([albumArtCacheKey(song)]);
+  return true;
+}
+
 async function pollSongRequests() {
   try {
-    const res = await fetch("/api/soop-chat?type=songRequest");
+    const res = await fetch("/api/soop-chat?type=songRequest,star");
     if (!res.ok) {
       console.warn("[신청곡] 폴링 응답 실패:", res.status);
       return;
@@ -416,16 +433,28 @@ async function pollSongRequests() {
     const items = (data.items || []).filter((it) => !songRequestSinceTime || it.time > songRequestSinceTime);
     console.log("[신청곡] 새 항목:", items);
 
-    if (getSongRequestActiveSource() === "chat") {
+    const source = getSongRequestActiveSource();
+    if (source === "chat") {
       items.forEach((item) => {
-        const parsed = parseSongRequestMessage(item.message);
-        console.log("[신청곡] 파싱 결과:", item.message, "->", parsed);
-        if (!parsed) return;
-        const song = findSongForRequest(parsed.title, parsed.artist);
-        console.log("[신청곡] 매칭된 곡:", song);
-        if (!song) return;
-        songRequestSenderByKey[albumArtCacheKey(song)] = item.sender || null;
-        addToSingQueue([albumArtCacheKey(song)]);
+        if (item.type !== "songRequest") return;
+        tryQueueChatItem(item);
+      });
+    } else if (source === "star") {
+      items.forEach((item) => {
+        if (item.type === "star") {
+          const count = Number(item.message) || 0;
+          const sender = item.sender;
+          if (!sender || count < songRequestMinStars) return;
+          songRequestPendingStarSenders[sender] = (songRequestPendingStarSenders[sender] || 0) + 1;
+          console.log("[신청곡] 별풍선 대기 등록:", sender, "개수:", count, "누적 대기:", songRequestPendingStarSenders[sender]);
+          return;
+        }
+        if (item.type !== "songRequest") return;
+        const sender = item.sender;
+        if (!sender || !songRequestPendingStarSenders[sender]) return;
+        if (!tryQueueChatItem(item)) return;
+        songRequestPendingStarSenders[sender] -= 1;
+        if (songRequestPendingStarSenders[sender] <= 0) delete songRequestPendingStarSenders[sender];
       });
     }
 
@@ -440,10 +469,11 @@ async function pollSongRequests() {
 function startSongRequestCollection() {
   songRequestSinceTime = new Date().toISOString();
   songRequestSenderByKey = {};
+  songRequestPendingStarSenders = {};
   renderSongRequestList();
   stopSongRequestCollection();
   const isStar = getSongRequestActiveSource() === "star";
-  setSongRequestChatStatus(isStar ? "별풍선 감지는 아직 준비 중이에요" : "수집 중", isStar ? "error" : "live");
+  setSongRequestChatStatus(isStar ? `별풍선 ${songRequestMinStars}개 이상 감지 중` : "수집 중", "live");
   songRequestPollInterval = setInterval(pollSongRequests, SONG_REQUEST_POLL_MS);
 }
 
@@ -476,7 +506,7 @@ songRequestAcceptToggle.addEventListener("click", () => {
 const songRequestSourceNoticeText = document.getElementById("songRequestSourceNoticeText");
 const SONG_REQUEST_SOURCE_NOTICES = {
   chat: "채팅창에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.",
-  star: "후원메세지에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.",
+  star: "최소 별풍선 개수 이상 후원한 사람이 이어서 채팅에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.",
 };
 
 const songRequestStarFilterEl = document.querySelector(".song-request-star-filter");
