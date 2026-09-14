@@ -23,17 +23,18 @@
     display: flex;
     flex-direction: column;
     gap: 3px;
-    background: rgba(20, 20, 28, 0.78);
+    background: var(--overlay-bg, rgba(20, 20, 28, 0.78));
     border-radius: 18px;
     padding: 12px 18px;
     width: 240px;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+    font-family: var(--overlay-font, "Malgun Gothic", "Segoe UI", sans-serif);
   }
 
   .queue-title {
     font-size: 1.05rem;
     font-weight: 800;
-    color: #ffffff;
+    color: var(--overlay-color, #ffffff);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -49,7 +50,8 @@
   .queue-artist {
     font-size: 0.8rem;
     font-weight: 600;
-    color: #c9c9d6;
+    color: var(--overlay-color, #c9c9d6);
+    opacity: 0.75;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -58,7 +60,8 @@
   .queue-time {
     flex-shrink: 0;
     font-size: 0.7rem;
-    color: #9a9aa6;
+    color: var(--overlay-color, #9a9aa6);
+    opacity: 0.55;
   }
 
   .queue-empty {
@@ -67,18 +70,6 @@
     padding: 12px 18px;
     color: #c9c9d6;
     font-size: 0.95rem;
-  }
-
-  body.align-right #queueList {
-    margin-left: auto;
-  }
-
-  body.align-right .queue-title {
-    text-align: right;
-  }
-
-  body.align-right .queue-row-bottom {
-    flex-direction: row-reverse;
   }
 </style>
 </head>
@@ -214,9 +205,30 @@
       renderQueue(keys, times);
     }
 
-    if (new URLSearchParams(location.search).get("align") === "right") {
-      document.body.classList.add("align-right");
-    }
+    const OVERLAY_FONTS = {
+      notosanskr: { family: `"Noto Sans KR", sans-serif`, google: "Noto+Sans+KR:wght@400;700;900" },
+      nanumgothic: { family: `"Nanum Gothic", sans-serif`, google: "Nanum+Gothic:wght@400;700;800" },
+      dohyeon: { family: `"Do Hyeon", sans-serif`, google: "Do+Hyeon" },
+      blackhansans: { family: `"Black Han Sans", sans-serif`, google: "Black+Han+Sans" },
+      jua: { family: `"Jua", sans-serif`, google: "Jua" },
+    };
+
+    (() => {
+      const params = new URLSearchParams(location.search);
+      const bg = params.get("bg");
+      const color = params.get("color");
+      const fontKey = params.get("font");
+      if (bg) document.documentElement.style.setProperty("--overlay-bg", bg);
+      if (color) document.documentElement.style.setProperty("--overlay-color", color);
+      const font = fontKey && OVERLAY_FONTS[fontKey];
+      if (font) {
+        document.documentElement.style.setProperty("--overlay-font", font.family);
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = `https://fonts.googleapis.com/css2?family=${font.google}&display=swap`;
+        document.head.appendChild(link);
+      }
+    })();
 
     (async () => {
       await loadSongbook();

@@ -11,6 +11,10 @@
     {
       "source": "/overlay/request/x0UXQ5j2URXmiitcuwPZ4RZQZQyPXgq",
       "destination": "/overlay-queue.html"
+    },
+    {
+      "source": "/overlay/nowplaying/I71BDs9EYsiHN54o4xEllo4u7k6b9ACd",
+      "destination": "/overlay-nowplaying.html"
     }
   ]
 }

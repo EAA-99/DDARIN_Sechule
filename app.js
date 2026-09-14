@@ -310,35 +310,62 @@ const SONG_REQUEST_OVERLAY_URL = "https://ddarin-sechule.vercel.app/overlay/requ
 const songRequestOverlayUrlInput = document.getElementById("songRequestOverlayUrlInput");
 const songRequestOverlayEyeBtn = document.getElementById("songRequestOverlayEyeBtn");
 const songRequestOverlayCopyBtn = document.getElementById("songRequestOverlayCopyBtn");
-const songRequestOverlayAlignLeftBtn = document.getElementById("songRequestOverlayAlignLeftBtn");
-const songRequestOverlayAlignRightBtn = document.getElementById("songRequestOverlayAlignRightBtn");
+const songRequestOverlayBgInput = document.getElementById("songRequestOverlayBgInput");
+const songRequestOverlayColorInput = document.getElementById("songRequestOverlayColorInput");
+const songRequestOverlayFontSelect = document.getElementById("songRequestOverlayFontSelect");
 const songRequestOverlayPreviewWrap = document.getElementById("songRequestOverlayPreviewWrap");
-let songRequestOverlayAlign = "left";
+
+const SONG_REQUEST_OVERLAY_BG_DEFAULT = "#14141c";
+const SONG_REQUEST_OVERLAY_COLOR_DEFAULT = "#ffffff";
+const SONG_REQUEST_OVERLAY_FONT_DEFAULT = "system";
+
+const SONG_REQUEST_OVERLAY_FONTS = {
+  system: { family: `"Malgun Gothic", "Segoe UI", sans-serif`, google: null },
+  notosanskr: { family: `"Noto Sans KR", sans-serif`, google: "Noto+Sans+KR:wght@400;700;900" },
+  nanumgothic: { family: `"Nanum Gothic", sans-serif`, google: "Nanum+Gothic:wght@400;700;800" },
+  dohyeon: { family: `"Do Hyeon", sans-serif`, google: "Do+Hyeon" },
+  blackhansans: { family: `"Black Han Sans", sans-serif`, google: "Black+Han+Sans" },
+  jua: { family: `"Jua", sans-serif`, google: "Jua" },
+};
 
 function currentOverlayUrl() {
-  return songRequestOverlayAlign === "right" ? `${SONG_REQUEST_OVERLAY_URL}?align=right` : SONG_REQUEST_OVERLAY_URL;
+  const params = new URLSearchParams();
+  if (songRequestOverlayBgInput.value !== SONG_REQUEST_OVERLAY_BG_DEFAULT) params.set("bg", songRequestOverlayBgInput.value);
+  if (songRequestOverlayColorInput.value !== SONG_REQUEST_OVERLAY_COLOR_DEFAULT) params.set("color", songRequestOverlayColorInput.value);
+  if (songRequestOverlayFontSelect.value !== SONG_REQUEST_OVERLAY_FONT_DEFAULT) params.set("font", songRequestOverlayFontSelect.value);
+  const qs = params.toString();
+  return qs ? `${SONG_REQUEST_OVERLAY_URL}?${qs}` : SONG_REQUEST_OVERLAY_URL;
+}
+
+function loadGoogleFontLink(fontKey) {
+  const existing = document.getElementById("songRequestOverlayFontLink");
+  const google = SONG_REQUEST_OVERLAY_FONTS[fontKey]?.google;
+  if (!google) {
+    if (existing) existing.remove();
+    return;
+  }
+  const link = existing || document.createElement("link");
+  link.id = "songRequestOverlayFontLink";
+  link.rel = "stylesheet";
+  link.href = `https://fonts.googleapis.com/css2?family=${google}&display=swap`;
+  if (!existing) document.head.appendChild(link);
 }
 
 function updateOverlayUrlDisplay() {
   songRequestOverlayUrlInput.value = currentOverlayUrl();
-  songRequestOverlayPreviewWrap.classList.toggle("song-request-overlay-preview-align-right", songRequestOverlayAlign === "right");
+  const fontKey = songRequestOverlayFontSelect.value;
+  loadGoogleFontLink(fontKey);
+  songRequestOverlayPreviewWrap.style.setProperty("--overlay-bg", songRequestOverlayBgInput.value);
+  songRequestOverlayPreviewWrap.style.setProperty("--overlay-color", songRequestOverlayColorInput.value);
+  songRequestOverlayPreviewWrap.style.setProperty("--overlay-font", SONG_REQUEST_OVERLAY_FONTS[fontKey].family);
 }
 
 updateOverlayUrlDisplay();
 songRequestOverlayUrlInput.classList.add("song-request-overlay-url-input-hidden");
 
-songRequestOverlayAlignLeftBtn.addEventListener("click", () => {
-  songRequestOverlayAlign = "left";
-  songRequestOverlayAlignLeftBtn.classList.add("active");
-  songRequestOverlayAlignRightBtn.classList.remove("active");
-  updateOverlayUrlDisplay();
-});
-songRequestOverlayAlignRightBtn.addEventListener("click", () => {
-  songRequestOverlayAlign = "right";
-  songRequestOverlayAlignRightBtn.classList.add("active");
-  songRequestOverlayAlignLeftBtn.classList.remove("active");
-  updateOverlayUrlDisplay();
-});
+songRequestOverlayBgInput.addEventListener("input", updateOverlayUrlDisplay);
+songRequestOverlayColorInput.addEventListener("input", updateOverlayUrlDisplay);
+songRequestOverlayFontSelect.addEventListener("change", updateOverlayUrlDisplay);
 songRequestOverlayEyeBtn.addEventListener("click", () => {
   songRequestOverlayUrlInput.classList.toggle("song-request-overlay-url-input-hidden");
 });
@@ -348,6 +375,31 @@ songRequestOverlayCopyBtn.addEventListener("click", async () => {
     songRequestOverlayCopyBtn.textContent = "복사됨";
     setTimeout(() => {
       songRequestOverlayCopyBtn.textContent = "복사";
+    }, 1500);
+  } catch {
+    // 클립보드 권한이 없으면 무시 - 입력창에서 직접 선택해 복사할 수 있음
+  }
+});
+
+// ===== 오버레이 > 현재 노래 정보 탭 =====
+const SONG_REQUEST_OVERLAY_NOWPLAYING_URL =
+  "https://ddarin-sechule.vercel.app/overlay/nowplaying/I71BDs9EYsiHN54o4xEllo4u7k6b9ACd";
+const songRequestOverlayNowplayingUrlInput = document.getElementById("songRequestOverlayNowplayingUrlInput");
+const songRequestOverlayNowplayingEyeBtn = document.getElementById("songRequestOverlayNowplayingEyeBtn");
+const songRequestOverlayNowplayingCopyBtn = document.getElementById("songRequestOverlayNowplayingCopyBtn");
+
+songRequestOverlayNowplayingUrlInput.value = SONG_REQUEST_OVERLAY_NOWPLAYING_URL;
+songRequestOverlayNowplayingUrlInput.classList.add("song-request-overlay-url-input-hidden");
+
+songRequestOverlayNowplayingEyeBtn.addEventListener("click", () => {
+  songRequestOverlayNowplayingUrlInput.classList.toggle("song-request-overlay-url-input-hidden");
+});
+songRequestOverlayNowplayingCopyBtn.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(SONG_REQUEST_OVERLAY_NOWPLAYING_URL);
+    songRequestOverlayNowplayingCopyBtn.textContent = "복사됨";
+    setTimeout(() => {
+      songRequestOverlayNowplayingCopyBtn.textContent = "복사";
     }, 1500);
   } catch {
     // 클립보드 권한이 없으면 무시 - 입력창에서 직접 선택해 복사할 수 있음

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>현재 노래 오버레이</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    font-family: "Malgun Gothic", "Segoe UI", sans-serif;
+  }
+
+  #nowPlayingCard {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: fit-content;
+    margin: 20px;
+    background: rgba(20, 20, 28, 0.78);
+    border-radius: 18px;
+    padding: 14px 20px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  }
+
+  #nowPlayingTitle {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  #nowPlayingArtist {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #c9c9d6;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+</style>
+</head>
+<body>
+  <div id="nowPlayingCard">
+    <span id="nowPlayingTitle"></span>
+    <span id="nowPlayingArtist"></span>
+  </div>
+
+  <script>
+    const SONGBOOK_SPREADSHEET_ID = "1NhImCLm5diXM0pA45SkB-g2PARivQiVN8bUKlniiOB8";
+    const SHEETS_API_KEY = "AIzaSyC0RsFfc5y9GmEaE29niGWD9hbSnpIc7rM";
+    const POLL_MS = 5000;
+
+    function albumArtCacheKey(song) {
+      return `${song.artist}|${song.title}`.toLowerCase();
+    }
+
+    async function fetchSongbookGenres() {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SONGBOOK_SPREADSHEET_ID}?key=${SHEETS_API_KEY}&fields=sheets.properties.title`;
+      const res = await fetch(url);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return (data.sheets || [])
+        .map((s) => s.properties.title)
+        .filter((title) => !/^시트\d+$/.test(title));
+    }
+
+    async function fetchSongbookSongs() {
+      const genres = await fetchSongbookGenres();
+      if (!genres.length) return [];
+      const ranges = genres.map((g) => `ranges=${encodeURIComponent(`'${g}'!C2:D`)}`).join("&");
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SONGBOOK_SPREADSHEET_ID}/values:batchGet?${ranges}&key=${SHEETS_API_KEY}`;
+      const res = await fetch(url);
+      if (!res.ok) return [];
+      const data = await res.json();
+      const songs = [];
+      (data.valueRanges || []).forEach((vr, i) => {
+        const genre = genres[i];
+        (vr.values || []).forEach((row) => {
+          const [artist, title] = row;
+          if (!title) return;
+          songs.push({ genre, artist: artist || "", title });
+        });
+      });
+      return songs;
+    }
+
+    async function fetchLocalOverrides() {
+      try {
+        const res = await fetch("/api/songbook");
+        if (!res.ok) return { overrides: {}, deletions: [] };
+        const data = await res.json();
+        return { overrides: data.overrides || {}, deletions: data.deletions || [] };
+      } catch {
+        return { overrides: {}, deletions: [] };
+      }
+    }
+
+    let songByKey = {};
+
+    async function loadSongbook() {
+      const [songs, local] = await Promise.all([fetchSongbookSongs(), fetchLocalOverrides()]);
+      const deletions = new Set(local.deletions);
+      songByKey = {};
+      songs.forEach((song) => {
+        const key = albumArtCacheKey(song);
+        if (deletions.has(key)) return;
+        const finalSong = local.overrides[key] || song;
+        songByKey[key] = finalSong;
+      });
+      Object.keys(local.overrides).forEach((key) => {
+        if (songByKey[key] || deletions.has(key)) return;
+        songByKey[key] = local.overrides[key];
+      });
+    }
+
+    async function fetchNowPlayingKey() {
+      try {
+        const res = await fetch("/api/songbook?resource=queue");
+        if (!res.ok) return null;
+        const data = await res.json();
+        const queue = Array.isArray(data.queue) ? data.queue : [];
+        return queue[0] || null;
+      } catch {
+        return null;
+      }
+    }
+
+    function renderNowPlaying(key) {
+      const card = document.getElementById("nowPlayingCard");
+      const song = key ? songByKey[key] : null;
+      if (!song) {
+        card.style.display = "none";
+        return;
+      }
+      card.style.display = "flex";
+      document.getElementById("nowPlayingTitle").textContent = song.title;
+      document.getElementById("nowPlayingArtist").textContent = song.artist;
+    }
+
+    async function tick() {
+      const key = await fetchNowPlayingKey();
+      renderNowPlaying(key);
+    }
+
+    (async () => {
+      await loadSongbook();
+      await tick();
+      setInterval(tick, POLL_MS);
+      setInterval(loadSongbook, 5 * 60 * 1000);
+    })();
+  </script>
+</body>
+</html>

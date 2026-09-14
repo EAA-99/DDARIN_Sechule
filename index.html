@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=597">
+<link rel="stylesheet" href="style.css?v=598">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen">
@@ -790,14 +790,45 @@
           </div>
 
           <div class="song-request-content-panel" data-panel="overlay-nowplaying">
-            <p class="song-request-placeholder">이 오버레이는 아직 준비 중이에요.</p>
+            <p class="song-request-overlay-heading song-request-overlay-heading-first">브라우저 소스 URL</p>
+            <div class="song-request-overlay-url-row">
+              <input type="text" id="songRequestOverlayNowplayingUrlInput" class="song-request-overlay-url-input song-request-overlay-url-input-hidden" readonly>
+              <button type="button" id="songRequestOverlayNowplayingEyeBtn" class="song-request-overlay-icon-btn" aria-label="URL 보기">👁</button>
+              <button type="button" id="songRequestOverlayNowplayingCopyBtn" class="song-request-overlay-copy-btn">복사</button>
+            </div>
+            <p class="song-request-overlay-desc">노래 목록이 아니라, 지금 부르고 있는 곡의 제목과 가수만 보여주는 오버레이입니다.</p>
+
+            <p class="song-request-overlay-heading">미리보기</p>
+            <div class="song-request-overlay-nowplaying-preview-wrap">
+              <div class="song-request-overlay-nowplaying-preview-card">
+                <span class="song-request-overlay-nowplaying-preview-title">노래 제목</span>
+                <span class="song-request-overlay-nowplaying-preview-artist">가수</span>
+              </div>
+            </div>
           </div>
 
           <div class="song-request-content-panel" data-panel="overlay-queue">
-            <p class="song-request-overlay-heading song-request-overlay-heading-first">정렬</p>
-            <div class="song-request-overlay-align-tabs">
-              <button type="button" class="song-request-overlay-align-tab active" id="songRequestOverlayAlignLeftBtn" data-align="left">왼쪽</button>
-              <button type="button" class="song-request-overlay-align-tab" id="songRequestOverlayAlignRightBtn" data-align="right">오른쪽</button>
+            <p class="song-request-overlay-heading song-request-overlay-heading-first">디자인</p>
+            <div class="song-request-overlay-style-row">
+              <label class="song-request-overlay-style-field">
+                <span class="song-request-inline-label">배경색</span>
+                <input type="color" id="songRequestOverlayBgInput" value="#14141c">
+              </label>
+              <label class="song-request-overlay-style-field">
+                <span class="song-request-inline-label">글자색</span>
+                <input type="color" id="songRequestOverlayColorInput" value="#ffffff">
+              </label>
+              <label class="song-request-overlay-style-field">
+                <span class="song-request-inline-label">글자체</span>
+                <select id="songRequestOverlayFontSelect" class="song-request-overlay-font-select">
+                  <option value="system">기본</option>
+                  <option value="notosanskr">Noto Sans KR</option>
+                  <option value="nanumgothic">나눔고딕</option>
+                  <option value="dohyeon">Do Hyeon</option>
+                  <option value="blackhansans">Black Han Sans</option>
+                  <option value="jua">Jua</option>
+                </select>
+              </label>
             </div>
 
             <p class="song-request-overlay-heading">브라우저 소스 URL</p>
@@ -1229,8 +1260,8 @@
 
 
 
-  <script src="app.js?v=597"></script>
-  <script src="games.js?v=597"></script>
+  <script src="app.js?v=598"></script>
+  <script src="games.js?v=598"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {
