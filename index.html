@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=591">
+<link rel="stylesheet" href="style.css?v=592">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen">
@@ -706,8 +706,31 @@
 
         <div class="song-request-content">
           <div class="song-request-content-panel active" data-panel="dashboard">
-            <p class="song-request-section-label">현재 재생 중인 곡</p>
-            <div id="songRequestNowPlaying" class="song-request-nowplaying-card"></div>
+            <div class="song-request-nowplaying-card">
+              <div class="song-request-nowplaying-art">♪</div>
+              <div class="song-request-nowplaying-body">
+                <div class="song-request-nowplaying-eyebrow">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="4" x2="6" y2="20"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="18" y1="2" x2="18" y2="22"/></svg>
+                  CURRENTLY SINGING
+                </div>
+                <div id="songRequestNowPlayingTitle" class="song-request-nowplaying-title">현재 노래가 없습니다</div>
+                <div id="songRequestNowPlayingArtist" class="song-request-nowplaying-artist">대기열에서 곡을 선택해 주세요</div>
+              </div>
+              <div class="song-request-nowplaying-side">
+                <span id="songRequestTodayBadge" class="song-request-today-badge">오늘 0/0곡</span>
+                <div class="song-request-nowplaying-actions">
+                  <button type="button" id="songRequestSenderBtn" class="song-request-nowplaying-icon-btn" aria-label="신청자 보기">💬</button>
+                  <button type="button" id="songRequestUndoBtn" class="song-request-nowplaying-icon-btn song-request-nowplaying-icon-btn-danger" aria-label="되돌리기">↩</button>
+                  <button type="button" id="songRequestSkipBtn" class="song-request-nowplaying-icon-btn" aria-label="건너뛰기">⏭</button>
+                  <button type="button" id="songRequestDoneBtn" class="song-request-nowplaying-done-btn">노래 끝 ✓</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="song-request-notice song-request-notice-info">
+              <span class="song-request-notice-icon">ⓘ</span>
+              <p id="songRequestSourceNoticeText">채팅창에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.</p>
+            </div>
 
             <p class="song-request-section-label">곡 검색</p>
             <div class="song-request-search-wrap">
@@ -765,17 +788,16 @@
               <button type="button" class="song-request-sort-tab active" data-sort="order">선착순</button>
             </div>
 
-            <div class="song-request-notice song-request-notice-info">
-              <span class="song-request-notice-icon">ⓘ</span>
-              <p id="songRequestSourceNoticeText">채팅창에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.</p>
-            </div>
-
             <div id="songRequestList" class="song-request-list"></div>
           </div>
 
           <div class="song-request-content-panel" data-panel="request">
-            <p class="song-request-section-label">누가 어떤 채팅으로 신청했는지 보여줘요</p>
-            <div id="songRequestSuccessLog" class="song-request-success-log"></div>
+            <div class="song-request-card">
+              <div class="song-request-panel-header">
+                <h3>노래 신청</h3>
+              </div>
+              <div id="songRequestSuccessLog" class="song-request-success-log"></div>
+            </div>
           </div>
 
           <div class="song-request-content-panel" data-panel="overlay-nowplaying">
@@ -1209,8 +1231,8 @@
 
 
 
-  <script src="app.js?v=591"></script>
-  <script src="games.js?v=591"></script>
+  <script src="app.js?v=592"></script>
+  <script src="games.js?v=592"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {

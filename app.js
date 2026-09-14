@@ -393,27 +393,94 @@ let songRequestSinceTime = null;
 const songRequestListEl = document.getElementById("songRequestList");
 let songRequestSenderByKey = {};
 
-const songRequestNowPlayingEl = document.getElementById("songRequestNowPlaying");
+const songRequestNowPlayingTitleEl = document.getElementById("songRequestNowPlayingTitle");
+const songRequestNowPlayingArtistEl = document.getElementById("songRequestNowPlayingArtist");
+const songRequestTodayBadgeEl = document.getElementById("songRequestTodayBadge");
+const songRequestSenderBtn = document.getElementById("songRequestSenderBtn");
+const songRequestUndoBtn = document.getElementById("songRequestUndoBtn");
+const songRequestSkipBtn = document.getElementById("songRequestSkipBtn");
+const songRequestDoneBtn = document.getElementById("songRequestDoneBtn");
+
+const SONG_REQUEST_TODAY_COUNT_KEY = "songRequestTodayCount";
+let songRequestLastRemoved = null;
+let songRequestShowSender = false;
+
+function todayDateKeySeoul() {
+  return new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
+}
+
+function getSongRequestTodayCount() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SONG_REQUEST_TODAY_COUNT_KEY) || "null");
+    if (saved && saved.date === todayDateKeySeoul()) return saved.count;
+  } catch {
+    /* 저장된 값이 깨졌으면 0부터 다시 시작 */
+  }
+  return 0;
+}
+
+function setSongRequestTodayCount(count) {
+  localStorage.setItem(SONG_REQUEST_TODAY_COUNT_KEY, JSON.stringify({ date: todayDateKeySeoul(), count }));
+}
 
 function renderSongRequestNowPlaying(queueSongs) {
-  if (!songRequestNowPlayingEl) return;
-  songRequestNowPlayingEl.innerHTML = "";
   const song = queueSongs[0];
+  const key = singQueueOrder[0];
+
   if (!song) {
-    const empty = document.createElement("p");
-    empty.className = "song-request-empty-text";
-    empty.textContent = "대기열이 비어 있습니다.";
-    songRequestNowPlayingEl.appendChild(empty);
-    return;
+    songRequestNowPlayingTitleEl.textContent = "현재 노래가 없습니다";
+    songRequestNowPlayingArtistEl.textContent = "대기열에서 곡을 선택해 주세요";
+  } else {
+    const sender = songRequestSenderByKey[key];
+    songRequestNowPlayingTitleEl.textContent = song.title;
+    songRequestNowPlayingArtistEl.textContent =
+      songRequestShowSender && sender ? `${song.artist} · 신청: ${sender}` : song.artist;
   }
-  const titleEl = document.createElement("div");
-  titleEl.className = "song-request-nowplaying-title";
-  titleEl.textContent = song.title;
-  const artistEl = document.createElement("div");
-  artistEl.className = "song-request-nowplaying-artist";
-  artistEl.textContent = song.artist;
-  songRequestNowPlayingEl.append(titleEl, artistEl);
+
+  const completed = getSongRequestTodayCount();
+  songRequestTodayBadgeEl.textContent = `오늘 ${completed}/${completed + queueSongs.length}곡`;
+
+  songRequestDoneBtn.disabled = !song;
+  songRequestSkipBtn.disabled = !song;
+  songRequestSenderBtn.disabled = !song;
+  songRequestUndoBtn.disabled = !songRequestLastRemoved;
 }
+
+songRequestDoneBtn.addEventListener("click", () => {
+  const key = singQueueOrder[0];
+  if (!key) return;
+  songRequestLastRemoved = { key, wasCompleted: true, sender: songRequestSenderByKey[key] || null };
+  songRequestShowSender = false;
+  setSongRequestTodayCount(getSongRequestTodayCount() + 1);
+  removeFromSingQueue(key);
+});
+
+songRequestSkipBtn.addEventListener("click", () => {
+  const key = singQueueOrder[0];
+  if (!key) return;
+  songRequestLastRemoved = { key, wasCompleted: false, sender: songRequestSenderByKey[key] || null };
+  songRequestShowSender = false;
+  removeFromSingQueue(key);
+});
+
+songRequestUndoBtn.addEventListener("click", () => {
+  if (!songRequestLastRemoved) return;
+  const { key, wasCompleted, sender } = songRequestLastRemoved;
+  if (!singQueueOrder.includes(key)) {
+    singQueueOrder.unshift(key);
+    if (sender) songRequestSenderByKey[key] = sender;
+  }
+  if (wasCompleted) setSongRequestTodayCount(Math.max(0, getSongRequestTodayCount() - 1));
+  songRequestLastRemoved = null;
+  saveSingQueue();
+  renderSingQueueList();
+  renderSongRequestList();
+});
+
+songRequestSenderBtn.addEventListener("click", () => {
+  songRequestShowSender = !songRequestShowSender;
+  renderSongRequestList();
+});
 
 function renderSongRequestList() {
   songRequestListEl.innerHTML = "";
