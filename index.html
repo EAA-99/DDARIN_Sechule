@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=593">
+<link rel="stylesheet" href="style.css?v=594">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen">
@@ -720,11 +720,6 @@
               </div>
             </div>
 
-            <div class="song-request-notice song-request-notice-info">
-              <span class="song-request-notice-icon">ⓘ</span>
-              <p id="songRequestSourceNoticeText">채팅창에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.</p>
-            </div>
-
             <div class="song-request-panel-header-controls song-request-controls-row">
               <button type="button" id="songRequestSourceChatBtn" class="song-request-source-btn active" data-source="chat">채팅</button>
               <button type="button" id="songRequestSourceStarBtn" class="song-request-source-btn" data-source="star">별풍선</button>
@@ -739,6 +734,15 @@
               <button type="button" id="songRequestStarApplyBtn" class="song-request-star-apply-btn">적용</button>
             </div>
 
+            <a href="ddarinsong://start" id="songRequestCollectorLaunchBtn" class="song-request-collector-launch-btn">
+              🎧 신청곡 수집 프로그램 열기
+            </a>
+
+            <div class="song-request-notice song-request-notice-info">
+              <span class="song-request-notice-icon">ⓘ</span>
+              <p id="songRequestSourceNoticeText">채팅창에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.</p>
+            </div>
+
             <div id="songRequestOffNotice" class="song-request-notice song-request-notice-warning">
               <span class="song-request-notice-icon">⚠</span>
               <div>
@@ -746,10 +750,6 @@
                 <p>노래 신청을 받으려면 위쪽에 있는 <b>신청 받기</b> 토글을 켜주세요.</p>
               </div>
             </div>
-
-            <a href="ddarinsong://start" id="songRequestCollectorLaunchBtn" class="song-request-collector-launch-btn">
-              🎧 신청곡 수집 프로그램 열기
-            </a>
 
             <div class="song-request-panel-header song-request-chat-header">
               <span class="song-request-chat-title-group">
@@ -1216,8 +1216,8 @@
 
 
 
-  <script src="app.js?v=593"></script>
-  <script src="games.js?v=593"></script>
+  <script src="app.js?v=594"></script>
+  <script src="games.js?v=594"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {
