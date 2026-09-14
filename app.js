@@ -300,17 +300,14 @@ const songRequestOverlayCloseBtn = document.getElementById("songRequestOverlayCl
 const songRequestOverlayUrlInput = document.getElementById("songRequestOverlayUrlInput");
 const songRequestOverlayEyeBtn = document.getElementById("songRequestOverlayEyeBtn");
 const songRequestOverlayCopyBtn = document.getElementById("songRequestOverlayCopyBtn");
-const songRequestOverlayPreview = document.getElementById("songRequestOverlayPreview");
 
 function closeSongRequestOverlayModal() {
   songRequestOverlayModalBackdrop.classList.add("hidden");
-  songRequestOverlayPreview.src = "about:blank";
 }
 
 songRequestOverlayBtn.addEventListener("click", () => {
   songRequestOverlayUrlInput.value = SONG_REQUEST_OVERLAY_URL;
-  songRequestOverlayUrlInput.type = "password";
-  songRequestOverlayPreview.src = SONG_REQUEST_OVERLAY_URL;
+  songRequestOverlayUrlInput.classList.add("song-request-overlay-url-input-hidden");
   songRequestOverlayModalBackdrop.classList.remove("hidden");
 });
 songRequestOverlayCloseBtn.addEventListener("click", closeSongRequestOverlayModal);
@@ -318,7 +315,7 @@ songRequestOverlayModalBackdrop.addEventListener("click", (e) => {
   if (e.target === songRequestOverlayModalBackdrop) closeSongRequestOverlayModal();
 });
 songRequestOverlayEyeBtn.addEventListener("click", () => {
-  songRequestOverlayUrlInput.type = songRequestOverlayUrlInput.type === "password" ? "text" : "password";
+  songRequestOverlayUrlInput.classList.toggle("song-request-overlay-url-input-hidden");
 });
 songRequestOverlayCopyBtn.addEventListener("click", async () => {
   try {

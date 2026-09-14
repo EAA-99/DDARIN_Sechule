@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=588">
+<link rel="stylesheet" href="style.css?v=589">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen">
@@ -769,17 +769,36 @@
 
       <p class="song-request-overlay-label">브라우저 소스 URL</p>
       <div class="song-request-overlay-url-row">
-        <input type="text" id="songRequestOverlayUrlInput" class="song-request-overlay-url-input" readonly>
+        <input type="text" id="songRequestOverlayUrlInput" class="song-request-overlay-url-input song-request-overlay-url-input-hidden" readonly>
         <button type="button" id="songRequestOverlayEyeBtn" class="song-request-overlay-icon-btn" aria-label="URL 보기">👁</button>
         <button type="button" id="songRequestOverlayCopyBtn" class="song-request-overlay-copy-btn">복사</button>
       </div>
 
-      <p class="song-request-overlay-size">추천 오버레이 사이즈: <b>420×720</b></p>
-      <p class="song-request-overlay-desc">대기 중인 노래 신청을 실시간으로 보여주는 오버레이입니다.</p>
+      <p class="song-request-overlay-desc">대기 중인 노래 목록을 실시간으로 보여주는 오버레이입니다.</p>
 
       <p class="song-request-overlay-label">미리보기</p>
       <div class="song-request-overlay-preview-wrap">
-        <iframe id="songRequestOverlayPreview" class="song-request-overlay-preview" src="about:blank" title="오버레이 미리보기"></iframe>
+        <div class="queue-row">
+          <span class="queue-index">1</span>
+          <span class="queue-text">
+            <span class="queue-title">노래 제목 A</span>
+            <span class="queue-artist">가수</span>
+          </span>
+        </div>
+        <div class="queue-row">
+          <span class="queue-index">2</span>
+          <span class="queue-text">
+            <span class="queue-title">노래 제목 B</span>
+            <span class="queue-artist">가수</span>
+          </span>
+        </div>
+        <div class="queue-row">
+          <span class="queue-index">3</span>
+          <span class="queue-text">
+            <span class="queue-title">노래 제목 C</span>
+            <span class="queue-artist">가수</span>
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -1166,8 +1185,8 @@
 
 
 
-  <script src="app.js?v=588"></script>
-  <script src="games.js?v=588"></script>
+  <script src="app.js?v=589"></script>
+  <script src="games.js?v=589"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {
