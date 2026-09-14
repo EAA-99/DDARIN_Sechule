@@ -63,6 +63,18 @@
     color: #c9c9d6;
     font-size: 0.95rem;
   }
+
+  body.align-right #queueList {
+    margin-left: auto;
+  }
+
+  body.align-right .queue-row {
+    flex-direction: row-reverse;
+  }
+
+  body.align-right .queue-text {
+    text-align: right;
+  }
 </style>
 </head>
 <body>
@@ -178,6 +190,10 @@
     async function tick() {
       const keys = await fetchQueue();
       renderQueue(keys);
+    }
+
+    if (new URLSearchParams(location.search).get("align") === "right") {
+      document.body.classList.add("align-right");
     }
 
     (async () => {

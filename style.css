@@ -3311,12 +3311,127 @@ body.youtube-view-open {
 
 /* ===== 노래 신청 팝업 ===== */
 #songRequestModalBackdrop .song-request-modal {
-  max-width: 1040px;
+  max-width: 1220px;
   width: 100%;
   max-height: 85vh;
   overflow-y: auto;
   text-align: left;
   background: #fff;
+}
+
+.song-request-shell {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+@media (max-width: 760px) {
+  .song-request-shell {
+    flex-direction: column;
+  }
+}
+
+.song-request-nav {
+  flex: 0 0 168px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.song-request-nav-item {
+  text-align: left;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #666;
+  cursor: pointer;
+}
+
+.song-request-nav-item:hover {
+  background: #f5f5f5;
+}
+
+.song-request-nav-item.active {
+  background: #eaf2fc;
+  color: #1c6dd0;
+}
+
+.song-request-nav-section-label {
+  margin: 14px 0 2px;
+  padding: 0 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.song-request-nav-sub {
+  font-weight: 600;
+}
+
+.song-request-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.song-request-content-panel {
+  display: none;
+}
+
+.song-request-content-panel.active {
+  display: block;
+}
+
+.song-request-placeholder {
+  color: #999;
+  font-size: 0.9rem;
+  padding: 40px 0;
+  text-align: center;
+}
+
+.song-request-overlay-heading {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #666;
+}
+
+.song-request-overlay-heading:not(.song-request-overlay-heading-first) {
+  margin-top: 18px;
+}
+
+.song-request-overlay-align-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.song-request-overlay-align-tab {
+  border: 1px solid #eee;
+  background: #fff;
+  color: #666;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.song-request-overlay-align-tab.active {
+  border-color: #1c6dd0;
+  color: #1c6dd0;
+  background: #eaf2fc;
+}
+
+.song-request-overlay-preview-align-right .queue-row {
+  flex-direction: row-reverse;
+}
+
+.song-request-overlay-preview-align-right .queue-text {
+  text-align: right;
 }
 
 .song-request-panels {
@@ -3475,41 +3590,6 @@ body.youtube-view-open {
   background: #1c6dd0;
   border-color: #1c6dd0;
   color: #fff;
-}
-
-.song-request-overlay-open-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: auto;
-  border: 1px solid #eee;
-  background: #fff;
-  color: #666;
-  border-radius: 999px;
-  padding: 6px 14px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.song-request-overlay-open-btn:hover {
-  background: #f5f5f5;
-}
-
-.song-request-overlay-modal {
-  max-width: 460px;
-  text-align: left;
-}
-
-.song-request-overlay-label {
-  margin: 14px 0 6px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #666;
-}
-
-.song-request-overlay-label:first-of-type {
-  margin-top: 4px;
 }
 
 .song-request-overlay-url-row {

@@ -293,33 +293,58 @@ songRequestModalBackdrop.addEventListener("click", (e) => {
   if (e.target === songRequestModalBackdrop) closeSongRequestModal();
 });
 
+// ===== 신청 팝업 내 사이드바 탭 전환 =====
+const songRequestNavItems = document.querySelectorAll(".song-request-nav-item");
+const songRequestContentPanels = document.querySelectorAll(".song-request-content-panel");
+
+songRequestNavItems.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    songRequestNavItems.forEach((el) => el.classList.toggle("active", el === btn));
+    const target = btn.dataset.panel;
+    songRequestContentPanels.forEach((panel) => panel.classList.toggle("active", panel.dataset.panel === target));
+  });
+});
+
+// ===== 오버레이 > 노래 신청 목록 탭 =====
 const SONG_REQUEST_OVERLAY_URL = "https://ddarin-sechule.vercel.app/overlay/request/x0UXQ5j2URXmiitcuwPZ4RZQZQyPXgq";
-const songRequestOverlayBtn = document.getElementById("songRequestOverlayBtn");
-const songRequestOverlayModalBackdrop = document.getElementById("songRequestOverlayModalBackdrop");
-const songRequestOverlayCloseBtn = document.getElementById("songRequestOverlayCloseBtn");
 const songRequestOverlayUrlInput = document.getElementById("songRequestOverlayUrlInput");
 const songRequestOverlayEyeBtn = document.getElementById("songRequestOverlayEyeBtn");
 const songRequestOverlayCopyBtn = document.getElementById("songRequestOverlayCopyBtn");
+const songRequestOverlayAlignLeftBtn = document.getElementById("songRequestOverlayAlignLeftBtn");
+const songRequestOverlayAlignRightBtn = document.getElementById("songRequestOverlayAlignRightBtn");
+const songRequestOverlayPreviewWrap = document.getElementById("songRequestOverlayPreviewWrap");
+let songRequestOverlayAlign = "left";
 
-function closeSongRequestOverlayModal() {
-  songRequestOverlayModalBackdrop.classList.add("hidden");
+function currentOverlayUrl() {
+  return songRequestOverlayAlign === "right" ? `${SONG_REQUEST_OVERLAY_URL}?align=right` : SONG_REQUEST_OVERLAY_URL;
 }
 
-songRequestOverlayBtn.addEventListener("click", () => {
-  songRequestOverlayUrlInput.value = SONG_REQUEST_OVERLAY_URL;
-  songRequestOverlayUrlInput.classList.add("song-request-overlay-url-input-hidden");
-  songRequestOverlayModalBackdrop.classList.remove("hidden");
+function updateOverlayUrlDisplay() {
+  songRequestOverlayUrlInput.value = currentOverlayUrl();
+  songRequestOverlayPreviewWrap.classList.toggle("song-request-overlay-preview-align-right", songRequestOverlayAlign === "right");
+}
+
+updateOverlayUrlDisplay();
+songRequestOverlayUrlInput.classList.add("song-request-overlay-url-input-hidden");
+
+songRequestOverlayAlignLeftBtn.addEventListener("click", () => {
+  songRequestOverlayAlign = "left";
+  songRequestOverlayAlignLeftBtn.classList.add("active");
+  songRequestOverlayAlignRightBtn.classList.remove("active");
+  updateOverlayUrlDisplay();
 });
-songRequestOverlayCloseBtn.addEventListener("click", closeSongRequestOverlayModal);
-songRequestOverlayModalBackdrop.addEventListener("click", (e) => {
-  if (e.target === songRequestOverlayModalBackdrop) closeSongRequestOverlayModal();
+songRequestOverlayAlignRightBtn.addEventListener("click", () => {
+  songRequestOverlayAlign = "right";
+  songRequestOverlayAlignRightBtn.classList.add("active");
+  songRequestOverlayAlignLeftBtn.classList.remove("active");
+  updateOverlayUrlDisplay();
 });
 songRequestOverlayEyeBtn.addEventListener("click", () => {
   songRequestOverlayUrlInput.classList.toggle("song-request-overlay-url-input-hidden");
 });
 songRequestOverlayCopyBtn.addEventListener("click", async () => {
   try {
-    await navigator.clipboard.writeText(SONG_REQUEST_OVERLAY_URL);
+    await navigator.clipboard.writeText(currentOverlayUrl());
     songRequestOverlayCopyBtn.textContent = "복사됨";
     setTimeout(() => {
       songRequestOverlayCopyBtn.textContent = "복사";
