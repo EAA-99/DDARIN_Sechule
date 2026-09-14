@@ -4049,13 +4049,18 @@ async function fetchSingQueue() {
   }
 }
 
+let queueSaveChain = Promise.resolve();
+
 function saveSingQueue() {
   const { username, password } = getStoredCreds();
-  fetch("/api/songbook", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password, resource: "queue", queue: singQueueOrder }),
-  }).catch((err) => console.error("[대기열] 저장 실패:", err));
+  const queueSnapshot = [...singQueueOrder];
+  queueSaveChain = queueSaveChain.then(() =>
+    fetch("/api/songbook", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password, resource: "queue", queue: queueSnapshot }),
+    }).catch((err) => console.error("[대기열] 저장 실패:", err))
+  );
 }
 
 const QUEUE_POLL_MS = 5000;
