@@ -305,6 +305,31 @@ songRequestNavItems.forEach((btn) => {
   });
 });
 
+// ===== 대시보드 > 곡 검색 =====
+const songRequestSearchInput = document.getElementById("songRequestSearchInput");
+const songRequestSearchResults = document.getElementById("songRequestSearchResults");
+
+songRequestSearchInput.addEventListener("input", () => {
+  const q = songRequestSearchInput.value.trim().toLowerCase();
+  songRequestSearchResults.innerHTML = "";
+  if (!q) return;
+  const matches = (allSongs || [])
+    .filter((s) => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q))
+    .slice(0, 8);
+  matches.forEach((song) => {
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "song-request-search-result-item";
+    item.textContent = `${song.title} - ${song.artist}`;
+    item.addEventListener("click", () => {
+      addToSingQueue([albumArtCacheKey(song)]);
+      songRequestSearchInput.value = "";
+      songRequestSearchResults.innerHTML = "";
+    });
+    songRequestSearchResults.appendChild(item);
+  });
+});
+
 // ===== 오버레이 > 노래 신청 목록 탭 =====
 const SONG_REQUEST_OVERLAY_URL = "https://ddarin-sechule.vercel.app/overlay/request/x0UXQ5j2URXmiitcuwPZ4RZQZQyPXgq";
 const songRequestOverlayUrlInput = document.getElementById("songRequestOverlayUrlInput");
@@ -368,9 +393,32 @@ let songRequestSinceTime = null;
 const songRequestListEl = document.getElementById("songRequestList");
 let songRequestSenderByKey = {};
 
+const songRequestNowPlayingEl = document.getElementById("songRequestNowPlaying");
+
+function renderSongRequestNowPlaying(queueSongs) {
+  if (!songRequestNowPlayingEl) return;
+  songRequestNowPlayingEl.innerHTML = "";
+  const song = queueSongs[0];
+  if (!song) {
+    const empty = document.createElement("p");
+    empty.className = "song-request-empty-text";
+    empty.textContent = "대기열이 비어 있습니다.";
+    songRequestNowPlayingEl.appendChild(empty);
+    return;
+  }
+  const titleEl = document.createElement("div");
+  titleEl.className = "song-request-nowplaying-title";
+  titleEl.textContent = song.title;
+  const artistEl = document.createElement("div");
+  artistEl.className = "song-request-nowplaying-artist";
+  artistEl.textContent = song.artist;
+  songRequestNowPlayingEl.append(titleEl, artistEl);
+}
+
 function renderSongRequestList() {
   songRequestListEl.innerHTML = "";
   const queueSongs = singQueueOrder.map((key) => songByKey[key]).filter(Boolean);
+  renderSongRequestNowPlaying(queueSongs);
 
   if (!queueSongs.length) {
     const empty = document.createElement("p");
@@ -488,6 +536,38 @@ function logSongRequestFailure(item, parsed, reason) {
   logSongRequestNote(`${sender}"${parsed.title}" - ${reasonText}`);
 }
 
+const songRequestSuccessLogEl = document.getElementById("songRequestSuccessLog");
+let songRequestSuccessLog = [];
+
+function renderSongRequestSuccessLog() {
+  if (!songRequestSuccessLogEl) return;
+  songRequestSuccessLogEl.innerHTML = "";
+  if (!songRequestSuccessLog.length) {
+    const empty = document.createElement("p");
+    empty.className = "song-request-empty-text";
+    empty.textContent = "아직 신청된 곡이 없습니다.";
+    songRequestSuccessLogEl.appendChild(empty);
+    return;
+  }
+  songRequestSuccessLog.forEach((entry) => {
+    const row = document.createElement("div");
+    row.className = "song-request-success-row";
+    const senderEl = document.createElement("span");
+    senderEl.className = "song-request-success-sender";
+    senderEl.textContent = entry.sender || "익명";
+    const messageEl = document.createElement("span");
+    messageEl.className = "song-request-success-message";
+    messageEl.textContent = entry.message;
+    row.append(senderEl, messageEl);
+    songRequestSuccessLogEl.appendChild(row);
+  });
+}
+
+function logSongRequestSuccess(sender, message) {
+  songRequestSuccessLog.push({ sender: sender || null, message });
+  renderSongRequestSuccessLog();
+}
+
 function tryQueueFromRequestMessage(message) {
   const parsed = parseSongRequestMessage(message);
   if (!parsed) return;
@@ -509,6 +589,7 @@ function tryQueueChatItem(item) {
   }
   songRequestSenderByKey[albumArtCacheKey(song)] = item.sender || null;
   addToSingQueue([albumArtCacheKey(song)]);
+  logSongRequestSuccess(item.sender, item.message);
   return true;
 }
 

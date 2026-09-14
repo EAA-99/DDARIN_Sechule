@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=590">
+<link rel="stylesheet" href="style.css?v=591">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen">
@@ -696,87 +696,86 @@
       <div class="song-request-shell">
         <div class="song-request-nav">
           <button type="button" class="song-request-nav-item active" data-panel="dashboard">대시보드</button>
-          <button type="button" class="song-request-nav-item" data-panel="queue">대기열 &amp; 룰렛</button>
+          <button type="button" class="song-request-nav-item" data-panel="queue">대기열</button>
           <button type="button" class="song-request-nav-item" data-panel="request">노래 신청</button>
 
           <div class="song-request-nav-section-label">오버레이</div>
           <button type="button" class="song-request-nav-item song-request-nav-sub" data-panel="overlay-nowplaying">현재 노래 정보</button>
           <button type="button" class="song-request-nav-item song-request-nav-sub" data-panel="overlay-queue">노래 신청 목록</button>
-          <button type="button" class="song-request-nav-item song-request-nav-sub" data-panel="overlay-setlist">세트리스트</button>
-          <button type="button" class="song-request-nav-item song-request-nav-sub" data-panel="overlay-roulette">룰렛</button>
-          <button type="button" class="song-request-nav-item song-request-nav-sub" data-panel="overlay-cheer">응원 효과</button>
         </div>
 
         <div class="song-request-content">
           <div class="song-request-content-panel active" data-panel="dashboard">
-            <div class="song-request-panels">
-              <div class="song-request-panel">
-                <div class="song-request-panel-header">
-                  <span class="song-request-chat-title-group">
-                    <h3>신청 목록</h3>
-                    <button type="button" id="songRequestListClearBtn" class="sing-queue-clear-btn">초기화</button>
-                  </span>
-                  <div class="song-request-panel-header-controls">
-                    <button type="button" id="songRequestSourceChatBtn" class="song-request-source-btn active" data-source="chat">채팅</button>
-                    <button type="button" id="songRequestSourceStarBtn" class="song-request-source-btn" data-source="star">별풍선</button>
-                    <span class="song-request-inline-label">신청 받기</span>
-                    <button type="button" id="songRequestAcceptToggle" class="song-request-switch" aria-pressed="false"></button>
-                  </div>
-                </div>
+            <p class="song-request-section-label">현재 재생 중인 곡</p>
+            <div id="songRequestNowPlaying" class="song-request-nowplaying-card"></div>
 
-                <div class="song-request-sort-tabs">
-                  <button type="button" class="song-request-sort-tab active" data-sort="order">선착순</button>
-                </div>
+            <p class="song-request-section-label">곡 검색</p>
+            <div class="song-request-search-wrap">
+              <input type="text" id="songRequestSearchInput" class="song-request-search-input" placeholder="노래책에서 곡을 검색해 바로 대기열에 추가해보세요">
+              <div id="songRequestSearchResults" class="song-request-search-results"></div>
+            </div>
 
-                <div class="song-request-notice song-request-notice-info">
-                  <span class="song-request-notice-icon">ⓘ</span>
-                  <p id="songRequestSourceNoticeText">채팅창에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.</p>
-                </div>
+            <div class="song-request-panel-header-controls song-request-controls-row">
+              <button type="button" id="songRequestSourceChatBtn" class="song-request-source-btn active" data-source="chat">채팅</button>
+              <button type="button" id="songRequestSourceStarBtn" class="song-request-source-btn" data-source="star">별풍선</button>
+              <span class="song-request-inline-label">신청 받기</span>
+              <button type="button" id="songRequestAcceptToggle" class="song-request-switch" aria-pressed="false"></button>
+            </div>
 
-                <div id="songRequestList" class="song-request-list"></div>
+            <div class="song-request-star-filter">
+              <span class="song-request-inline-label">최소 별풍선</span>
+              <input type="number" id="songRequestMinStarInput" class="song-request-star-input" value="100" min="0">
+              <span class="song-request-inline-label">개 이상</span>
+              <button type="button" id="songRequestStarApplyBtn" class="song-request-star-apply-btn">적용</button>
+            </div>
 
-                <div id="songRequestOffNotice" class="song-request-notice song-request-notice-warning">
-                  <span class="song-request-notice-icon">⚠</span>
-                  <div>
-                    <p><b>지금은 노래 신청을 받고 있지 않아요.</b></p>
-                    <p>노래 신청을 받으려면 위쪽에 있는 <b>신청 받기</b> 토글을 켜주세요.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="song-request-panel song-request-chat-panel">
-                <div class="song-request-panel-header">
-                  <span class="song-request-chat-title-group">
-                    <h3>채팅</h3>
-                    <button type="button" id="songRequestChatLogClearBtn" class="song-request-chat-log-clear-btn">지우기</button>
-                  </span>
-                  <span id="songRequestChatStatus" class="song-request-chat-status">
-                    <span class="song-request-chat-status-dot"></span>연결 중...
-                  </span>
-                </div>
-
-                <a href="ddarinsong://start" id="songRequestCollectorLaunchBtn" class="song-request-collector-launch-btn">
-                  🎧 신청곡 수집 프로그램 열기
-                </a>
-
-                <div class="song-request-star-filter">
-                  <span class="song-request-inline-label">최소 별풍선</span>
-                  <input type="number" id="songRequestMinStarInput" class="song-request-star-input" value="100" min="0">
-                  <span class="song-request-inline-label">개 이상</span>
-                  <button type="button" id="songRequestStarApplyBtn" class="song-request-star-apply-btn">적용</button>
-                </div>
-
-                <div id="songRequestChatLog" class="song-request-chat-log"></div>
+            <div id="songRequestOffNotice" class="song-request-notice song-request-notice-warning">
+              <span class="song-request-notice-icon">⚠</span>
+              <div>
+                <p><b>지금은 노래 신청을 받고 있지 않아요.</b></p>
+                <p>노래 신청을 받으려면 위쪽에 있는 <b>신청 받기</b> 토글을 켜주세요.</p>
               </div>
             </div>
+
+            <a href="ddarinsong://start" id="songRequestCollectorLaunchBtn" class="song-request-collector-launch-btn">
+              🎧 신청곡 수집 프로그램 열기
+            </a>
+
+            <div class="song-request-panel-header song-request-chat-header">
+              <span class="song-request-chat-title-group">
+                <h3>채팅</h3>
+                <button type="button" id="songRequestChatLogClearBtn" class="song-request-chat-log-clear-btn">지우기</button>
+              </span>
+              <span id="songRequestChatStatus" class="song-request-chat-status">
+                <span class="song-request-chat-status-dot"></span>연결 중...
+              </span>
+            </div>
+            <div id="songRequestChatLog" class="song-request-chat-log"></div>
           </div>
 
           <div class="song-request-content-panel" data-panel="queue">
-            <p class="song-request-placeholder">대기열과 룰렛은 노래책 화면에서 확인할 수 있어요.</p>
+            <div class="song-request-panel-header">
+              <span class="song-request-chat-title-group">
+                <h3>신청 목록</h3>
+                <button type="button" id="songRequestListClearBtn" class="sing-queue-clear-btn">초기화</button>
+              </span>
+            </div>
+
+            <div class="song-request-sort-tabs">
+              <button type="button" class="song-request-sort-tab active" data-sort="order">선착순</button>
+            </div>
+
+            <div class="song-request-notice song-request-notice-info">
+              <span class="song-request-notice-icon">ⓘ</span>
+              <p id="songRequestSourceNoticeText">채팅창에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.</p>
+            </div>
+
+            <div id="songRequestList" class="song-request-list"></div>
           </div>
 
           <div class="song-request-content-panel" data-panel="request">
-            <p class="song-request-placeholder">이 기능은 아직 준비 중이에요.</p>
+            <p class="song-request-section-label">누가 어떤 채팅으로 신청했는지 보여줘요</p>
+            <div id="songRequestSuccessLog" class="song-request-success-log"></div>
           </div>
 
           <div class="song-request-content-panel" data-panel="overlay-nowplaying">
@@ -822,18 +821,6 @@
                 </span>
               </div>
             </div>
-          </div>
-
-          <div class="song-request-content-panel" data-panel="overlay-setlist">
-            <p class="song-request-placeholder">이 오버레이는 아직 준비 중이에요.</p>
-          </div>
-
-          <div class="song-request-content-panel" data-panel="overlay-roulette">
-            <p class="song-request-placeholder">이 오버레이는 아직 준비 중이에요.</p>
-          </div>
-
-          <div class="song-request-content-panel" data-panel="overlay-cheer">
-            <p class="song-request-placeholder">이 오버레이는 아직 준비 중이에요.</p>
           </div>
         </div>
       </div>
@@ -1222,8 +1209,8 @@
 
 
 
-  <script src="app.js?v=590"></script>
-  <script src="games.js?v=590"></script>
+  <script src="app.js?v=591"></script>
+  <script src="games.js?v=591"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {
