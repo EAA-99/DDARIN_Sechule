@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>대기열 오버레이</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    font-family: "Malgun Gothic", "Segoe UI", sans-serif;
+  }
+
+  #queueList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+    width: fit-content;
+  }
+
+  .queue-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(20, 20, 28, 0.72);
+    border-radius: 12px;
+    padding: 10px 18px;
+    min-width: 260px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  }
+
+  .queue-index {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #b39dff;
+    min-width: 1.4em;
+    text-align: center;
+  }
+
+  .queue-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+  }
+
+  .queue-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #ffffff;
+  }
+
+  .queue-artist {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #c9c9d6;
+  }
+
+  .queue-empty {
+    background: rgba(20, 20, 28, 0.72);
+    border-radius: 12px;
+    padding: 12px 18px;
+    color: #c9c9d6;
+    font-size: 0.95rem;
+  }
+</style>
+</head>
+<body>
+  <div id="queueList"></div>
+
+  <script>
+    const SONGBOOK_SPREADSHEET_ID = "1NhImCLm5diXM0pA45SkB-g2PARivQiVN8bUKlniiOB8";
+    const SHEETS_API_KEY = "AIzaSyC0RsFfc5y9GmEaE29niGWD9hbSnpIc7rM";
+    const POLL_MS = 5000;
+
+    function albumArtCacheKey(song) {
+      return `${song.artist}|${song.title}`.toLowerCase();
+    }
+
+    async function fetchSongbookGenres() {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SONGBOOK_SPREADSHEET_ID}?key=${SHEETS_API_KEY}&fields=sheets.properties.title`;
+      const res = await fetch(url);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return (data.sheets || [])
+        .map((s) => s.properties.title)
+        .filter((title) => !/^시트\d+$/.test(title));
+    }
+
+    async function fetchSongbookSongs() {
+      const genres = await fetchSongbookGenres();
+      if (!genres.length) return [];
+      const ranges = genres.map((g) => `ranges=${encodeURIComponent(`'${g}'!C2:D`)}`).join("&");
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SONGBOOK_SPREADSHEET_ID}/values:batchGet?${ranges}&key=${SHEETS_API_KEY}`;
+      const res = await fetch(url);
+      if (!res.ok) return [];
+      const data = await res.json();
+      const songs = [];
+      (data.valueRanges || []).forEach((vr, i) => {
+        const genre = genres[i];
+        (vr.values || []).forEach((row) => {
+          const [artist, title] = row;
+          if (!title) return;
+          songs.push({ genre, artist: artist || "", title });
+        });
+      });
+      return songs;
+    }
+
+    async function fetchLocalOverrides() {
+      try {
+        const res = await fetch("/api/songbook");
+        if (!res.ok) return { overrides: {}, deletions: [] };
+        const data = await res.json();
+        return { overrides: data.overrides || {}, deletions: data.deletions || [] };
+      } catch {
+        return { overrides: {}, deletions: [] };
+      }
+    }
+
+    let songByKey = {};
+
+    async function loadSongbook() {
+      const [songs, local] = await Promise.all([fetchSongbookSongs(), fetchLocalOverrides()]);
+      const deletions = new Set(local.deletions);
+      songByKey = {};
+      songs.forEach((song) => {
+        const key = albumArtCacheKey(song);
+        if (deletions.has(key)) return;
+        const finalSong = local.overrides[key] || song;
+        songByKey[key] = finalSong;
+      });
+      Object.keys(local.overrides).forEach((key) => {
+        if (songByKey[key] || deletions.has(key)) return;
+        songByKey[key] = local.overrides[key];
+      });
+    }
+
+    async function fetchQueue() {
+      try {
+        const res = await fetch("/api/songbook?resource=queue");
+        if (!res.ok) return [];
+        const data = await res.json();
+        return Array.isArray(data.queue) ? data.queue : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function renderQueue(keys) {
+      const listEl = document.getElementById("queueList");
+      const songs = keys.map((k) => songByKey[k]).filter(Boolean);
+
+      if (!songs.length) {
+        listEl.innerHTML = `<div class="queue-empty">대기열이 비어 있습니다</div>`;
+        return;
+      }
+
+      listEl.innerHTML = songs
+        .map(
+          (song, i) => `
+            <div class="queue-row">
+              <span class="queue-index">${i + 1}</span>
+              <span class="queue-text">
+                <span class="queue-title"></span>
+                <span class="queue-artist"></span>
+              </span>
+            </div>`
+        )
+        .join("");
+
+      listEl.querySelectorAll(".queue-row").forEach((row, i) => {
+        row.querySelector(".queue-title").textContent = songs[i].title;
+        row.querySelector(".queue-artist").textContent = songs[i].artist;
+      });
+    }
+
+    async function tick() {
+      const keys = await fetchQueue();
+      renderQueue(keys);
+    }
+
+    (async () => {
+      await loadSongbook();
+      await tick();
+      setInterval(tick, POLL_MS);
+      setInterval(loadSongbook, 5 * 60 * 1000);
+    })();
+  </script>
+</body>
+</html>
