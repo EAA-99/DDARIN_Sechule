@@ -287,11 +287,49 @@ function closeSongRequestModal() {
 
 songRequestOpenBtn.addEventListener("click", () => {
   songRequestModalBackdrop.classList.remove("hidden");
-  window.location.href = "ddarinsong://start";
 });
 songRequestCloseBtn.addEventListener("click", closeSongRequestModal);
 songRequestModalBackdrop.addEventListener("click", (e) => {
   if (e.target === songRequestModalBackdrop) closeSongRequestModal();
+});
+
+const SONG_REQUEST_OVERLAY_URL = "https://ddarin-sechule.vercel.app/overlay/request/x0UXQ5j2URXmiitcuwPZ4RZQZQyPXgq";
+const songRequestOverlayBtn = document.getElementById("songRequestOverlayBtn");
+const songRequestOverlayModalBackdrop = document.getElementById("songRequestOverlayModalBackdrop");
+const songRequestOverlayCloseBtn = document.getElementById("songRequestOverlayCloseBtn");
+const songRequestOverlayUrlInput = document.getElementById("songRequestOverlayUrlInput");
+const songRequestOverlayEyeBtn = document.getElementById("songRequestOverlayEyeBtn");
+const songRequestOverlayCopyBtn = document.getElementById("songRequestOverlayCopyBtn");
+const songRequestOverlayPreview = document.getElementById("songRequestOverlayPreview");
+
+function closeSongRequestOverlayModal() {
+  songRequestOverlayModalBackdrop.classList.add("hidden");
+  songRequestOverlayPreview.src = "about:blank";
+}
+
+songRequestOverlayBtn.addEventListener("click", () => {
+  songRequestOverlayUrlInput.value = SONG_REQUEST_OVERLAY_URL;
+  songRequestOverlayUrlInput.type = "password";
+  songRequestOverlayPreview.src = SONG_REQUEST_OVERLAY_URL;
+  songRequestOverlayModalBackdrop.classList.remove("hidden");
+});
+songRequestOverlayCloseBtn.addEventListener("click", closeSongRequestOverlayModal);
+songRequestOverlayModalBackdrop.addEventListener("click", (e) => {
+  if (e.target === songRequestOverlayModalBackdrop) closeSongRequestOverlayModal();
+});
+songRequestOverlayEyeBtn.addEventListener("click", () => {
+  songRequestOverlayUrlInput.type = songRequestOverlayUrlInput.type === "password" ? "text" : "password";
+});
+songRequestOverlayCopyBtn.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(SONG_REQUEST_OVERLAY_URL);
+    songRequestOverlayCopyBtn.textContent = "복사됨";
+    setTimeout(() => {
+      songRequestOverlayCopyBtn.textContent = "복사";
+    }, 1500);
+  } catch {
+    // 클립보드 권한이 없으면 무시 - 입력창에서 직접 선택해 복사할 수 있음
+  }
 });
 
 document.querySelector(".song-request-sort-tabs").addEventListener("click", (e) => {

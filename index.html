@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=587">
+<link rel="stylesheet" href="style.css?v=588">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen">
@@ -710,6 +710,10 @@
 
           <div class="song-request-sort-tabs">
             <button type="button" class="song-request-sort-tab active" data-sort="order">선착순</button>
+            <button type="button" id="songRequestOverlayBtn" class="song-request-overlay-open-btn">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
+              오버레이
+            </button>
           </div>
 
           <div class="song-request-notice song-request-notice-info">
@@ -752,6 +756,30 @@
 
           <div id="songRequestChatLog" class="song-request-chat-log"></div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="songRequestOverlayModalBackdrop" class="modal-backdrop hidden">
+    <div class="modal song-request-overlay-modal">
+      <div class="modal-header-row">
+        <h2>노래 신청 목록</h2>
+        <button type="button" id="songRequestOverlayCloseBtn" class="modal-close-x" aria-label="닫기">✕</button>
+      </div>
+
+      <p class="song-request-overlay-label">브라우저 소스 URL</p>
+      <div class="song-request-overlay-url-row">
+        <input type="text" id="songRequestOverlayUrlInput" class="song-request-overlay-url-input" readonly>
+        <button type="button" id="songRequestOverlayEyeBtn" class="song-request-overlay-icon-btn" aria-label="URL 보기">👁</button>
+        <button type="button" id="songRequestOverlayCopyBtn" class="song-request-overlay-copy-btn">복사</button>
+      </div>
+
+      <p class="song-request-overlay-size">추천 오버레이 사이즈: <b>420×720</b></p>
+      <p class="song-request-overlay-desc">대기 중인 노래 신청을 실시간으로 보여주는 오버레이입니다.</p>
+
+      <p class="song-request-overlay-label">미리보기</p>
+      <div class="song-request-overlay-preview-wrap">
+        <iframe id="songRequestOverlayPreview" class="song-request-overlay-preview" src="about:blank" title="오버레이 미리보기"></iframe>
       </div>
     </div>
   </div>
@@ -1138,8 +1166,8 @@
 
 
 
-  <script src="app.js?v=587"></script>
-  <script src="games.js?v=587"></script>
+  <script src="app.js?v=588"></script>
+  <script src="games.js?v=588"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {
