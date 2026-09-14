@@ -21,39 +21,31 @@
 
   .queue-row {
     display: flex;
-    align-items: center;
-    gap: 12px;
-    background: rgba(20, 20, 28, 0.72);
-    border-radius: 12px;
-    padding: 10px 18px;
-    min-width: 260px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-  }
-
-  .queue-index {
-    font-size: 1.05rem;
-    font-weight: 800;
-    color: #b39dff;
-    min-width: 1.4em;
-    text-align: center;
-  }
-
-  .queue-text {
-    display: flex;
     flex-direction: column;
-    line-height: 1.25;
+    gap: 3px;
+    background: rgba(20, 20, 28, 0.78);
+    border-radius: 18px;
+    padding: 12px 18px;
+    width: 240px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
   }
 
   .queue-title {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     font-weight: 800;
     color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .queue-artist {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: #c9c9d6;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .queue-empty {
@@ -68,11 +60,8 @@
     margin-left: auto;
   }
 
-  body.align-right .queue-row {
-    flex-direction: row-reverse;
-  }
-
-  body.align-right .queue-text {
+  body.align-right .queue-title,
+  body.align-right .queue-artist {
     text-align: right;
   }
 </style>
@@ -170,13 +159,10 @@
 
       listEl.innerHTML = songs
         .map(
-          (song, i) => `
+          () => `
             <div class="queue-row">
-              <span class="queue-index">${i + 1}</span>
-              <span class="queue-text">
-                <span class="queue-title"></span>
-                <span class="queue-artist"></span>
-              </span>
+              <span class="queue-title"></span>
+              <span class="queue-artist"></span>
             </div>`
         )
         .join("");

@@ -3596,12 +3596,9 @@ body.youtube-view-open {
   background: #eaf2fc;
 }
 
-.song-request-overlay-preview-align-right .queue-row {
+.song-request-overlay-preview-align-right .queue-row-top,
+.song-request-overlay-preview-align-right .queue-row-bottom {
   flex-direction: row-reverse;
-}
-
-.song-request-overlay-preview-align-right .queue-text {
-  text-align: right;
 }
 
 .song-request-panel-header {
@@ -3708,6 +3705,29 @@ body.youtube-view-open {
   cursor: not-allowed;
 }
 
+.song-request-queue-columns {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.song-request-queue-left,
+.song-request-queue-right {
+  flex: 1;
+  min-width: 0;
+}
+
+.song-request-queue-right .song-request-success-log {
+  height: 260px;
+  overflow-y: auto;
+}
+
+@media (max-width: 760px) {
+  .song-request-queue-columns {
+    flex-direction: column;
+  }
+}
+
 .song-request-sort-tabs {
   display: flex;
   gap: 6px;
@@ -3804,26 +3824,19 @@ body.youtube-view-open {
 
 .song-request-overlay-preview-wrap .queue-row {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  padding: 8px 14px;
-}
-
-.song-request-overlay-preview-wrap .queue-index {
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: #b39dff;
-  min-width: 1.2em;
-  text-align: center;
-}
-
-.song-request-overlay-preview-wrap .queue-text {
-  display: flex;
   flex-direction: column;
-  line-height: 1.25;
-  text-align: left;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 12px 14px;
+}
+
+.song-request-overlay-preview-wrap .queue-row-top,
+.song-request-overlay-preview-wrap .queue-row-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .song-request-overlay-preview-wrap .queue-title {
@@ -3832,10 +3845,26 @@ body.youtube-view-open {
   color: #fff;
 }
 
+.song-request-overlay-preview-wrap .queue-badge {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #b39dff;
+  background: rgba(179, 157, 255, 0.16);
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+
 .song-request-overlay-preview-wrap .queue-artist {
   font-size: 0.75rem;
   font-weight: 600;
   color: #c9c9d6;
+}
+
+.song-request-overlay-preview-wrap .queue-time {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  color: #8a8a96;
 }
 
 .song-request-notice {
