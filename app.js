@@ -286,12 +286,8 @@ function closeSongRequestModal() {
 }
 
 songRequestOpenBtn.addEventListener("click", () => {
-  const { username, password } = getStoredCreds();
-  const params = new URLSearchParams();
-  if (username) params.set("user", username);
-  if (password) params.set("pass", password);
-  const query = params.toString();
-  window.location.href = "ddarinsong://start" + (query ? "?" + query : "");
+  songRequestModalBackdrop.classList.remove("hidden");
+  window.location.href = "ddarinsong://start";
 });
 songRequestCloseBtn.addEventListener("click", closeSongRequestModal);
 songRequestModalBackdrop.addEventListener("click", (e) => {
