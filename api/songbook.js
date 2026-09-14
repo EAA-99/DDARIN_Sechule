@@ -29,12 +29,16 @@ async function getState() {
 
 async function getQueue() {
   const { result } = await kvCommand(["GET", "songbook_queue"]);
-  if (!result) return [];
+  if (!result) return { queue: [], times: {} };
   try {
     const parsed = JSON.parse(result);
-    return Array.isArray(parsed) ? parsed : [];
+    if (Array.isArray(parsed)) return { queue: parsed, times: {} };
+    return {
+      queue: Array.isArray(parsed.queue) ? parsed.queue : [],
+      times: parsed.times && typeof parsed.times === "object" ? parsed.times : {},
+    };
   } catch {
-    return [];
+    return { queue: [], times: {} };
   }
 }
 
@@ -43,7 +47,7 @@ export default async function handler(req, res) {
 
   if (req.method === "GET") {
     if (req.query.resource === "queue") {
-      res.status(200).json({ queue: await getQueue() });
+      res.status(200).json(await getQueue());
       return;
     }
     res.status(200).json(await getState());
@@ -51,14 +55,18 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    const { username, password, overrides, deletions, resource, queue } = req.body || {};
+    const { username, password, overrides, deletions, resource, queue, times } = req.body || {};
     if (username !== process.env.EDIT_USERNAME || password !== process.env.EDIT_PASSWORD) {
       res.status(401).json({ success: false });
       return;
     }
 
     if (resource === "queue") {
-      await kvCommand(["SET", "songbook_queue", JSON.stringify(Array.isArray(queue) ? queue : [])]);
+      const queueState = {
+        queue: Array.isArray(queue) ? queue : [],
+        times: times && typeof times === "object" ? times : {},
+      };
+      await kvCommand(["SET", "songbook_queue", JSON.stringify(queueState)]);
       res.status(200).json({ success: true });
       return;
     }

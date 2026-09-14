@@ -3705,26 +3705,52 @@ body.youtube-view-open {
   cursor: not-allowed;
 }
 
+.song-request-content-panel[data-panel="queue"].active {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .song-request-queue-columns {
   display: flex;
-  align-items: flex-start;
   gap: 20px;
+  flex: 1;
+  min-height: 0;
 }
 
 .song-request-queue-left,
 .song-request-queue-right {
   flex: 1;
   min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.song-request-queue-left .song-request-panel-header,
+.song-request-queue-left .song-request-sort-tabs,
+.song-request-queue-right .song-request-panel-header {
+  flex-shrink: 0;
 }
 
 .song-request-queue-right .song-request-success-log {
-  height: 260px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 
 @media (max-width: 760px) {
+  .song-request-content-panel[data-panel="queue"].active {
+    height: auto;
+  }
+
   .song-request-queue-columns {
     flex-direction: column;
+  }
+
+  .song-request-queue-left,
+  .song-request-queue-right {
+    min-height: 320px;
   }
 }
 
@@ -3814,12 +3840,14 @@ body.youtube-view-open {
 
 .song-request-overlay-preview-wrap {
   margin-top: 8px;
-  border-radius: 10px;
+  border-radius: 16px;
   padding: 14px;
   background: #000;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  width: fit-content;
+  max-width: 100%;
 }
 
 .song-request-overlay-preview-wrap .queue-row {
@@ -3829,6 +3857,7 @@ body.youtube-view-open {
   background: rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 12px 14px;
+  width: 240px;
 }
 
 .song-request-overlay-preview-wrap .queue-row-top,
@@ -3908,7 +3937,8 @@ body.youtube-view-open {
 }
 
 .song-request-list {
-  height: 260px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -3916,11 +3946,25 @@ body.youtube-view-open {
 }
 
 .song-request-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   text-align: left;
   background: #f7f7f7;
   border-radius: 10px;
   padding: 8px 10px;
   cursor: grab;
+}
+
+.song-request-item-text {
+  min-width: 0;
+}
+
+.song-request-item-time {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: #999;
 }
 
 .song-request-item.dragging {

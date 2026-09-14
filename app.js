@@ -367,6 +367,19 @@ let songRequestPollInterval = null;
 let songRequestSinceTime = null;
 const songRequestListEl = document.getElementById("songRequestList");
 let songRequestSenderByKey = {};
+let songRequestTimeByKey = {};
+
+function formatSongRequestRelativeTime(ts) {
+  if (!ts) return "";
+  const diffSec = Math.floor((Date.now() - ts) / 1000);
+  if (diffSec < 60) return "방금 전";
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return `${diffMin}분 전`;
+  const diffHour = Math.floor(diffMin / 60);
+  if (diffHour < 24) return `${diffHour}시간 전`;
+  const diffDay = Math.floor(diffHour / 24);
+  return `${diffDay}일 전`;
+}
 
 const songRequestNowPlayingTitleEl = document.getElementById("songRequestNowPlayingTitle");
 const songRequestNowPlayingArtistEl = document.getElementById("songRequestNowPlayingArtist");
@@ -416,17 +429,23 @@ function renderSongRequestNowPlaying(queueSongs) {
 songRequestSkipBtn.addEventListener("click", () => {
   const key = singQueueOrder[0];
   if (!key) return;
-  songRequestLastRemoved = { key, wasCompleted: true, sender: songRequestSenderByKey[key] || null };
+  songRequestLastRemoved = {
+    key,
+    wasCompleted: true,
+    sender: songRequestSenderByKey[key] || null,
+    time: songRequestTimeByKey[key] || null,
+  };
   setSongRequestTodayCount(getSongRequestTodayCount() + 1);
   removeFromSingQueue(key);
 });
 
 songRequestUndoBtn.addEventListener("click", () => {
   if (!songRequestLastRemoved) return;
-  const { key, wasCompleted, sender } = songRequestLastRemoved;
+  const { key, wasCompleted, sender, time } = songRequestLastRemoved;
   if (!singQueueOrder.includes(key)) {
     singQueueOrder.unshift(key);
     if (sender) songRequestSenderByKey[key] = sender;
+    if (time) songRequestTimeByKey[key] = time;
   }
   if (wasCompleted) setSongRequestTodayCount(Math.max(0, getSongRequestTodayCount() - 1));
   songRequestLastRemoved = null;
@@ -456,6 +475,9 @@ function renderSongRequestList() {
     item.className = "song-request-item";
     item.draggable = true;
 
+    const textWrap = document.createElement("div");
+    textWrap.className = "song-request-item-text";
+
     const titleEl = document.createElement("div");
     titleEl.className = "favorite-item-title";
     titleEl.textContent = song.title;
@@ -464,7 +486,13 @@ function renderSongRequestList() {
     artistEl.className = "favorite-item-artist";
     artistEl.textContent = sender ? `${song.artist} · ${sender}` : song.artist;
 
-    item.append(titleEl, artistEl);
+    textWrap.append(titleEl, artistEl);
+
+    const timeEl = document.createElement("span");
+    timeEl.className = "song-request-item-time";
+    timeEl.textContent = formatSongRequestRelativeTime(songRequestTimeByKey[key]);
+
+    item.append(textWrap, timeEl);
 
     item.addEventListener("dragstart", () => {
       draggedQueueKey = key;
@@ -705,8 +733,8 @@ songRequestAcceptToggle.addEventListener("click", () => {
 
 const songRequestSourceNoticeText = document.getElementById("songRequestSourceNoticeText");
 const SONG_REQUEST_SOURCE_NOTICES = {
-  chat: "채팅창에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.",
-  star: "최소 별풍선 개수 이상 후원한 사람이 이어서 채팅에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.",
+  chat: "채팅창에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 대기열에 표시돼요.",
+  star: "최소 별풍선 개수 이상 후원한 사람이 이어서 채팅에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 대기열에 표시돼요.",
 };
 
 const songRequestStarFilterEl = document.querySelector(".song-request-star-filter");
@@ -4203,6 +4231,7 @@ async function fetchSingQueue() {
     if (!res.ok) return;
     const data = await res.json();
     singQueueOrder = Array.isArray(data.queue) ? data.queue : [];
+    songRequestTimeByKey = data.times && typeof data.times === "object" ? data.times : {};
     renderSingQueueList();
     renderSongRequestList();
   } catch (err) {
@@ -4215,11 +4244,12 @@ let queueSaveChain = Promise.resolve();
 function saveSingQueue() {
   const { username, password } = getStoredCreds();
   const queueSnapshot = [...singQueueOrder];
+  const timesSnapshot = { ...songRequestTimeByKey };
   queueSaveChain = queueSaveChain.then(() =>
     fetch("/api/songbook", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password, resource: "queue", queue: queueSnapshot }),
+      body: JSON.stringify({ username, password, resource: "queue", queue: queueSnapshot, times: timesSnapshot }),
     }).catch((err) => console.error("[대기열] 저장 실패:", err))
   );
 }
@@ -4241,7 +4271,10 @@ function stopQueuePolling() {
 
 function addToSingQueue(keys) {
   keys.forEach((key) => {
-    if (!singQueueOrder.includes(key)) singQueueOrder.push(key);
+    if (!singQueueOrder.includes(key)) {
+      singQueueOrder.push(key);
+      songRequestTimeByKey[key] = Date.now();
+    }
   });
   saveSingQueue();
   renderSingQueueList();
