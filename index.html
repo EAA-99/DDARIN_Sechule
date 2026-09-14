@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=594">
+<link rel="stylesheet" href="style.css?v=595">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen">
@@ -740,7 +740,7 @@
 
             <div class="song-request-notice song-request-notice-info">
               <span class="song-request-notice-icon">ⓘ</span>
-              <p id="songRequestSourceNoticeText">채팅창에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 여기에 표시돼요.</p>
+              <p id="songRequestSourceNoticeText">채팅창에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 대기열에 표시돼요.</p>
             </div>
 
             <div id="songRequestOffNotice" class="song-request-notice song-request-notice-warning">
@@ -753,7 +753,7 @@
 
             <div class="song-request-panel-header song-request-chat-header">
               <span class="song-request-chat-title-group">
-                <h3>채팅</h3>
+                <h3>로그 확인</h3>
                 <button type="button" id="songRequestChatLogClearBtn" class="song-request-chat-log-clear-btn">지우기</button>
               </span>
               <span id="songRequestChatStatus" class="song-request-chat-status">
@@ -761,13 +761,6 @@
               </span>
             </div>
             <div id="songRequestChatLog" class="song-request-chat-log"></div>
-
-            <div class="song-request-card song-request-success-card">
-              <div class="song-request-panel-header">
-                <h3>노래 신청</h3>
-              </div>
-              <div id="songRequestSuccessLog" class="song-request-success-log"></div>
-            </div>
           </div>
 
           <div class="song-request-content-panel" data-panel="queue">
@@ -1216,8 +1209,8 @@
 
 
 
-  <script src="app.js?v=594"></script>
-  <script src="games.js?v=594"></script>
+  <script src="app.js?v=595"></script>
+  <script src="games.js?v=595"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {
