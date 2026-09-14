@@ -3907,32 +3907,32 @@ body.youtube-view-open {
 
 .song-request-overlay-nowplaying-preview-wrap {
   margin-top: 8px;
-  border-radius: 16px;
-  padding: 14px;
-  background: #000;
-  width: fit-content;
-  max-width: 100%;
+  width: 100%;
 }
 
 .song-request-overlay-nowplaying-preview-card {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  background: rgba(255, 255, 255, 0.08);
+  gap: 6px;
+  background: var(--overlay-bg, #14141c);
   border-radius: 16px;
-  padding: 12px 20px;
+  padding: 20px 26px;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--overlay-font, inherit);
 }
 
 .song-request-overlay-nowplaying-preview-title {
-  font-size: 1.05rem;
+  font-size: 1.4rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--overlay-color, #fff);
 }
 
 .song-request-overlay-nowplaying-preview-artist {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  color: #c9c9d6;
+  color: var(--overlay-color, #c9c9d6);
+  opacity: 0.75;
 }
 
 .song-request-notice {

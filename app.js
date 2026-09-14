@@ -323,9 +323,16 @@ const SONG_REQUEST_OVERLAY_FONTS = {
   system: { family: `"Malgun Gothic", "Segoe UI", sans-serif`, google: null },
   notosanskr: { family: `"Noto Sans KR", sans-serif`, google: "Noto+Sans+KR:wght@400;700;900" },
   nanumgothic: { family: `"Nanum Gothic", sans-serif`, google: "Nanum+Gothic:wght@400;700;800" },
+  nanummyeongjo: { family: `"Nanum Myeongjo", serif`, google: "Nanum+Myeongjo:wght@400;700;800" },
+  gothica1: { family: `"Gothic A1", sans-serif`, google: "Gothic+A1:wght@400;700;900" },
   dohyeon: { family: `"Do Hyeon", sans-serif`, google: "Do+Hyeon" },
   blackhansans: { family: `"Black Han Sans", sans-serif`, google: "Black+Han+Sans" },
   jua: { family: `"Jua", sans-serif`, google: "Jua" },
+  gaegu: { family: `"Gaegu", sans-serif`, google: "Gaegu:wght@400;700" },
+  gamjaflower: { family: `"Gamja Flower", sans-serif`, google: "Gamja+Flower" },
+  poorstory: { family: `"Poor Story", sans-serif`, google: "Poor+Story" },
+  sunflower: { family: `"Sunflower", sans-serif`, google: "Sunflower:wght@300;500;700" },
+  singleday: { family: `"Single Day", sans-serif`, google: "Single+Day" },
 };
 
 function currentOverlayUrl() {
@@ -337,15 +344,15 @@ function currentOverlayUrl() {
   return qs ? `${SONG_REQUEST_OVERLAY_URL}?${qs}` : SONG_REQUEST_OVERLAY_URL;
 }
 
-function loadGoogleFontLink(fontKey) {
-  const existing = document.getElementById("songRequestOverlayFontLink");
+function loadGoogleFontLink(fontKey, linkId) {
+  const existing = document.getElementById(linkId);
   const google = SONG_REQUEST_OVERLAY_FONTS[fontKey]?.google;
   if (!google) {
     if (existing) existing.remove();
     return;
   }
   const link = existing || document.createElement("link");
-  link.id = "songRequestOverlayFontLink";
+  link.id = linkId;
   link.rel = "stylesheet";
   link.href = `https://fonts.googleapis.com/css2?family=${google}&display=swap`;
   if (!existing) document.head.appendChild(link);
@@ -354,7 +361,7 @@ function loadGoogleFontLink(fontKey) {
 function updateOverlayUrlDisplay() {
   songRequestOverlayUrlInput.value = currentOverlayUrl();
   const fontKey = songRequestOverlayFontSelect.value;
-  loadGoogleFontLink(fontKey);
+  loadGoogleFontLink(fontKey, "songRequestOverlayFontLink");
   songRequestOverlayPreviewWrap.style.setProperty("--overlay-bg", songRequestOverlayBgInput.value);
   songRequestOverlayPreviewWrap.style.setProperty("--overlay-color", songRequestOverlayColorInput.value);
   songRequestOverlayPreviewWrap.style.setProperty("--overlay-font", SONG_REQUEST_OVERLAY_FONTS[fontKey].family);
@@ -387,16 +394,41 @@ const SONG_REQUEST_OVERLAY_NOWPLAYING_URL =
 const songRequestOverlayNowplayingUrlInput = document.getElementById("songRequestOverlayNowplayingUrlInput");
 const songRequestOverlayNowplayingEyeBtn = document.getElementById("songRequestOverlayNowplayingEyeBtn");
 const songRequestOverlayNowplayingCopyBtn = document.getElementById("songRequestOverlayNowplayingCopyBtn");
+const songRequestOverlayNowplayingBgInput = document.getElementById("songRequestOverlayNowplayingBgInput");
+const songRequestOverlayNowplayingColorInput = document.getElementById("songRequestOverlayNowplayingColorInput");
+const songRequestOverlayNowplayingFontSelect = document.getElementById("songRequestOverlayNowplayingFontSelect");
+const songRequestOverlayNowplayingPreviewWrap = document.getElementById("songRequestOverlayNowplayingPreviewWrap");
 
-songRequestOverlayNowplayingUrlInput.value = SONG_REQUEST_OVERLAY_NOWPLAYING_URL;
+function currentNowplayingOverlayUrl() {
+  const params = new URLSearchParams();
+  if (songRequestOverlayNowplayingBgInput.value !== SONG_REQUEST_OVERLAY_BG_DEFAULT) params.set("bg", songRequestOverlayNowplayingBgInput.value);
+  if (songRequestOverlayNowplayingColorInput.value !== SONG_REQUEST_OVERLAY_COLOR_DEFAULT) params.set("color", songRequestOverlayNowplayingColorInput.value);
+  if (songRequestOverlayNowplayingFontSelect.value !== SONG_REQUEST_OVERLAY_FONT_DEFAULT) params.set("font", songRequestOverlayNowplayingFontSelect.value);
+  const qs = params.toString();
+  return qs ? `${SONG_REQUEST_OVERLAY_NOWPLAYING_URL}?${qs}` : SONG_REQUEST_OVERLAY_NOWPLAYING_URL;
+}
+
+function updateNowplayingOverlayUrlDisplay() {
+  songRequestOverlayNowplayingUrlInput.value = currentNowplayingOverlayUrl();
+  const fontKey = songRequestOverlayNowplayingFontSelect.value;
+  loadGoogleFontLink(fontKey, "songRequestOverlayNowplayingFontLink");
+  songRequestOverlayNowplayingPreviewWrap.style.setProperty("--overlay-bg", songRequestOverlayNowplayingBgInput.value);
+  songRequestOverlayNowplayingPreviewWrap.style.setProperty("--overlay-color", songRequestOverlayNowplayingColorInput.value);
+  songRequestOverlayNowplayingPreviewWrap.style.setProperty("--overlay-font", SONG_REQUEST_OVERLAY_FONTS[fontKey].family);
+}
+
+updateNowplayingOverlayUrlDisplay();
 songRequestOverlayNowplayingUrlInput.classList.add("song-request-overlay-url-input-hidden");
 
+songRequestOverlayNowplayingBgInput.addEventListener("input", updateNowplayingOverlayUrlDisplay);
+songRequestOverlayNowplayingColorInput.addEventListener("input", updateNowplayingOverlayUrlDisplay);
+songRequestOverlayNowplayingFontSelect.addEventListener("change", updateNowplayingOverlayUrlDisplay);
 songRequestOverlayNowplayingEyeBtn.addEventListener("click", () => {
   songRequestOverlayNowplayingUrlInput.classList.toggle("song-request-overlay-url-input-hidden");
 });
 songRequestOverlayNowplayingCopyBtn.addEventListener("click", async () => {
   try {
-    await navigator.clipboard.writeText(SONG_REQUEST_OVERLAY_NOWPLAYING_URL);
+    await navigator.clipboard.writeText(currentNowplayingOverlayUrl());
     songRequestOverlayNowplayingCopyBtn.textContent = "복사됨";
     setTimeout(() => {
       songRequestOverlayNowplayingCopyBtn.textContent = "복사";

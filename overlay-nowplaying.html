@@ -14,19 +14,22 @@
   #nowPlayingCard {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    width: fit-content;
+    gap: 6px;
+    width: 560px;
+    max-width: calc(100% - 40px);
+    box-sizing: border-box;
     margin: 20px;
-    background: rgba(20, 20, 28, 0.78);
+    background: var(--overlay-bg, rgba(20, 20, 28, 0.78));
     border-radius: 18px;
-    padding: 14px 20px;
+    padding: 20px 26px;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+    font-family: var(--overlay-font, "Malgun Gothic", "Segoe UI", sans-serif);
   }
 
   #nowPlayingTitle {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     font-weight: 800;
-    color: #ffffff;
+    color: var(--overlay-color, #ffffff);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -35,7 +38,8 @@
   #nowPlayingArtist {
     font-size: 0.9rem;
     font-weight: 600;
-    color: #c9c9d6;
+    color: var(--overlay-color, #c9c9d6);
+    opacity: 0.75;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -144,6 +148,38 @@
       const key = await fetchNowPlayingKey();
       renderNowPlaying(key);
     }
+
+    const OVERLAY_FONTS = {
+      notosanskr: { family: `"Noto Sans KR", sans-serif`, google: "Noto+Sans+KR:wght@400;700;900" },
+      nanumgothic: { family: `"Nanum Gothic", sans-serif`, google: "Nanum+Gothic:wght@400;700;800" },
+      nanummyeongjo: { family: `"Nanum Myeongjo", serif`, google: "Nanum+Myeongjo:wght@400;700;800" },
+      gothica1: { family: `"Gothic A1", sans-serif`, google: "Gothic+A1:wght@400;700;900" },
+      dohyeon: { family: `"Do Hyeon", sans-serif`, google: "Do+Hyeon" },
+      blackhansans: { family: `"Black Han Sans", sans-serif`, google: "Black+Han+Sans" },
+      jua: { family: `"Jua", sans-serif`, google: "Jua" },
+      gaegu: { family: `"Gaegu", sans-serif`, google: "Gaegu:wght@400;700" },
+      gamjaflower: { family: `"Gamja Flower", sans-serif`, google: "Gamja+Flower" },
+      poorstory: { family: `"Poor Story", sans-serif`, google: "Poor+Story" },
+      sunflower: { family: `"Sunflower", sans-serif`, google: "Sunflower:wght@300;500;700" },
+      singleday: { family: `"Single Day", sans-serif`, google: "Single+Day" },
+    };
+
+    (() => {
+      const params = new URLSearchParams(location.search);
+      const bg = params.get("bg");
+      const color = params.get("color");
+      const fontKey = params.get("font");
+      if (bg) document.documentElement.style.setProperty("--overlay-bg", bg);
+      if (color) document.documentElement.style.setProperty("--overlay-color", color);
+      const font = fontKey && OVERLAY_FONTS[fontKey];
+      if (font) {
+        document.documentElement.style.setProperty("--overlay-font", font.family);
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = `https://fonts.googleapis.com/css2?family=${font.google}&display=swap`;
+        document.head.appendChild(link);
+      }
+    })();
 
     (async () => {
       await loadSongbook();
