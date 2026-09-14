@@ -305,31 +305,6 @@ songRequestNavItems.forEach((btn) => {
   });
 });
 
-// ===== 대시보드 > 곡 검색 =====
-const songRequestSearchInput = document.getElementById("songRequestSearchInput");
-const songRequestSearchResults = document.getElementById("songRequestSearchResults");
-
-songRequestSearchInput.addEventListener("input", () => {
-  const q = songRequestSearchInput.value.trim().toLowerCase();
-  songRequestSearchResults.innerHTML = "";
-  if (!q) return;
-  const matches = (allSongs || [])
-    .filter((s) => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q))
-    .slice(0, 8);
-  matches.forEach((song) => {
-    const item = document.createElement("button");
-    item.type = "button";
-    item.className = "song-request-search-result-item";
-    item.textContent = `${song.title} - ${song.artist}`;
-    item.addEventListener("click", () => {
-      addToSingQueue([albumArtCacheKey(song)]);
-      songRequestSearchInput.value = "";
-      songRequestSearchResults.innerHTML = "";
-    });
-    songRequestSearchResults.appendChild(item);
-  });
-});
-
 // ===== 오버레이 > 노래 신청 목록 탭 =====
 const SONG_REQUEST_OVERLAY_URL = "https://ddarin-sechule.vercel.app/overlay/request/x0UXQ5j2URXmiitcuwPZ4RZQZQyPXgq";
 const songRequestOverlayUrlInput = document.getElementById("songRequestOverlayUrlInput");
@@ -396,14 +371,11 @@ let songRequestSenderByKey = {};
 const songRequestNowPlayingTitleEl = document.getElementById("songRequestNowPlayingTitle");
 const songRequestNowPlayingArtistEl = document.getElementById("songRequestNowPlayingArtist");
 const songRequestTodayBadgeEl = document.getElementById("songRequestTodayBadge");
-const songRequestSenderBtn = document.getElementById("songRequestSenderBtn");
 const songRequestUndoBtn = document.getElementById("songRequestUndoBtn");
 const songRequestSkipBtn = document.getElementById("songRequestSkipBtn");
-const songRequestDoneBtn = document.getElementById("songRequestDoneBtn");
 
 const SONG_REQUEST_TODAY_COUNT_KEY = "songRequestTodayCount";
 let songRequestLastRemoved = null;
-let songRequestShowSender = false;
 
 function todayDateKeySeoul() {
   return new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
@@ -425,41 +397,27 @@ function setSongRequestTodayCount(count) {
 
 function renderSongRequestNowPlaying(queueSongs) {
   const song = queueSongs[0];
-  const key = singQueueOrder[0];
 
   if (!song) {
     songRequestNowPlayingTitleEl.textContent = "현재 노래가 없습니다";
     songRequestNowPlayingArtistEl.textContent = "대기열에서 곡을 선택해 주세요";
   } else {
-    const sender = songRequestSenderByKey[key];
     songRequestNowPlayingTitleEl.textContent = song.title;
-    songRequestNowPlayingArtistEl.textContent =
-      songRequestShowSender && sender ? `${song.artist} · 신청: ${sender}` : song.artist;
+    songRequestNowPlayingArtistEl.textContent = song.artist;
   }
 
   const completed = getSongRequestTodayCount();
   songRequestTodayBadgeEl.textContent = `오늘 ${completed}/${completed + queueSongs.length}곡`;
 
-  songRequestDoneBtn.disabled = !song;
   songRequestSkipBtn.disabled = !song;
-  songRequestSenderBtn.disabled = !song;
   songRequestUndoBtn.disabled = !songRequestLastRemoved;
 }
-
-songRequestDoneBtn.addEventListener("click", () => {
-  const key = singQueueOrder[0];
-  if (!key) return;
-  songRequestLastRemoved = { key, wasCompleted: true, sender: songRequestSenderByKey[key] || null };
-  songRequestShowSender = false;
-  setSongRequestTodayCount(getSongRequestTodayCount() + 1);
-  removeFromSingQueue(key);
-});
 
 songRequestSkipBtn.addEventListener("click", () => {
   const key = singQueueOrder[0];
   if (!key) return;
-  songRequestLastRemoved = { key, wasCompleted: false, sender: songRequestSenderByKey[key] || null };
-  songRequestShowSender = false;
+  songRequestLastRemoved = { key, wasCompleted: true, sender: songRequestSenderByKey[key] || null };
+  setSongRequestTodayCount(getSongRequestTodayCount() + 1);
   removeFromSingQueue(key);
 });
 
@@ -474,11 +432,6 @@ songRequestUndoBtn.addEventListener("click", () => {
   songRequestLastRemoved = null;
   saveSingQueue();
   renderSingQueueList();
-  renderSongRequestList();
-});
-
-songRequestSenderBtn.addEventListener("click", () => {
-  songRequestShowSender = !songRequestShowSender;
   renderSongRequestList();
 });
 

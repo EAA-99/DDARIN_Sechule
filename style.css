@@ -3449,17 +3449,6 @@ body.youtube-view-open {
   text-align: left;
 }
 
-.song-request-nowplaying-eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  color: #1c6dd0;
-  margin-bottom: 4px;
-}
-
 .song-request-nowplaying-title {
   font-size: 1.2rem;
   font-weight: 800;
@@ -3516,8 +3505,7 @@ body.youtube-view-open {
   background: #e8e8e8;
 }
 
-.song-request-nowplaying-icon-btn:disabled,
-.song-request-nowplaying-done-btn:disabled {
+.song-request-nowplaying-icon-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
@@ -3531,22 +3519,6 @@ body.youtube-view-open {
   background: #fbdedb;
 }
 
-.song-request-nowplaying-done-btn {
-  border: none;
-  background: #e3f6ea;
-  color: #1f8a4d;
-  border-radius: 8px;
-  padding: 0 14px;
-  height: 34px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.song-request-nowplaying-done-btn:hover {
-  background: #d3f0dd;
-}
-
 .song-request-card {
   background: #fff;
   border: 1px solid #eee;
@@ -3554,40 +3526,8 @@ body.youtube-view-open {
   padding: 16px;
 }
 
-.song-request-search-wrap {
-  position: relative;
-}
-
-.song-request-search-input {
-  width: 100%;
-  box-sizing: border-box;
-  border: 1px solid #eee;
-  background: #f7f7f7;
-  border-radius: 8px;
-  padding: 9px 12px;
-  font-size: 0.85rem;
-}
-
-.song-request-search-results {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 6px;
-}
-
-.song-request-search-result-item {
-  text-align: left;
-  border: 1px solid #eee;
-  background: #fff;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 0.82rem;
-  color: #333;
-  cursor: pointer;
-}
-
-.song-request-search-result-item:hover {
-  background: #f5f5f5;
+.song-request-success-card {
+  margin-top: 18px;
 }
 
 .song-request-controls-row {
