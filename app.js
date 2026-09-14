@@ -286,7 +286,6 @@ function closeSongRequestModal() {
 }
 
 songRequestOpenBtn.addEventListener("click", () => {
-  songRequestModalBackdrop.classList.remove("hidden");
   window.location.href = "ddarinsong://start";
 });
 songRequestCloseBtn.addEventListener("click", closeSongRequestModal);
