@@ -3576,8 +3576,8 @@ body.youtube-view-open {
 
 .song-request-overlay-style-row {
   display: flex;
-  align-items: center;
-  gap: 18px;
+  align-items: flex-start;
+  gap: 22px;
   flex-wrap: wrap;
 }
 
@@ -3587,13 +3587,58 @@ body.youtube-view-open {
   gap: 8px;
 }
 
-.song-request-overlay-style-field input[type="color"] {
+.song-request-overlay-color-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.song-request-color-picker {
+  position: relative;
+}
+
+.song-request-color-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  max-width: 220px;
+}
+
+.song-request-color-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 0;
+  cursor: pointer;
+}
+
+.song-request-color-swatch.active {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #1c6dd0;
+}
+
+.song-request-color-swatch-custom {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.song-request-color-input-hidden {
+  display: none;
+}
+
+.song-request-color-picker input[type="color"] {
   width: 32px;
   height: 32px;
   border: 1px solid #eee;
   border-radius: 8px;
   padding: 2px;
   cursor: pointer;
+  margin-top: 6px;
 }
 
 .song-request-overlay-font-select {

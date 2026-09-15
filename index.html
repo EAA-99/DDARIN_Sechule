@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=599">
+<link rel="stylesheet" href="style.css?v=600">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen">
@@ -792,14 +792,20 @@
           <div class="song-request-content-panel" data-panel="overlay-nowplaying">
             <p class="song-request-overlay-heading song-request-overlay-heading-first">디자인</p>
             <div class="song-request-overlay-style-row">
-              <label class="song-request-overlay-style-field">
+              <div class="song-request-overlay-color-field">
                 <span class="song-request-inline-label">배경색</span>
-                <input type="color" id="songRequestOverlayNowplayingBgInput" value="#14141c">
-              </label>
-              <label class="song-request-overlay-style-field">
+                <div class="song-request-color-picker">
+                  <div class="song-request-color-swatches"></div>
+                  <input type="color" id="songRequestOverlayNowplayingBgInput" class="song-request-color-input-hidden" value="#14141c">
+                </div>
+              </div>
+              <div class="song-request-overlay-color-field">
                 <span class="song-request-inline-label">글자색</span>
-                <input type="color" id="songRequestOverlayNowplayingColorInput" value="#ffffff">
-              </label>
+                <div class="song-request-color-picker">
+                  <div class="song-request-color-swatches"></div>
+                  <input type="color" id="songRequestOverlayNowplayingColorInput" class="song-request-color-input-hidden" value="#ffffff">
+                </div>
+              </div>
               <label class="song-request-overlay-style-field">
                 <span class="song-request-inline-label">글자체</span>
                 <select id="songRequestOverlayNowplayingFontSelect" class="song-request-overlay-font-select">
@@ -840,14 +846,20 @@
           <div class="song-request-content-panel" data-panel="overlay-queue">
             <p class="song-request-overlay-heading song-request-overlay-heading-first">디자인</p>
             <div class="song-request-overlay-style-row">
-              <label class="song-request-overlay-style-field">
+              <div class="song-request-overlay-color-field">
                 <span class="song-request-inline-label">배경색</span>
-                <input type="color" id="songRequestOverlayBgInput" value="#14141c">
-              </label>
-              <label class="song-request-overlay-style-field">
+                <div class="song-request-color-picker">
+                  <div class="song-request-color-swatches"></div>
+                  <input type="color" id="songRequestOverlayBgInput" class="song-request-color-input-hidden" value="#14141c">
+                </div>
+              </div>
+              <div class="song-request-overlay-color-field">
                 <span class="song-request-inline-label">글자색</span>
-                <input type="color" id="songRequestOverlayColorInput" value="#ffffff">
-              </label>
+                <div class="song-request-color-picker">
+                  <div class="song-request-color-swatches"></div>
+                  <input type="color" id="songRequestOverlayColorInput" class="song-request-color-input-hidden" value="#ffffff">
+                </div>
+              </div>
               <label class="song-request-overlay-style-field">
                 <span class="song-request-inline-label">글자체</span>
                 <select id="songRequestOverlayFontSelect" class="song-request-overlay-font-select">
@@ -1297,8 +1309,8 @@
 
 
 
-  <script src="app.js?v=599"></script>
-  <script src="games.js?v=599"></script>
+  <script src="app.js?v=600"></script>
+  <script src="games.js?v=600"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {

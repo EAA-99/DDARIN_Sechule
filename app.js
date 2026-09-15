@@ -305,6 +305,60 @@ songRequestNavItems.forEach((btn) => {
   });
 });
 
+// ===== 오버레이 > 색상 선택기 (배경색/글자색 공용) =====
+const OVERLAY_COLOR_PRESETS = [
+  "#14141c",
+  "#ffffff",
+  "#e53935",
+  "#fb8c00",
+  "#fdd835",
+  "#43a047",
+  "#1e88e5",
+  "#283593",
+  "#8e24aa",
+  "#ec407a",
+];
+
+function setupOverlayColorPicker(input, onChange) {
+  const wrap = input.closest(".song-request-color-picker");
+  const swatchWrap = wrap.querySelector(".song-request-color-swatches");
+
+  function syncActiveSwatch() {
+    swatchWrap.querySelectorAll(".song-request-color-swatch[data-color]").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.color.toLowerCase() === input.value.toLowerCase());
+    });
+  }
+
+  OVERLAY_COLOR_PRESETS.forEach((hex) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "song-request-color-swatch";
+    btn.style.background = hex;
+    btn.dataset.color = hex;
+    btn.setAttribute("aria-label", hex);
+    btn.addEventListener("click", () => {
+      input.value = hex;
+      syncActiveSwatch();
+      onChange();
+    });
+    swatchWrap.appendChild(btn);
+  });
+
+  const customBtn = document.createElement("button");
+  customBtn.type = "button";
+  customBtn.className = "song-request-color-swatch song-request-color-swatch-custom";
+  customBtn.textContent = "🎨";
+  customBtn.setAttribute("aria-label", "직접 선택");
+  customBtn.addEventListener("click", () => {
+    input.classList.remove("song-request-color-input-hidden");
+    input.click();
+  });
+  swatchWrap.appendChild(customBtn);
+
+  input.addEventListener("input", syncActiveSwatch);
+  syncActiveSwatch();
+}
+
 // ===== 오버레이 > 노래 신청 목록 탭 =====
 const SONG_REQUEST_OVERLAY_URL = "https://ddarin-sechule.vercel.app/overlay/request/x0UXQ5j2URXmiitcuwPZ4RZQZQyPXgq";
 const songRequestOverlayUrlInput = document.getElementById("songRequestOverlayUrlInput");
@@ -369,6 +423,8 @@ function updateOverlayUrlDisplay() {
 
 updateOverlayUrlDisplay();
 songRequestOverlayUrlInput.classList.add("song-request-overlay-url-input-hidden");
+setupOverlayColorPicker(songRequestOverlayBgInput, updateOverlayUrlDisplay);
+setupOverlayColorPicker(songRequestOverlayColorInput, updateOverlayUrlDisplay);
 
 songRequestOverlayBgInput.addEventListener("input", updateOverlayUrlDisplay);
 songRequestOverlayColorInput.addEventListener("input", updateOverlayUrlDisplay);
@@ -419,6 +475,8 @@ function updateNowplayingOverlayUrlDisplay() {
 
 updateNowplayingOverlayUrlDisplay();
 songRequestOverlayNowplayingUrlInput.classList.add("song-request-overlay-url-input-hidden");
+setupOverlayColorPicker(songRequestOverlayNowplayingBgInput, updateNowplayingOverlayUrlDisplay);
+setupOverlayColorPicker(songRequestOverlayNowplayingColorInput, updateNowplayingOverlayUrlDisplay);
 
 songRequestOverlayNowplayingBgInput.addEventListener("input", updateNowplayingOverlayUrlDisplay);
 songRequestOverlayNowplayingColorInput.addEventListener("input", updateNowplayingOverlayUrlDisplay);
@@ -818,7 +876,7 @@ songRequestAcceptToggle.addEventListener("click", () => {
 const songRequestSourceNoticeText = document.getElementById("songRequestSourceNoticeText");
 const SONG_REQUEST_SOURCE_NOTICES = {
   chat: "채팅창에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 대기열에 표시돼요.",
-  star: "최소 별풍선 개수 이상 후원한 사람이 이어서 채팅에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 대기열에 표시돼요.",
+  star: "최소 별풍선 개수 이상 후원메세지로 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 대기열에 표시돼요.",
 };
 
 const songRequestStarFilterEl = document.querySelector(".song-request-star-filter");
