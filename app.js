@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwuOrjG9SZxN4CtkXb9EW2Hd_bt4x-ntPXjAFisw9VojI2X8lijwSZ2Prw5xaxkP8CYeg/exec";
+﻿const API_URL = "https://script.google.com/macros/s/AKfycbwuOrjG9SZxN4CtkXb9EW2Hd_bt4x-ntPXjAFisw9VojI2X8lijwSZ2Prw5xaxkP8CYeg/exec";
 
 const SPREADSHEET_ID = "1gCvMJMK52QUyo1M4FbFzWsJ_NZp3MUqgrDa0obhNIbY";
 const SHEETS_API_KEY = "AIzaSyC0RsFfc5y9GmEaE29niGWD9hbSnpIc7rM";
@@ -273,623 +273,15 @@ favorites2ModalBackdrop.addEventListener("click", (e) => {
   if (e.target === favorites2ModalBackdrop) closeFavorites2Modal();
 });
 
-// ===== 노래 신청 팝업 =====
-const songRequestOpenBtn = document.getElementById("songRequestOpenBtn");
-const songRequestModalBackdrop = document.getElementById("songRequestModalBackdrop");
-const songRequestCloseBtn = document.getElementById("songRequestCloseBtn");
-const songRequestAcceptToggle = document.getElementById("songRequestAcceptToggle");
-const songRequestOffNotice = document.getElementById("songRequestOffNotice");
-const songRequestChatStatus = document.getElementById("songRequestChatStatus");
-
-function closeSongRequestModal() {
-  songRequestModalBackdrop.classList.add("hidden");
-}
-
-songRequestOpenBtn.addEventListener("click", () => {
-  songRequestModalBackdrop.classList.remove("hidden");
-});
-songRequestCloseBtn.addEventListener("click", closeSongRequestModal);
-songRequestModalBackdrop.addEventListener("click", (e) => {
-  if (e.target === songRequestModalBackdrop) closeSongRequestModal();
-});
-
-// ===== 신청 팝업 내 사이드바 탭 전환 =====
-const songRequestNavItems = document.querySelectorAll(".song-request-nav-item");
-const songRequestContentPanels = document.querySelectorAll(".song-request-content-panel");
-
-songRequestNavItems.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    songRequestNavItems.forEach((el) => el.classList.toggle("active", el === btn));
-    const target = btn.dataset.panel;
-    songRequestContentPanels.forEach((panel) => panel.classList.toggle("active", panel.dataset.panel === target));
-  });
-});
-
-// ===== 오버레이 > 테마 (다크/화이트 공용) =====
-const OVERLAY_THEMES = {
-  dark: { bg: "#14141c", color: "#ffffff" },
-  light: { bg: "#ffffff", color: "#14141c" },
-};
-
-function setupOverlayThemeToggle(wrapId, onChange) {
-  const wrap = document.getElementById(wrapId);
-  const btns = wrap.querySelectorAll(".song-request-theme-btn");
-  let theme = "dark";
-  btns.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      theme = btn.dataset.theme;
-      btns.forEach((b) => b.classList.toggle("active", b === btn));
-      onChange();
-    });
-  });
-  return { get: () => theme };
-}
-
-const SONG_REQUEST_OVERLAY_FONT_DEFAULT = "system";
-
-const SONG_REQUEST_OVERLAY_FONTS = {
-  system: { family: `"Malgun Gothic", "Segoe UI", sans-serif`, google: null },
-  notosanskr: { family: `"Noto Sans KR", sans-serif`, google: "Noto+Sans+KR:wght@400;700;900" },
-  nanumgothic: { family: `"Nanum Gothic", sans-serif`, google: "Nanum+Gothic:wght@400;700;800" },
-  nanummyeongjo: { family: `"Nanum Myeongjo", serif`, google: "Nanum+Myeongjo:wght@400;700;800" },
-  gothica1: { family: `"Gothic A1", sans-serif`, google: "Gothic+A1:wght@400;700;900" },
-  dohyeon: { family: `"Do Hyeon", sans-serif`, google: "Do+Hyeon" },
-  blackhansans: { family: `"Black Han Sans", sans-serif`, google: "Black+Han+Sans" },
-  jua: { family: `"Jua", sans-serif`, google: "Jua" },
-  gaegu: { family: `"Gaegu", sans-serif`, google: "Gaegu:wght@400;700" },
-  gamjaflower: { family: `"Gamja Flower", sans-serif`, google: "Gamja+Flower" },
-  poorstory: { family: `"Poor Story", sans-serif`, google: "Poor+Story" },
-  sunflower: { family: `"Sunflower", sans-serif`, google: "Sunflower:wght@300;500;700" },
-  singleday: { family: `"Single Day", sans-serif`, google: "Single+Day" },
-};
-
-function loadGoogleFontLink(fontKey, linkId) {
-  const existing = document.getElementById(linkId);
-  const google = SONG_REQUEST_OVERLAY_FONTS[fontKey]?.google;
-  if (!google) {
-    if (existing) existing.remove();
-    return;
-  }
-  const link = existing || document.createElement("link");
-  link.id = linkId;
-  link.rel = "stylesheet";
-  link.href = `https://fonts.googleapis.com/css2?family=${google}&display=swap`;
-  if (!existing) document.head.appendChild(link);
-}
-
-// ===== 오버레이 > 노래 신청 목록 탭 =====
-const SONG_REQUEST_OVERLAY_URL = "https://ddarin-sechule.vercel.app/overlay/request/x0UXQ5j2URXmiitcuwPZ4RZQZQyPXgq";
-const songRequestOverlayUrlInput = document.getElementById("songRequestOverlayUrlInput");
-const songRequestOverlayEyeBtn = document.getElementById("songRequestOverlayEyeBtn");
-const songRequestOverlayCopyBtn = document.getElementById("songRequestOverlayCopyBtn");
-const songRequestOverlayFontSelect = document.getElementById("songRequestOverlayFontSelect");
-const songRequestOverlayPreviewWrap = document.getElementById("songRequestOverlayPreviewWrap");
-const songRequestOverlayDisplayModeWrap = document.getElementById("songRequestOverlayDisplayModeToggle");
-
-const songRequestOverlayTheme = setupOverlayThemeToggle("songRequestOverlayThemeToggle", () => updateOverlayUrlDisplay());
-
-let songRequestOverlayDisplayMode = "static";
-songRequestOverlayDisplayModeWrap.querySelectorAll(".song-request-theme-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    songRequestOverlayDisplayMode = btn.dataset.mode;
-    songRequestOverlayDisplayModeWrap
-      .querySelectorAll(".song-request-theme-btn")
-      .forEach((b) => b.classList.toggle("active", b === btn));
-    updateOverlayUrlDisplay();
-  });
-});
-
-function currentOverlayUrl() {
-  const params = new URLSearchParams();
-  const theme = OVERLAY_THEMES[songRequestOverlayTheme.get()];
-  if (songRequestOverlayTheme.get() !== "dark") {
-    params.set("bg", theme.bg);
-    params.set("color", theme.color);
-  }
-  if (songRequestOverlayFontSelect.value !== SONG_REQUEST_OVERLAY_FONT_DEFAULT) params.set("font", songRequestOverlayFontSelect.value);
-  if (songRequestOverlayDisplayMode === "scroll") params.set("mode", "scroll");
-  const qs = params.toString();
-  return qs ? `${SONG_REQUEST_OVERLAY_URL}?${qs}` : SONG_REQUEST_OVERLAY_URL;
-}
-
-function updateOverlayUrlDisplay() {
-  songRequestOverlayUrlInput.value = currentOverlayUrl();
-  const fontKey = songRequestOverlayFontSelect.value;
-  loadGoogleFontLink(fontKey, "songRequestOverlayFontLink");
-  const theme = OVERLAY_THEMES[songRequestOverlayTheme.get()];
-  songRequestOverlayPreviewWrap.style.setProperty("--overlay-bg", theme.bg);
-  songRequestOverlayPreviewWrap.style.setProperty("--overlay-color", theme.color);
-  songRequestOverlayPreviewWrap.style.setProperty("--overlay-font", SONG_REQUEST_OVERLAY_FONTS[fontKey].family);
-  songRequestOverlayPreviewWrap.classList.toggle("song-request-overlay-preview-scroll", songRequestOverlayDisplayMode === "scroll");
-}
-
-updateOverlayUrlDisplay();
-songRequestOverlayUrlInput.classList.add("song-request-overlay-url-input-hidden");
-
-songRequestOverlayFontSelect.addEventListener("change", updateOverlayUrlDisplay);
-songRequestOverlayEyeBtn.addEventListener("click", () => {
-  songRequestOverlayUrlInput.classList.toggle("song-request-overlay-url-input-hidden");
-});
-songRequestOverlayCopyBtn.addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(currentOverlayUrl());
-    songRequestOverlayCopyBtn.textContent = "복사됨";
-    setTimeout(() => {
-      songRequestOverlayCopyBtn.textContent = "복사";
-    }, 1500);
-  } catch {
-    // 클립보드 권한이 없으면 무시 - 입력창에서 직접 선택해 복사할 수 있음
-  }
-});
-
-// ===== 오버레이 > 현재 노래 정보 탭 =====
-const SONG_REQUEST_OVERLAY_NOWPLAYING_URL =
-  "https://ddarin-sechule.vercel.app/overlay/nowplaying/I71BDs9EYsiHN54o4xEllo4u7k6b9ACd";
-const songRequestOverlayNowplayingUrlInput = document.getElementById("songRequestOverlayNowplayingUrlInput");
-const songRequestOverlayNowplayingEyeBtn = document.getElementById("songRequestOverlayNowplayingEyeBtn");
-const songRequestOverlayNowplayingCopyBtn = document.getElementById("songRequestOverlayNowplayingCopyBtn");
-const songRequestOverlayNowplayingFontSelect = document.getElementById("songRequestOverlayNowplayingFontSelect");
-const songRequestOverlayNowplayingPreviewWrap = document.getElementById("songRequestOverlayNowplayingPreviewWrap");
-
-const songRequestOverlayNowplayingTheme = setupOverlayThemeToggle("songRequestOverlayNowplayingThemeToggle", () =>
-  updateNowplayingOverlayUrlDisplay()
-);
-
-function currentNowplayingOverlayUrl() {
-  const params = new URLSearchParams();
-  const theme = OVERLAY_THEMES[songRequestOverlayNowplayingTheme.get()];
-  if (songRequestOverlayNowplayingTheme.get() !== "dark") {
-    params.set("bg", theme.bg);
-    params.set("color", theme.color);
-  }
-  if (songRequestOverlayNowplayingFontSelect.value !== SONG_REQUEST_OVERLAY_FONT_DEFAULT) params.set("font", songRequestOverlayNowplayingFontSelect.value);
-  const qs = params.toString();
-  return qs ? `${SONG_REQUEST_OVERLAY_NOWPLAYING_URL}?${qs}` : SONG_REQUEST_OVERLAY_NOWPLAYING_URL;
-}
-
-function updateNowplayingOverlayUrlDisplay() {
-  songRequestOverlayNowplayingUrlInput.value = currentNowplayingOverlayUrl();
-  const fontKey = songRequestOverlayNowplayingFontSelect.value;
-  loadGoogleFontLink(fontKey, "songRequestOverlayNowplayingFontLink");
-  const theme = OVERLAY_THEMES[songRequestOverlayNowplayingTheme.get()];
-  songRequestOverlayNowplayingPreviewWrap.style.setProperty("--overlay-bg", theme.bg);
-  songRequestOverlayNowplayingPreviewWrap.style.setProperty("--overlay-color", theme.color);
-  songRequestOverlayNowplayingPreviewWrap.style.setProperty("--overlay-font", SONG_REQUEST_OVERLAY_FONTS[fontKey].family);
-}
-
-updateNowplayingOverlayUrlDisplay();
-songRequestOverlayNowplayingUrlInput.classList.add("song-request-overlay-url-input-hidden");
-
-songRequestOverlayNowplayingFontSelect.addEventListener("change", updateNowplayingOverlayUrlDisplay);
-songRequestOverlayNowplayingEyeBtn.addEventListener("click", () => {
-  songRequestOverlayNowplayingUrlInput.classList.toggle("song-request-overlay-url-input-hidden");
-});
-songRequestOverlayNowplayingCopyBtn.addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(currentNowplayingOverlayUrl());
-    songRequestOverlayNowplayingCopyBtn.textContent = "복사됨";
-    setTimeout(() => {
-      songRequestOverlayNowplayingCopyBtn.textContent = "복사";
-    }, 1500);
-  } catch {
-    // 클립보드 권한이 없으면 무시 - 입력창에서 직접 선택해 복사할 수 있음
-  }
-});
-
-document.querySelector(".song-request-sort-tabs").addEventListener("click", (e) => {
-  const btn = e.target.closest(".song-request-sort-tab");
-  if (!btn) return;
-  document.querySelectorAll(".song-request-sort-tab").forEach((el) => el.classList.toggle("active", el === btn));
-});
-
-// ===== SOOP 신청곡 수집기 확장프로그램(soop-song-request-extension)이 보내주는
-// "!신청 제목 - 가수" 채팅을 폴링해서 대기열에 자동 추가 =====
-const SONG_REQUEST_POLL_MS = 5000;
-let songRequestPollInterval = null;
-let songRequestSinceTime = null;
-const songRequestListEl = document.getElementById("songRequestList");
-let songRequestSenderByKey = {};
-let songRequestTimeByKey = {};
-
-function formatSongRequestRelativeTime(ts) {
-  if (!ts) return "";
-  const diffSec = Math.floor((Date.now() - ts) / 1000);
-  if (diffSec < 60) return "방금 전";
-  const diffMin = Math.floor(diffSec / 60);
-  if (diffMin < 60) return `${diffMin}분 전`;
-  const diffHour = Math.floor(diffMin / 60);
-  if (diffHour < 24) return `${diffHour}시간 전`;
-  const diffDay = Math.floor(diffHour / 24);
-  return `${diffDay}일 전`;
-}
-
-const songRequestNowPlayingTitleEl = document.getElementById("songRequestNowPlayingTitle");
-const songRequestNowPlayingArtistEl = document.getElementById("songRequestNowPlayingArtist");
-const songRequestTodayBadgeEl = document.getElementById("songRequestTodayBadge");
-const songRequestUndoBtn = document.getElementById("songRequestUndoBtn");
-const songRequestSkipBtn = document.getElementById("songRequestSkipBtn");
-
-const SONG_REQUEST_TODAY_COUNT_KEY = "songRequestTodayCount";
-let songRequestLastRemoved = null;
-
-function todayDateKeySeoul() {
-  return new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
-}
-
-function getSongRequestTodayCount() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(SONG_REQUEST_TODAY_COUNT_KEY) || "null");
-    if (saved && saved.date === todayDateKeySeoul()) return saved.count;
-  } catch {
-    /* 저장된 값이 깨졌으면 0부터 다시 시작 */
-  }
-  return 0;
-}
-
-function setSongRequestTodayCount(count) {
-  localStorage.setItem(SONG_REQUEST_TODAY_COUNT_KEY, JSON.stringify({ date: todayDateKeySeoul(), count }));
-}
-
-function renderSongRequestNowPlaying(queueSongs) {
-  const song = queueSongs[0];
-
-  if (!song) {
-    songRequestNowPlayingTitleEl.textContent = "현재 노래가 없습니다";
-    songRequestNowPlayingArtistEl.textContent = "대기열에서 곡을 선택해 주세요";
-  } else {
-    songRequestNowPlayingTitleEl.textContent = song.title;
-    songRequestNowPlayingArtistEl.textContent = song.artist;
-  }
-
-  const completed = getSongRequestTodayCount();
-  songRequestTodayBadgeEl.textContent = `오늘 ${completed}/${completed + queueSongs.length}곡`;
-
-  songRequestSkipBtn.disabled = !song;
-  songRequestUndoBtn.disabled = !songRequestLastRemoved;
-}
-
-songRequestSkipBtn.addEventListener("click", () => {
-  const key = singQueueOrder[0];
-  if (!key) return;
-  songRequestLastRemoved = {
-    key,
-    wasCompleted: true,
-    sender: songRequestSenderByKey[key] || null,
-    time: songRequestTimeByKey[key] || null,
-  };
-  setSongRequestTodayCount(getSongRequestTodayCount() + 1);
-  removeFromSingQueue(key);
-});
-
-songRequestUndoBtn.addEventListener("click", () => {
-  if (!songRequestLastRemoved) return;
-  const { key, wasCompleted, sender, time } = songRequestLastRemoved;
-  if (!singQueueOrder.includes(key)) {
-    singQueueOrder.unshift(key);
-    if (sender) songRequestSenderByKey[key] = sender;
-    if (time) songRequestTimeByKey[key] = time;
-  }
-  if (wasCompleted) setSongRequestTodayCount(Math.max(0, getSongRequestTodayCount() - 1));
-  songRequestLastRemoved = null;
-  saveSingQueue();
-  renderSingQueueList();
-  renderSongRequestList();
-});
-
-function renderSongRequestList() {
-  songRequestListEl.innerHTML = "";
-  const queueSongs = singQueueOrder.map((key) => songByKey[key]).filter(Boolean);
-  renderSongRequestNowPlaying(queueSongs);
-
-  if (!queueSongs.length) {
-    const empty = document.createElement("p");
-    empty.className = "favorites-empty";
-    empty.textContent = "아직 신청된 곡이 없습니다.";
-    songRequestListEl.appendChild(empty);
-    return;
-  }
-
-  queueSongs.forEach((song) => {
-    const key = albumArtCacheKey(song);
-    const sender = songRequestSenderByKey[key];
-
-    const item = document.createElement("div");
-    item.className = "song-request-item";
-    item.draggable = true;
-
-    const textWrap = document.createElement("div");
-    textWrap.className = "song-request-item-text";
-
-    const titleEl = document.createElement("div");
-    titleEl.className = "favorite-item-title";
-    titleEl.textContent = song.title;
-
-    const artistEl = document.createElement("div");
-    artistEl.className = "favorite-item-artist";
-    artistEl.textContent = sender ? `${song.artist} · ${sender}` : song.artist;
-
-    textWrap.append(titleEl, artistEl);
-
-    const timeEl = document.createElement("span");
-    timeEl.className = "song-request-item-time";
-    timeEl.textContent = formatSongRequestRelativeTime(songRequestTimeByKey[key]);
-
-    item.append(textWrap, timeEl);
-
-    item.addEventListener("dragstart", () => {
-      draggedQueueKey = key;
-      item.classList.add("dragging");
-    });
-    item.addEventListener("dragend", () => {
-      draggedQueueKey = null;
-      item.classList.remove("dragging");
-    });
-    item.addEventListener("dragover", (e) => e.preventDefault());
-    item.addEventListener("drop", (e) => {
-      e.preventDefault();
-      if (!draggedQueueKey || draggedQueueKey === key) return;
-      const fromIdx = singQueueOrder.indexOf(draggedQueueKey);
-      const toIdx = singQueueOrder.indexOf(key);
-      if (fromIdx === -1 || toIdx === -1) return;
-      singQueueOrder.splice(fromIdx, 1);
-      singQueueOrder.splice(toIdx, 0, draggedQueueKey);
-      saveSingQueue();
-      renderSingQueueList();
-      renderSongRequestList();
-    });
-
-    songRequestListEl.appendChild(item);
-  });
-}
-const songRequestMinStarInput = document.getElementById("songRequestMinStarInput");
-const songRequestStarApplyBtn = document.getElementById("songRequestStarApplyBtn");
-let songRequestMinStars = Number(songRequestMinStarInput.value) || 0;
-
-songRequestStarApplyBtn.addEventListener("click", () => {
-  songRequestMinStars = Number(songRequestMinStarInput.value) || 0;
-  if (getSongRequestActiveSource() === "star") {
-    setSongRequestChatStatus(`별풍선 ${songRequestMinStars}개 이상 감지 중`, "live");
-  }
-});
-
-function parseSongRequestMessage(text) {
-  const raw = String(text || "").trim();
-  if (!raw.startsWith("!")) return null;
-  const body = raw.slice(1).trim();
-  if (!body) return null;
-  const m = /^(.+?)\s*-\s*(.+)$/.exec(body);
-  if (m) return { title: m[1].trim(), artist: m[2].trim() };
-  return { title: body, artist: null };
-}
-
-function matchSongForRequest(title, artist) {
-  const titleLower = title.toLowerCase();
-  const matches = (allSongs || []).filter((s) => s.title.toLowerCase() === titleLower);
-  if (!matches.length) return { song: null, reason: "notfound" };
-  if (matches.length === 1) return { song: matches[0], reason: null };
-  if (!artist) return { song: null, reason: "ambiguous" };
-  const artistLower = artist.toLowerCase();
-  const song = matches.find((s) => s.artist.toLowerCase() === artistLower) || null;
-  return song ? { song, reason: null } : { song: null, reason: "ambiguous" };
-}
-
-function findSongForRequest(title, artist) {
-  return matchSongForRequest(title, artist).song;
-}
-
-function setSongRequestChatStatus(text, tone) {
-  if (!songRequestChatStatus) return;
-  songRequestChatStatus.innerHTML = `<span class="song-request-chat-status-dot"></span>${text}`;
-  songRequestChatStatus.classList.toggle("is-live", tone === "live");
-  songRequestChatStatus.classList.toggle("is-error", tone === "error");
-}
-
-const songRequestChatLogEl = document.getElementById("songRequestChatLog");
-const songRequestChatLogClearBtn = document.getElementById("songRequestChatLogClearBtn");
-songRequestChatLogClearBtn.addEventListener("click", () => {
-  songRequestChatLogEl.innerHTML = "";
-});
-
-function logSongRequestNote(text) {
-  if (!songRequestChatLogEl) return;
-  const line = document.createElement("div");
-  line.className = "song-request-chat-log-line";
-  line.textContent = text;
-  songRequestChatLogEl.appendChild(line);
-  songRequestChatLogEl.scrollTop = songRequestChatLogEl.scrollHeight;
-}
-
-function logSongRequestFailure(item, parsed, reason) {
-  const sender = item.sender ? `${item.sender}: ` : "";
-  const reasonText =
-    reason === "ambiguous" ? "노래제목이 중복입니다. 가수 이름을 적어주세요." : "노래책 목록에 없는 곡입니다.";
-  logSongRequestNote(`${sender}"${parsed.title}" - ${reasonText}`);
-}
-
-const songRequestSuccessLogEl = document.getElementById("songRequestSuccessLog");
-let songRequestSuccessLog = [];
-
-function renderSongRequestSuccessLog() {
-  if (!songRequestSuccessLogEl) return;
-  songRequestSuccessLogEl.innerHTML = "";
-  if (!songRequestSuccessLog.length) {
-    const empty = document.createElement("p");
-    empty.className = "song-request-empty-text";
-    empty.textContent = "아직 신청된 곡이 없습니다.";
-    songRequestSuccessLogEl.appendChild(empty);
-    return;
-  }
-  songRequestSuccessLog.forEach((entry) => {
-    const row = document.createElement("div");
-    row.className = "song-request-success-row";
-    const senderEl = document.createElement("span");
-    senderEl.className = "song-request-success-sender";
-    senderEl.textContent = entry.sender || "익명";
-    const messageEl = document.createElement("span");
-    messageEl.className = "song-request-success-message";
-    messageEl.textContent = entry.message;
-    row.append(senderEl, messageEl);
-    songRequestSuccessLogEl.appendChild(row);
-  });
-}
-
-function logSongRequestSuccess(sender, message) {
-  songRequestSuccessLog.push({ sender: sender || null, message });
-  renderSongRequestSuccessLog();
-}
-
-function tryQueueFromRequestMessage(message) {
-  const parsed = parseSongRequestMessage(message);
-  if (!parsed) return;
-  const song = findSongForRequest(parsed.title, parsed.artist);
-  if (song) addToSingQueue([albumArtCacheKey(song)]);
-}
-
-let songRequestPendingStarSenders = {};
-
-function tryQueueChatItem(item) {
-  const parsed = parseSongRequestMessage(item.message);
-  console.log("[신청곡] 파싱 결과:", item.message, "->", parsed);
-  if (!parsed) return false;
-  const { song, reason } = matchSongForRequest(parsed.title, parsed.artist);
-  console.log("[신청곡] 매칭 결과:", song, reason);
-  if (!song) {
-    logSongRequestFailure(item, parsed, reason);
-    return false;
-  }
-  songRequestSenderByKey[albumArtCacheKey(song)] = item.sender || null;
-  addToSingQueue([albumArtCacheKey(song)]);
-  logSongRequestSuccess(item.sender, item.message);
-  return true;
-}
-
-async function pollSongRequests() {
-  try {
-    const res = await fetch("/api/soop-chat?type=songRequest,star");
-    if (!res.ok) {
-      console.warn("[신청곡] 폴링 응답 실패:", res.status);
-      return;
-    }
-    const data = await res.json();
-    console.log("[신청곡] 폴링 전체 항목:", data.items, "sinceTime:", songRequestSinceTime);
-    const items = (data.items || []).filter((it) => !songRequestSinceTime || it.time > songRequestSinceTime);
-    console.log("[신청곡] 새 항목:", items);
-
-    const source = getSongRequestActiveSource();
-    if (source === "chat") {
-      items.forEach((item) => {
-        if (item.type !== "songRequest") return;
-        tryQueueChatItem(item);
-      });
-    } else if (source === "star") {
-      items.forEach((item) => {
-        if (item.type === "star") {
-          const count = Number(item.message) || 0;
-          const sender = item.sender;
-          if (!sender) return;
-          if (count < songRequestMinStars) {
-            logSongRequestNote(`${sender}: 별풍선 ${count}개 - 최소 별풍선 개수(${songRequestMinStars}개) 미달`);
-            return;
-          }
-          songRequestPendingStarSenders[sender] = (songRequestPendingStarSenders[sender] || 0) + 1;
-          console.log("[신청곡] 별풍선 대기 등록:", sender, "개수:", count, "누적 대기:", songRequestPendingStarSenders[sender]);
-          return;
-        }
-        if (item.type !== "songRequest") return;
-        const sender = item.sender;
-        if (!sender || !songRequestPendingStarSenders[sender]) {
-          if (sender) logSongRequestNote(`${sender}: "${item.message}" - 확인된 별풍선 후원이 없어요.`);
-          return;
-        }
-        if (!tryQueueChatItem(item)) return;
-        songRequestPendingStarSenders[sender] -= 1;
-        if (songRequestPendingStarSenders[sender] <= 0) delete songRequestPendingStarSenders[sender];
-      });
-    }
-
-    if (items.length) {
-      songRequestSinceTime = items.reduce((max, it) => (it.time > max ? it.time : max), songRequestSinceTime || "");
-    }
-  } catch (err) {
-    console.error("[신청곡] 폴링 오류:", err);
-  }
-}
-
-function startSongRequestCollection() {
-  songRequestSinceTime = new Date().toISOString();
-  songRequestSenderByKey = {};
-  songRequestPendingStarSenders = {};
-  if (songRequestChatLogEl) songRequestChatLogEl.innerHTML = "";
-  renderSongRequestList();
-  stopSongRequestCollection();
-  const isStar = getSongRequestActiveSource() === "star";
-  setSongRequestChatStatus(isStar ? `별풍선 ${songRequestMinStars}개 이상 감지 중` : "수집 중", "live");
-  songRequestPollInterval = setInterval(pollSongRequests, SONG_REQUEST_POLL_MS);
-}
-
-function stopSongRequestCollection() {
-  if (songRequestPollInterval) {
-    clearInterval(songRequestPollInterval);
-    songRequestPollInterval = null;
-  }
-}
-
-function getSongRequestActiveSource() {
-  if (songRequestAcceptToggle.getAttribute("aria-pressed") !== "true") return null;
-  const activeSourceBtn = document.querySelector(".song-request-source-btn.active");
-  return activeSourceBtn ? activeSourceBtn.dataset.source : null;
-}
-
-songRequestAcceptToggle.addEventListener("click", () => {
-  const isOn = songRequestAcceptToggle.getAttribute("aria-pressed") === "true";
-  songRequestAcceptToggle.setAttribute("aria-pressed", String(!isOn));
-  songRequestOffNotice.classList.toggle("song-request-notice-collapsed", !isOn);
-
-  if (getSongRequestActiveSource()) {
-    startSongRequestCollection();
-  } else {
-    stopSongRequestCollection();
-    setSongRequestChatStatus("신청 받기 꺼짐");
-  }
-});
-
-const songRequestSourceNoticeText = document.getElementById("songRequestSourceNoticeText");
-const SONG_REQUEST_SOURCE_NOTICES = {
-  chat: "채팅창에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 대기열에 표시돼요.",
-  star: "최소 별풍선 개수 이상 후원메세지로 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 대기열에 표시돼요.",
-};
-
-const songRequestStarFilterEl = document.querySelector(".song-request-star-filter");
-
-function updateSongRequestStarFilterVisibility() {
-  const activeBtn = document.querySelector(".song-request-source-btn.active");
-  const isStar = activeBtn && activeBtn.dataset.source === "star";
-  songRequestStarFilterEl.classList.toggle("hidden", !isStar);
-}
-updateSongRequestStarFilterVisibility();
-
-document.querySelectorAll(".song-request-source-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".song-request-source-btn").forEach((el) => el.classList.toggle("active", el === btn));
-    songRequestSourceNoticeText.innerHTML = SONG_REQUEST_SOURCE_NOTICES[btn.dataset.source];
-    updateSongRequestStarFilterVisibility();
-
-    if (getSongRequestActiveSource()) startSongRequestCollection();
-  });
-});
-
 const singQueueListEl = document.getElementById("singQueueList");
 const singQueueClearBtn = document.getElementById("singQueueClearBtn");
-const songRequestListClearBtn = document.getElementById("songRequestListClearBtn");
 function clearSingQueue() {
   if (isReadOnly) return;
   singQueueOrder = [];
   saveSingQueue();
   renderSingQueueList();
-  renderSongRequestList();
 }
 singQueueClearBtn.addEventListener("click", clearSingQueue);
-songRequestListClearBtn.addEventListener("click", clearSingQueue);
 const songManageBtn = document.getElementById("songManageBtn");
 const songManageToolbar = document.getElementById("songManageToolbar");
 const songSelectAllBtn = document.getElementById("songSelectAllBtn");
@@ -2391,7 +1783,6 @@ async function openSongbook2Table() {
   renderSongGrid2();
   renderFavorites2List();
   renderSingQueueList();
-  renderSongRequestList();
   renderArtistList2();
 }
 
@@ -4275,7 +3666,6 @@ songAddForm.addEventListener("submit", (e) => {
   renderSongGrid2();
   renderFavorites2List();
   renderSingQueueList();
-  renderSongRequestList();
 
   closeSongAddModal();
 });
@@ -4336,7 +3726,6 @@ songDeleteSelectedBtn.addEventListener("click", () => {
   renderSongGrid2();
   renderFavorites2List();
   renderSingQueueList();
-  renderSongRequestList();
 });
 
 
@@ -4346,6 +3735,7 @@ songQueueAddBtn.addEventListener("click", () => {
 });
 
 let singQueueOrder = [];
+let songRequestTimeByKey = {};
 
 async function fetchSingQueue() {
   try {
@@ -4355,7 +3745,6 @@ async function fetchSingQueue() {
     singQueueOrder = Array.isArray(data.queue) ? data.queue : [];
     songRequestTimeByKey = data.times && typeof data.times === "object" ? data.times : {};
     renderSingQueueList();
-    renderSongRequestList();
   } catch (err) {
     console.error("[대기열] 불러오기 실패:", err);
   }
@@ -4400,7 +3789,6 @@ function addToSingQueue(keys) {
   });
   saveSingQueue();
   renderSingQueueList();
-  renderSongRequestList();
 }
 
 function removeFromSingQueue(key) {
@@ -4409,7 +3797,6 @@ function removeFromSingQueue(key) {
   singQueueOrder.splice(idx, 1);
   saveSingQueue();
   renderSingQueueList();
-  renderSongRequestList();
 }
 
 let draggedQueueKey = null;
@@ -4490,7 +3877,6 @@ function renderSingQueueList() {
       singQueueOrder.splice(toIdx, 0, draggedQueueKey);
       saveSingQueue();
       renderSingQueueList();
-      renderSongRequestList();
     });
 
     singQueueListEl.appendChild(item);
@@ -5294,14 +4680,6 @@ function updateLockUi() {
   songManageBtn.classList.toggle("hidden", isReadOnly || songManageMode);
   singQueueClearBtn.classList.toggle("hidden", isReadOnly);
   songRouletteQueueAddBtn.classList.toggle("hidden", isReadOnly);
-
-  songRequestOpenBtn.classList.toggle("hidden", isReadOnly);
-  songRequestAcceptToggle.disabled = isReadOnly;
-  if (isReadOnly && songRequestAcceptToggle.getAttribute("aria-pressed") === "true") {
-    songRequestAcceptToggle.setAttribute("aria-pressed", "false");
-    songRequestOffNotice.classList.remove("song-request-notice-collapsed");
-    stopSongRequestCollection();
-  }
 }
 
 async function tryAutoUnlock() {

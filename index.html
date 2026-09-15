@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=601">
+<link rel="stylesheet" href="style.css?v=602">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen">
@@ -578,7 +578,6 @@
         <button type="button" id="songManageBtn" class="song-gear-btn hidden" aria-label="곡 관리" title="곡 관리">STREAMER</button>
       </div>
       <div class="songbook-header-actions">
-        <button type="button" id="songRequestOpenBtn" class="song-request-btn">신청곡 받기</button>
         <div id="songManageToolbar" class="song-manage-toolbar hidden">
           <button type="button" id="songAddBtn" class="song-manage-btn" aria-label="곡 추가" title="곡 추가">+</button>
           <button type="button" id="songSelectAllBtn" class="song-manage-btn">전체선택</button>
@@ -684,271 +683,6 @@
 
   <div id="songbookGwView" class="hidden">
     <div id="songbookGwBody"></div>
-  </div>
-
-  <div id="songRequestModalBackdrop" class="modal-backdrop hidden">
-    <div class="modal song-request-modal">
-      <div class="modal-header-row">
-        <h2>노래 신청</h2>
-        <button type="button" id="songRequestCloseBtn" class="modal-close-x" aria-label="닫기">✕</button>
-      </div>
-
-      <div class="song-request-shell">
-        <div class="song-request-nav">
-          <button type="button" class="song-request-nav-item active" data-panel="request">노래 신청</button>
-          <button type="button" class="song-request-nav-item" data-panel="queue">대기열</button>
-
-          <div class="song-request-nav-section-label">오버레이</div>
-          <button type="button" class="song-request-nav-item song-request-nav-sub" data-panel="overlay-nowplaying">현재 노래 정보</button>
-          <button type="button" class="song-request-nav-item song-request-nav-sub" data-panel="overlay-queue">노래 신청 목록</button>
-        </div>
-
-        <div class="song-request-content">
-          <div class="song-request-content-panel active" data-panel="request">
-            <div class="song-request-nowplaying-card">
-              <div class="song-request-nowplaying-art">♪</div>
-              <div class="song-request-nowplaying-body">
-                <div id="songRequestNowPlayingTitle" class="song-request-nowplaying-title">현재 노래가 없습니다</div>
-                <div id="songRequestNowPlayingArtist" class="song-request-nowplaying-artist">대기열에서 곡을 선택해 주세요</div>
-              </div>
-              <div class="song-request-nowplaying-side">
-                <span id="songRequestTodayBadge" class="song-request-today-badge">오늘 0/0곡</span>
-                <div class="song-request-nowplaying-actions">
-                  <button type="button" id="songRequestUndoBtn" class="song-request-nowplaying-icon-btn song-request-nowplaying-icon-btn-danger" aria-label="되돌리기">↩</button>
-                  <button type="button" id="songRequestSkipBtn" class="song-request-nowplaying-icon-btn" aria-label="건너뛰기">⏭</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="song-request-panel-header-controls song-request-controls-row">
-              <button type="button" id="songRequestSourceChatBtn" class="song-request-source-btn active" data-source="chat">채팅</button>
-              <button type="button" id="songRequestSourceStarBtn" class="song-request-source-btn" data-source="star">별풍선</button>
-              <span class="song-request-inline-label">신청 받기</span>
-              <button type="button" id="songRequestAcceptToggle" class="song-request-switch" aria-pressed="false"></button>
-            </div>
-
-            <div class="song-request-star-filter">
-              <span class="song-request-inline-label">최소 별풍선</span>
-              <input type="number" id="songRequestMinStarInput" class="song-request-star-input" value="100" min="0">
-              <span class="song-request-inline-label">개 이상</span>
-              <button type="button" id="songRequestStarApplyBtn" class="song-request-star-apply-btn">적용</button>
-            </div>
-
-            <a href="ddarinsong://start" id="songRequestCollectorLaunchBtn" class="song-request-collector-launch-btn">
-              🎧 신청곡 수집 프로그램 열기
-            </a>
-
-            <div class="song-request-notice song-request-notice-info">
-              <span class="song-request-notice-icon">ⓘ</span>
-              <p id="songRequestSourceNoticeText">채팅창에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 대기열에 표시돼요.</p>
-            </div>
-
-            <div id="songRequestOffNotice" class="song-request-notice song-request-notice-warning">
-              <span class="song-request-notice-icon">⚠</span>
-              <div>
-                <p><b>지금은 노래 신청을 받고 있지 않아요.</b></p>
-                <p>노래 신청을 받으려면 위쪽에 있는 <b>신청 받기</b> 토글을 켜주세요.</p>
-              </div>
-            </div>
-
-            <div class="song-request-panel-header song-request-chat-header">
-              <span class="song-request-chat-title-group">
-                <h3>로그 확인</h3>
-                <button type="button" id="songRequestChatLogClearBtn" class="song-request-chat-log-clear-btn">지우기</button>
-              </span>
-              <span id="songRequestChatStatus" class="song-request-chat-status">
-                <span class="song-request-chat-status-dot"></span>연결 중...
-              </span>
-            </div>
-            <div id="songRequestChatLog" class="song-request-chat-log"></div>
-          </div>
-
-          <div class="song-request-content-panel" data-panel="queue">
-            <div class="song-request-queue-columns">
-              <div class="song-request-queue-left song-request-card">
-                <div class="song-request-panel-header">
-                  <span class="song-request-chat-title-group">
-                    <h3>신청 목록</h3>
-                    <button type="button" id="songRequestListClearBtn" class="sing-queue-clear-btn">초기화</button>
-                  </span>
-                </div>
-
-                <div class="song-request-sort-tabs">
-                  <button type="button" class="song-request-sort-tab active" data-sort="order">선착순</button>
-                </div>
-
-                <div id="songRequestList" class="song-request-list"></div>
-              </div>
-
-              <div class="song-request-queue-right song-request-card">
-                <div class="song-request-panel-header">
-                  <h3>채팅</h3>
-                </div>
-                <div id="songRequestSuccessLog" class="song-request-success-log"></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="song-request-content-panel" data-panel="overlay-nowplaying">
-            <p class="song-request-overlay-heading song-request-overlay-heading-first">디자인</p>
-            <div class="song-request-overlay-style-row">
-              <div class="song-request-overlay-color-field">
-                <span class="song-request-inline-label">테마</span>
-                <div class="song-request-theme-toggle" id="songRequestOverlayNowplayingThemeToggle">
-                  <button type="button" class="song-request-theme-btn active" data-theme="dark">다크</button>
-                  <button type="button" class="song-request-theme-btn" data-theme="light">화이트</button>
-                </div>
-              </div>
-              <label class="song-request-overlay-style-field">
-                <span class="song-request-inline-label">글자체</span>
-                <select id="songRequestOverlayNowplayingFontSelect" class="song-request-overlay-font-select">
-                  <option value="system">기본</option>
-                  <option value="notosanskr">Noto Sans KR</option>
-                  <option value="nanumgothic">나눔고딕</option>
-                  <option value="nanummyeongjo">나눔명조</option>
-                  <option value="gothica1">Gothic A1</option>
-                  <option value="dohyeon">Do Hyeon</option>
-                  <option value="blackhansans">Black Han Sans</option>
-                  <option value="jua">Jua</option>
-                  <option value="gaegu">Gaegu</option>
-                  <option value="gamjaflower">Gamja Flower</option>
-                  <option value="poorstory">Poor Story</option>
-                  <option value="sunflower">Sunflower</option>
-                  <option value="singleday">Single Day</option>
-                </select>
-              </label>
-            </div>
-
-            <p class="song-request-overlay-heading">브라우저 소스 URL</p>
-            <div class="song-request-overlay-url-row">
-              <input type="text" id="songRequestOverlayNowplayingUrlInput" class="song-request-overlay-url-input song-request-overlay-url-input-hidden" readonly>
-              <button type="button" id="songRequestOverlayNowplayingEyeBtn" class="song-request-overlay-icon-btn" aria-label="URL 보기">👁</button>
-              <button type="button" id="songRequestOverlayNowplayingCopyBtn" class="song-request-overlay-copy-btn">복사</button>
-            </div>
-            <p class="song-request-overlay-desc">노래 목록이 아니라, 지금 부르고 있는 곡의 제목과 가수만 보여주는 오버레이입니다.</p>
-
-            <p class="song-request-overlay-heading">미리보기</p>
-            <div id="songRequestOverlayNowplayingPreviewWrap" class="song-request-overlay-nowplaying-preview-wrap">
-              <div class="song-request-overlay-nowplaying-preview-card">
-                <span class="song-request-overlay-nowplaying-preview-title">노래 제목</span>
-                <span class="song-request-overlay-nowplaying-preview-artist">가수</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="song-request-content-panel" data-panel="overlay-queue">
-            <p class="song-request-overlay-heading song-request-overlay-heading-first">디자인</p>
-            <div class="song-request-overlay-style-row">
-              <div class="song-request-overlay-color-field">
-                <span class="song-request-inline-label">테마</span>
-                <div class="song-request-theme-toggle" id="songRequestOverlayThemeToggle">
-                  <button type="button" class="song-request-theme-btn active" data-theme="dark">다크</button>
-                  <button type="button" class="song-request-theme-btn" data-theme="light">화이트</button>
-                </div>
-              </div>
-              <label class="song-request-overlay-style-field">
-                <span class="song-request-inline-label">글자체</span>
-                <select id="songRequestOverlayFontSelect" class="song-request-overlay-font-select">
-                  <option value="system">기본</option>
-                  <option value="notosanskr">Noto Sans KR</option>
-                  <option value="nanumgothic">나눔고딕</option>
-                  <option value="nanummyeongjo">나눔명조</option>
-                  <option value="gothica1">Gothic A1</option>
-                  <option value="dohyeon">Do Hyeon</option>
-                  <option value="blackhansans">Black Han Sans</option>
-                  <option value="jua">Jua</option>
-                  <option value="gaegu">Gaegu</option>
-                  <option value="gamjaflower">Gamja Flower</option>
-                  <option value="poorstory">Poor Story</option>
-                  <option value="sunflower">Sunflower</option>
-                  <option value="singleday">Single Day</option>
-                </select>
-              </label>
-            </div>
-
-            <p class="song-request-overlay-heading">표시 방식</p>
-            <div class="song-request-theme-toggle" id="songRequestOverlayDisplayModeToggle">
-              <button type="button" class="song-request-theme-btn active" data-mode="static">정적</button>
-              <button type="button" class="song-request-theme-btn" data-mode="scroll">스크롤</button>
-            </div>
-
-            <p class="song-request-overlay-heading">브라우저 소스 URL</p>
-            <div class="song-request-overlay-url-row">
-              <input type="text" id="songRequestOverlayUrlInput" class="song-request-overlay-url-input song-request-overlay-url-input-hidden" readonly>
-              <button type="button" id="songRequestOverlayEyeBtn" class="song-request-overlay-icon-btn" aria-label="URL 보기">👁</button>
-              <button type="button" id="songRequestOverlayCopyBtn" class="song-request-overlay-copy-btn">복사</button>
-            </div>
-            <p class="song-request-overlay-desc">대기 중인 노래 목록을 실시간으로 보여주는 오버레이입니다.</p>
-
-            <p class="song-request-overlay-heading">미리보기</p>
-            <div id="songRequestOverlayPreviewWrap" class="song-request-overlay-preview-wrap">
-              <div class="song-request-overlay-preview-track">
-                <div class="queue-row">
-                  <div class="queue-row-top">
-                    <span class="queue-title">노래 제목 A</span>
-                    <span class="queue-badge">신청자 외 1명</span>
-                  </div>
-                  <div class="queue-row-bottom">
-                    <span class="queue-artist">가수</span>
-                    <span class="queue-time">방금 전</span>
-                  </div>
-                </div>
-                <div class="queue-row">
-                  <div class="queue-row-top">
-                    <span class="queue-title">노래 제목 B</span>
-                    <span class="queue-badge">신청자 외 1명</span>
-                  </div>
-                  <div class="queue-row-bottom">
-                    <span class="queue-artist">가수</span>
-                    <span class="queue-time">방금 전</span>
-                  </div>
-                </div>
-                <div class="queue-row">
-                  <div class="queue-row-top">
-                    <span class="queue-title">노래 제목 C</span>
-                    <span class="queue-badge">신청자 외 1명</span>
-                  </div>
-                  <div class="queue-row-bottom">
-                    <span class="queue-artist">가수</span>
-                    <span class="queue-time">방금 전</span>
-                  </div>
-                </div>
-                <div class="queue-row" aria-hidden="true">
-                  <div class="queue-row-top">
-                    <span class="queue-title">노래 제목 A</span>
-                    <span class="queue-badge">신청자 외 1명</span>
-                  </div>
-                  <div class="queue-row-bottom">
-                    <span class="queue-artist">가수</span>
-                    <span class="queue-time">방금 전</span>
-                  </div>
-                </div>
-                <div class="queue-row" aria-hidden="true">
-                  <div class="queue-row-top">
-                    <span class="queue-title">노래 제목 B</span>
-                    <span class="queue-badge">신청자 외 1명</span>
-                  </div>
-                  <div class="queue-row-bottom">
-                    <span class="queue-artist">가수</span>
-                    <span class="queue-time">방금 전</span>
-                  </div>
-                </div>
-                <div class="queue-row" aria-hidden="true">
-                  <div class="queue-row-top">
-                    <span class="queue-title">노래 제목 C</span>
-                    <span class="queue-badge">신청자 외 1명</span>
-                  </div>
-                  <div class="queue-row-bottom">
-                    <span class="queue-artist">가수</span>
-                    <span class="queue-time">방금 전</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <div id="favorites2ModalBackdrop" class="modal-backdrop hidden">
@@ -1333,8 +1067,8 @@
 
 
 
-  <script src="app.js?v=601"></script>
-  <script src="games.js?v=601"></script>
+  <script src="app.js?v=602"></script>
+  <script src="games.js?v=602"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {
