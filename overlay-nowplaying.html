@@ -15,7 +15,7 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    width: 560px;
+    width: 400px;
     max-width: calc(100% - 40px);
     box-sizing: border-box;
     margin: 20px;
@@ -24,10 +24,11 @@
     padding: 20px 26px;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
     font-family: var(--overlay-font, "Malgun Gothic", "Segoe UI", sans-serif);
+    text-align: var(--overlay-align, left);
   }
 
   #nowPlayingTitle {
-    font-size: 1.4rem;
+    font-size: var(--overlay-font-size, 1.4rem);
     font-weight: 800;
     color: var(--overlay-color, #ffffff);
     white-space: nowrap;
@@ -36,7 +37,7 @@
   }
 
   #nowPlayingArtist {
-    font-size: 0.9rem;
+    font-size: calc(var(--overlay-font-size, 1.4rem) * 0.6);
     font-weight: 600;
     color: var(--overlay-color, #c9c9d6);
     opacity: 0.75;
@@ -169,8 +170,12 @@
       const bg = params.get("bg");
       const color = params.get("color");
       const fontKey = params.get("font");
+      const size = params.get("size");
+      const align = params.get("align");
       if (bg) document.documentElement.style.setProperty("--overlay-bg", bg);
       if (color) document.documentElement.style.setProperty("--overlay-color", color);
+      if (size) document.documentElement.style.setProperty("--overlay-font-size", `${size}rem`);
+      if (align) document.documentElement.style.setProperty("--overlay-align", align);
       const font = fontKey && OVERLAY_FONTS[fontKey];
       if (font) {
         document.documentElement.style.setProperty("--overlay-font", font.family);
