@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=600">
+<link rel="stylesheet" href="style.css?v=601">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen">
@@ -793,17 +793,10 @@
             <p class="song-request-overlay-heading song-request-overlay-heading-first">디자인</p>
             <div class="song-request-overlay-style-row">
               <div class="song-request-overlay-color-field">
-                <span class="song-request-inline-label">배경색</span>
-                <div class="song-request-color-picker">
-                  <div class="song-request-color-swatches"></div>
-                  <input type="color" id="songRequestOverlayNowplayingBgInput" class="song-request-color-input-hidden" value="#14141c">
-                </div>
-              </div>
-              <div class="song-request-overlay-color-field">
-                <span class="song-request-inline-label">글자색</span>
-                <div class="song-request-color-picker">
-                  <div class="song-request-color-swatches"></div>
-                  <input type="color" id="songRequestOverlayNowplayingColorInput" class="song-request-color-input-hidden" value="#ffffff">
+                <span class="song-request-inline-label">테마</span>
+                <div class="song-request-theme-toggle" id="songRequestOverlayNowplayingThemeToggle">
+                  <button type="button" class="song-request-theme-btn active" data-theme="dark">다크</button>
+                  <button type="button" class="song-request-theme-btn" data-theme="light">화이트</button>
                 </div>
               </div>
               <label class="song-request-overlay-style-field">
@@ -847,17 +840,10 @@
             <p class="song-request-overlay-heading song-request-overlay-heading-first">디자인</p>
             <div class="song-request-overlay-style-row">
               <div class="song-request-overlay-color-field">
-                <span class="song-request-inline-label">배경색</span>
-                <div class="song-request-color-picker">
-                  <div class="song-request-color-swatches"></div>
-                  <input type="color" id="songRequestOverlayBgInput" class="song-request-color-input-hidden" value="#14141c">
-                </div>
-              </div>
-              <div class="song-request-overlay-color-field">
-                <span class="song-request-inline-label">글자색</span>
-                <div class="song-request-color-picker">
-                  <div class="song-request-color-swatches"></div>
-                  <input type="color" id="songRequestOverlayColorInput" class="song-request-color-input-hidden" value="#ffffff">
+                <span class="song-request-inline-label">테마</span>
+                <div class="song-request-theme-toggle" id="songRequestOverlayThemeToggle">
+                  <button type="button" class="song-request-theme-btn active" data-theme="dark">다크</button>
+                  <button type="button" class="song-request-theme-btn" data-theme="light">화이트</button>
                 </div>
               </div>
               <label class="song-request-overlay-style-field">
@@ -880,6 +866,12 @@
               </label>
             </div>
 
+            <p class="song-request-overlay-heading">표시 방식</p>
+            <div class="song-request-theme-toggle" id="songRequestOverlayDisplayModeToggle">
+              <button type="button" class="song-request-theme-btn active" data-mode="static">정적</button>
+              <button type="button" class="song-request-theme-btn" data-mode="scroll">스크롤</button>
+            </div>
+
             <p class="song-request-overlay-heading">브라우저 소스 URL</p>
             <div class="song-request-overlay-url-row">
               <input type="text" id="songRequestOverlayUrlInput" class="song-request-overlay-url-input song-request-overlay-url-input-hidden" readonly>
@@ -890,34 +882,66 @@
 
             <p class="song-request-overlay-heading">미리보기</p>
             <div id="songRequestOverlayPreviewWrap" class="song-request-overlay-preview-wrap">
-              <div class="queue-row">
-                <div class="queue-row-top">
-                  <span class="queue-title">노래 제목 A</span>
-                  <span class="queue-badge">신청자 외 1명</span>
+              <div class="song-request-overlay-preview-track">
+                <div class="queue-row">
+                  <div class="queue-row-top">
+                    <span class="queue-title">노래 제목 A</span>
+                    <span class="queue-badge">신청자 외 1명</span>
+                  </div>
+                  <div class="queue-row-bottom">
+                    <span class="queue-artist">가수</span>
+                    <span class="queue-time">방금 전</span>
+                  </div>
                 </div>
-                <div class="queue-row-bottom">
-                  <span class="queue-artist">가수</span>
-                  <span class="queue-time">방금 전</span>
+                <div class="queue-row">
+                  <div class="queue-row-top">
+                    <span class="queue-title">노래 제목 B</span>
+                    <span class="queue-badge">신청자 외 1명</span>
+                  </div>
+                  <div class="queue-row-bottom">
+                    <span class="queue-artist">가수</span>
+                    <span class="queue-time">방금 전</span>
+                  </div>
                 </div>
-              </div>
-              <div class="queue-row">
-                <div class="queue-row-top">
-                  <span class="queue-title">노래 제목 B</span>
-                  <span class="queue-badge">신청자 외 1명</span>
+                <div class="queue-row">
+                  <div class="queue-row-top">
+                    <span class="queue-title">노래 제목 C</span>
+                    <span class="queue-badge">신청자 외 1명</span>
+                  </div>
+                  <div class="queue-row-bottom">
+                    <span class="queue-artist">가수</span>
+                    <span class="queue-time">방금 전</span>
+                  </div>
                 </div>
-                <div class="queue-row-bottom">
-                  <span class="queue-artist">가수</span>
-                  <span class="queue-time">방금 전</span>
+                <div class="queue-row" aria-hidden="true">
+                  <div class="queue-row-top">
+                    <span class="queue-title">노래 제목 A</span>
+                    <span class="queue-badge">신청자 외 1명</span>
+                  </div>
+                  <div class="queue-row-bottom">
+                    <span class="queue-artist">가수</span>
+                    <span class="queue-time">방금 전</span>
+                  </div>
                 </div>
-              </div>
-              <div class="queue-row">
-                <div class="queue-row-top">
-                  <span class="queue-title">노래 제목 C</span>
-                  <span class="queue-badge">신청자 외 1명</span>
+                <div class="queue-row" aria-hidden="true">
+                  <div class="queue-row-top">
+                    <span class="queue-title">노래 제목 B</span>
+                    <span class="queue-badge">신청자 외 1명</span>
+                  </div>
+                  <div class="queue-row-bottom">
+                    <span class="queue-artist">가수</span>
+                    <span class="queue-time">방금 전</span>
+                  </div>
                 </div>
-                <div class="queue-row-bottom">
-                  <span class="queue-artist">가수</span>
-                  <span class="queue-time">방금 전</span>
+                <div class="queue-row" aria-hidden="true">
+                  <div class="queue-row-top">
+                    <span class="queue-title">노래 제목 C</span>
+                    <span class="queue-badge">신청자 외 1명</span>
+                  </div>
+                  <div class="queue-row-bottom">
+                    <span class="queue-artist">가수</span>
+                    <span class="queue-time">방금 전</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1309,8 +1333,8 @@
 
 
 
-  <script src="app.js?v=600"></script>
-  <script src="games.js?v=600"></script>
+  <script src="app.js?v=601"></script>
+  <script src="games.js?v=601"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {

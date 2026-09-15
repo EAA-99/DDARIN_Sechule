@@ -305,72 +305,26 @@ songRequestNavItems.forEach((btn) => {
   });
 });
 
-// ===== 오버레이 > 색상 선택기 (배경색/글자색 공용) =====
-const OVERLAY_COLOR_PRESETS = [
-  "#14141c",
-  "#ffffff",
-  "#e53935",
-  "#fb8c00",
-  "#fdd835",
-  "#43a047",
-  "#1e88e5",
-  "#283593",
-  "#8e24aa",
-  "#ec407a",
-];
+// ===== 오버레이 > 테마 (다크/화이트 공용) =====
+const OVERLAY_THEMES = {
+  dark: { bg: "#14141c", color: "#ffffff" },
+  light: { bg: "#ffffff", color: "#14141c" },
+};
 
-function setupOverlayColorPicker(input, onChange) {
-  const wrap = input.closest(".song-request-color-picker");
-  const swatchWrap = wrap.querySelector(".song-request-color-swatches");
-
-  function syncActiveSwatch() {
-    swatchWrap.querySelectorAll(".song-request-color-swatch[data-color]").forEach((btn) => {
-      btn.classList.toggle("active", btn.dataset.color.toLowerCase() === input.value.toLowerCase());
-    });
-  }
-
-  OVERLAY_COLOR_PRESETS.forEach((hex) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "song-request-color-swatch";
-    btn.style.background = hex;
-    btn.dataset.color = hex;
-    btn.setAttribute("aria-label", hex);
+function setupOverlayThemeToggle(wrapId, onChange) {
+  const wrap = document.getElementById(wrapId);
+  const btns = wrap.querySelectorAll(".song-request-theme-btn");
+  let theme = "dark";
+  btns.forEach((btn) => {
     btn.addEventListener("click", () => {
-      input.value = hex;
-      syncActiveSwatch();
+      theme = btn.dataset.theme;
+      btns.forEach((b) => b.classList.toggle("active", b === btn));
       onChange();
     });
-    swatchWrap.appendChild(btn);
   });
-
-  const customBtn = document.createElement("button");
-  customBtn.type = "button";
-  customBtn.className = "song-request-color-swatch song-request-color-swatch-custom";
-  customBtn.textContent = "🎨";
-  customBtn.setAttribute("aria-label", "직접 선택");
-  customBtn.addEventListener("click", () => {
-    input.classList.remove("song-request-color-input-hidden");
-    input.click();
-  });
-  swatchWrap.appendChild(customBtn);
-
-  input.addEventListener("input", syncActiveSwatch);
-  syncActiveSwatch();
+  return { get: () => theme };
 }
 
-// ===== 오버레이 > 노래 신청 목록 탭 =====
-const SONG_REQUEST_OVERLAY_URL = "https://ddarin-sechule.vercel.app/overlay/request/x0UXQ5j2URXmiitcuwPZ4RZQZQyPXgq";
-const songRequestOverlayUrlInput = document.getElementById("songRequestOverlayUrlInput");
-const songRequestOverlayEyeBtn = document.getElementById("songRequestOverlayEyeBtn");
-const songRequestOverlayCopyBtn = document.getElementById("songRequestOverlayCopyBtn");
-const songRequestOverlayBgInput = document.getElementById("songRequestOverlayBgInput");
-const songRequestOverlayColorInput = document.getElementById("songRequestOverlayColorInput");
-const songRequestOverlayFontSelect = document.getElementById("songRequestOverlayFontSelect");
-const songRequestOverlayPreviewWrap = document.getElementById("songRequestOverlayPreviewWrap");
-
-const SONG_REQUEST_OVERLAY_BG_DEFAULT = "#14141c";
-const SONG_REQUEST_OVERLAY_COLOR_DEFAULT = "#ffffff";
 const SONG_REQUEST_OVERLAY_FONT_DEFAULT = "system";
 
 const SONG_REQUEST_OVERLAY_FONTS = {
@@ -389,15 +343,6 @@ const SONG_REQUEST_OVERLAY_FONTS = {
   singleday: { family: `"Single Day", sans-serif`, google: "Single+Day" },
 };
 
-function currentOverlayUrl() {
-  const params = new URLSearchParams();
-  if (songRequestOverlayBgInput.value !== SONG_REQUEST_OVERLAY_BG_DEFAULT) params.set("bg", songRequestOverlayBgInput.value);
-  if (songRequestOverlayColorInput.value !== SONG_REQUEST_OVERLAY_COLOR_DEFAULT) params.set("color", songRequestOverlayColorInput.value);
-  if (songRequestOverlayFontSelect.value !== SONG_REQUEST_OVERLAY_FONT_DEFAULT) params.set("font", songRequestOverlayFontSelect.value);
-  const qs = params.toString();
-  return qs ? `${SONG_REQUEST_OVERLAY_URL}?${qs}` : SONG_REQUEST_OVERLAY_URL;
-}
-
 function loadGoogleFontLink(fontKey, linkId) {
   const existing = document.getElementById(linkId);
   const google = SONG_REQUEST_OVERLAY_FONTS[fontKey]?.google;
@@ -412,22 +357,55 @@ function loadGoogleFontLink(fontKey, linkId) {
   if (!existing) document.head.appendChild(link);
 }
 
+// ===== 오버레이 > 노래 신청 목록 탭 =====
+const SONG_REQUEST_OVERLAY_URL = "https://ddarin-sechule.vercel.app/overlay/request/x0UXQ5j2URXmiitcuwPZ4RZQZQyPXgq";
+const songRequestOverlayUrlInput = document.getElementById("songRequestOverlayUrlInput");
+const songRequestOverlayEyeBtn = document.getElementById("songRequestOverlayEyeBtn");
+const songRequestOverlayCopyBtn = document.getElementById("songRequestOverlayCopyBtn");
+const songRequestOverlayFontSelect = document.getElementById("songRequestOverlayFontSelect");
+const songRequestOverlayPreviewWrap = document.getElementById("songRequestOverlayPreviewWrap");
+const songRequestOverlayDisplayModeWrap = document.getElementById("songRequestOverlayDisplayModeToggle");
+
+const songRequestOverlayTheme = setupOverlayThemeToggle("songRequestOverlayThemeToggle", () => updateOverlayUrlDisplay());
+
+let songRequestOverlayDisplayMode = "static";
+songRequestOverlayDisplayModeWrap.querySelectorAll(".song-request-theme-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    songRequestOverlayDisplayMode = btn.dataset.mode;
+    songRequestOverlayDisplayModeWrap
+      .querySelectorAll(".song-request-theme-btn")
+      .forEach((b) => b.classList.toggle("active", b === btn));
+    updateOverlayUrlDisplay();
+  });
+});
+
+function currentOverlayUrl() {
+  const params = new URLSearchParams();
+  const theme = OVERLAY_THEMES[songRequestOverlayTheme.get()];
+  if (songRequestOverlayTheme.get() !== "dark") {
+    params.set("bg", theme.bg);
+    params.set("color", theme.color);
+  }
+  if (songRequestOverlayFontSelect.value !== SONG_REQUEST_OVERLAY_FONT_DEFAULT) params.set("font", songRequestOverlayFontSelect.value);
+  if (songRequestOverlayDisplayMode === "scroll") params.set("mode", "scroll");
+  const qs = params.toString();
+  return qs ? `${SONG_REQUEST_OVERLAY_URL}?${qs}` : SONG_REQUEST_OVERLAY_URL;
+}
+
 function updateOverlayUrlDisplay() {
   songRequestOverlayUrlInput.value = currentOverlayUrl();
   const fontKey = songRequestOverlayFontSelect.value;
   loadGoogleFontLink(fontKey, "songRequestOverlayFontLink");
-  songRequestOverlayPreviewWrap.style.setProperty("--overlay-bg", songRequestOverlayBgInput.value);
-  songRequestOverlayPreviewWrap.style.setProperty("--overlay-color", songRequestOverlayColorInput.value);
+  const theme = OVERLAY_THEMES[songRequestOverlayTheme.get()];
+  songRequestOverlayPreviewWrap.style.setProperty("--overlay-bg", theme.bg);
+  songRequestOverlayPreviewWrap.style.setProperty("--overlay-color", theme.color);
   songRequestOverlayPreviewWrap.style.setProperty("--overlay-font", SONG_REQUEST_OVERLAY_FONTS[fontKey].family);
+  songRequestOverlayPreviewWrap.classList.toggle("song-request-overlay-preview-scroll", songRequestOverlayDisplayMode === "scroll");
 }
 
 updateOverlayUrlDisplay();
 songRequestOverlayUrlInput.classList.add("song-request-overlay-url-input-hidden");
-setupOverlayColorPicker(songRequestOverlayBgInput, updateOverlayUrlDisplay);
-setupOverlayColorPicker(songRequestOverlayColorInput, updateOverlayUrlDisplay);
 
-songRequestOverlayBgInput.addEventListener("input", updateOverlayUrlDisplay);
-songRequestOverlayColorInput.addEventListener("input", updateOverlayUrlDisplay);
 songRequestOverlayFontSelect.addEventListener("change", updateOverlayUrlDisplay);
 songRequestOverlayEyeBtn.addEventListener("click", () => {
   songRequestOverlayUrlInput.classList.toggle("song-request-overlay-url-input-hidden");
@@ -450,15 +428,20 @@ const SONG_REQUEST_OVERLAY_NOWPLAYING_URL =
 const songRequestOverlayNowplayingUrlInput = document.getElementById("songRequestOverlayNowplayingUrlInput");
 const songRequestOverlayNowplayingEyeBtn = document.getElementById("songRequestOverlayNowplayingEyeBtn");
 const songRequestOverlayNowplayingCopyBtn = document.getElementById("songRequestOverlayNowplayingCopyBtn");
-const songRequestOverlayNowplayingBgInput = document.getElementById("songRequestOverlayNowplayingBgInput");
-const songRequestOverlayNowplayingColorInput = document.getElementById("songRequestOverlayNowplayingColorInput");
 const songRequestOverlayNowplayingFontSelect = document.getElementById("songRequestOverlayNowplayingFontSelect");
 const songRequestOverlayNowplayingPreviewWrap = document.getElementById("songRequestOverlayNowplayingPreviewWrap");
 
+const songRequestOverlayNowplayingTheme = setupOverlayThemeToggle("songRequestOverlayNowplayingThemeToggle", () =>
+  updateNowplayingOverlayUrlDisplay()
+);
+
 function currentNowplayingOverlayUrl() {
   const params = new URLSearchParams();
-  if (songRequestOverlayNowplayingBgInput.value !== SONG_REQUEST_OVERLAY_BG_DEFAULT) params.set("bg", songRequestOverlayNowplayingBgInput.value);
-  if (songRequestOverlayNowplayingColorInput.value !== SONG_REQUEST_OVERLAY_COLOR_DEFAULT) params.set("color", songRequestOverlayNowplayingColorInput.value);
+  const theme = OVERLAY_THEMES[songRequestOverlayNowplayingTheme.get()];
+  if (songRequestOverlayNowplayingTheme.get() !== "dark") {
+    params.set("bg", theme.bg);
+    params.set("color", theme.color);
+  }
   if (songRequestOverlayNowplayingFontSelect.value !== SONG_REQUEST_OVERLAY_FONT_DEFAULT) params.set("font", songRequestOverlayNowplayingFontSelect.value);
   const qs = params.toString();
   return qs ? `${SONG_REQUEST_OVERLAY_NOWPLAYING_URL}?${qs}` : SONG_REQUEST_OVERLAY_NOWPLAYING_URL;
@@ -468,18 +451,15 @@ function updateNowplayingOverlayUrlDisplay() {
   songRequestOverlayNowplayingUrlInput.value = currentNowplayingOverlayUrl();
   const fontKey = songRequestOverlayNowplayingFontSelect.value;
   loadGoogleFontLink(fontKey, "songRequestOverlayNowplayingFontLink");
-  songRequestOverlayNowplayingPreviewWrap.style.setProperty("--overlay-bg", songRequestOverlayNowplayingBgInput.value);
-  songRequestOverlayNowplayingPreviewWrap.style.setProperty("--overlay-color", songRequestOverlayNowplayingColorInput.value);
+  const theme = OVERLAY_THEMES[songRequestOverlayNowplayingTheme.get()];
+  songRequestOverlayNowplayingPreviewWrap.style.setProperty("--overlay-bg", theme.bg);
+  songRequestOverlayNowplayingPreviewWrap.style.setProperty("--overlay-color", theme.color);
   songRequestOverlayNowplayingPreviewWrap.style.setProperty("--overlay-font", SONG_REQUEST_OVERLAY_FONTS[fontKey].family);
 }
 
 updateNowplayingOverlayUrlDisplay();
 songRequestOverlayNowplayingUrlInput.classList.add("song-request-overlay-url-input-hidden");
-setupOverlayColorPicker(songRequestOverlayNowplayingBgInput, updateNowplayingOverlayUrlDisplay);
-setupOverlayColorPicker(songRequestOverlayNowplayingColorInput, updateNowplayingOverlayUrlDisplay);
 
-songRequestOverlayNowplayingBgInput.addEventListener("input", updateNowplayingOverlayUrlDisplay);
-songRequestOverlayNowplayingColorInput.addEventListener("input", updateNowplayingOverlayUrlDisplay);
 songRequestOverlayNowplayingFontSelect.addEventListener("change", updateNowplayingOverlayUrlDisplay);
 songRequestOverlayNowplayingEyeBtn.addEventListener("click", () => {
   songRequestOverlayNowplayingUrlInput.classList.toggle("song-request-overlay-url-input-hidden");

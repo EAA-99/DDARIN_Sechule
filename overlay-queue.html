@@ -7,8 +7,15 @@
   html, body {
     margin: 0;
     padding: 0;
+    height: 100%;
+    overflow: hidden;
     background: transparent;
     font-family: "Malgun Gothic", "Segoe UI", sans-serif;
+  }
+
+  .queue-viewport {
+    height: 100vh;
+    overflow: hidden;
   }
 
   #queueList {
@@ -17,6 +24,21 @@
     gap: 10px;
     padding: 20px;
     width: fit-content;
+  }
+
+  #queueList.queue-list-scroll {
+    animation-name: queue-scroll-loop;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  @keyframes queue-scroll-loop {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-50%);
+    }
   }
 
   .queue-row {
@@ -74,7 +96,9 @@
 </style>
 </head>
 <body>
-  <div id="queueList"></div>
+  <div class="queue-viewport">
+    <div id="queueList"></div>
+  </div>
 
   <script>
     const SONGBOOK_SPREADSHEET_ID = "1NhImCLm5diXM0pA45SkB-g2PARivQiVN8bUKlniiOB8";
@@ -170,39 +194,67 @@
       return `${diffDay}일 전`;
     }
 
-    function renderQueue(keys, times) {
+    const SCROLL_SPEED_PX_PER_SEC = 40;
+    let lastQueueSignature = null;
+
+    function renderQueue(keys, times, mode) {
       const listEl = document.getElementById("queueList");
       const validKeys = keys.filter((k) => songByKey[k]);
       const songs = validKeys.map((k) => songByKey[k]);
+      const signature = `${validKeys.join(",")}|${mode}`;
 
       if (!songs.length) {
         listEl.innerHTML = `<div class="queue-empty">대기열이 비어 있습니다</div>`;
+        listEl.classList.remove("queue-list-scroll");
+        listEl.style.removeProperty("animation-duration");
+        lastQueueSignature = signature;
         return;
       }
 
-      listEl.innerHTML = songs
-        .map(
-          () => `
+      const rebuild = signature !== lastQueueSignature;
+      if (rebuild) {
+        lastQueueSignature = signature;
+        const rowHtml = `
             <div class="queue-row">
               <span class="queue-title"></span>
               <div class="queue-row-bottom">
                 <span class="queue-artist"></span>
                 <span class="queue-time"></span>
               </div>
-            </div>`
-        )
-        .join("");
+            </div>`;
+        const singleSet = songs.map(() => rowHtml).join("");
+        listEl.innerHTML = mode === "scroll" ? singleSet + singleSet : singleSet;
+        listEl.classList.toggle("queue-list-scroll", mode === "scroll");
+      }
 
-      listEl.querySelectorAll(".queue-row").forEach((row, i) => {
-        row.querySelector(".queue-title").textContent = songs[i].title;
-        row.querySelector(".queue-artist").textContent = songs[i].artist;
-        row.querySelector(".queue-time").textContent = formatRelativeTime(times[validKeys[i]]);
-      });
+      const rows = listEl.querySelectorAll(".queue-row");
+      const repeatCount = mode === "scroll" ? 2 : 1;
+      for (let r = 0; r < repeatCount; r++) {
+        songs.forEach((song, i) => {
+          const row = rows[r * songs.length + i];
+          row.querySelector(".queue-title").textContent = song.title;
+          row.querySelector(".queue-artist").textContent = song.artist;
+          row.querySelector(".queue-time").textContent = formatRelativeTime(times[validKeys[i]]);
+        });
+      }
+
+      if (rebuild) {
+        if (mode === "scroll") {
+          listEl.style.removeProperty("animation-duration");
+          requestAnimationFrame(() => {
+            const halfHeight = listEl.scrollHeight / 2;
+            const duration = Math.max(halfHeight / SCROLL_SPEED_PX_PER_SEC, 4);
+            listEl.style.animationDuration = `${duration}s`;
+          });
+        } else {
+          listEl.style.removeProperty("animation-duration");
+        }
+      }
     }
 
     async function tick() {
       const { keys, times } = await fetchQueue();
-      renderQueue(keys, times);
+      renderQueue(keys, times, new URLSearchParams(location.search).get("mode") === "scroll" ? "scroll" : "static");
     }
 
     const OVERLAY_FONTS = {

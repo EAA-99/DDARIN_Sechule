@@ -3593,52 +3593,26 @@ body.youtube-view-open {
   gap: 6px;
 }
 
-.song-request-color-picker {
-  position: relative;
-}
-
-.song-request-color-swatches {
+.song-request-theme-toggle {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  max-width: 220px;
+  gap: 8px;
 }
 
-.song-request-color-swatch {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  padding: 0;
-  cursor: pointer;
-}
-
-.song-request-color-swatch.active {
-  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #1c6dd0;
-}
-
-.song-request-color-swatch-custom {
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  line-height: 1;
-}
-
-.song-request-color-input-hidden {
-  display: none;
-}
-
-.song-request-color-picker input[type="color"] {
-  width: 32px;
-  height: 32px;
+.song-request-theme-btn {
   border: 1px solid #eee;
+  background: #fff;
+  color: #666;
   border-radius: 8px;
-  padding: 2px;
+  padding: 8px 18px;
+  font-size: 0.85rem;
+  font-weight: 700;
   cursor: pointer;
-  margin-top: 6px;
+}
+
+.song-request-theme-btn.active {
+  border-color: #1c6dd0;
+  color: #1c6dd0;
+  background: #eaf2fc;
 }
 
 .song-request-overlay-font-select {
@@ -3894,11 +3868,32 @@ body.youtube-view-open {
   border-radius: 16px;
   padding: 14px;
   background: #000;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.song-request-overlay-preview-track {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: fit-content;
-  max-width: 100%;
+}
+
+.song-request-overlay-preview-wrap.song-request-overlay-preview-scroll {
+  height: 220px;
+  overflow: hidden;
+}
+
+.song-request-overlay-preview-wrap.song-request-overlay-preview-scroll .song-request-overlay-preview-track {
+  animation: song-request-preview-scroll 6s linear infinite;
+}
+
+@keyframes song-request-preview-scroll {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
 }
 
 .song-request-overlay-preview-wrap .queue-row {
