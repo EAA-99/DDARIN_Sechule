@@ -48,7 +48,7 @@
     background: var(--overlay-bg, rgba(20, 20, 28, 0.78));
     border-radius: 18px;
     padding: 12px 18px;
-    width: 240px;
+    width: 200px;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
     font-family: var(--overlay-font, "Malgun Gothic", "Segoe UI", sans-serif);
   }
@@ -197,11 +197,12 @@
     const SCROLL_SPEED_PX_PER_SEC = 40;
     let lastQueueSignature = null;
 
-    function renderQueue(keys, times, mode) {
+    function renderQueue(keys, times, mode, maxCount) {
       const listEl = document.getElementById("queueList");
-      const validKeys = keys.filter((k) => songByKey[k]);
+      let validKeys = keys.filter((k) => songByKey[k]);
+      if (mode !== "scroll" && maxCount > 0) validKeys = validKeys.slice(0, maxCount);
       const songs = validKeys.map((k) => songByKey[k]);
-      const signature = `${validKeys.join(",")}|${mode}`;
+      const signature = `${validKeys.join(",")}|${mode}|${maxCount}`;
 
       if (!songs.length) {
         listEl.innerHTML = `<div class="queue-empty">대기열이 비어 있습니다</div>`;
@@ -254,7 +255,10 @@
 
     async function tick() {
       const { keys, times } = await fetchQueue();
-      renderQueue(keys, times, new URLSearchParams(location.search).get("mode") === "scroll" ? "scroll" : "static");
+      const params = new URLSearchParams(location.search);
+      const mode = params.get("mode") === "scroll" ? "scroll" : "static";
+      const maxCount = Number(params.get("max")) || 3;
+      renderQueue(keys, times, mode, maxCount);
     }
 
     const OVERLAY_FONTS = {
