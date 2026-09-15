@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=602">
+<link rel="stylesheet" href="style.css?v=604">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen">
@@ -575,30 +575,12 @@
     <div class="songbook-header">
       <div class="songbook-title-row">
         <h1>노래책</h1>
-        <button type="button" id="songManageBtn" class="song-gear-btn hidden" aria-label="곡 관리" title="곡 관리">STREAMER</button>
-      </div>
-      <div class="songbook-header-actions">
-        <div id="songManageToolbar" class="song-manage-toolbar hidden">
-          <button type="button" id="songAddBtn" class="song-manage-btn" aria-label="곡 추가" title="곡 추가">+</button>
-          <button type="button" id="songSelectAllBtn" class="song-manage-btn">전체선택</button>
-          <button type="button" id="songDeleteSelectedBtn" class="song-manage-btn song-manage-btn-danger">선택삭제</button>
-          <button type="button" id="songQueueAddBtn" class="song-manage-btn">대기열 추가</button>
-          <button type="button" id="songManageCloseBtn" class="song-manage-close-btn" aria-label="곡 관리 닫기" title="닫기">✕</button>
-        </div>
       </div>
     </div>
 
     <div class="songbook-body">
       <div class="player-panel">
         <button type="button" id="favorites2OpenBtn" class="favorites-open-btn">⭐ 즐겨찾기</button>
-
-        <div class="player-favorites">
-          <div class="player-favorites-header">
-            <h3>대기열</h3>
-            <button type="button" id="singQueueClearBtn" class="sing-queue-clear-btn">초기화</button>
-          </div>
-          <div id="singQueueList" class="favorites-list"></div>
-        </div>
 
         <div class="player-artists">
           <h3>가수</h3>
@@ -643,7 +625,6 @@
                     <button type="button" class="genre-tab" data-genre="양식">양식</button>
                   </div>
                 </div>
-                <button type="button" id="songRouletteQueueAddBtn" class="song-roulette-queue-add-btn">대기열 추가</button>
               </div>
               <button type="button" id="songRouletteSpinBtn" class="song-roulette-spin-btn">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
@@ -657,7 +638,6 @@
           <table id="song2Table" class="song2-table">
             <thead>
               <tr>
-                <th class="song2-col-check"></th>
                 <th class="song2-col-fav"></th>
                 <th class="song2-col-num">번호</th>
                 <th class="song2-col-title song2-sortable" data-sort="title">제목</th>
@@ -692,51 +672,6 @@
         <button type="button" id="closeFavorites2ModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
       </div>
       <div id="favorites2List" class="favorites-list"></div>
-    </div>
-  </div>
-
-  <div id="songAddModalBackdrop" class="modal-backdrop hidden">
-    <div class="modal song-add-modal">
-      <div class="modal-header-row">
-        <h2 id="songAddModalTitle">곡 추가</h2>
-        <button type="button" id="closeSongAddModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
-      </div>
-      <form id="songAddForm" class="song-add-form" autocomplete="off">
-        <div class="song-add-row song-add-row-2">
-          <label class="song-add-field">
-            <span class="song-add-label">제목</span>
-            <input type="text" id="songAddTitleInput" class="song-add-input" placeholder="제목" maxlength="200" required autocomplete="off">
-          </label>
-          <label class="song-add-field">
-            <span class="song-add-label">가수</span>
-            <input type="text" id="songAddArtistInput" class="song-add-input" placeholder="가수" maxlength="200" required autocomplete="off">
-          </label>
-        </div>
-        <div class="song-add-row song-add-row-2">
-          <div class="song-add-field">
-            <span class="song-add-label">장르</span>
-            <div class="song-select" id="songAddGenreSelect">
-              <button type="button" class="song-select-trigger">
-                <span class="song-select-trigger-label placeholder">장르 선택</span>
-                <span class="song-select-arrow">▾</span>
-              </button>
-              <div class="song-select-panel hidden"></div>
-            </div>
-          </div>
-          <label class="song-add-field">
-            <span class="song-add-label">비고</span>
-            <input type="text" id="songAddNoteInput" class="song-add-input" placeholder="비고 (쉼표로 여러개)" autocomplete="off">
-          </label>
-        </div>
-        <label class="song-add-field song-add-field-full">
-          <span class="song-add-label">MR</span>
-          <input type="text" id="songAddMrInput" class="song-add-input" placeholder="MR (시청자 화면에는 표시되지 않아요)" autocomplete="off">
-        </label>
-        <div class="song-add-actions">
-          <button type="submit" id="songAddSaveBtn" class="song-add-save-btn">저장</button>
-          <button type="button" id="cancelSongAddBtn" class="song-add-cancel-btn">취소</button>
-        </div>
-      </form>
     </div>
   </div>
 
@@ -1067,8 +1002,8 @@
 
 
 
-  <script src="app.js?v=602"></script>
-  <script src="games.js?v=602"></script>
+  <script src="app.js?v=604"></script>
+  <script src="games.js?v=604"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {

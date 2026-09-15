@@ -63,8 +63,8 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    const { username, password, overrides, deletions, resource, queue, times } = req.body || {};
-    if (username !== process.env.EDIT_USERNAME || password !== process.env.EDIT_PASSWORD) {
+    const { key, overrides, deletions, resource, queue, times } = req.body || {};
+    if (key !== process.env.SONGBOOK_APP_KEY) {
       res.status(401).json({ success: false });
       return;
     }
