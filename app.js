@@ -255,6 +255,7 @@ const song2Table = document.getElementById("song2Table");
 const song2GenreFilterToggle = document.getElementById("song2GenreFilterToggle");
 const song2GenreFilterMenu = document.getElementById("song2GenreFilterMenu");
 const song2Grid = document.getElementById("song2Grid");
+const songbookTotalCountEl = document.getElementById("songbookTotalCount");
 const favorites2ListEl = document.getElementById("favorites2List");
 const favorites2OpenBtn = document.getElementById("favorites2OpenBtn");
 const favorites2ModalBackdrop = document.getElementById("favorites2ModalBackdrop");
@@ -1522,6 +1523,8 @@ function buildSongRow2(song, num) {
 
 function renderSongGrid2() {
   const filtered = getFilteredSongs2();
+
+  songbookTotalCountEl.textContent = `총 ${(allSongs || []).length}곡`;
 
   song2Table.querySelectorAll(".song2-sortable").forEach((th) => {
     const isActive = th.dataset.sort === songSortMode2;

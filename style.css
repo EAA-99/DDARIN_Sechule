@@ -3294,6 +3294,12 @@ body.youtube-view-open {
   margin: 0;
 }
 
+.songbook-total-count {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #999;
+}
+
 .songbook-title-row {
   display: flex;
   align-items: center;
