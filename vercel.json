@@ -15,6 +15,10 @@
     {
       "source": "/overlay/nowplaying/I71BDs9EYsiHN54o4xEllo4u7k6b9ACd",
       "destination": "/overlay-nowplaying.html"
+    },
+    {
+      "source": "/overlay/lyrics/k9mQ3vLpXz7RtY2wBnJ8sHc4Fq6DgM1N",
+      "destination": "/overlay-lyrics.html"
     }
   ]
 }

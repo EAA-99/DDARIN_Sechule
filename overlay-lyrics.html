@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>가사 오버레이</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    font-family: "Malgun Gothic", "Segoe UI", sans-serif;
+  }
+
+  #lyricsCard {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    width: fit-content;
+    max-width: calc(100% - 40px);
+    box-sizing: border-box;
+    margin: 20px auto;
+    background: var(--overlay-bg, rgba(20, 20, 28, 0.78));
+    border-radius: 18px;
+    padding: 18px 32px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+    font-family: var(--overlay-font, "Malgun Gothic", "Segoe UI", sans-serif);
+    text-align: center;
+  }
+
+  #lyricsCurrentLine {
+    font-size: var(--overlay-font-size, 1.5rem);
+    font-weight: 800;
+    color: var(--overlay-color, #ffffff);
+    white-space: nowrap;
+  }
+
+  #lyricsNextLine {
+    font-size: calc(var(--overlay-font-size, 1.5rem) * 0.65);
+    font-weight: 600;
+    color: var(--overlay-color, #c9c9d6);
+    opacity: 0.6;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+  <div id="lyricsCard">
+    <span id="lyricsCurrentLine"></span>
+    <span id="lyricsNextLine"></span>
+  </div>
+
+  <script>
+    const POLL_MS = 1000;
+
+    async function fetchLyricsSync() {
+      try {
+        const res = await fetch("/api/songbook?resource=lyrics");
+        if (!res.ok) return null;
+        return await res.json();
+      } catch {
+        return null;
+      }
+    }
+
+    let lastLines = [];
+    let lastPosition = 0;
+    let lastPlaying = false;
+    let receivedAt = 0;
+
+    function findLineIndex(lines, position) {
+      let idx = -1;
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].time <= position) idx = i;
+        else break;
+      }
+      return idx;
+    }
+
+    function render() {
+      const card = document.getElementById("lyricsCard");
+      const currentEl = document.getElementById("lyricsCurrentLine");
+      const nextEl = document.getElementById("lyricsNextLine");
+
+      if (!lastLines.length) {
+        card.style.display = "none";
+        return;
+      }
+
+      const elapsed = lastPlaying ? (Date.now() - receivedAt) / 1000 : 0;
+      const effectivePosition = lastPosition + elapsed;
+      const idx = findLineIndex(lastLines, effectivePosition);
+
+      const currentText = idx >= 0 ? lastLines[idx].text : "";
+      const nextText = idx >= 0 && idx + 1 < lastLines.length ? lastLines[idx + 1].text : "";
+
+      if (!currentText && !nextText) {
+        card.style.display = "none";
+        return;
+      }
+
+      card.style.display = "flex";
+      currentEl.textContent = currentText;
+      nextEl.textContent = nextText;
+    }
+
+    async function tick() {
+      const data = await fetchLyricsSync();
+      if (data) {
+        lastLines = Array.isArray(data.lines) ? data.lines : [];
+        lastPosition = Number(data.position) || 0;
+        lastPlaying = !!data.playing;
+        receivedAt = Date.now();
+      }
+    }
+
+    const OVERLAY_FONTS = {
+      notosanskr: { family: `"Noto Sans KR", sans-serif`, google: "Noto+Sans+KR:wght@400;700;900" },
+      nanumgothic: { family: `"Nanum Gothic", sans-serif`, google: "Nanum+Gothic:wght@400;700;800" },
+      nanummyeongjo: { family: `"Nanum Myeongjo", serif`, google: "Nanum+Myeongjo:wght@400;700;800" },
+      gothica1: { family: `"Gothic A1", sans-serif`, google: "Gothic+A1:wght@400;700;900" },
+      dohyeon: { family: `"Do Hyeon", sans-serif`, google: "Do+Hyeon" },
+      blackhansans: { family: `"Black Han Sans", sans-serif`, google: "Black+Han+Sans" },
+      jua: { family: `"Jua", sans-serif`, google: "Jua" },
+      gaegu: { family: `"Gaegu", sans-serif`, google: "Gaegu:wght@400;700" },
+      gamjaflower: { family: `"Gamja Flower", sans-serif`, google: "Gamja+Flower" },
+      poorstory: { family: `"Poor Story", sans-serif`, google: "Poor+Story" },
+      sunflower: { family: `"Sunflower", sans-serif`, google: "Sunflower:wght@300;500;700" },
+      singleday: { family: `"Single Day", sans-serif`, google: "Single+Day" },
+    };
+
+    (() => {
+      const params = new URLSearchParams(location.search);
+      const bg = params.get("bg");
+      const color = params.get("color");
+      const fontKey = params.get("font");
+      const size = params.get("size");
+      if (bg) document.documentElement.style.setProperty("--overlay-bg", bg);
+      if (color) document.documentElement.style.setProperty("--overlay-color", color);
+      if (size) document.documentElement.style.setProperty("--overlay-font-size", `${size}rem`);
+      const font = fontKey && OVERLAY_FONTS[fontKey];
+      if (font) {
+        document.documentElement.style.setProperty("--overlay-font", font.family);
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = `https://fonts.googleapis.com/css2?family=${font.google}&display=swap`;
+        document.head.appendChild(link);
+      }
+    })();
+
+    (async () => {
+      await tick();
+      setInterval(tick, POLL_MS);
+      setInterval(render, 100);
+    })();
+  </script>
+</body>
+</html>

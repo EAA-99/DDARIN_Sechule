@@ -42,6 +42,23 @@ async function getQueue() {
   }
 }
 
+async function getLyricsSync() {
+  const { result } = await kvCommand(["GET", "songbook_lyrics_sync"]);
+  if (!result) return { title: "", artist: "", lines: [], position: 0, playing: false };
+  try {
+    const parsed = JSON.parse(result);
+    return {
+      title: typeof parsed.title === "string" ? parsed.title : "",
+      artist: typeof parsed.artist === "string" ? parsed.artist : "",
+      lines: Array.isArray(parsed.lines) ? parsed.lines : [],
+      position: Number(parsed.position) || 0,
+      playing: !!parsed.playing,
+    };
+  } catch {
+    return { title: "", artist: "", lines: [], position: 0, playing: false };
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json");
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -58,12 +75,16 @@ export default async function handler(req, res) {
       res.status(200).json(await getQueue());
       return;
     }
+    if (req.query.resource === "lyrics") {
+      res.status(200).json(await getLyricsSync());
+      return;
+    }
     res.status(200).json(await getState());
     return;
   }
 
   if (req.method === "POST") {
-    const { key, overrides, deletions, resource, queue, times } = req.body || {};
+    const { key, overrides, deletions, resource, queue, times, title, artist, lines, position, playing } = req.body || {};
     if (key !== process.env.SONGBOOK_APP_KEY) {
       res.status(401).json({ success: false });
       return;
@@ -75,6 +96,19 @@ export default async function handler(req, res) {
         times: times && typeof times === "object" ? times : {},
       };
       await kvCommand(["SET", "songbook_queue", JSON.stringify(queueState)]);
+      res.status(200).json({ success: true });
+      return;
+    }
+
+    if (resource === "lyrics") {
+      const lyricsState = {
+        title: typeof title === "string" ? title : "",
+        artist: typeof artist === "string" ? artist : "",
+        lines: Array.isArray(lines) ? lines : [],
+        position: Number(position) || 0,
+        playing: !!playing,
+      };
+      await kvCommand(["SET", "songbook_lyrics_sync", JSON.stringify(lyricsState)]);
       res.status(200).json({ success: true });
       return;
     }
