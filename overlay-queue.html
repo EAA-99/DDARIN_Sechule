@@ -181,8 +181,12 @@
 
     const SCROLL_SPEED_PX_PER_SEC = 40;
     const SCROLL_DWELL_MS = 2000;
+    const STATIC_PAGE_DWELL_MS = 5000;
     let lastQueueSignature = null;
     let scrollAnim = null;
+    let staticPageIndex = 0;
+    let staticPageTimer = null;
+    let lastRenderArgs = null;
 
     function stopScrollAnim(listEl) {
       if (scrollAnim) {
@@ -192,14 +196,49 @@
       listEl.style.removeProperty("transform");
     }
 
+    // 정적 모드에서 표시 개수보다 신청곡이 많으면, 일정 시간마다 다음 페이지로 자동 전환한다.
+    function ensureStaticPageTimer(pageCount) {
+      if (pageCount > 1) {
+        if (!staticPageTimer) {
+          staticPageTimer = setInterval(() => {
+            staticPageIndex += 1;
+            if (lastRenderArgs) renderQueue(...lastRenderArgs);
+          }, STATIC_PAGE_DWELL_MS);
+        }
+      } else if (staticPageTimer) {
+        clearInterval(staticPageTimer);
+        staticPageTimer = null;
+        staticPageIndex = 0;
+      }
+    }
+
     function renderQueue(keys, times, mode, maxCount) {
+      lastRenderArgs = [keys, times, mode, maxCount];
+
       const listEl = document.getElementById("queueList");
       const viewportEl = document.querySelector(".queue-viewport");
       const validKeys = keys.filter((k) => songByKey[k]);
-      // 정적 모드는 표시 개수만큼 자르고, 스크롤 모드는 전체 목록을 다 돌면서 보여준다.
-      const displayKeys = mode === "scroll" ? validKeys : validKeys.slice(0, maxCount > 0 ? maxCount : 3);
+      const pageSize = maxCount > 0 ? maxCount : 3;
+
+      let displayKeys;
+      if (mode === "scroll") {
+        // 스크롤 모드는 전체 목록을 다 돌면서 보여준다.
+        displayKeys = validKeys;
+        if (staticPageTimer) {
+          clearInterval(staticPageTimer);
+          staticPageTimer = null;
+          staticPageIndex = 0;
+        }
+      } else {
+        // 정적 모드는 표시 개수만큼 페이지로 나눠서, 시간이 지나면 다음 페이지를 보여준다.
+        const pageCount = Math.max(Math.ceil(validKeys.length / pageSize), 1);
+        if (staticPageIndex >= pageCount) staticPageIndex = 0;
+        displayKeys = validKeys.slice(staticPageIndex * pageSize, staticPageIndex * pageSize + pageSize);
+        ensureStaticPageTimer(pageCount);
+      }
+
       const songs = displayKeys.map((k) => songByKey[k]);
-      const signature = `${displayKeys.join(",")}|${mode}|${maxCount}`;
+      const signature = `${displayKeys.join(",")}|${mode}|${maxCount}|${staticPageIndex}`;
 
       if (!songs.length) {
         listEl.innerHTML = `<div class="queue-empty">대기열이 비어 있습니다</div>`;
