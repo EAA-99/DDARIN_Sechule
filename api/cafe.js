@@ -5,6 +5,7 @@ export default async function handler(req, res) {
 
   const matches = [];
   const yearStart = targetDate.slice(0, 4) + "0101"; // 올해 1월 1일까지만 검색
+  const BATCH_SIZE = 10;
   const MAX_PAGES = 30;
 
   const fetchPage = async (page) => {
@@ -15,34 +16,34 @@ export default async function handler(req, res) {
       headers: { Referer: `https://cafe.naver.com/f-e/cafes/${clubId}/menus/${menuId}?viewType=L` },
     });
     const data = await r.json();
-    return {
-      list: (data?.result?.articleList || []).filter((entry) => entry.type === "ARTICLE"),
-      hasMore: Boolean(data?.result?.pageInfo?.visibleNextButton),
-    };
+    return (data?.result?.articleList || []).filter((entry) => entry.type === "ARTICLE");
   };
 
   if (targetDate) {
-    outer: for (let page = 1; page <= MAX_PAGES; page++) {
-      const { list, hasMore } = await fetchPage(page);
-      if (!list.length) break;
+    outer: for (let start = 1; start <= MAX_PAGES; start += BATCH_SIZE) {
+      const pages = Array.from({ length: BATCH_SIZE }, (_, i) => start + i).filter((p) => p <= MAX_PAGES);
+      const results = await Promise.all(pages.map(fetchPage));
 
-      for (const entry of list) {
-        const item = entry.item;
-        const d = new Date(item.writeDateTimestamp)
-          .toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" })
-          .replace(/-/g, "");
-        if (d === targetDate) {
-          matches.push({
-            title: item.subject,
-            url: `https://cafe.naver.com/ddarin/${item.articleId}`,
-            image: item.representImage || null,
-          });
+      for (const list of results) {
+        if (!list.length) break outer;
+
+        for (const entry of list) {
+          const item = entry.item;
+          const d = new Date(item.writeDateTimestamp)
+            .toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" })
+            .replace(/-/g, "");
+          if (d === targetDate) {
+            matches.push({
+              title: item.subject,
+              url: `https://cafe.naver.com/ddarin/${item.articleId}`,
+              image: item.representImage || null,
+            });
+          }
+          if (d < yearStart) break outer;
         }
-        if (d < yearStart) break outer;
       }
 
       if (matches.length) break;
-      if (!hasMore) break;
     }
   }
 
