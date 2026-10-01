@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=608">
+<link rel="stylesheet" href="style.css?v=609">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen">
@@ -42,9 +42,12 @@
         <button id="prevBtn" class="nav-btn" aria-label="이전 달">◀</button>
         <h1 id="monthTitle">1월</h1>
         <button id="nextBtn" class="nav-btn" aria-label="다음 달">▶</button>
-        <div class="view-mode-toggle">
-          <button type="button" id="viewModeWeekBtn" class="view-mode-btn">주간</button>
-          <button type="button" id="viewModeMonthBtn" class="view-mode-btn active">월간</button>
+        <div class="toolbar-right-group">
+          <div class="view-mode-toggle">
+            <button type="button" id="viewModeWeekBtn" class="view-mode-btn">주간</button>
+            <button type="button" id="viewModeMonthBtn" class="view-mode-btn active">월간</button>
+          </div>
+          <button type="button" id="chartBtn" class="chart-toggle-btn" aria-label="차트">📊</button>
         </div>
       </header>
 
@@ -1003,8 +1006,8 @@
 
 
 
-  <script src="app.js?v=608"></script>
-  <script src="games.js?v=608"></script>
+  <script src="app.js?v=609"></script>
+  <script src="games.js?v=609"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {
