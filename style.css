@@ -4082,6 +4082,89 @@ body.youtube-view-open {
   flex-shrink: 0;
 }
 
+/* ===== 기능 둘러보기 (코치마크 투어) ===== */
+.tour-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+}
+
+.tour-highlight {
+  position: fixed;
+  border-radius: 12px;
+  box-shadow: 0 0 0 9999px rgba(10, 12, 18, 0.65);
+  transition: top 0.25s ease, left 0.25s ease, width 0.25s ease, height 0.25s ease;
+  pointer-events: none;
+}
+
+.tour-tooltip {
+  position: fixed;
+  width: 280px;
+  max-width: calc(100vw - 32px);
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: top 0.25s ease, left 0.25s ease;
+}
+
+.tour-tooltip-step {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #4a7fd6;
+  margin-bottom: 4px;
+}
+
+.tour-tooltip-title {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  color: #222;
+}
+
+.tour-tooltip-desc {
+  margin: 0 0 14px;
+  font-size: 0.85rem;
+  color: #555;
+  line-height: 1.5;
+}
+
+.tour-tooltip-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tour-tooltip-nav {
+  display: flex;
+  gap: 6px;
+}
+
+.tour-btn-ghost,
+.tour-btn-primary {
+  border: none;
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tour-btn-ghost {
+  background: #f2f2f2;
+  color: #666;
+}
+
+.tour-btn-ghost:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tour-btn-primary {
+  background: #4a7fd6;
+  color: #fff;
+}
+
 .song-roulette-status-text {
   flex: 1;
   min-width: 0;

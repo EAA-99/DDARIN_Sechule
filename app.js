@@ -4297,6 +4297,130 @@ loginForm.addEventListener("submit", async (e) => {
   }
 });
 
+// ===== 기능 둘러보기 (코치마크 투어) =====
+const TOUR_STEPS = [
+  { selector: "#calendarBtn", title: "일정표", desc: "어디서든 이 버튼을 누르면 홈 화면(달력)으로 돌아와요." },
+  { selector: ".view-mode-toggle", title: "주간 / 월간 보기", desc: "달력을 주간 보기와 월간 보기 중에서 골라 볼 수 있어요." },
+  { selector: "#appRefreshBtn", title: "새로고침", desc: "일정은 자동으로 갱신되지 않아요. 최신 내용을 보려면 이 버튼을 눌러주세요." },
+  { selector: "#grid", title: "달력", desc: "날짜를 누르면 그날의 일정을 확인하거나 새 일정을 추가할 수 있어요." },
+  { selector: "#sideNavYoutubeBtn", title: "유튜브", desc: "최근 업로드된 유튜브 영상을 모아볼 수 있어요." },
+  { selector: "#scheduleSearchBtn", title: "일정 검색", desc: "등록된 일정을 제목으로 검색할 수 있어요." },
+  { selector: "#memoBtn", title: "메모", desc: "공유 메모나 개인 메모를 남기고 확인할 수 있어요." },
+  { selector: "#editLockBtn", title: "로그인", desc: "로그인하면 일정을 추가/수정/삭제할 수 있어요." },
+  { selector: "#menuToggleBtn", title: "메뉴", desc: "채팅, 플레이리스트, 사진첩, 노래책 등 더 많은 메뉴로 이동할 수 있어요." },
+];
+
+const tourOverlay = document.getElementById("tourOverlay");
+const tourHighlight = document.getElementById("tourHighlight");
+const tourTooltip = document.getElementById("tourTooltip");
+const tourStepLabel = document.getElementById("tourStepLabel");
+const tourTitle = document.getElementById("tourTitle");
+const tourDesc = document.getElementById("tourDesc");
+const tourPrevBtn = document.getElementById("tourPrevBtn");
+const tourNextBtn = document.getElementById("tourNextBtn");
+const tourSkipBtn = document.getElementById("tourSkipBtn");
+const featureTourBtn = document.getElementById("featureTourBtn");
+
+let tourStepIndex = 0;
+let tourResizeHandlerAttached = false;
+
+function getTourVisibleSteps() {
+  return TOUR_STEPS.filter((step) => {
+    const el = document.querySelector(step.selector);
+    return !!(el && el.offsetParent !== null);
+  });
+}
+
+function positionTourStep(step) {
+  const el = document.querySelector(step.selector);
+  if (!el) return false;
+  const rect = el.getBoundingClientRect();
+  const pad = 8;
+  const margin = 12;
+
+  tourHighlight.style.top = `${rect.top - pad}px`;
+  tourHighlight.style.left = `${rect.left - pad}px`;
+  tourHighlight.style.width = `${rect.width + pad * 2}px`;
+  tourHighlight.style.height = `${rect.height + pad * 2}px`;
+
+  const tooltipWidth = tourTooltip.offsetWidth || 280;
+  const tooltipHeight = tourTooltip.offsetHeight || 150;
+
+  let top = rect.bottom + pad + margin;
+  if (top + tooltipHeight > window.innerHeight - margin) {
+    top = rect.top - pad - margin - tooltipHeight;
+  }
+  if (top < margin) top = margin;
+
+  let left = rect.left;
+  if (left + tooltipWidth > window.innerWidth - margin) {
+    left = window.innerWidth - margin - tooltipWidth;
+  }
+  if (left < margin) left = margin;
+
+  tourTooltip.style.top = `${top}px`;
+  tourTooltip.style.left = `${left}px`;
+  return true;
+}
+
+function renderTourStep() {
+  const steps = getTourVisibleSteps();
+  if (!steps.length || tourStepIndex >= steps.length) {
+    endTour();
+    return;
+  }
+  const step = steps[tourStepIndex];
+  if (!positionTourStep(step)) {
+    tourStepIndex += 1;
+    renderTourStep();
+    return;
+  }
+  tourStepLabel.textContent = `${tourStepIndex + 1} / ${steps.length}`;
+  tourTitle.textContent = step.title;
+  tourDesc.textContent = step.desc;
+  tourPrevBtn.disabled = tourStepIndex === 0;
+  tourNextBtn.textContent = tourStepIndex === steps.length - 1 ? "완료" : "다음";
+}
+
+function startTour() {
+  tourStepIndex = 0;
+  tourOverlay.classList.remove("hidden");
+  renderTourStep();
+  if (!tourResizeHandlerAttached) {
+    window.addEventListener("resize", () => {
+      if (!tourOverlay.classList.contains("hidden")) renderTourStep();
+    });
+    tourResizeHandlerAttached = true;
+  }
+}
+
+function endTour() {
+  tourOverlay.classList.add("hidden");
+}
+
+featureTourBtn.addEventListener("click", startTour);
+tourSkipBtn.addEventListener("click", endTour);
+tourNextBtn.addEventListener("click", () => {
+  const steps = getTourVisibleSteps();
+  if (tourStepIndex >= steps.length - 1) {
+    endTour();
+    return;
+  }
+  tourStepIndex += 1;
+  renderTourStep();
+});
+tourPrevBtn.addEventListener("click", () => {
+  if (tourStepIndex === 0) return;
+  tourStepIndex -= 1;
+  renderTourStep();
+});
+tourOverlay.addEventListener("click", (e) => {
+  if (e.target === tourOverlay) endTour();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !tourOverlay.classList.contains("hidden")) endTour();
+});
+
 async function init() {
   const today = new Date();
   if (today.getFullYear() === YEAR) currentMonth = today.getMonth();

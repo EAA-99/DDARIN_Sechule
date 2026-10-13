@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=610">
+<link rel="stylesheet" href="style.css?v=611">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen">
@@ -806,8 +806,31 @@
       <button type="button" id="menuToggleBtn" class="side-nav-btn" aria-label="메뉴">
         <svg class="side-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
       </button>
+      <button type="button" id="featureTourBtn" class="side-nav-btn" aria-label="기능 둘러보기">
+        <svg class="side-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2-2.4 3.4"/>
+          <line x1="12" y1="17" x2="12" y2="17.01"/>
+        </svg>
+      </button>
     </div>
   </nav>
+  </div>
+
+  <div id="tourOverlay" class="tour-overlay hidden">
+    <div id="tourHighlight" class="tour-highlight"></div>
+    <div id="tourTooltip" class="tour-tooltip">
+      <div id="tourStepLabel" class="tour-tooltip-step"></div>
+      <h3 id="tourTitle" class="tour-tooltip-title"></h3>
+      <p id="tourDesc" class="tour-tooltip-desc"></p>
+      <div class="tour-tooltip-actions">
+        <button type="button" id="tourSkipBtn" class="tour-btn-ghost">건너뛰기</button>
+        <div class="tour-tooltip-nav">
+          <button type="button" id="tourPrevBtn" class="tour-btn-ghost">이전</button>
+          <button type="button" id="tourNextBtn" class="tour-btn-primary">다음</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div id="dayCellMenu" class="day-cell-menu hidden">
@@ -1003,8 +1026,8 @@
 
 
 
-  <script src="app.js?v=610"></script>
-  <script src="games.js?v=610"></script>
+  <script src="app.js?v=611"></script>
+  <script src="games.js?v=611"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {
