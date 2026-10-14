@@ -8,8 +8,8 @@ body {
   padding: 0;
   height: 100%;
   font-family: "Malgun Gothic", "Segoe UI", sans-serif;
-  background: #f5f6f8;
-  color: #222;
+  background: #faf7fc;
+  color: #4a4458;
 }
 
 .hidden {
@@ -60,19 +60,19 @@ body {
   padding: 9px 12px;
   font-size: 0.85rem;
   font-weight: 700;
-  color: #666;
+  color: #7a7389;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
 }
 
 .song-request-nav-item:hover {
-  background: #f5f5f5;
+  background: #f7f3fb;
   transform: translateX(1px);
 }
 
 .song-request-nav-item.active {
-  background: #eaf2fc;
-  color: #1c6dd0;
+  background: #ece8fa;
+  color: #7a6cc9;
 }
 
 .song-request-nav-section-label {
@@ -80,7 +80,7 @@ body {
   padding: 0 12px;
   font-size: 0.72rem;
   font-weight: 700;
-  color: #aaa;
+  color: #b5aec2;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -106,7 +106,7 @@ body {
 }
 
 .song-request-placeholder {
-  color: #999;
+  color: #a9a2b5;
   font-size: 0.9rem;
   padding: 40px 0;
   text-align: center;
@@ -116,7 +116,7 @@ body {
   margin: 0 0 8px;
   font-size: 0.85rem;
   font-weight: 700;
-  color: #666;
+  color: #7a7389;
 }
 
 .song-request-content-panel > .song-request-section-label:not(:first-child) {
@@ -124,9 +124,10 @@ body {
 }
 
 .song-request-empty-text {
-  margin: 0;
-  color: #999;
+  margin: auto 0;
+  color: #a9a2b5;
   font-size: 0.85rem;
+  text-align: center;
 }
 
 .song-request-nowplaying-card {
@@ -134,7 +135,7 @@ body {
   align-items: center;
   gap: 16px;
   background: #fff;
-  border: 1px solid #eee;
+  border: 1px solid #f0ebf7;
   border-radius: 16px;
   padding: 26px 16px;
   margin-bottom: 14px;
@@ -145,8 +146,8 @@ body {
   width: 92px;
   height: 92px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #eaf2fc, #f3e8fd);
-  color: #bbb;
+  background: linear-gradient(135deg, #ece8fa, #fbe6f2);
+  color: #c2bbce;
   font-size: 2.4rem;
   display: flex;
   align-items: center;
@@ -162,7 +163,7 @@ body {
 .song-request-nowplaying-title {
   font-size: 1.2rem;
   font-weight: 800;
-  color: #2a2a2a;
+  color: #4a4458;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -170,7 +171,7 @@ body {
 
 .song-request-nowplaying-artist {
   font-size: 0.85rem;
-  color: #888;
+  color: #9790a4;
   margin-top: 2px;
   white-space: nowrap;
   overflow: hidden;
@@ -186,8 +187,8 @@ body {
 }
 
 .song-request-today-badge {
-  background: #eaf2fc;
-  color: #1c5fa8;
+  background: #ece8fa;
+  color: #6a5cbf;
   font-size: 0.75rem;
   font-weight: 700;
   border-radius: 999px;
@@ -200,38 +201,40 @@ body {
   gap: 6px;
 }
 
-.song-request-nowplaying-icon-btn {
-  width: 34px;
-  height: 34px;
+.song-request-nowplaying-action-btn {
   border: none;
-  background: #f2f2f2;
-  color: #666;
-  border-radius: 8px;
-  font-size: 0.95rem;
+  background: #f5f1fa;
+  color: #7a7389;
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
   cursor: pointer;
+  transition: background 0.15s ease;
 }
 
-.song-request-nowplaying-icon-btn:hover {
-  background: #e8e8e8;
+.song-request-nowplaying-action-btn:hover {
+  background: #ece8fa;
 }
 
-.song-request-nowplaying-icon-btn:disabled {
+.song-request-nowplaying-action-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
 
-.song-request-nowplaying-icon-btn-danger {
-  background: #fdeceb;
-  color: #d9534f;
+.song-request-nowplaying-action-btn-danger {
+  background: #fdf0f3;
+  color: #cf7f88;
 }
 
-.song-request-nowplaying-icon-btn-danger:hover {
-  background: #fbdedb;
+.song-request-nowplaying-action-btn-danger:hover {
+  background: #fbe4ea;
 }
 
 .song-request-card {
   background: #fff;
-  border: 1px solid #eee;
+  border: 1px solid #f0ebf7;
   border-radius: 16px;
   padding: 16px;
 }
@@ -244,6 +247,72 @@ body {
   margin-top: 18px;
   margin-bottom: 14px;
   min-height: 32px;
+}
+
+/* 설정 바: 왼쪽 = 신청 방법, 오른쪽 = 신청 받기 스위치 */
+.song-request-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: #fff;
+  border: 1px solid #f0ebf7;
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin-top: 14px;
+  margin-bottom: 12px;
+}
+
+.song-request-controls-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.song-request-control-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #9790a4;
+  white-space: nowrap;
+}
+
+.song-request-segmented {
+  display: inline-flex;
+  gap: 2px;
+  background: #f5f1fa;
+  border-radius: 999px;
+  padding: 3px;
+}
+
+.song-request-accept-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f7f3fb;
+  border-radius: 999px;
+  padding: 6px 8px 6px 14px;
+  transition: background 0.15s ease;
+}
+
+.song-request-accept-group.is-on {
+  background: #e3f6ec;
+}
+
+.song-request-accept-label {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #9790a4;
+  white-space: nowrap;
+}
+
+.song-request-accept-group.is-on .song-request-accept-label {
+  color: #4e9e79;
+}
+
+.song-request-log-card {
+  margin-top: 14px;
 }
 
 .song-request-chat-header {
@@ -272,7 +341,7 @@ body {
 
 .song-request-success-message {
   font-size: 0.9rem;
-  color: #2a2a2a;
+  color: #4a4458;
 }
 
 .song-request-fail-label {
@@ -295,7 +364,7 @@ body {
   margin: 0 0 8px;
   font-size: 0.85rem;
   font-weight: 700;
-  color: #666;
+  color: #7a7389;
 }
 
 .song-request-overlay-heading:not(.song-request-overlay-heading-first) {
@@ -340,9 +409,9 @@ body {
 }
 
 .song-request-theme-btn {
-  border: 1px solid #eee;
+  border: 1px solid #f0ebf7;
   background: #fff;
-  color: #666;
+  color: #7a7389;
   border-radius: 8px;
   padding: 8px 18px;
   font-size: 0.85rem;
@@ -351,15 +420,15 @@ body {
 }
 
 .song-request-theme-btn.active {
-  border-color: #1c6dd0;
-  color: #1c6dd0;
-  background: #eaf2fc;
+  border-color: #7a6cc9;
+  color: #7a6cc9;
+  background: #ece8fa;
 }
 
 .song-request-overlay-font-select {
-  border: 1px solid #ddd;
+  border: 1px solid #e6dff0;
   background: #fff;
-  color: #333;
+  color: #534c61;
   border-radius: 8px;
   padding: 6px 10px;
   font-size: 0.85rem;
@@ -383,9 +452,9 @@ body {
 }
 
 .song-request-chat-log-clear-btn {
-  border: 1px solid #eee;
+  border: 1px solid #f0ebf7;
   background: #fff;
-  color: #999;
+  color: #a9a2b5;
   border-radius: 999px;
   padding: 4px 10px;
   font-size: 0.75rem;
@@ -394,14 +463,14 @@ body {
 }
 
 .song-request-chat-log-clear-btn:hover {
-  background: #f5f5f5;
-  color: #666;
+  background: #f7f3fb;
+  color: #7a7389;
 }
 
 .song-request-fullview-btn {
-  border: 1px solid #cfe2f7;
+  border: 1px solid #ddd6f5;
   background: none;
-  color: #1c6dd0;
+  color: #7a6cc9;
   border-radius: 999px;
   padding: 4px 10px;
   font-size: 0.75rem;
@@ -427,26 +496,30 @@ body {
 
 .song-request-inline-label {
   font-size: 0.8rem;
-  color: #777;
+  color: #8a8397;
   font-weight: 600;
   white-space: nowrap;
 }
 
 .song-request-source-btn {
-  border: 1px solid #ddd;
-  background: #fff;
-  color: #999;
+  border: none;
+  background: transparent;
+  color: #a9a2b5;
   border-radius: 999px;
-  padding: 5px 12px;
+  padding: 5px 14px;
   font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.song-request-source-btn:hover {
+  color: #7a7389;
 }
 
 .song-request-source-btn.active {
-  border-color: #1c6dd0;
-  background: #1c6dd0;
+  background: #7a6cc9;
   color: #fff;
 }
 
@@ -456,7 +529,7 @@ body {
   height: 22px;
   border: none;
   border-radius: 999px;
-  background: #ddd;
+  background: #e6dff0;
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -474,7 +547,7 @@ body {
 }
 
 .song-request-switch[aria-pressed="true"] {
-  background: #1c6dd0;
+  background: #7cc3a1;
 }
 
 .song-request-switch[aria-pressed="true"]::after {
@@ -543,9 +616,9 @@ body {
 }
 
 .song-request-sort-tab {
-  border: 1px solid #eee;
+  border: 1px solid #f0ebf7;
   background: #fff;
-  color: #666;
+  color: #7a7389;
   border-radius: 999px;
   padding: 6px 14px;
   font-size: 0.8rem;
@@ -554,8 +627,8 @@ body {
 }
 
 .song-request-sort-tab.active {
-  background: #1c6dd0;
-  border-color: #1c6dd0;
+  background: #7a6cc9;
+  border-color: #7a6cc9;
   color: #fff;
 }
 
@@ -568,19 +641,19 @@ body {
 .song-request-overlay-url-input {
   flex: 1;
   min-width: 0;
-  border: 1px solid #eee;
-  background: #f7f7f7;
+  border: 1px solid #f0ebf7;
+  background: #f8f5fc;
   border-radius: 8px;
   padding: 8px 10px;
   font-size: 0.85rem;
-  color: #333;
+  color: #534c61;
 }
 
 .song-request-overlay-icon-btn {
   flex-shrink: 0;
   width: 34px;
   height: 34px;
-  border: 1px solid #eee;
+  border: 1px solid #f0ebf7;
   background: #fff;
   border-radius: 8px;
   cursor: pointer;
@@ -588,13 +661,13 @@ body {
 }
 
 .song-request-overlay-icon-btn:hover {
-  background: #f5f5f5;
+  background: #f7f3fb;
 }
 
 .song-request-overlay-copy-btn {
   flex-shrink: 0;
   border: none;
-  background: #1c6dd0;
+  background: #7a6cc9;
   color: #fff;
   border-radius: 8px;
   padding: 0 16px;
@@ -616,7 +689,7 @@ body {
 .song-request-overlay-desc {
   margin: 10px 0 0;
   font-size: 0.8rem;
-  color: #999;
+  color: #a9a2b5;
 }
 
 .song-request-overlay-preview-wrap {
@@ -668,7 +741,7 @@ body {
 .song-request-overlay-preview-wrap .queue-artist {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--overlay-color, #c9c9d6);
+  color: var(--overlay-color, #c9c3d6);
   opacity: 0.75;
 }
 
@@ -707,7 +780,7 @@ body {
 .song-request-overlay-nowplaying-preview-artist {
   font-size: calc(var(--overlay-font-size, 1.4rem) * 0.6);
   font-weight: 600;
-  color: var(--overlay-color, #c9c9d6);
+  color: var(--overlay-color, #c9c3d6);
   opacity: 0.75;
 }
 
@@ -733,8 +806,8 @@ body {
 }
 
 .song-request-notice-info {
-  background: #eaf2fc;
-  color: #1c5fa8;
+  background: #ece8fa;
+  color: #6a5cbf;
 }
 
 .song-request-notice-warning {
@@ -748,7 +821,7 @@ body {
 }
 
 .song-request-notice-collapsed {
-  visibility: hidden;
+  display: none;
 }
 
 .song-request-list {
@@ -807,7 +880,7 @@ body {
   background: none;
   font-size: 1.1rem;
   cursor: pointer;
-  color: #999;
+  color: #a9a2b5;
   flex-shrink: 0;
 }
 
@@ -832,7 +905,7 @@ body {
 .songbook-total-count {
   font-size: 0.78rem;
   font-weight: 700;
-  color: #999;
+  color: #a9a2b5;
 }
 
 .songbook-header-actions {
@@ -853,7 +926,7 @@ body {
 .song-manage-btn {
   flex-shrink: 0;
   padding: 8px 14px;
-  border: 1px solid #eee;
+  border: 1px solid #f0ebf7;
   border-radius: 999px;
   background: #fff;
   font-weight: 700;
@@ -862,7 +935,7 @@ body {
 }
 
 .song-manage-btn:hover {
-  background: #f5f5f5;
+  background: #f7f3fb;
 }
 
 .song-manage-btn-danger {
@@ -884,7 +957,7 @@ body {
   flex-shrink: 0;
   width: 260px;
   background: #fff;
-  border: 1px solid #eee;
+  border: 1px solid #f0ebf7;
   border-radius: 16px;
   padding: 20px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
@@ -904,7 +977,7 @@ body {
 }
 
 .artist-list-btn {
-  border: 1px solid #eee;
+  border: 1px solid #f0ebf7;
   border-radius: 999px;
   padding: 8px 10px;
   background: #fff;
@@ -918,9 +991,9 @@ body {
 }
 
 .artist-list-btn.active {
-  background: #cfe8fb;
-  border-color: #cfe8fb;
-  color: #1c5fa8;
+  background: #e4dcf8;
+  border-color: #e4dcf8;
+  color: #6a5cbf;
 }
 
 .favorite-item-title {
@@ -930,13 +1003,14 @@ body {
 
 .favorite-item-artist {
   font-size: 0.82rem;
-  color: #888;
+  color: #9790a4;
 }
 
 .favorites-empty {
   font-size: 0.8rem;
-  color: #999;
+  color: #a9a2b5;
   text-align: center;
+  margin: auto 0;
 }
 
 .songbook-main {
@@ -948,7 +1022,7 @@ body {
   width: 100%;
   padding: 12px 16px;
   background: #fff;
-  border: 1px solid #eee;
+  border: 1px solid #f0ebf7;
   border-radius: 999px;
   font-size: 0.85rem;
   margin-bottom: 14px;
@@ -957,7 +1031,7 @@ body {
 
 .song-search:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #cfe2f7;
+  box-shadow: 0 0 0 2px #ddd6f5;
 }
 
 .song-search-wrap {
@@ -968,7 +1042,7 @@ body {
 .song-search-wrap .song-search {
   margin-bottom: 0;
   padding-left: 42px;
-  background: #f5f6f8;
+  background: #faf7fc;
   border: none;
 }
 
@@ -979,7 +1053,7 @@ body {
   transform: translateY(-50%);
   width: 18px;
   height: 18px;
-  color: #999;
+  color: #a9a2b5;
   pointer-events: none;
 }
 
@@ -991,7 +1065,7 @@ body {
 }
 
 .genre-tab {
-  border: 1px solid #eee;
+  border: 1px solid #f0ebf7;
   background: #fff;
   border-radius: 999px;
   padding: 8px 16px;
@@ -1001,24 +1075,24 @@ body {
 }
 
 .genre-tab.active {
-  background: #8a6d3b;
+  background: #a98fd6;
   color: #fff;
-  border-color: #8a6d3b;
+  border-color: #a98fd6;
 }
 
 .song-card-genre {
   display: inline-block;
   font-size: 0.68rem;
   font-weight: 700;
-  color: #1c5fa8;
-  background: #cfe8fb;
+  color: #6a5cbf;
+  background: #e4dcf8;
   border-radius: 999px;
   padding: 3px 10px;
 }
 
 .song-empty {
   text-align: center;
-  color: #999;
+  color: #a9a2b5;
   padding: 40px 0;
 }
 
@@ -1045,7 +1119,7 @@ body {
   margin-top: 6px;
   padding: 6px;
   background: #fff;
-  border: 1px solid #eee;
+  border: 1px solid #f0ebf7;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
@@ -1061,17 +1135,17 @@ body {
   padding: 8px 10px;
   font-size: 0.8rem;
   font-weight: 700;
-  color: #666;
+  color: #7a7389;
   text-align: left;
   cursor: pointer;
 }
 
 .genre-tabs-menu .genre-tab:hover {
-  background: #f5f6f8;
+  background: #faf7fc;
 }
 
 .genre-tabs-menu .genre-tab.active {
-  color: #2a2a2a;
+  color: #4a4458;
   background: #eef0f4;
 }
 
@@ -1083,8 +1157,8 @@ body {
   border: none;
   border-radius: 999px;
   padding: 8px 16px;
-  background: linear-gradient(135deg, #dceefb, #b8dcf5);
-  color: #1c5fa8;
+  background: linear-gradient(135deg, #efeafc, #d8cdf2);
+  color: #6a5cbf;
   font-weight: 700;
   font-size: 0.78rem;
   white-space: nowrap;
@@ -1123,14 +1197,14 @@ body {
   padding: 14px 16px;
   margin-bottom: 18px;
   border-radius: 12px;
-  background: #eef6fd;
+  background: #f3eefc;
 }
 
 .song-roulette-status-dot {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: #bbb;
+  background: #c2bbce;
   flex-shrink: 0;
 }
 
@@ -1141,26 +1215,26 @@ body {
   line-height: 22px;
   font-weight: 700;
   font-size: 0.85rem;
-  color: #444;
+  color: #5b5468;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .song-roulette-status.spinning .song-roulette-status-dot {
-  background: #4a9eea;
+  background: #9b8ae0;
 }
 
 .song-roulette-status.spinning .song-roulette-status-text {
-  color: #2b7cc9;
+  color: #7a6cc9;
 }
 
 .song-roulette-status.result .song-roulette-status-dot {
-  background: #3cb46e;
+  background: #86d1ad;
 }
 
 .song-roulette-status.result .song-roulette-status-text {
-  color: #1f8a4d;
+  color: #5bab86;
 }
 
 .song-roulette-filter-row {
@@ -1177,9 +1251,9 @@ body {
 
 .song-roulette-queue-add-btn {
   flex-shrink: 0;
-  border: 1px solid #eee;
+  border: 1px solid #f0ebf7;
   background: #fff;
-  color: #666;
+  color: #7a7389;
   border-radius: 999px;
   padding: 6px 12px;
   font-size: 0.75rem;
@@ -1189,7 +1263,7 @@ body {
 }
 
 .song-roulette-queue-add-btn:hover {
-  background: #f5f5f5;
+  background: #f7f3fb;
 }
 
 .song-roulette-filter-toggle {
@@ -1203,16 +1277,16 @@ body {
   padding: 0;
   font-size: 0.78rem;
   font-weight: 700;
-  color: #333;
+  color: #534c61;
   cursor: pointer;
 }
 
 .song-roulette-filter-value {
-  color: #1c5fa8;
+  color: #6a5cbf;
 }
 
 .song-roulette-filter-toggle svg {
-  color: #999;
+  color: #a9a2b5;
   flex-shrink: 0;
 }
 
@@ -1233,7 +1307,7 @@ body {
   border: none;
   border-radius: 999px;
   padding: 14px;
-  background: linear-gradient(135deg, #6fb3f2, #3f8fe0);
+  background: linear-gradient(135deg, #b3a4ec, #8f7fd9);
   color: #fff;
   font-weight: 700;
   font-size: 1rem;
@@ -1248,7 +1322,7 @@ body {
 .song2-table-wrap {
   max-height: 65vh;
   overflow: auto;
-  border: 1px solid #eee;
+  border: 1px solid #f0ebf7;
   border-radius: 14px;
 }
 
@@ -1264,18 +1338,18 @@ body {
   position: sticky;
   top: 0;
   background: #f7f8fa;
-  color: #555;
+  color: #6b6478;
   font-weight: 700;
   text-align: left;
   padding: 12px 10px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #f0ebf7;
   white-space: nowrap;
   z-index: 1;
 }
 
 .song2-table td {
   padding: 10px;
-  border-bottom: 1px solid #f2f2f2;
+  border-bottom: 1px solid #f5f1fa;
   vertical-align: middle;
 }
 
@@ -1315,16 +1389,16 @@ body {
   content: "\21C5";
   margin-left: 4px;
   font-size: 0.7em;
-  color: #bbb;
+  color: #c2bbce;
 }
 
 .song2-sortable.active {
-  color: #1c6dd0;
+  color: #7a6cc9;
 }
 
 .song2-sortable.active::after {
   content: "\25B2";
-  color: #1c6dd0;
+  color: #7a6cc9;
 }
 
 .song2-sortable.active.desc::after {
@@ -1333,7 +1407,7 @@ body {
 
 .song2-col-num {
   width: 50px;
-  color: #999;
+  color: #a9a2b5;
 }
 
 .song2-col-title {
@@ -1362,7 +1436,7 @@ body {
 
 #songAddModalBackdrop .modal {
   background: #fff;
-  border: 6px solid #cfe2f7;
+  border: 6px solid #ddd6f5;
   max-width: 620px;
   border-radius: 16px;
 }
@@ -1390,26 +1464,26 @@ body {
 .song-add-label {
   font-size: 0.82rem;
   font-weight: 600;
-  color: #777;
+  color: #8a8397;
 }
 
 .song-add-input {
   padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid #eee;
+  border: 1px solid #f0ebf7;
   background: #fff;
-  color: #222;
+  color: #4a4458;
   font-size: 0.9rem;
   font-family: inherit;
 }
 
 .song-add-input::placeholder {
-  color: #aaa;
+  color: #b5aec2;
 }
 
 .song-add-input:focus {
   outline: none;
-  border-color: #7fb8ea;
+  border-color: #b3a4ec;
 }
 
 .song-select {
@@ -1423,9 +1497,9 @@ body {
   justify-content: space-between;
   padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid #eee;
+  border: 1px solid #f0ebf7;
   background: #fff;
-  color: #222;
+  color: #4a4458;
   font-size: 0.9rem;
   font-family: inherit;
   cursor: pointer;
@@ -1433,12 +1507,12 @@ body {
 }
 
 .song-select-trigger-label.placeholder {
-  color: #aaa;
+  color: #b5aec2;
 }
 
 .song-select-arrow {
   margin-left: 8px;
-  color: #999;
+  color: #a9a2b5;
   font-size: 0.75rem;
 }
 
@@ -1449,7 +1523,7 @@ body {
   right: 0;
   z-index: 20;
   background: #fff;
-  border: 1px solid #cfe2f7;
+  border: 1px solid #ddd6f5;
   border-radius: 12px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
   padding: 6px;
@@ -1465,7 +1539,7 @@ body {
 }
 
 .song-select-option:hover {
-  background: #eaf4fd;
+  background: #f3eefc;
 }
 
 .song-add-actions {
@@ -1478,7 +1552,7 @@ body {
   border: none;
   border-radius: 999px;
   padding: 10px 24px;
-  background: #ff6fa5;
+  background: #f3a3c4;
   color: #fff;
   font-weight: 700;
   font-size: 0.9rem;
@@ -1486,22 +1560,22 @@ body {
 }
 
 .song-add-save-btn:hover {
-  background: #ff5695;
+  background: #ec8fb5;
 }
 
 .song-add-cancel-btn {
-  border: 1px solid #ddd;
+  border: 1px solid #e6dff0;
   border-radius: 999px;
   padding: 10px 24px;
   background: transparent;
-  color: #666;
+  color: #7a7389;
   font-weight: 700;
   font-size: 0.9rem;
   cursor: pointer;
 }
 
 .song-add-cancel-btn:hover {
-  background: #f2f2f2;
+  background: #f5f1fa;
 }
 
 @media (max-width: 560px) {
@@ -1522,7 +1596,7 @@ body {
   justify-content: space-between;
   gap: 10px;
   text-align: left;
-  background: #f7f7f7;
+  background: #f8f5fc;
   border-radius: 10px;
   padding: 14px 16px;
   cursor: grab;
@@ -1535,7 +1609,7 @@ body {
 .song-request-item-time {
   flex-shrink: 0;
   font-size: 0.78rem;
-  color: #999;
+  color: #a9a2b5;
 }
 
 .song-request-item.dragging {
@@ -1548,30 +1622,30 @@ body {
   gap: 6px;
   font-size: 0.8rem;
   font-weight: 700;
-  color: #d99a1a;
+  color: #d9a85c;
 }
 
 .song-request-chat-status-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #d99a1a;
+  background: #d9a85c;
 }
 
 .song-request-chat-status.is-live {
-  color: #1f8a4d;
+  color: #5bab86;
 }
 
 .song-request-chat-status.is-live .song-request-chat-status-dot {
-  background: #1f8a4d;
+  background: #5bab86;
 }
 
 .song-request-chat-status.is-error {
-  color: #c0392b;
+  color: #cf7f88;
 }
 
 .song-request-chat-status.is-error .song-request-chat-status-dot {
-  background: #c0392b;
+  background: #cf7f88;
 }
 
 .song-request-collector-launch-btn {
@@ -1579,10 +1653,10 @@ body {
   text-align: center;
   margin-bottom: 14px;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid #e6dff0;
   border-radius: 10px;
-  background: #f5f6f8;
-  color: #333;
+  background: #faf7fc;
+  color: #534c61;
   font-weight: 700;
   font-size: 0.85rem;
   text-decoration: none;
@@ -1590,7 +1664,7 @@ body {
 }
 
 .song-request-collector-launch-btn:hover {
-  background: #eaeaee;
+  background: #f0ebf7;
 }
 
 .song-request-star-filter {
@@ -1603,15 +1677,15 @@ body {
 .song-request-star-input {
   width: 70px;
   padding: 6px 8px;
-  border: 1px solid #ddd;
+  border: 1px solid #e6dff0;
   border-radius: 8px;
   font-size: 0.85rem;
 }
 
 .song-request-star-apply-btn {
-  border: 1px solid #ddd;
-  background: #f5f6f8;
-  color: #333;
+  border: 1px solid #e6dff0;
+  background: #faf7fc;
+  color: #534c61;
   border-radius: 8px;
   padding: 6px 12px;
   font-size: 0.8rem;
@@ -1620,18 +1694,18 @@ body {
 }
 
 .song-request-chat-log {
-  min-height: 200px;
-  max-height: 260px;
+  min-height: 96px;
+  max-height: 150px;
   overflow-y: auto;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #f0ebf7;
   padding-top: 10px;
 }
 
 .song-request-chat-log-line {
   padding: 6px 0;
   font-size: 0.8rem;
-  color: #c0392b;
-  border-bottom: 1px solid #f2f2f2;
+  color: #cf7f88;
+  border-bottom: 1px solid #f5f1fa;
 }
 
 /* ===== 기능 둘러보기 (코치마크 투어) ===== */
@@ -1663,20 +1737,20 @@ body {
 .tour-tooltip-step {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #1c6dd0;
+  color: #7a6cc9;
   margin-bottom: 4px;
 }
 
 .tour-tooltip-title {
   margin: 0 0 6px;
   font-size: 1.05rem;
-  color: #222;
+  color: #4a4458;
 }
 
 .tour-tooltip-desc {
   margin: 0 0 14px;
   font-size: 0.85rem;
-  color: #555;
+  color: #6b6478;
   line-height: 1.5;
 }
 
@@ -1703,8 +1777,8 @@ body {
 }
 
 .tour-btn-ghost {
-  background: #f2f2f2;
-  color: #666;
+  background: #f5f1fa;
+  color: #7a7389;
 }
 
 .tour-btn-ghost:disabled {
@@ -1713,7 +1787,7 @@ body {
 }
 
 .tour-btn-primary {
-  background: #1c6dd0;
+  background: #7a6cc9;
   color: #fff;
 }
 

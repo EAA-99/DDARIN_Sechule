@@ -555,7 +555,7 @@ function renderSongRequestListInto(container, displaySongs) {
   if (!displaySongs.length) {
     const empty = document.createElement("p");
     empty.className = "favorites-empty";
-    empty.textContent = "🎶 아직 신청된 곡이 없어요";
+    empty.textContent = "아직 신청된 곡이 없어요";
     container.appendChild(empty);
     return;
   }
@@ -714,7 +714,7 @@ function renderSongRequestSuccessLogInto(container) {
   if (!songRequestSuccessLog.length) {
     const empty = document.createElement("p");
     empty.className = "song-request-empty-text";
-    empty.textContent = "🎶 아직 신청된 곡이 없어요";
+    empty.textContent = "아직 신청된 곡이 없어요";
     container.appendChild(empty);
     return;
   }
@@ -880,10 +880,23 @@ function getSongRequestActiveSource() {
   return activeSourceBtn ? activeSourceBtn.dataset.source : null;
 }
 
+const songRequestAcceptGroup = document.getElementById("songRequestAcceptGroup");
+const songRequestAcceptLabel = document.getElementById("songRequestAcceptLabel");
+const songRequestInfoNotice = document.querySelector(".song-request-notice-info");
+
+// 신청 받기 상태에 따라 스위치 라벨과 안내문을 한 번에 맞춘다 (안내는 항상 하나만 보이게)
+function updateSongRequestAcceptUi() {
+  const isOn = songRequestAcceptToggle.getAttribute("aria-pressed") === "true";
+  songRequestAcceptGroup.classList.toggle("is-on", isOn);
+  songRequestAcceptLabel.textContent = isOn ? "신청 받는 중" : "신청 받기 꺼짐";
+  songRequestOffNotice.classList.toggle("song-request-notice-collapsed", isOn);
+  songRequestInfoNotice.classList.toggle("song-request-notice-collapsed", !isOn);
+}
+
 songRequestAcceptToggle.addEventListener("click", () => {
   const isOn = songRequestAcceptToggle.getAttribute("aria-pressed") === "true";
   songRequestAcceptToggle.setAttribute("aria-pressed", String(!isOn));
-  songRequestOffNotice.classList.toggle("song-request-notice-collapsed", !isOn);
+  updateSongRequestAcceptUi();
 
   if (getSongRequestActiveSource()) {
     startSongRequestCollection();
@@ -892,6 +905,8 @@ songRequestAcceptToggle.addEventListener("click", () => {
     setSongRequestChatStatus("신청 받기 꺼짐");
   }
 });
+
+updateSongRequestAcceptUi();
 
 const songRequestSourceNoticeText = document.getElementById("songRequestSourceNoticeText");
 const SONG_REQUEST_SOURCE_NOTICES = {
@@ -1494,8 +1509,8 @@ const TOUR_STEPS = [
   },
   {
     selector: ".song-request-nowplaying-actions",
-    title: "되돌리기 / 건너뛰기",
-    desc: "⏭(건너뛰기)를 누르면 대기열 맨 앞 곡이 재생 완료 처리되면서 빠지고, '오늘 N/M곡' 카운트에 더해져요. ↩(되돌리기)는 바로 직전에 건너뛴 곡 하나만 다시 대기열 맨 앞으로 되돌려줘요 (두 단계 이상 취소는 안 돼요).",
+    title: "되돌리기 / 다음 곡",
+    desc: "'다음 곡'을 누르면 대기열 맨 앞 곡이 재생 완료 처리되면서 빠지고, '오늘 N/M곡' 카운트에 더해져요. '되돌리기'는 바로 직전에 넘긴 곡 하나만 다시 대기열 맨 앞으로 되돌려줘요 (두 단계 이상 취소는 안 돼요).",
   },
 ];
 
