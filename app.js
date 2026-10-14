@@ -1474,43 +1474,69 @@ songQueueAddBtn.addEventListener("click", () => {
 const TOUR_STEPS = [
   {
     selector: '.song-request-nav-item[data-panel="request"]',
+    panel: "request",
     title: "노래 신청",
-    desc: "채팅창에 '!제목' 또는 '!제목-가수' 형식으로 올라온 신청곡이 여기 실시간으로 쌓여요. 노래책에 있는 곡이면 자동 매칭되고, 가수명까지 적었는데 노래책에 없으면 '미분류'로 임시 등록한 뒤 대기열에 넣어줘요. 왼쪽엔 신청 목록, 오른쪽엔 전체 채팅, 아래 로그엔 실패 사유까지 남아요.",
+    desc: "채팅창에 '!제목' 또는 '!제목-가수' 형식으로 올라온 신청곡이 여기 실시간으로 쌓여요. 노래책에 있는 곡이면 자동 매칭되고, 가수명까지 적었는데 노래책에 없으면 '미분류'로 임시 등록한 뒤 대기열에 넣어줘요.",
+  },
+  {
+    selector: "#songRequestAcceptToggle",
+    panel: "request",
+    title: "신청 받기",
+    desc: "이 스위치가 꺼져있으면 채팅에 '!제목'을 적어도 전부 무시돼요. 켜면 '신청 받는 중'으로 바뀌면서 실시간으로 채팅을 감지하기 시작해요. 방송 시작할 때 제일 먼저 켜야 하는 스위치예요.",
+  },
+  {
+    selector: "#songRequestSourceChatBtn",
+    panel: "request",
+    title: "신청 방법 (채팅 / 별풍선)",
+    desc: "'채팅' 모드는 아무나 채팅으로 '!제목-가수'만 적으면 바로 접수돼요. '별풍선' 모드는 설정한 개수(기본 100개) 이상 별풍선을 쏜 사람이 그 직후에 보낸 신청만 받아줘요 — 별풍선 모드를 고르면 옆에 최소 개수 설정이 같이 나타나요.",
+  },
+  {
+    selector: ".song-request-nowplaying-actions",
+    panel: "request",
+    title: "되돌리기 / 다음 곡",
+    desc: "'다음 곡'을 누르면 대기열 맨 앞 곡이 재생 완료 처리되면서 빠지고, 위의 '오늘 N/M곡' 카운트에 더해져요. '되돌리기'는 바로 직전에 넘긴 곡 하나만 다시 대기열 맨 앞으로 되돌려줘요 (두 단계 이상 취소는 안 돼요).",
+  },
+  {
+    selector: ".song-request-queue-left",
+    panel: "request",
+    title: "신청 목록",
+    desc: "접수된 신청곡이 순서대로 쌓이는 곳이에요. 맨 위에 있는 곡이 지금 부를 곡이 되고, 곡을 끌어다 놓으면 순서를 바꿀 수 있어요. '선착순'은 신청한 순서, '별풍선 순'은 후원 개수가 많은 순으로 정렬하고, '초기화'를 누르면 대기열이 통째로 비워져요.",
+  },
+  {
+    selector: ".song-request-queue-right",
+    panel: "request",
+    title: "채팅",
+    desc: "신청 명령어가 들어온 채팅만 모아서 보여줘요. 누가 무슨 곡을 신청했는지, 별풍선은 몇 개였는지, 접수에 실패했는지(빨간 '실패' 표시)까지 한눈에 볼 수 있어요.",
+  },
+  {
+    selector: ".song-request-log-card",
+    panel: "request",
+    title: "로그",
+    desc: "처리 결과와 연결 상태가 실시간으로 찍히는 곳이에요. '노래책 목록에 없는 곡입니다', '최소 별풍선 개수 미달' 같은 실패 사유가 여기 남고, 오른쪽 점 색깔로 지금 수집 중인지(초록) 꺼져 있는지 확인할 수 있어요.",
   },
   {
     selector: '.song-request-nav-item[data-panel="queue"]',
+    panel: "queue",
     title: "대기열",
     desc: "신청 목록과 채팅을 잘림 없이 전체 화면으로 쭉 볼 수 있는 곳이에요. 신청이 많이 쌓였을 때 전체 흐름을 한눈에 확인하고 싶을 때 써요.",
   },
   {
     selector: '.song-request-nav-item[data-panel="songbook"]',
+    panel: "songbook",
     title: "노래책",
     desc: "방송에서 부를 수 있는 전체 곡 목록이에요. '곡 추가'로 제목/가수/장르/비고/MR 여부까지 입력해서 새 곡을 등록하고, 체크박스로 여러 곡을 골라 '선택삭제'하거나 '대기열 추가'로 바로 신청 큐에 넣을 수도 있어요. 룰렛으로 무작위 선곡도 가능해요.",
   },
   {
     selector: '.song-request-nav-item[data-panel="overlay-nowplaying"]',
+    panel: "overlay-nowplaying",
     title: "현재 노래 정보",
     desc: "지금 재생 중인 곡의 제목과 가수만 심플하게 보여주는 OBS 오버레이예요. 다크/화이트 테마, 폰트, 글자 크기, 정렬을 바꿀 수 있고, '복사' 버튼으로 가져간 URL을 OBS 브라우저 소스에 붙여넣으면 돼요.",
   },
   {
     selector: '.song-request-nav-item[data-panel="overlay-queue"]',
+    panel: "overlay-queue",
     title: "노래 신청 목록",
     desc: "대기 중인 신청곡들을 리스트로 보여주는 오버레이예요. 테마/폰트뿐 아니라 한 번에 몇 곡까지 보여줄지(최대 개수), 다 안 보일 때 페이지를 넘길지 위아래로 스크롤할지 표시 방식도 고를 수 있어요.",
-  },
-  {
-    selector: "#songRequestAcceptToggle",
-    title: "신청 받기",
-    desc: "이 토글이 꺼져있으면 채팅에 '!제목'을 적어도 무시돼요. 켜야 실시간으로 채팅을 감지해서 신청을 받기 시작해요.",
-  },
-  {
-    selector: "#songRequestSourceChatBtn",
-    title: "채팅 / 별풍선",
-    desc: "'채팅' 모드는 아무나 채팅으로 '!제목-가수'만 적으면 바로 신청 접수돼요. '별풍선' 모드는 설정한 개수(기본 100개) 이상 별풍선을 쏜 사람이 그 직후에 보낸 신청 메시지만 받아줘요 — 후원 없이는 신청이 접수되지 않아요.",
-  },
-  {
-    selector: ".song-request-nowplaying-actions",
-    title: "되돌리기 / 다음 곡",
-    desc: "'다음 곡'을 누르면 대기열 맨 앞 곡이 재생 완료 처리되면서 빠지고, '오늘 N/M곡' 카운트에 더해져요. '되돌리기'는 바로 직전에 넘긴 곡 하나만 다시 대기열 맨 앞으로 되돌려줘요 (두 단계 이상 취소는 안 돼요).",
   },
 ];
 
@@ -1527,17 +1553,34 @@ const featureTourBtn = document.getElementById("featureTourBtn");
 
 let tourStepIndex = 0;
 let tourResizeHandlerAttached = false;
+let tourPanelBeforeStart = null;
 
 function getTourVisibleSteps() {
-  return TOUR_STEPS.filter((step) => {
-    const el = document.querySelector(step.selector);
-    return !!(el && el.offsetParent !== null);
-  });
+  return TOUR_STEPS.filter((step) => !!document.querySelector(step.selector));
+}
+
+function getActivePanelName() {
+  const active = document.querySelector(".song-request-content-panel.active");
+  return active ? active.dataset.panel : null;
+}
+
+// 설명 대상이 숨겨진 탭 안에 있으면 그 탭을 열어준다 (안 그러면 그 단계가 통째로 건너뛰어짐)
+function activateTourPanel(panel) {
+  if (!panel || getActivePanelName() === panel) return;
+  document
+    .querySelectorAll(".song-request-nav-item[data-panel]")
+    .forEach((el) => el.classList.toggle("active", el.dataset.panel === panel));
+  document
+    .querySelectorAll(".song-request-content-panel")
+    .forEach((p) => p.classList.toggle("active", p.dataset.panel === panel));
 }
 
 function positionTourStep(step) {
+  activateTourPanel(step.panel);
   const el = document.querySelector(step.selector);
   if (!el) return false;
+  // 화면 밖에 있는 항목이면 보이는 위치까지 스크롤한 뒤에 좌표를 잰다
+  el.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
   const rect = el.getBoundingClientRect();
   const pad = 8;
   const margin = 12;
@@ -1554,6 +1597,7 @@ function positionTourStep(step) {
   if (top + tooltipHeight > window.innerHeight - margin) {
     top = rect.top - pad - margin - tooltipHeight;
   }
+  top = Math.min(top, window.innerHeight - tooltipHeight - margin);
   if (top < margin) top = margin;
 
   let left = rect.left;
@@ -1588,6 +1632,7 @@ function renderTourStep() {
 
 function startTour() {
   tourStepIndex = 0;
+  tourPanelBeforeStart = getActivePanelName();
   tourOverlay.classList.remove("hidden");
   renderTourStep();
   if (!tourResizeHandlerAttached) {
@@ -1600,6 +1645,9 @@ function startTour() {
 
 function endTour() {
   tourOverlay.classList.add("hidden");
+  // 투어 중 탭을 옮겨 다녔으니 원래 보던 탭으로 돌려놓는다
+  activateTourPanel(tourPanelBeforeStart);
+  tourPanelBeforeStart = null;
 }
 
 featureTourBtn.addEventListener("click", startTour);
