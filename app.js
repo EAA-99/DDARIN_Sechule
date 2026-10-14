@@ -1,9 +1,371 @@
-// ===== 노래책 데이터 (Google Sheets) =====
-const SONGBOOK_SPREADSHEET_ID = "1NhImCLm5diXM0pA45SkB-g2PARivQiVN8bUKlniiOB8";
-const SHEETS_API_KEY = "AIzaSyC0RsFfc5y9GmEaE29niGWD9hbSnpIc7rM";
+﻿const API_URL = "https://script.google.com/macros/s/AKfycbwuOrjG9SZxN4CtkXb9EW2Hd_bt4x-ntPXjAFisw9VojI2X8lijwSZ2Prw5xaxkP8CYeg/exec";
 
-function albumArtCacheKey(song) {
-  return `${song.artist}|${song.title}`.toLowerCase();
+const SPREADSHEET_ID = "1gCvMJMK52QUyo1M4FbFzWsJ_NZp3MUqgrDa0obhNIbY";
+const SHEETS_API_KEY = "AIzaSyC0RsFfc5y9GmEaE29niGWD9hbSnpIc7rM";
+const SHEETS_API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/AppEvents!A2:E?key=${SHEETS_API_KEY}`;
+
+const SONGBOOK_SPREADSHEET_ID = "1NhImCLm5diXM0pA45SkB-g2PARivQiVN8bUKlniiOB8";
+const SONGBOOK_CLIPS_SPREADSHEET_ID = "17EmfOEPVGesH9FXnh7xsKvBYYIhi2TrerSzY23E2N9A";
+
+const LOADING_GIF_MS = 1540;
+
+const YEAR = 2026;
+const STORAGE_KEY = "calendar-events-2026";
+const EDIT_PW_KEY = "calendar-edit-pw-2026";
+const EDIT_USER_KEY = "calendar-edit-user-2026";
+
+function getStoredCreds() {
+  const password = localStorage.getItem(EDIT_PW_KEY) || sessionStorage.getItem(EDIT_PW_KEY);
+  const username = localStorage.getItem(EDIT_USER_KEY) || sessionStorage.getItem(EDIT_USER_KEY);
+  return { username, password };
+}
+
+function setStoredCreds(username, password, remember) {
+  const storage = remember ? localStorage : sessionStorage;
+  storage.setItem(EDIT_USER_KEY, username);
+  storage.setItem(EDIT_PW_KEY, password);
+}
+
+function clearStoredCreds() {
+  localStorage.removeItem(EDIT_PW_KEY);
+  localStorage.removeItem(EDIT_USER_KEY);
+  sessionStorage.removeItem(EDIT_PW_KEY);
+  sessionStorage.removeItem(EDIT_USER_KEY);
+}
+
+let currentMonth = 0; // 0 = January
+let selectedDateKey = null;
+let isReadOnly = true;
+
+const loadingScreen = document.getElementById("loadingScreen");
+const loadingGifImg = document.getElementById("loadingGifImg");
+const CALENDAR_LOADING_GIFS = [
+  "높은양갈래따린윙크.gif",
+  "단발오잉따린.gif",
+  "단발음뫄.gif",
+  "양갈래하트윙크따린.gif",
+  "키네시스어센트따린.gif",
+];
+loadingGifImg.src = CALENDAR_LOADING_GIFS[Math.floor(Math.random() * CALENDAR_LOADING_GIFS.length)];
+const monthTitle = document.getElementById("monthTitle");
+const grid = document.getElementById("grid");
+const weekdayRow = document.querySelector(".weekday-row");
+const calendarHeaderEl = document.querySelector(".calendar-header");
+grid.addEventListener("scroll", () => {
+  weekdayRow.scrollLeft = grid.scrollLeft;
+});
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const cardView = document.getElementById("cardView");
+const cardList = document.getElementById("cardList");
+const weekPrevBtn = document.getElementById("weekPrevBtn");
+const weekNextBtn = document.getElementById("weekNextBtn");
+const dayCellMenu = document.getElementById("dayCellMenu");
+const dayCellSoopSummaryEl = document.getElementById("dayCellSoopSummary");
+
+const CAFE_API_URL = "/api/cafe";
+const BROADCAST_SUMMARY_API_URL = "/api/broadcast-summary";
+
+let dayCellMenuDate = null;
+
+function closeDayCellMenu() {
+  dayCellMenu.classList.add("hidden");
+  window.removeEventListener("scroll", repositionDayCellMenu, true);
+  window.removeEventListener("resize", repositionDayCellMenu);
+}
+
+function getDayCellMenuAnchor() {
+  if (!dayCellMenuDate) return null;
+  return document.querySelector(`.day-cell-menu-btn[data-date="${dayCellMenuDate}"]`);
+}
+
+function repositionDayCellMenu() {
+  const anchorEl = getDayCellMenuAnchor();
+  if (!anchorEl) return;
+  const rect = anchorEl.getBoundingClientRect();
+  const maxTop = window.innerHeight - dayCellMenu.offsetHeight - 8;
+  const top = Math.min(rect.bottom + 4, Math.max(8, maxTop));
+  dayCellMenu.style.top = `${top}px`;
+  dayCellMenu.style.left = `${Math.min(rect.left, window.innerWidth - dayCellMenu.offsetWidth - 8)}px`;
+}
+
+function renderBroadcastSummaryTimeline(data) {
+  dayCellSoopSummaryEl.innerHTML = "";
+
+  if (data.summary) {
+    const intro = document.createElement("div");
+    intro.className = "day-cell-summary-intro";
+    intro.textContent = data.summary;
+    dayCellSoopSummaryEl.appendChild(intro);
+  }
+
+  if (data.timeline && data.timeline.length) {
+    const timeline = document.createElement("div");
+    timeline.className = "day-cell-summary-timeline";
+    data.timeline.forEach((group) => {
+      const item = document.createElement("div");
+      item.className = "timeline-item";
+      if (group.highlight) item.classList.add("highlight");
+
+      const head = document.createElement("div");
+      head.className = "timeline-head";
+      const time = document.createElement("span");
+      time.className = "timeline-time";
+      time.textContent = group.time;
+      const text = document.createElement("span");
+      text.className = "timeline-text";
+      text.textContent = (group.highlight ? "🔥 " : "") + group.summary;
+      head.appendChild(time);
+      head.appendChild(text);
+      item.appendChild(head);
+
+      if (group.details && group.details.length) {
+        const details = document.createElement("div");
+        details.className = "timeline-details";
+        group.details.forEach((d) => {
+          const dItem = document.createElement("div");
+          dItem.className = "timeline-detail-item";
+          dItem.textContent = `[${d.time}] ${d.summary}`;
+          details.appendChild(dItem);
+        });
+        item.appendChild(details);
+      }
+
+      timeline.appendChild(item);
+    });
+    dayCellSoopSummaryEl.appendChild(timeline);
+  }
+}
+
+async function loadDayCellBroadcastSummary(dateKeyStr) {
+  dayCellSoopSummaryEl.textContent = "불러오는 중...";
+  dayCellSoopSummaryEl.classList.remove("hidden");
+  repositionDayCellMenu();
+
+  try {
+    const res = await fetch(`${BROADCAST_SUMMARY_API_URL}?date=${dateKeyStr}`);
+    const data = await res.json();
+    if (dayCellMenuDate !== dateKeyStr) return;
+
+    if (data.available) {
+      renderBroadcastSummaryTimeline(data);
+    } else if (data.reason === "offline") {
+      dayCellSoopSummaryEl.textContent = "지금 방송 중이 아니에요.";
+    } else if (data.reason === "not_today") {
+      dayCellSoopSummaryEl.textContent = "방송 중이거나 방송 직후에만 볼 수 있어요.";
+    } else {
+      dayCellSoopSummaryEl.textContent = "불러오기 실패";
+    }
+  } catch {
+    if (dayCellMenuDate !== dateKeyStr) return;
+    dayCellSoopSummaryEl.textContent = "불러오기 실패";
+  }
+  repositionDayCellMenu();
+}
+
+function openDayCellMenu(anchorEl, dateKeyStr) {
+  dayCellMenuDate = dateKeyStr;
+  dayCellSoopSummaryEl.classList.add("hidden");
+
+  const rect = anchorEl.getBoundingClientRect();
+  dayCellMenu.classList.remove("hidden");
+  dayCellMenu.style.top = `${rect.bottom + 4}px`;
+  dayCellMenu.style.left = `${Math.min(rect.left, window.innerWidth - dayCellMenu.offsetWidth - 8)}px`;
+
+  window.addEventListener("scroll", repositionDayCellMenu, true);
+  window.addEventListener("resize", repositionDayCellMenu);
+}
+
+document.getElementById("dayCellSoopBtn").addEventListener("click", () => {
+  if (dayCellMenuDate) loadDayCellBroadcastSummary(dayCellMenuDate);
+});
+
+document.addEventListener("click", (e) => {
+  if (!dayCellMenu.classList.contains("hidden") && !dayCellMenu.contains(e.target) && !e.target.classList.contains("day-cell-menu-btn")) {
+    closeDayCellMenu();
+  }
+});
+let viewMode = "list";
+let cardWeekStart = getWeekStart(new Date());
+const modalBackdrop = document.getElementById("modalBackdrop");
+const modalDate = document.getElementById("modalDate");
+const eventList = document.getElementById("eventList");
+const eventForm = document.getElementById("eventForm");
+const eventTitleInput = document.getElementById("eventTitle");
+const eventAttendeesInput = document.getElementById("eventAttendees");
+const eventSubmitBtn = document.getElementById("eventSubmitBtn");
+const closeModalBtn = document.getElementById("closeModalBtn");
+const colorPickerBtn = document.getElementById("colorPickerBtn");
+const colorPickerBtnLabel = document.getElementById("colorPickerBtnLabel");
+const colorPickerList = document.getElementById("colorPickerList");
+const colorPickerOptions = document.querySelectorAll(".color-picker-option");
+const modalManageActions = document.getElementById("modalManageActions");
+const bulkDeleteBtn = document.getElementById("bulkDeleteBtn");
+const newEventBtn = document.getElementById("newEventBtn");
+let selectedColor = "gray";
+let selectedHex = null;
+let editingIndex = null;
+let managingMode = false;
+let expandedIndex = null;
+let draggedEventIndex = null;
+
+const editLockBtn = document.getElementById("editLockBtn");
+const loginBtnLabel = document.getElementById("loginBtnLabel");
+
+const appViewEl = document.querySelector(".calendar-post-column");
+const songbookView = document.getElementById("songbookView");
+const gameView = document.getElementById("gameView");
+const backMenuView = document.getElementById("backMenuView");
+const cafePhotosView = document.getElementById("cafePhotosView");
+const soopChatView = document.getElementById("soopChatView");
+const soopChatDayView = document.getElementById("soopChatDayView");
+const sideNavEl = document.querySelector(".side-nav");
+const calendarPostMenuBtn = document.querySelector(".calendar-post-menu");
+const songSearchInput = document.getElementById("songSearchInput");
+const genreTabsMenu = document.getElementById("genreTabsMenu");
+const clipSourceCarousel = document.getElementById("clipSourceCarousel");
+const clipSourceTrack = document.getElementById("clipSourceTrack");
+const clipSourceDots = document.getElementById("clipSourceDots");
+const CLIP_SOURCE_ORDER = ["clip", "youtube", "playlist"];
+const artistList = document.getElementById("artistList");
+let songbookArtist = "전체";
+const sortTabs = document.getElementById("sortTabs");
+const sortTabsToggle = document.getElementById("sortTabsToggle");
+const sortTabsMenu = document.getElementById("sortTabsMenu");
+const playerNoClip = document.getElementById("playerNoClip");
+const playerNoClipSong = document.getElementById("playerNoClipSong");
+const songGrid = document.getElementById("songGrid");
+const songPlayerModalBackdrop = document.getElementById("songPlayerModalBackdrop");
+const songPlayerModal = document.getElementById("songPlayerModal");
+const songPlayerModalFrame = document.getElementById("songPlayerModalFrame");
+const songPlayerModalClose = document.getElementById("songPlayerModalClose");
+const songPlayerModalTitle = document.getElementById("songPlayerModalTitle");
+const songPlayerModalArtist = document.getElementById("songPlayerModalArtist");
+const songPlayerModalFavBtn = document.getElementById("songPlayerModalFavBtn");
+const songPlayerModalFavIcon = document.getElementById("songPlayerModalFavIcon");
+const songPlayerModalFavLabel = document.getElementById("songPlayerModalFavLabel");
+const favoritesListEl = document.getElementById("favoritesList");
+const songbook2View = document.getElementById("songbook2View");
+const songbookGwView = document.getElementById("songbookGwView");
+const songbookGwBody = document.getElementById("songbookGwBody");
+const song2SearchInput = document.getElementById("song2SearchInput");
+const genre2Tabs = document.getElementById("genre2Tabs");
+const artist2List = document.getElementById("artist2List");
+const song2Table = document.getElementById("song2Table");
+const song2GenreFilterToggle = document.getElementById("song2GenreFilterToggle");
+const song2GenreFilterMenu = document.getElementById("song2GenreFilterMenu");
+const song2Grid = document.getElementById("song2Grid");
+const songbookTotalCountEl = document.getElementById("songbookTotalCount");
+const favorites2ListEl = document.getElementById("favorites2List");
+const favorites2OpenBtn = document.getElementById("favorites2OpenBtn");
+const favorites2ModalBackdrop = document.getElementById("favorites2ModalBackdrop");
+const closeFavorites2ModalBtn = document.getElementById("closeFavorites2ModalBtn");
+
+function closeFavorites2Modal() {
+  favorites2ModalBackdrop.classList.add("hidden");
+}
+
+favorites2OpenBtn.addEventListener("click", () => {
+  renderFavorites2List();
+  favorites2ModalBackdrop.classList.remove("hidden");
+});
+closeFavorites2ModalBtn.addEventListener("click", closeFavorites2Modal);
+favorites2ModalBackdrop.addEventListener("click", (e) => {
+  if (e.target === favorites2ModalBackdrop) closeFavorites2Modal();
+});
+
+let songbook2Genre = "전체";
+let songbook2Artist = "전체";
+let songSortMode2 = "artist";
+let songSortDir2 = "asc";
+let allSongs = null;
+let songByKey = {};
+let songbookGenre = "전체";
+let eventsCache = null;
+
+function loadEvents() {
+  if (eventsCache) return eventsCache;
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function eventsObjectToFlat(events) {
+  const flat = [];
+  Object.keys(events).forEach((date) => {
+    events[date].forEach((ev) => flat.push(Object.assign({ date: date }, ev)));
+  });
+  return flat;
+}
+
+function flatToEventsObject(flat) {
+  const events = {};
+  flat.forEach((row) => {
+    const date = row.date;
+    const ev = { title: row.title };
+    if (row.color) ev.color = row.color;
+    if (row.sheetColor) ev.sheetColor = row.sheetColor;
+    if (row.source) ev.source = row.source;
+    if (!events[date]) events[date] = [];
+    events[date].push(ev);
+  });
+  return events;
+}
+
+async function apiGetEventsDirect() {
+  try {
+    const res = await fetch(SHEETS_API_URL);
+    console.log("[events] direct fetch res.ok=", res.ok, "status=", res.status);
+    if (!res.ok) return null;
+    const data = await res.json();
+    console.log("[events] direct raw values=", data.values);
+    if (!data.values) return [];
+    return data.values
+      .map((row) => {
+        const [date, title, color, sheetColor, source] = row;
+        if (!date || !title) return null;
+        const item = { date: String(date), title: String(title) };
+        if (color) item.color = String(color);
+        if (sheetColor) item.sheetColor = String(sheetColor);
+        if (source) item.source = String(source);
+        return item;
+      })
+      .filter(Boolean);
+  } catch (err) {
+    console.log("[events] direct fetch threw", err);
+    return null;
+  }
+}
+
+async function apiGetEventsAppsScript() {
+  try {
+    const res = await fetch(`${API_URL}?data=events`);
+    console.log("[events] apps-script fetch res.ok=", res.ok, "status=", res.status);
+    if (!res.ok) return null;
+    const json = await res.json();
+    console.log("[events] apps-script data=", json);
+    return json;
+  } catch (err) {
+    console.log("[events] apps-script fetch threw", err);
+    return null;
+  }
+}
+
+async function apiGetEvents() {
+  const direct = await apiGetEventsDirect();
+  if (direct) {
+    console.log("[events] using direct source, count=", direct.length, direct.filter((e) => e.date === "2026-08-15"));
+    const perDateCount = {};
+    direct.forEach((e) => { perDateCount[e.date] = (perDateCount[e.date] || 0) + 1; });
+    const dupes = Object.entries(perDateCount).filter(([, n]) => n > 1);
+    console.log("[events] dates with >1 row in raw sheet data:", dupes);
+    return direct;
+  }
+  const fallback = await apiGetEventsAppsScript();
+  console.log("[events] using apps-script fallback, count=", fallback && fallback.length);
+  return fallback;
 }
 
 async function fetchSongbookGenres() {
@@ -19,11 +381,13 @@ async function fetchSongbookGenres() {
 async function fetchSongbookSongs() {
   const genres = await fetchSongbookGenres();
   if (!genres.length) return [];
+
   const ranges = genres.map((g) => `ranges=${encodeURIComponent(`'${g}'!C2:D`)}`).join("&");
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${SONGBOOK_SPREADSHEET_ID}/values:batchGet?${ranges}&key=${SHEETS_API_KEY}`;
   const res = await fetch(url);
   if (!res.ok) return [];
   const data = await res.json();
+
   const songs = [];
   (data.valueRanges || []).forEach((vr, i) => {
     const genre = genres[i];
@@ -36,905 +400,91 @@ async function fetchSongbookSongs() {
   return songs;
 }
 
-async function fetchLocalOverrides() {
-  try {
-    const res = await fetch("https://ddarin-sechule.vercel.app/api/songbook");
-    if (!res.ok) return { overrides: {}, deletions: [] };
-    const data = await res.json();
-    return { overrides: data.overrides || {}, deletions: data.deletions || [] };
-  } catch {
-    return { overrides: {}, deletions: [] };
-  }
+function appendGenreTabLabel(btn, label, count) {
+  const labelEl = document.createElement("span");
+  labelEl.textContent = label;
+  const countEl = document.createElement("span");
+  countEl.className = "genre-tab-count";
+  countEl.textContent = count;
+  btn.append(labelEl, countEl);
 }
 
-// exe 전용 비밀키. 일정표 웹앱의 로그인 계정과는 무관하며, 서버(api/songbook.js)의
-// SONGBOOK_APP_KEY 환경변수와 반드시 같아야 함.
-const SONGBOOK_APP_KEY = "SimyVEO0eWXq1FFlt6mHxLi5HYUPtVO4maW2nplg";
+function renderGenreTabs(genres) {
+  genreTabsMenu.innerHTML = "";
 
-async function saveSongbookLocalData() {
-  try {
-    await fetch("https://ddarin-sechule.vercel.app/api/songbook", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        key: SONGBOOK_APP_KEY,
-        overrides: localSongOverrides,
-        deletions: [...localSongDeletions],
-      }),
-    });
-  } catch {
-    // 네트워크 오류 시에도 로컬 상태는 이미 반영되어 있으므로 화면은 정상 동작
-  }
-}
+  const visibleSongs = (allSongs || []).filter((s) => !s.deletedFromLiveClip);
 
-let allSongs = [];
-let songByKey = {};
-let localSongOverrides = {};
-let localSongDeletions = new Set();
-let songbookGenresList = [];
+  const allBtn = document.createElement("button");
+  allBtn.type = "button";
+  allBtn.className = "genre-tab" + (songbookGenre === "전체" ? " active" : "");
+  allBtn.dataset.genre = "전체";
+  appendGenreTabLabel(allBtn, "전체", visibleSongs.length);
+  genreTabsMenu.appendChild(allBtn);
 
-async function loadSongbook() {
-  const [songs, local] = await Promise.all([fetchSongbookSongs(), fetchLocalOverrides()]);
-  localSongOverrides = local.overrides;
-  localSongDeletions = new Set(local.deletions);
-
-  const merged = [];
-  const seenKeys = new Set();
-  songs.forEach((song) => {
-    const key = albumArtCacheKey(song);
-    if (localSongDeletions.has(key)) return;
-    const finalSong = localSongOverrides[key] ? { ...localSongOverrides[key] } : song;
-    merged.push(finalSong);
-    seenKeys.add(key);
+  genres.forEach((genre) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "genre-tab" + (songbookGenre === genre ? " active" : "");
+    btn.dataset.genre = genre;
+    const count = visibleSongs.filter((s) => s.genre === genre).length;
+    appendGenreTabLabel(btn, genre, count);
+    genreTabsMenu.appendChild(btn);
   });
-  Object.keys(localSongOverrides).forEach((key) => {
-    if (seenKeys.has(key) || localSongDeletions.has(key)) return;
-    merged.push({ ...localSongOverrides[key] });
-  });
-
-  allSongs = merged;
-  songByKey = {};
-  allSongs.forEach((song) => {
-    songByKey[albumArtCacheKey(song)] = song;
-  });
-
-  songbookGenresList = [...new Set(allSongs.map((s) => s.genre))];
-  renderGenreTabs2(songbookGenresList);
 }
 
-// ===== 공용 대기열 (일정표 웹앱과 동일한 /api/songbook?resource=queue 사용) =====
-let singQueueOrder = [];
-let songRequestTimeByKey = {};
-
-async function fetchSingQueue() {
-  try {
-    const res = await fetch("https://ddarin-sechule.vercel.app/api/songbook?resource=queue");
-    if (!res.ok) return;
-    const data = await res.json();
-    singQueueOrder = Array.isArray(data.queue) ? data.queue : [];
-    songRequestTimeByKey = data.times && typeof data.times === "object" ? data.times : {};
-    renderSongRequestList();
-  } catch (err) {
-    console.error("[대기열] 불러오기 실패:", err);
-  }
-}
-
-let queueSaveChain = Promise.resolve();
-
-function saveSingQueue() {
-  const queueSnapshot = [...singQueueOrder];
-  const timesSnapshot = { ...songRequestTimeByKey };
-  queueSaveChain = queueSaveChain.then(() =>
-    fetch("https://ddarin-sechule.vercel.app/api/songbook", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key: SONGBOOK_APP_KEY, resource: "queue", queue: queueSnapshot, times: timesSnapshot }),
-    }).catch((err) => console.error("[대기열] 저장 실패:", err))
+function renderArtistList() {
+  const inGenre = (allSongs || []).filter(
+    (song) => !song.deletedFromLiveClip && (songbookGenre === "전체" || song.genre === songbookGenre)
   );
-}
+  const artists = [...new Set(inGenre.map((s) => s.artist))].sort((a, b) => a.localeCompare(b, "ko"));
 
-function addToSingQueue(keys) {
-  keys.forEach((key) => {
-    if (!singQueueOrder.includes(key)) {
-      singQueueOrder.push(key);
-      songRequestTimeByKey[key] = Date.now();
-    }
+  if (songbookArtist !== "전체" && !artists.includes(songbookArtist)) {
+    songbookArtist = "전체";
+  }
+
+  artistList.innerHTML = "";
+
+  const allBtn = document.createElement("button");
+  allBtn.type = "button";
+  allBtn.className = "artist-list-btn" + (songbookArtist === "전체" ? " active" : "");
+  allBtn.textContent = "All";
+  allBtn.addEventListener("click", () => {
+    songbookArtist = "전체";
+    renderArtistList();
+    renderSongGrid();
   });
-  saveSingQueue();
-  renderSongRequestList();
-}
+  artistList.appendChild(allBtn);
 
-function removeFromSingQueue(key) {
-  const idx = singQueueOrder.indexOf(key);
-  if (idx === -1) return;
-  singQueueOrder.splice(idx, 1);
-  saveSingQueue();
-  renderSongRequestList();
-}
-
-let draggedQueueKey = null;
-
-function clearSingQueue() {
-  singQueueOrder = [];
-  saveSingQueue();
-  renderSongRequestList();
-}
-
-// ===== 사이드바 탭 전환 =====
-const songRequestNavItems = document.querySelectorAll(".song-request-nav-item[data-panel]");
-const songRequestContentPanels = document.querySelectorAll(".song-request-content-panel");
-
-songRequestNavItems.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    songRequestNavItems.forEach((el) => el.classList.toggle("active", el === btn));
-    const target = btn.dataset.panel;
-    songRequestContentPanels.forEach((panel) => panel.classList.toggle("active", panel.dataset.panel === target));
-  });
-});
-
-// ===== 오버레이 > 테마 (다크/화이트 공용) =====
-const OVERLAY_THEMES = {
-  dark: { bg: "#14141c", color: "#ffffff" },
-  light: { bg: "#ffffff", color: "#14141c" },
-};
-
-function setupOverlayThemeToggle(wrapId, onChange) {
-  const wrap = document.getElementById(wrapId);
-  const btns = wrap.querySelectorAll(".song-request-theme-btn");
-  let theme = "dark";
-  btns.forEach((btn) => {
+  artists.forEach((artist) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "artist-list-btn" + (songbookArtist === artist ? " active" : "");
+    btn.textContent = artist;
     btn.addEventListener("click", () => {
-      theme = btn.dataset.theme;
-      btns.forEach((b) => b.classList.toggle("active", b === btn));
-      onChange();
+      songbookArtist = artist;
+      renderArtistList();
+      renderSongGrid();
+    });
+    artistList.appendChild(btn);
+  });
+}
+
+function renderGenreTabs2(genres) {
+  const allGenres = ["전체", ...genres];
+
+  [genre2Tabs, song2GenreFilterMenu].forEach((container) => {
+    container.innerHTML = "";
+    allGenres.forEach((genre) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "genre-tab" + (songbook2Genre === genre ? " active" : "");
+      btn.dataset.genre = genre;
+      btn.textContent = genre;
+      container.appendChild(btn);
     });
   });
-  return { get: () => theme };
 }
 
-const SONG_REQUEST_OVERLAY_FONT_DEFAULT = "system";
-
-const SONG_REQUEST_OVERLAY_FONTS = {
-  system: { family: `"Malgun Gothic", "Segoe UI", sans-serif`, google: null },
-  notosanskr: { family: `"Noto Sans KR", sans-serif`, google: "Noto+Sans+KR:wght@400;700;900" },
-  nanumgothic: { family: `"Nanum Gothic", sans-serif`, google: "Nanum+Gothic:wght@400;700;800" },
-  nanummyeongjo: { family: `"Nanum Myeongjo", serif`, google: "Nanum+Myeongjo:wght@400;700;800" },
-  gothica1: { family: `"Gothic A1", sans-serif`, google: "Gothic+A1:wght@400;700;900" },
-  dohyeon: { family: `"Do Hyeon", sans-serif`, google: "Do+Hyeon" },
-  blackhansans: { family: `"Black Han Sans", sans-serif`, google: "Black+Han+Sans" },
-  jua: { family: `"Jua", sans-serif`, google: "Jua" },
-  gaegu: { family: `"Gaegu", sans-serif`, google: "Gaegu:wght@400;700" },
-  gamjaflower: { family: `"Gamja Flower", sans-serif`, google: "Gamja+Flower" },
-  poorstory: { family: `"Poor Story", sans-serif`, google: "Poor+Story" },
-  sunflower: { family: `"Sunflower", sans-serif`, google: "Sunflower:wght@300;500;700" },
-  singleday: { family: `"Single Day", sans-serif`, google: "Single+Day" },
-};
-
-function loadGoogleFontLink(fontKey, linkId) {
-  const existing = document.getElementById(linkId);
-  const google = SONG_REQUEST_OVERLAY_FONTS[fontKey]?.google;
-  if (!google) {
-    if (existing) existing.remove();
-    return;
-  }
-  const link = existing || document.createElement("link");
-  link.id = linkId;
-  link.rel = "stylesheet";
-  link.href = `https://fonts.googleapis.com/css2?family=${google}&display=swap`;
-  if (!existing) document.head.appendChild(link);
-}
-
-// ===== 오버레이 > 노래 신청 목록 탭 =====
-const SONG_REQUEST_OVERLAY_URL = "https://ddarin-sechule.vercel.app/overlay/request/x0UXQ5j2URXmiitcuwPZ4RZQZQyPXgq";
-const songRequestOverlayUrlInput = document.getElementById("songRequestOverlayUrlInput");
-const songRequestOverlayEyeBtn = document.getElementById("songRequestOverlayEyeBtn");
-const songRequestOverlayCopyBtn = document.getElementById("songRequestOverlayCopyBtn");
-const songRequestOverlayFontSelect = document.getElementById("songRequestOverlayFontSelect");
-const songRequestOverlayPreviewWrap = document.getElementById("songRequestOverlayPreviewWrap");
-const songRequestOverlayDisplayModeWrap = document.getElementById("songRequestOverlayDisplayModeToggle");
-const songRequestOverlayMaxCountInput = document.getElementById("songRequestOverlayMaxCountInput");
-const SONG_REQUEST_OVERLAY_MAX_COUNT_DEFAULT = 3;
-
-const songRequestOverlayTheme = setupOverlayThemeToggle("songRequestOverlayThemeToggle", () => updateOverlayUrlDisplay());
-
-let songRequestOverlayDisplayMode = "static";
-songRequestOverlayDisplayModeWrap.querySelectorAll(".song-request-theme-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    songRequestOverlayDisplayMode = btn.dataset.mode;
-    songRequestOverlayDisplayModeWrap
-      .querySelectorAll(".song-request-theme-btn")
-      .forEach((b) => b.classList.toggle("active", b === btn));
-    updateOverlayUrlDisplay();
-  });
-});
-
-function currentOverlayUrl() {
-  const params = new URLSearchParams();
-  const theme = OVERLAY_THEMES[songRequestOverlayTheme.get()];
-  if (songRequestOverlayTheme.get() !== "dark") {
-    params.set("bg", theme.bg);
-    params.set("color", theme.color);
-  }
-  if (songRequestOverlayFontSelect.value !== SONG_REQUEST_OVERLAY_FONT_DEFAULT) params.set("font", songRequestOverlayFontSelect.value);
-  if (songRequestOverlayDisplayMode === "scroll") params.set("mode", "scroll");
-  const maxCount = Number(songRequestOverlayMaxCountInput.value) || SONG_REQUEST_OVERLAY_MAX_COUNT_DEFAULT;
-  if (maxCount !== SONG_REQUEST_OVERLAY_MAX_COUNT_DEFAULT) params.set("max", maxCount);
-  const qs = params.toString();
-  return qs ? `${SONG_REQUEST_OVERLAY_URL}?${qs}` : SONG_REQUEST_OVERLAY_URL;
-}
-
-const songRequestOverlayPreviewViewport = document.getElementById("songRequestOverlayPreviewViewport");
-const songRequestOverlayPreviewTrack = document.getElementById("songRequestOverlayPreviewTrack");
-const PREVIEW_SCROLL_DWELL_MS = 1200;
-const PREVIEW_SCROLL_SPEED_PX_PER_SEC = 40;
-const PREVIEW_STATIC_PAGE_DWELL_MS = 5000;
-let previewScrollAnim = null;
-let previewStaticPageIndex = 0;
-let previewStaticPageTimer = null;
-
-function updateOverlayUrlDisplay() {
-  songRequestOverlayUrlInput.value = currentOverlayUrl();
-  const fontKey = songRequestOverlayFontSelect.value;
-  loadGoogleFontLink(fontKey, "songRequestOverlayFontLink");
-  const theme = OVERLAY_THEMES[songRequestOverlayTheme.get()];
-  songRequestOverlayPreviewWrap.style.setProperty("--overlay-bg", theme.bg);
-  songRequestOverlayPreviewWrap.style.setProperty("--overlay-color", theme.color);
-  songRequestOverlayPreviewWrap.style.setProperty("--overlay-font", SONG_REQUEST_OVERLAY_FONTS[fontKey].family);
-
-  const maxCount = Number(songRequestOverlayMaxCountInput.value) || SONG_REQUEST_OVERLAY_MAX_COUNT_DEFAULT;
-  const previewRows = songRequestOverlayPreviewTrack.querySelectorAll(".queue-row");
-
-  if (previewScrollAnim) {
-    previewScrollAnim.cancel();
-    previewScrollAnim = null;
-  }
-  songRequestOverlayPreviewTrack.style.removeProperty("transform");
-
-  if (songRequestOverlayDisplayMode !== "scroll") {
-    if (previewStaticPageTimer) {
-      clearInterval(previewStaticPageTimer);
-      previewStaticPageTimer = null;
-    }
-
-    const pageCount = Math.max(Math.ceil(previewRows.length / maxCount), 1);
-    if (previewStaticPageIndex >= pageCount) previewStaticPageIndex = 0;
-    const pageStart = previewStaticPageIndex * maxCount;
-    previewRows.forEach((row, i) => row.classList.toggle("hidden", i < pageStart || i >= pageStart + maxCount));
-    songRequestOverlayPreviewViewport.style.removeProperty("height");
-
-    if (pageCount > 1) {
-      previewStaticPageTimer = setInterval(() => {
-        previewStaticPageIndex += 1;
-        updateOverlayUrlDisplay();
-      }, PREVIEW_STATIC_PAGE_DWELL_MS);
-    } else {
-      previewStaticPageIndex = 0;
-    }
-    return;
-  }
-
-  if (previewStaticPageTimer) {
-    clearInterval(previewStaticPageTimer);
-    previewStaticPageTimer = null;
-    previewStaticPageIndex = 0;
-  }
-
-  previewRows.forEach((row) => row.classList.remove("hidden"));
-  requestAnimationFrame(() => {
-    const rowRect = previewRows[0].getBoundingClientRect();
-    const gap = parseFloat(getComputedStyle(songRequestOverlayPreviewTrack).rowGap) || 0;
-    const viewportHeight = rowRect.height * maxCount + gap * (maxCount - 1);
-    songRequestOverlayPreviewViewport.style.height = `${viewportHeight}px`;
-
-    const scrollDistance = songRequestOverlayPreviewTrack.scrollHeight - viewportHeight;
-    if (scrollDistance <= 0) return;
-
-    const scrollMs = Math.max((scrollDistance / PREVIEW_SCROLL_SPEED_PX_PER_SEC) * 1000, 1000);
-    const totalMs = PREVIEW_SCROLL_DWELL_MS * 2 + scrollMs;
-    const scrollStart = PREVIEW_SCROLL_DWELL_MS / totalMs;
-    const scrollEnd = (PREVIEW_SCROLL_DWELL_MS + scrollMs) / totalMs;
-    previewScrollAnim = songRequestOverlayPreviewTrack.animate(
-      [
-        { transform: "translateY(0)", offset: 0 },
-        { transform: "translateY(0)", offset: scrollStart },
-        { transform: `translateY(-${scrollDistance}px)`, offset: scrollEnd },
-        { transform: `translateY(-${scrollDistance}px)`, offset: 1 },
-      ],
-      { duration: totalMs, iterations: Infinity, easing: "linear" }
-    );
-  });
-}
-
-updateOverlayUrlDisplay();
-songRequestOverlayUrlInput.classList.add("song-request-overlay-url-input-hidden");
-
-songRequestOverlayFontSelect.addEventListener("change", updateOverlayUrlDisplay);
-songRequestOverlayMaxCountInput.addEventListener("input", updateOverlayUrlDisplay);
-songRequestOverlayEyeBtn.addEventListener("click", () => {
-  songRequestOverlayUrlInput.classList.toggle("song-request-overlay-url-input-hidden");
-});
-songRequestOverlayCopyBtn.addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(currentOverlayUrl());
-    songRequestOverlayCopyBtn.textContent = "복사됨";
-    setTimeout(() => {
-      songRequestOverlayCopyBtn.textContent = "복사";
-    }, 1500);
-  } catch {
-    // 클립보드 권한이 없으면 무시 - 입력창에서 직접 선택해 복사할 수 있음
-  }
-});
-
-// ===== 오버레이 > 현재 노래 정보 탭 =====
-const SONG_REQUEST_OVERLAY_NOWPLAYING_URL =
-  "https://ddarin-sechule.vercel.app/overlay/nowplaying/I71BDs9EYsiHN54o4xEllo4u7k6b9ACd";
-const songRequestOverlayNowplayingUrlInput = document.getElementById("songRequestOverlayNowplayingUrlInput");
-const songRequestOverlayNowplayingEyeBtn = document.getElementById("songRequestOverlayNowplayingEyeBtn");
-const songRequestOverlayNowplayingCopyBtn = document.getElementById("songRequestOverlayNowplayingCopyBtn");
-const songRequestOverlayNowplayingFontSelect = document.getElementById("songRequestOverlayNowplayingFontSelect");
-const songRequestOverlayNowplayingFontSizeInput = document.getElementById("songRequestOverlayNowplayingFontSizeInput");
-const songRequestOverlayNowplayingPreviewWrap = document.getElementById("songRequestOverlayNowplayingPreviewWrap");
-const SONG_REQUEST_OVERLAY_NOWPLAYING_FONT_SIZE_DEFAULT = 1.4;
-
-const songRequestOverlayNowplayingTheme = setupOverlayThemeToggle("songRequestOverlayNowplayingThemeToggle", () =>
-  updateNowplayingOverlayUrlDisplay()
-);
-
-const songRequestOverlayNowplayingAlignWrap = document.getElementById("songRequestOverlayNowplayingAlignToggle");
-let songRequestOverlayNowplayingAlign = "left";
-songRequestOverlayNowplayingAlignWrap.querySelectorAll(".song-request-theme-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    songRequestOverlayNowplayingAlign = btn.dataset.align;
-    songRequestOverlayNowplayingAlignWrap
-      .querySelectorAll(".song-request-theme-btn")
-      .forEach((b) => b.classList.toggle("active", b === btn));
-    updateNowplayingOverlayUrlDisplay();
-  });
-});
-
-function currentNowplayingOverlayUrl() {
-  const params = new URLSearchParams();
-  const theme = OVERLAY_THEMES[songRequestOverlayNowplayingTheme.get()];
-  if (songRequestOverlayNowplayingTheme.get() !== "dark") {
-    params.set("bg", theme.bg);
-    params.set("color", theme.color);
-  }
-  if (songRequestOverlayNowplayingFontSelect.value !== SONG_REQUEST_OVERLAY_FONT_DEFAULT) params.set("font", songRequestOverlayNowplayingFontSelect.value);
-  const fontSize = Number(songRequestOverlayNowplayingFontSizeInput.value) || SONG_REQUEST_OVERLAY_NOWPLAYING_FONT_SIZE_DEFAULT;
-  if (fontSize !== SONG_REQUEST_OVERLAY_NOWPLAYING_FONT_SIZE_DEFAULT) params.set("size", fontSize);
-  if (songRequestOverlayNowplayingAlign !== "left") params.set("align", songRequestOverlayNowplayingAlign);
-  const qs = params.toString();
-  return qs ? `${SONG_REQUEST_OVERLAY_NOWPLAYING_URL}?${qs}` : SONG_REQUEST_OVERLAY_NOWPLAYING_URL;
-}
-
-function updateNowplayingOverlayUrlDisplay() {
-  songRequestOverlayNowplayingUrlInput.value = currentNowplayingOverlayUrl();
-  const fontKey = songRequestOverlayNowplayingFontSelect.value;
-  loadGoogleFontLink(fontKey, "songRequestOverlayNowplayingFontLink");
-  const theme = OVERLAY_THEMES[songRequestOverlayNowplayingTheme.get()];
-  const fontSize = Number(songRequestOverlayNowplayingFontSizeInput.value) || SONG_REQUEST_OVERLAY_NOWPLAYING_FONT_SIZE_DEFAULT;
-  songRequestOverlayNowplayingPreviewWrap.style.setProperty("--overlay-bg", theme.bg);
-  songRequestOverlayNowplayingPreviewWrap.style.setProperty("--overlay-color", theme.color);
-  songRequestOverlayNowplayingPreviewWrap.style.setProperty("--overlay-font", SONG_REQUEST_OVERLAY_FONTS[fontKey].family);
-  songRequestOverlayNowplayingPreviewWrap.style.setProperty("--overlay-font-size", `${fontSize}rem`);
-  songRequestOverlayNowplayingPreviewWrap.style.setProperty("--overlay-align", songRequestOverlayNowplayingAlign);
-}
-
-updateNowplayingOverlayUrlDisplay();
-songRequestOverlayNowplayingUrlInput.classList.add("song-request-overlay-url-input-hidden");
-
-songRequestOverlayNowplayingFontSelect.addEventListener("change", updateNowplayingOverlayUrlDisplay);
-songRequestOverlayNowplayingFontSizeInput.addEventListener("input", updateNowplayingOverlayUrlDisplay);
-songRequestOverlayNowplayingEyeBtn.addEventListener("click", () => {
-  songRequestOverlayNowplayingUrlInput.classList.toggle("song-request-overlay-url-input-hidden");
-});
-songRequestOverlayNowplayingCopyBtn.addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(currentNowplayingOverlayUrl());
-    songRequestOverlayNowplayingCopyBtn.textContent = "복사됨";
-    setTimeout(() => {
-      songRequestOverlayNowplayingCopyBtn.textContent = "복사";
-    }, 1500);
-  } catch {
-    // 클립보드 권한이 없으면 무시 - 입력창에서 직접 선택해 복사할 수 있음
-  }
-});
-
-let songRequestSortMode = "order";
-
-document.querySelector(".song-request-sort-tabs").addEventListener("click", (e) => {
-  const btn = e.target.closest(".song-request-sort-tab");
-  if (!btn) return;
-  document.querySelectorAll(".song-request-sort-tab").forEach((el) => el.classList.toggle("active", el === btn));
-  songRequestSortMode = btn.dataset.sort;
-  renderSongRequestList();
-});
-
-document.querySelectorAll(".song-request-fullview-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document.querySelector('.song-request-nav-item[data-panel="queue"]').click();
-  });
-});
-
-// ===== SOOP 채팅에서 "!제목" / "!제목-가수"를 폴링해서 대기열에 자동 추가 =====
-const SONG_REQUEST_POLL_MS = 5000;
-let songRequestPollInterval = null;
-let songRequestSinceTime = null;
-const songRequestListEl = document.getElementById("songRequestList");
-const songRequestListFullEl = document.getElementById("songRequestListFull");
-let songRequestSenderByKey = {};
-let songRequestStarByKey = {};
-
-function formatSongRequestRelativeTime(ts) {
-  if (!ts) return "";
-  const diffSec = Math.floor((Date.now() - ts) / 1000);
-  if (diffSec < 60) return "방금 전";
-  const diffMin = Math.floor(diffSec / 60);
-  if (diffMin < 60) return `${diffMin}분 전`;
-  const diffHour = Math.floor(diffMin / 60);
-  if (diffHour < 24) return `${diffHour}시간 전`;
-  const diffDay = Math.floor(diffHour / 24);
-  return `${diffDay}일 전`;
-}
-
-const songRequestNowPlayingTitleEl = document.getElementById("songRequestNowPlayingTitle");
-const songRequestNowPlayingArtistEl = document.getElementById("songRequestNowPlayingArtist");
-const songRequestTodayBadgeEl = document.getElementById("songRequestTodayBadge");
-const songRequestUndoBtn = document.getElementById("songRequestUndoBtn");
-const songRequestSkipBtn = document.getElementById("songRequestSkipBtn");
-
-const SONG_REQUEST_TODAY_COUNT_KEY = "songRequestTodayCount";
-let songRequestLastRemoved = null;
-
-function todayDateKeySeoul() {
-  return new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
-}
-
-function getSongRequestTodayCount() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(SONG_REQUEST_TODAY_COUNT_KEY) || "null");
-    if (saved && saved.date === todayDateKeySeoul()) return saved.count;
-  } catch {
-    /* 저장된 값이 깨졌으면 0부터 다시 시작 */
-  }
-  return 0;
-}
-
-function setSongRequestTodayCount(count) {
-  localStorage.setItem(SONG_REQUEST_TODAY_COUNT_KEY, JSON.stringify({ date: todayDateKeySeoul(), count }));
-}
-
-function renderSongRequestNowPlaying(queueSongs) {
-  const song = queueSongs[0];
-
-  if (!song) {
-    songRequestNowPlayingTitleEl.textContent = "현재 노래가 없습니다";
-    songRequestNowPlayingArtistEl.textContent = "대기열에서 곡을 선택해 주세요";
-  } else {
-    songRequestNowPlayingTitleEl.textContent = song.title;
-    songRequestNowPlayingArtistEl.textContent = song.artist;
-  }
-
-  const completed = getSongRequestTodayCount();
-  songRequestTodayBadgeEl.textContent = `오늘 ${completed}/${completed + queueSongs.length}곡`;
-
-  songRequestSkipBtn.disabled = !song;
-  songRequestUndoBtn.disabled = !songRequestLastRemoved;
-}
-
-songRequestSkipBtn.addEventListener("click", () => {
-  const key = singQueueOrder[0];
-  if (!key) return;
-  songRequestLastRemoved = {
-    key,
-    wasCompleted: true,
-    sender: songRequestSenderByKey[key] || null,
-    time: songRequestTimeByKey[key] || null,
-  };
-  setSongRequestTodayCount(getSongRequestTodayCount() + 1);
-  removeFromSingQueue(key);
-});
-
-songRequestUndoBtn.addEventListener("click", () => {
-  if (!songRequestLastRemoved) return;
-  const { key, wasCompleted, sender, time } = songRequestLastRemoved;
-  if (!singQueueOrder.includes(key)) {
-    singQueueOrder.unshift(key);
-    if (sender) songRequestSenderByKey[key] = sender;
-    if (time) songRequestTimeByKey[key] = time;
-  }
-  if (wasCompleted) setSongRequestTodayCount(Math.max(0, getSongRequestTodayCount() - 1));
-  songRequestLastRemoved = null;
-  saveSingQueue();
-  renderSongRequestList();
-});
-
-function renderSongRequestListInto(container, displaySongs) {
-  container.innerHTML = "";
-
-  if (!displaySongs.length) {
-    const empty = document.createElement("p");
-    empty.className = "favorites-empty";
-    empty.textContent = "아직 신청된 곡이 없어요";
-    container.appendChild(empty);
-    return;
-  }
-
-  displaySongs.forEach((song) => {
-    const key = albumArtCacheKey(song);
-    const sender = songRequestSenderByKey[key];
-
-    const item = document.createElement("div");
-    item.className = "song-request-item";
-    item.draggable = songRequestSortMode !== "star";
-
-    const textWrap = document.createElement("div");
-    textWrap.className = "song-request-item-text";
-
-    const titleEl = document.createElement("div");
-    titleEl.className = "favorite-item-title";
-    titleEl.textContent = song.title;
-
-    const artistEl = document.createElement("div");
-    artistEl.className = "favorite-item-artist";
-    artistEl.textContent = sender ? `${song.artist} · ${sender}` : song.artist;
-
-    textWrap.append(titleEl, artistEl);
-
-    const timeEl = document.createElement("span");
-    timeEl.className = "song-request-item-time";
-    timeEl.textContent = formatSongRequestRelativeTime(songRequestTimeByKey[key]);
-
-    item.append(textWrap, timeEl);
-
-    item.addEventListener("dragstart", () => {
-      draggedQueueKey = key;
-      item.classList.add("dragging");
-    });
-    item.addEventListener("dragend", () => {
-      draggedQueueKey = null;
-      item.classList.remove("dragging");
-    });
-    item.addEventListener("dragover", (e) => e.preventDefault());
-    item.addEventListener("drop", (e) => {
-      e.preventDefault();
-      if (!draggedQueueKey || draggedQueueKey === key) return;
-      const fromIdx = singQueueOrder.indexOf(draggedQueueKey);
-      const toIdx = singQueueOrder.indexOf(key);
-      if (fromIdx === -1 || toIdx === -1) return;
-      singQueueOrder.splice(fromIdx, 1);
-      singQueueOrder.splice(toIdx, 0, draggedQueueKey);
-      saveSingQueue();
-      renderSongRequestList();
-    });
-
-    container.appendChild(item);
-  });
-}
-
-function renderSongRequestList() {
-  const queueSongs = singQueueOrder.map((key) => songByKey[key]).filter(Boolean);
-  renderSongRequestNowPlaying(queueSongs);
-
-  const displaySongs =
-    songRequestSortMode === "star"
-      ? [...queueSongs].sort(
-          (a, b) =>
-            (songRequestStarByKey[albumArtCacheKey(b)] || 0) - (songRequestStarByKey[albumArtCacheKey(a)] || 0)
-        )
-      : queueSongs;
-
-  renderSongRequestListInto(songRequestListEl, displaySongs);
-  if (songRequestListFullEl) renderSongRequestListInto(songRequestListFullEl, displaySongs);
-}
-
-const songRequestListClearBtn = document.getElementById("songRequestListClearBtn");
-songRequestListClearBtn.addEventListener("click", clearSingQueue);
-
-const songRequestSuccessLogClearBtn = document.getElementById("songRequestSuccessLogClearBtn");
-songRequestSuccessLogClearBtn.addEventListener("click", () => {
-  songRequestSuccessLog = [];
-  renderSongRequestSuccessLog();
-});
-
-const songRequestMinStarInput = document.getElementById("songRequestMinStarInput");
-const songRequestStarApplyBtn = document.getElementById("songRequestStarApplyBtn");
-let songRequestMinStars = Number(songRequestMinStarInput.value) || 0;
-
-songRequestStarApplyBtn.addEventListener("click", () => {
-  songRequestMinStars = Number(songRequestMinStarInput.value) || 0;
-  if (getSongRequestActiveSource() === "star") {
-    setSongRequestChatStatus(`별풍선 ${songRequestMinStars}개 이상 감지 중`, "live");
-  }
-});
-
-function parseSongRequestMessage(text) {
-  const raw = String(text || "").trim();
-  if (!raw.startsWith("!")) return null;
-  const body = raw.slice(1).trim();
-  if (!body) return null;
-  const m = /^(.+?)\s*-\s*(.+)$/.exec(body);
-  if (m) return { title: m[1].trim(), artist: m[2].trim() };
-  return { title: body, artist: null };
-}
-
-function matchSongForRequest(title, artist) {
-  const titleLower = title.toLowerCase();
-  const matches = (allSongs || []).filter((s) => s.title.toLowerCase() === titleLower);
-  if (!matches.length) return { song: null, reason: "notfound" };
-  if (matches.length === 1) return { song: matches[0], reason: null };
-  if (!artist) return { song: null, reason: "ambiguous" };
-  const artistLower = artist.toLowerCase();
-  const song = matches.find((s) => s.artist.toLowerCase() === artistLower) || null;
-  return song ? { song, reason: null } : { song: null, reason: "ambiguous" };
-}
-
-function findSongForRequest(title, artist) {
-  return matchSongForRequest(title, artist).song;
-}
-
-const songRequestChatStatus = document.getElementById("songRequestChatStatus");
-
-function setSongRequestChatStatus(text, tone) {
-  if (!songRequestChatStatus) return;
-  songRequestChatStatus.innerHTML = `<span class="song-request-chat-status-dot"></span>${text}`;
-  songRequestChatStatus.classList.toggle("is-live", tone === "live");
-  songRequestChatStatus.classList.toggle("is-error", tone === "error");
-}
-
-const songRequestChatLogEl = document.getElementById("songRequestChatLog");
-const songRequestChatLogClearBtn = document.getElementById("songRequestChatLogClearBtn");
-songRequestChatLogClearBtn.addEventListener("click", () => {
-  songRequestChatLogEl.innerHTML = "";
-});
-
-function logSongRequestNote(text) {
-  if (!songRequestChatLogEl) return;
-  const line = document.createElement("div");
-  line.className = "song-request-chat-log-line";
-  line.textContent = text;
-  songRequestChatLogEl.appendChild(line);
-  songRequestChatLogEl.scrollTop = songRequestChatLogEl.scrollHeight;
-}
-
-function logSongRequestFailure(item, parsed, reason) {
-  const sender = item.sender ? `${item.sender}: ` : "";
-  const reasonText =
-    reason === "ambiguous" ? "노래제목이 중복입니다. 가수 이름을 적어주세요." : "노래책 목록에 없는 곡입니다.";
-  logSongRequestNote(`${sender}"${parsed.title}" - ${reasonText}`);
-}
-
-const songRequestSuccessLogEl = document.getElementById("songRequestSuccessLog");
-const songRequestSuccessLogFullEl = document.getElementById("songRequestSuccessLogFull");
-let songRequestSuccessLog = [];
-
-function renderSongRequestSuccessLogInto(container) {
-  if (!container) return;
-  container.innerHTML = "";
-  if (!songRequestSuccessLog.length) {
-    const empty = document.createElement("p");
-    empty.className = "song-request-empty-text";
-    empty.textContent = "아직 신청된 곡이 없어요";
-    container.appendChild(empty);
-    return;
-  }
-  songRequestSuccessLog.forEach((entry) => {
-    const row = document.createElement("div");
-    row.className = "song-request-success-row";
-    const senderEl = document.createElement("span");
-    senderEl.className = "song-request-success-sender";
-    senderEl.textContent = entry.sender || "익명";
-    const messageEl = document.createElement("span");
-    messageEl.className = "song-request-success-message";
-    messageEl.textContent = entry.message;
-    row.append(senderEl, messageEl);
-    if (entry.starCount) {
-      const starEl = document.createElement("span");
-      starEl.className = "song-request-star-count-label";
-      starEl.textContent = `별풍선 ${entry.starCount}개`;
-      row.appendChild(starEl);
-    }
-    if (entry.failed) {
-      const failEl = document.createElement("span");
-      failEl.className = "song-request-fail-label";
-      failEl.textContent = "실패";
-      row.appendChild(failEl);
-    }
-    container.appendChild(row);
-  });
-}
-
-function renderSongRequestSuccessLog() {
-  renderSongRequestSuccessLogInto(songRequestSuccessLogEl);
-  renderSongRequestSuccessLogInto(songRequestSuccessLogFullEl);
-}
-
-function logSongRequestSuccess(sender, message, failed, starCount) {
-  songRequestSuccessLog.push({ sender: sender || null, message, failed: !!failed, starCount: starCount || null });
-  renderSongRequestSuccessLog();
-}
-
-let songRequestPendingStarSenders = {};
-
-const UNMATCHED_SONG_GENRE = "미분류";
-
-// 노래책에 없는 곡이 "!제목-가수" 형식으로 신청되면, 노래책에 임시 항목(override)으로
-// 추가해서 대기열/오버레이에서도 보이게 한다. 나중에 "곡 편집/삭제"로 정리 가능.
-function addUnmatchedSongOverride(title, artist) {
-  const newSong = { genre: UNMATCHED_SONG_GENRE, artist, title, note: "", mr: "" };
-  const key = albumArtCacheKey(newSong);
-  if (!songByKey[key]) {
-    allSongs = allSongs || [];
-    allSongs.push(newSong);
-    songByKey[key] = newSong;
-    localSongOverrides[key] = newSong;
-    saveSongbookLocalData();
-    songbookGenresList = [...new Set(allSongs.map((s) => s.genre))];
-    renderGenreTabs2(songbookGenresList);
-  }
-  return songByKey[key];
-}
-
-function tryQueueChatItem(item, starCount) {
-  const parsed = parseSongRequestMessage(item.message);
-  if (!parsed) return false;
-  const { song, reason } = matchSongForRequest(parsed.title, parsed.artist);
-
-  if (!song && reason === "notfound" && parsed.artist) {
-    const added = addUnmatchedSongOverride(parsed.title, parsed.artist);
-    const key = albumArtCacheKey(added);
-    songRequestSenderByKey[key] = item.sender || null;
-    if (starCount) songRequestStarByKey[key] = starCount;
-    addToSingQueue([key]);
-    logSongRequestNote(`${item.sender ? item.sender + ": " : ""}"${parsed.title} - ${parsed.artist}" - 노래책에 없는 곡이지만 대기열에 추가했습니다.`);
-    logSongRequestSuccess(item.sender, item.message, false, starCount);
-    return true;
-  }
-
-  if (!song) {
-    logSongRequestFailure(item, parsed, reason);
-    logSongRequestSuccess(item.sender, item.message, true);
-    return false;
-  }
-  songRequestSenderByKey[albumArtCacheKey(song)] = item.sender || null;
-  if (starCount) songRequestStarByKey[albumArtCacheKey(song)] = starCount;
-  addToSingQueue([albumArtCacheKey(song)]);
-  logSongRequestSuccess(item.sender, item.message, false, starCount);
-  return true;
-}
-
-async function pollSongRequests() {
-  try {
-    const res = await fetch("https://ddarin-sechule.vercel.app/api/soop-chat?type=songRequest,star");
-    if (!res.ok) return;
-    const data = await res.json();
-    const items = (data.items || []).filter((it) => !songRequestSinceTime || it.time > songRequestSinceTime);
-
-    const source = getSongRequestActiveSource();
-    if (source === "chat") {
-      items.forEach((item) => {
-        if (item.type !== "songRequest") return;
-        tryQueueChatItem(item);
-      });
-    } else if (source === "star") {
-      items.forEach((item) => {
-        if (item.type === "star") {
-          const count = Number(item.message) || 0;
-          const sender = item.sender;
-          if (!sender) return;
-          if (count < songRequestMinStars) {
-            logSongRequestNote(`${sender}: 별풍선 ${count}개 - 최소 별풍선 개수(${songRequestMinStars}개) 미달`);
-            return;
-          }
-          songRequestPendingStarSenders[sender] = songRequestPendingStarSenders[sender] || [];
-          songRequestPendingStarSenders[sender].push(count);
-          return;
-        }
-        if (item.type !== "songRequest") return;
-        const sender = item.sender;
-        const pending = songRequestPendingStarSenders[sender];
-        if (!sender || !pending || !pending.length) {
-          if (sender) logSongRequestNote(`${sender}: "${item.message}" - 확인된 별풍선 후원이 없어요.`);
-          return;
-        }
-        if (!tryQueueChatItem(item, pending[0])) return;
-        pending.shift();
-        if (!pending.length) delete songRequestPendingStarSenders[sender];
-      });
-    }
-
-    if (items.length) {
-      songRequestSinceTime = items.reduce((max, it) => (it.time > max ? it.time : max), songRequestSinceTime || "");
-    }
-  } catch (err) {
-    console.error("[신청곡] 폴링 오류:", err);
-  }
-}
-
-function startSongRequestCollection() {
-  songRequestSinceTime = new Date().toISOString();
-  songRequestSenderByKey = {};
-  songRequestStarByKey = {};
-  songRequestPendingStarSenders = {};
-  if (songRequestChatLogEl) songRequestChatLogEl.innerHTML = "";
-  renderSongRequestList();
-  stopSongRequestCollection();
-  const isStar = getSongRequestActiveSource() === "star";
-  setSongRequestChatStatus(isStar ? `별풍선 ${songRequestMinStars}개 이상 감지 중` : "수집 중", "live");
-  songRequestPollInterval = setInterval(pollSongRequests, SONG_REQUEST_POLL_MS);
-}
-
-function stopSongRequestCollection() {
-  if (songRequestPollInterval) {
-    clearInterval(songRequestPollInterval);
-    songRequestPollInterval = null;
-  }
-}
-
-const songRequestAcceptToggle = document.getElementById("songRequestAcceptToggle");
-const songRequestOffNotice = document.getElementById("songRequestOffNotice");
-
-function getSongRequestActiveSource() {
-  if (songRequestAcceptToggle.getAttribute("aria-pressed") !== "true") return null;
-  const activeSourceBtn = document.querySelector(".song-request-source-btn.active");
-  return activeSourceBtn ? activeSourceBtn.dataset.source : null;
-}
-
-const songRequestAcceptGroup = document.getElementById("songRequestAcceptGroup");
-const songRequestAcceptLabel = document.getElementById("songRequestAcceptLabel");
-const songRequestInfoNotice = document.querySelector(".song-request-notice-info");
-
-// 신청 받기 상태에 따라 스위치 라벨과 안내문을 한 번에 맞춘다 (안내는 항상 하나만 보이게)
-function updateSongRequestAcceptUi() {
-  const isOn = songRequestAcceptToggle.getAttribute("aria-pressed") === "true";
-  songRequestAcceptGroup.classList.toggle("is-on", isOn);
-  songRequestAcceptLabel.textContent = isOn ? "신청 받는 중" : "신청 받기 꺼짐";
-  songRequestOffNotice.classList.toggle("song-request-notice-collapsed", isOn);
-  songRequestInfoNotice.classList.toggle("song-request-notice-collapsed", !isOn);
-}
-
-songRequestAcceptToggle.addEventListener("click", () => {
-  const isOn = songRequestAcceptToggle.getAttribute("aria-pressed") === "true";
-  songRequestAcceptToggle.setAttribute("aria-pressed", String(!isOn));
-  updateSongRequestAcceptUi();
-
-  if (getSongRequestActiveSource()) {
-    startSongRequestCollection();
-  } else {
-    stopSongRequestCollection();
-    setSongRequestChatStatus("신청 받기 꺼짐");
-  }
-});
-
-updateSongRequestAcceptUi();
-
-const songRequestSourceNoticeText = document.getElementById("songRequestSourceNoticeText");
-const SONG_REQUEST_SOURCE_NOTICES = {
-  chat: "채팅창에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 대기열에 표시돼요.",
-  star: "최소 별풍선 개수 이상 후원메세지로 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 대기열에 표시돼요.",
-};
-
-const songRequestStarFilterEl = document.querySelector(".song-request-star-filter");
-
-function updateSongRequestStarFilterVisibility() {
-  const activeBtn = document.querySelector(".song-request-source-btn.active");
-  const isStar = activeBtn && activeBtn.dataset.source === "star";
-  songRequestStarFilterEl.classList.toggle("hidden", !isStar);
-}
-updateSongRequestStarFilterVisibility();
-
-document.querySelectorAll(".song-request-source-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".song-request-source-btn").forEach((el) => el.classList.toggle("active", el === btn));
-    songRequestSourceNoticeText.innerHTML = SONG_REQUEST_SOURCE_NOTICES[btn.dataset.source];
-    updateSongRequestStarFilterVisibility();
-
-    if (getSongRequestActiveSource()) startSongRequestCollection();
-  });
-});
-
-
-// ===== 노래책 > 가수 초성 목록 =====
 const CHOSEONG_LIST = ["ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
 const CHOSEONG_GROUP_MAP = {
   "ㄱ": "ㄱ", "ㄲ": "ㄱ",
@@ -967,10 +517,6 @@ function getArtistInitialGroup(artist) {
   if (upper >= "A" && upper <= "Z") return upper;
   return null;
 }
-
-const artist2List = document.getElementById("artist2List");
-let songbook2Genre = "전체";
-let songbook2Artist = "전체";
 
 function renderArtistList2() {
   const inGenre = (allSongs || []).filter(
@@ -1010,64 +556,910 @@ function renderArtistList2() {
   });
 }
 
-// ===== 노래책 > 장르 탭 =====
-const genre2Tabs = document.getElementById("genre2Tabs");
-const song2GenreFilterToggle = document.getElementById("song2GenreFilterToggle");
-const song2GenreFilterMenu = document.getElementById("song2GenreFilterMenu");
+function albumArtCacheKey(song) {
+  return `${song.artist}|${song.title}`.toLowerCase();
+}
 
-function renderGenreTabs2(genres) {
-  const allGenres = ["전체", ...genres];
+const SONGBOOK_LOCAL_API_URL = "/api/songbook";
 
-  [genre2Tabs, song2GenreFilterMenu].forEach((container) => {
-    container.innerHTML = "";
-    allGenres.forEach((genre) => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "genre-tab" + (songbook2Genre === genre ? " active" : "");
-      btn.dataset.genre = genre;
-      btn.textContent = genre;
-      container.appendChild(btn);
+let localSongOverrides = {};
+let localSongDeletions = new Set();
+let songbookLocalDataPromise = null;
+
+function ensureSongbookLocalData() {
+  if (!songbookLocalDataPromise) {
+    songbookLocalDataPromise = fetch(SONGBOOK_LOCAL_API_URL)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        localSongOverrides = (data && data.overrides) || {};
+        localSongDeletions = new Set((data && data.deletions) || []);
+      })
+      .catch(() => {
+        localSongOverrides = {};
+        localSongDeletions = new Set();
+      });
+  }
+  return songbookLocalDataPromise;
+}
+
+let songSeqCounter = 0;
+let songbookSongsPromise = null;
+let songbookGenresList = [];
+
+function ensureSongbookSongs() {
+  if (!songbookSongsPromise) {
+    songbookSongsPromise = Promise.all([fetchSongbookSongs(), ensureSongbookLocalData()]).then(([songs]) => {
+      const merged = [];
+      const seenKeys = new Set();
+
+      songs.forEach((song) => {
+        const key = albumArtCacheKey(song);
+        if (localSongDeletions.has(key)) return;
+        const finalSong = localSongOverrides[key] ? { ...localSongOverrides[key] } : song;
+        finalSong.seq = songSeqCounter++;
+        merged.push(finalSong);
+        seenKeys.add(key);
+      });
+
+      Object.keys(localSongOverrides).forEach((key) => {
+        if (seenKeys.has(key) || localSongDeletions.has(key)) return;
+        const song = { ...localSongOverrides[key] };
+        song.seq = songSeqCounter++;
+        merged.push(song);
+      });
+
+      allSongs = merged;
+      songByKey = {};
+      allSongs.forEach((song) => {
+        songByKey[albumArtCacheKey(song)] = song;
+      });
+      songbookGenresList = [...new Set(allSongs.map((s) => s.genre))];
+      renderGenreTabs(songbookGenresList);
+      renderGenreTabs2(songbookGenresList);
+      return allSongs;
     });
+  }
+  return songbookSongsPromise;
+}
+
+let clipMap = null;
+let thumbMap = null;
+let songMetaPromise = null;
+
+async function fetchSongMeta() {
+  const clips = {};
+  const thumbs = {};
+  const durations = {};
+  try {
+    const range = encodeURIComponent("시트1!A2:E");
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SONGBOOK_CLIPS_SPREADSHEET_ID}/values/${range}?key=${SHEETS_API_KEY}`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      (data.values || []).forEach((row) => {
+        const [artist, title, link, thumbUrl, durationMs] = row;
+        if (!title) return;
+        const key = `${artist || ""}|${title}`.toLowerCase();
+        if (link) {
+          const m = /player\/(\d+)/.exec(link);
+          if (m) clips[key] = m[1];
+        }
+        if (thumbUrl) thumbs[key] = thumbUrl;
+        if (durationMs) durations[key] = parseInt(durationMs, 10) || null;
+      });
+    }
+  } catch {
+    // maps stay as whatever was parsed so far
+  }
+  clipMap = clips;
+  thumbMap = thumbs;
+  clipDurationMap = durations;
+  return { clips, thumbs, durations };
+}
+
+function ensureSongMeta() {
+  if (!songMetaPromise) songMetaPromise = fetchSongMeta();
+  return songMetaPromise;
+}
+
+function preloadImage(url) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = resolve;
+    img.onerror = resolve;
+    img.src = url;
   });
 }
 
-function selectSongbook2Genre(genre) {
-  songbook2Genre = genre;
-  renderGenreTabs2(songbookGenresList);
-  song2GenreFilterMenu.classList.add("hidden");
-  renderArtistList2();
-  renderSongGrid2();
+async function preloadAllAlbumArt() {
+  const urls = Object.values(thumbMap || {}).filter(Boolean);
+  await Promise.all(urls.map(preloadImage));
 }
 
-genre2Tabs.addEventListener("click", (e) => {
-  const btn = e.target.closest(".genre-tab");
-  if (!btn) return;
-  selectSongbook2Genre(btn.dataset.genre);
+let albumArtPreloadPromise = null;
+
+function ensureAlbumArtPreloaded() {
+  if (!albumArtPreloadPromise) {
+    albumArtPreloadPromise = ensureSongMeta().then(preloadAllAlbumArt);
+  }
+  return albumArtPreloadPromise;
+}
+
+async function prefetchSongbookInBackground() {
+  await ensureSongbookSongs();
+  renderSongGrid();
+  renderFavoritesList();
+  renderArtistList();
+  await ensureAlbumArtPreloaded();
+}
+
+function buildClipPageUrl(clipId) {
+  return `https://vod.sooplive.com/player/${clipId}/embed?type=catch&autoPlay=true&showChat=false&mutePlay=false`;
+}
+
+function updateSongPlayerModalFavBtn(key) {
+  const fav = isSongFavorite(key);
+  songPlayerModalFavIcon.classList.toggle("active", fav);
+  songPlayerModalFavLabel.textContent = fav ? "즐겨찾기 해제" : "즐겨찾기 추가";
+}
+
+function resetSongPlayerModalPosition() {
+  songPlayerModal.style.position = "";
+  songPlayerModal.style.left = "";
+  songPlayerModal.style.top = "";
+  songPlayerModal.style.width = "";
+  songPlayerModal.style.margin = "";
+  songPlayerModalBackdrop.classList.remove("minimized");
+}
+
+function openSongPlayerModal(song, clipId) {
+  const key = albumArtCacheKey(song);
+  songPlayerModalFrame.src = buildClipPageUrl(clipId);
+  songPlayerModalTitle.textContent = song.title;
+  songPlayerModalArtist.textContent = song.artist;
+  updateSongPlayerModalFavBtn(key);
+  resetSongPlayerModalPosition();
+  songPlayerModalBackdrop.classList.remove("hidden");
+}
+
+function closeSongPlayerModal() {
+  clearTimeout(autoAdvanceTimer);
+  songPlayerModalBackdrop.classList.add("hidden");
+  songPlayerModalFrame.src = "";
+}
+
+function minimizeSongPlayerModal() {
+  songPlayerModalBackdrop.classList.add("minimized");
+}
+
+let songPlayerInteracting = false;
+
+songPlayerModalClose.addEventListener("click", closeSongPlayerModal);
+
+songPlayerModalBackdrop.addEventListener("click", (e) => {
+  if (songPlayerInteracting) return;
+  if (e.target !== songPlayerModalBackdrop) return;
+  minimizeSongPlayerModal();
 });
 
-song2GenreFilterToggle.addEventListener("click", (e) => {
-  e.stopPropagation();
-  song2GenreFilterMenu.classList.toggle("hidden");
-});
-song2GenreFilterMenu.addEventListener("click", (e) => {
-  const btn = e.target.closest(".genre-tab");
-  if (!btn) return;
-  selectSongbook2Genre(btn.dataset.genre);
-});
-document.addEventListener("click", (e) => {
-  if (!song2GenreFilterMenu.classList.contains("hidden") && !song2GenreFilterMenu.contains(e.target) && !song2GenreFilterToggle.contains(e.target)) {
-    song2GenreFilterMenu.classList.add("hidden");
+songPlayerModal.addEventListener("click", () => {
+  if (songPlayerInteracting) return;
+  if (songPlayerModalBackdrop.classList.contains("minimized")) {
+    songPlayerModalBackdrop.classList.remove("minimized");
   }
 });
 
-// ===== 노래책 > 표 =====
-const song2SearchInput = document.getElementById("song2SearchInput");
-const song2Table = document.getElementById("song2Table");
-const song2Grid = document.getElementById("song2Grid");
-const songbookTotalCountEl = document.getElementById("songbookTotalCount");
-let songSortMode2 = "artist";
-let songSortDir2 = "asc";
-let selectedSongKeys = new Set();
+songPlayerModalFavBtn.addEventListener("click", () => {
+  if (!currentSongKey) return;
+  toggleSongFavorite(currentSongKey);
+  updateSongPlayerModalFavBtn(currentSongKey);
+  renderFavoritesList();
+});
+
+(function makeSongPlayerDraggable() {
+  const handle = document.querySelector(".song-player-drag-handle");
+  let dragging = false;
+  let startX = 0;
+  let startY = 0;
+  let startLeft = 0;
+  let startTop = 0;
+
+  handle.addEventListener("mousedown", (e) => {
+    dragging = true;
+    songPlayerInteracting = true;
+    const rect = songPlayerModal.getBoundingClientRect();
+    songPlayerModal.style.position = "fixed";
+    songPlayerModal.style.margin = "0";
+    songPlayerModal.style.left = `${rect.left}px`;
+    songPlayerModal.style.top = `${rect.top}px`;
+    startX = e.clientX;
+    startY = e.clientY;
+    startLeft = rect.left;
+    startTop = rect.top;
+    e.preventDefault();
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    const rect = songPlayerModal.getBoundingClientRect();
+    let left = Math.min(Math.max(startLeft + dx, 0), window.innerWidth - rect.width);
+    let top = Math.min(Math.max(startTop + dy, 0), window.innerHeight - rect.height);
+    songPlayerModal.style.left = `${left}px`;
+    songPlayerModal.style.top = `${top}px`;
+  });
+
+  window.addEventListener("mouseup", () => {
+    if (!dragging) return;
+    dragging = false;
+    setTimeout(() => { songPlayerInteracting = false; }, 0);
+  });
+})();
+
+(function makeSongPlayerResizable() {
+  const handles = document.querySelectorAll(".song-player-resize-handle");
+  let resizing = false;
+  let corner = null;
+  let startX = 0;
+  let startWidth = 0;
+  let startLeft = 0;
+
+  handles.forEach((handleEl) => {
+    handleEl.addEventListener("mousedown", (e) => {
+      resizing = true;
+      songPlayerInteracting = true;
+      corner = handleEl.dataset.corner;
+      const rect = songPlayerModal.getBoundingClientRect();
+      songPlayerModal.style.position = "fixed";
+      songPlayerModal.style.margin = "0";
+      songPlayerModal.style.left = `${rect.left}px`;
+      songPlayerModal.style.top = `${rect.top}px`;
+      startX = e.clientX;
+      startWidth = rect.width;
+      startLeft = rect.left;
+      e.preventDefault();
+      e.stopPropagation();
+    });
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (!resizing) return;
+    const dx = e.clientX - startX;
+    let newWidth;
+    let newLeft = startLeft;
+
+    if (corner === "ne" || corner === "se") {
+      newWidth = startWidth + dx;
+    } else {
+      newWidth = startWidth - dx;
+    }
+    newWidth = Math.min(Math.max(newWidth, 320), window.innerWidth - 20);
+    if (corner === "nw" || corner === "sw") {
+      newLeft = startLeft + (startWidth - newWidth);
+    }
+    songPlayerModal.style.width = `${newWidth}px`;
+    songPlayerModal.style.left = `${newLeft}px`;
+  });
+
+  window.addEventListener("mouseup", () => {
+    if (!resizing) return;
+    resizing = false;
+    corner = null;
+    setTimeout(() => { songPlayerInteracting = false; }, 0);
+  });
+})();
+
+let currentClipId = null;
+let currentSongKey = null;
+let currentSong = null;
+
+async function playSong(song) {
+  if (!clipMap) await ensureSongMeta();
+  const key = albumArtCacheKey(song);
+  const clipId = clipMap[key];
+
+  clearTimeout(autoAdvanceTimer);
+
+  if (isSongFavorite(key)) {
+    favoritesQueue = songFavoritesOrder.map((k) => songByKey[k]).filter((s) => s && clipMap[albumArtCacheKey(s)]);
+    favoritesQueueIndex = favoritesQueue.findIndex((s) => albumArtCacheKey(s) === key);
+    favoritesQueueActive = favoritesQueueIndex !== -1;
+  } else {
+    favoritesQueueActive = false;
+  }
+
+  currentClipId = clipId || null;
+  currentSongKey = key;
+  currentSong = song;
+
+  if (!clipId) {
+    playerNoClip.classList.remove("hidden");
+    playerNoClipSong.textContent = `${song.title} - ${song.artist}`;
+    closeSongPlayerModal();
+    return;
+  }
+
+  playerNoClip.classList.add("hidden");
+
+  openSongPlayerModal(song, clipId);
+  scheduleAutoAdvance();
+}
+
+let songSortMode = "title"; // "artist" | "title"
+
+const SONG_FAVORITES_KEY = "songbook-favorites";
+let songFavoritesOrder = [];
+try {
+  songFavoritesOrder = JSON.parse(localStorage.getItem(SONG_FAVORITES_KEY)) || [];
+} catch {
+  songFavoritesOrder = [];
+}
+
+function isSongFavorite(key) {
+  return songFavoritesOrder.includes(key);
+}
+
+function toggleSongFavorite(key) {
+  const idx = songFavoritesOrder.indexOf(key);
+  if (idx >= 0) songFavoritesOrder.splice(idx, 1);
+  else songFavoritesOrder.push(key);
+  localStorage.setItem(SONG_FAVORITES_KEY, JSON.stringify(songFavoritesOrder));
+}
+
+let draggedFavKey = null;
+
+function renderFavoritesList() {
+  favoritesListEl.innerHTML = "";
+
+  const favSongs = songFavoritesOrder.map((key) => songByKey[key]).filter(Boolean);
+
+  if (!favSongs.length) {
+    const empty = document.createElement("p");
+    empty.className = "favorites-empty";
+    empty.textContent = "즐겨찾기한 곡이 없습니다.";
+    favoritesListEl.appendChild(empty);
+    return;
+  }
+
+  favSongs.forEach((song) => {
+    const key = albumArtCacheKey(song);
+
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "favorite-item";
+    item.draggable = true;
+
+    const titleEl = document.createElement("div");
+    titleEl.className = "favorite-item-title";
+    titleEl.textContent = song.title;
+
+    const artistEl = document.createElement("div");
+    artistEl.className = "favorite-item-artist";
+    artistEl.textContent = song.artist;
+
+    item.append(titleEl, artistEl);
+    item.addEventListener("click", () => playSong(song));
+
+    item.addEventListener("dragstart", () => {
+      draggedFavKey = key;
+      item.classList.add("dragging");
+    });
+    item.addEventListener("dragend", () => {
+      draggedFavKey = null;
+      item.classList.remove("dragging");
+    });
+    item.addEventListener("dragover", (e) => e.preventDefault());
+    item.addEventListener("drop", (e) => {
+      e.preventDefault();
+      if (!draggedFavKey || draggedFavKey === key) return;
+      const fromIdx = songFavoritesOrder.indexOf(draggedFavKey);
+      const toIdx = songFavoritesOrder.indexOf(key);
+      if (fromIdx === -1 || toIdx === -1) return;
+      songFavoritesOrder.splice(fromIdx, 1);
+      songFavoritesOrder.splice(toIdx, 0, draggedFavKey);
+      localStorage.setItem(SONG_FAVORITES_KEY, JSON.stringify(songFavoritesOrder));
+      renderFavoritesList();
+    });
+
+    favoritesListEl.appendChild(item);
+  });
+}
+
+function renderFavorites2List() {
+  favorites2ListEl.innerHTML = "";
+
+  const favSongs = songFavoritesOrder.map((key) => songByKey[key]).filter(Boolean);
+
+  if (!favSongs.length) {
+    const empty = document.createElement("p");
+    empty.className = "favorites-empty";
+    empty.textContent = "즐겨찾기한 곡이 없습니다.";
+    favorites2ListEl.appendChild(empty);
+    return;
+  }
+
+  favSongs.forEach((song) => {
+    const key = albumArtCacheKey(song);
+
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "favorite-item";
+    item.draggable = true;
+
+    const titleEl = document.createElement("div");
+    titleEl.className = "favorite-item-title";
+    titleEl.textContent = song.title;
+
+    const artistEl = document.createElement("div");
+    artistEl.className = "favorite-item-artist";
+    artistEl.textContent = song.artist;
+
+    item.append(titleEl, artistEl);
+
+    item.addEventListener("dragstart", () => {
+      draggedFavKey = key;
+      item.classList.add("dragging");
+    });
+    item.addEventListener("dragend", () => {
+      draggedFavKey = null;
+      item.classList.remove("dragging");
+    });
+    item.addEventListener("dragover", (e) => e.preventDefault());
+    item.addEventListener("drop", (e) => {
+      e.preventDefault();
+      if (!draggedFavKey || draggedFavKey === key) return;
+      const fromIdx = songFavoritesOrder.indexOf(draggedFavKey);
+      const toIdx = songFavoritesOrder.indexOf(key);
+      if (fromIdx === -1 || toIdx === -1) return;
+      songFavoritesOrder.splice(fromIdx, 1);
+      songFavoritesOrder.splice(toIdx, 0, draggedFavKey);
+      localStorage.setItem(SONG_FAVORITES_KEY, JSON.stringify(songFavoritesOrder));
+      renderFavorites2List();
+    });
+
+    favorites2ListEl.appendChild(item);
+  });
+}
+
+let clipDurationMap = {};
+let favoritesQueue = [];
+let favoritesQueueIndex = -1;
+let favoritesQueueActive = false;
+let autoAdvanceTimer = null;
+
+function scheduleAutoAdvance() {
+  clearTimeout(autoAdvanceTimer);
+  console.log("[autoAdvance] scheduleAutoAdvance called. favoritesQueueActive=", favoritesQueueActive, "currentSongKey=", currentSongKey);
+  const duration = clipDurationMap[currentSongKey];
+  console.log("[autoAdvance] duration for key:", duration, "clipDurationMap has", Object.keys(clipDurationMap || {}).length, "entries");
+  if (!duration) return;
+  const EARLY_STOP_MS = 1; // SOOP 추천영상이 뜨기 전에 미리 끊기 위한 여유분
+  const LOAD_DELAY_COMPENSATION_MS = 2000; // 영상 로딩 시간만큼 타이머를 늦게 발동
+  const fireAt = Math.max(10, duration - EARLY_STOP_MS + LOAD_DELAY_COMPENSATION_MS);
+  console.log("[autoAdvance] timer set to fire in", fireAt, "ms");
+  autoAdvanceTimer = setTimeout(() => {
+    if (favoritesQueueActive) {
+      console.log("[autoAdvance] timer fired, advancing queue");
+      advanceFavoritesQueue();
+    } else {
+      console.log("[autoAdvance] timer fired, stopping clip early");
+      songPlayerModalFrame.src = "";
+    }
+  }, fireAt);
+}
+
+function advanceFavoritesQueue() {
+  if (!favoritesQueueActive) return;
+  const nextIndex = favoritesQueueIndex + 1;
+  if (nextIndex >= favoritesQueue.length) {
+    favoritesQueueActive = false;
+    return;
+  }
+  playSong(favoritesQueue[nextIndex]);
+}
+
+function buildSongCard(song, options) {
+  const playable = !options || options.playable !== false;
+  const onFavToggle = (options && options.onFavToggle) || renderFavoritesList;
+  const checkbox = options && options.checkbox;
+
+  const card = document.createElement("div");
+  card.className = "song-card";
+
+  const key = albumArtCacheKey(song);
+
+  let checkboxEl = null;
+  if (checkbox) {
+    checkboxEl = document.createElement("input");
+    checkboxEl.type = "checkbox";
+    checkboxEl.className = "song-card-checkbox";
+    checkboxEl.checked = checkbox.checked;
+    checkboxEl.addEventListener("click", (e) => e.stopPropagation());
+    checkboxEl.addEventListener("change", () => checkbox.onChange(key, checkboxEl.checked));
+  }
+
+  const artEl = document.createElement("img");
+  artEl.className = "song-card-art";
+  artEl.alt = "";
+
+  const favBtn = document.createElement("button");
+  favBtn.type = "button";
+  favBtn.className = "song-card-fav-btn" + (isSongFavorite(key) ? " active" : "");
+  favBtn.textContent = isSongFavorite(key) ? "★" : "☆";
+  favBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleSongFavorite(key);
+    favBtn.classList.toggle("active");
+    favBtn.textContent = isSongFavorite(key) ? "★" : "☆";
+    onFavToggle();
+  });
+
+  const titleEl = document.createElement("div");
+  titleEl.className = "song-card-title";
+  titleEl.textContent = song.title;
+
+  const artistEl = document.createElement("div");
+  artistEl.className = "song-card-artist";
+  artistEl.textContent = song.artist;
+
+  const genreEl = document.createElement("span");
+  genreEl.className = "song-card-genre";
+  genreEl.textContent = song.genre;
+
+  card.appendChild(artEl);
+  if (checkboxEl) {
+    const titleRow = document.createElement("div");
+    titleRow.className = "song-card-title-row";
+    titleRow.append(checkboxEl, titleEl);
+    card.append(titleRow, favBtn, artistEl, genreEl);
+  } else {
+    card.append(favBtn, titleEl, artistEl, genreEl);
+  }
+  if (playable) {
+    card.addEventListener("click", () => playSong(song));
+  } else {
+    card.classList.add("song-card-static");
+  }
+
+  artEl.src = (thumbMap && thumbMap[key]) || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E";
+
+  return card;
+}
+
+function renderSongGrid() {
+  const query = songSearchInput.value.trim().toLowerCase();
+
+  const filtered = (allSongs || []).filter((song) => {
+    if (song.deletedFromLiveClip) return false;
+    if (!(thumbMap && thumbMap[albumArtCacheKey(song)])) return false;
+    if (songbookGenre !== "전체" && song.genre !== songbookGenre) return false;
+    if (songbookArtist !== "전체" && song.artist !== songbookArtist) return false;
+    if (query && !song.title.toLowerCase().includes(query) && !song.artist.toLowerCase().includes(query)) return false;
+    return true;
+  });
+
+  filtered.sort((a, b) => {
+    const field = songSortMode === "title" ? "title" : "artist";
+    return a[field].localeCompare(b[field], "ko");
+  });
+
+  document.getElementById("playerStats").textContent = `트랙 ${filtered.length}개`;
+
+  songGrid.innerHTML = "";
+
+  if (!filtered.length) {
+    const empty = document.createElement("div");
+    empty.className = "song-empty";
+    empty.textContent = "곡이 없습니다.";
+    songGrid.appendChild(empty);
+    return;
+  }
+
+  if (songSortMode !== "artist") {
+    filtered.forEach((song) => songGrid.appendChild(buildSongCard(song)));
+    return;
+  }
+
+  const groups = [];
+  filtered.forEach((song) => {
+    const lastGroup = groups[groups.length - 1];
+    if (lastGroup && lastGroup.artist === song.artist) {
+      lastGroup.songs.push(song);
+    } else {
+      groups.push({ artist: song.artist, songs: [song] });
+    }
+  });
+
+  groups.forEach((group) => {
+    const header = document.createElement("div");
+    header.className = "song-group-header";
+
+    const nameEl = document.createElement("span");
+    nameEl.className = "song-group-name";
+    nameEl.textContent = group.artist;
+
+    const countEl = document.createElement("span");
+    countEl.className = "song-group-count";
+    countEl.textContent = `${group.songs.length}곡`;
+
+    header.append(nameEl, countEl);
+    songGrid.appendChild(header);
+
+    group.songs.forEach((song) => songGrid.appendChild(buildSongCard(song)));
+  });
+}
+
+let songSource = "clip"; // "clip" | "youtube" | "playlist"
+let youtubeSourceFilter = "전체";
+const youtubeGroupCache = {};
+
+const SORT_OPTIONS = {
+  clip: [
+    { value: "artist", label: "가수이름순" },
+    { value: "title", label: "가나다순" },
+  ],
+  youtube: [
+    { value: "전체", label: "전체" },
+    { value: "단체 커버곡", label: "단체 커버곡" },
+    { value: "노래 영상", label: "노래 영상" },
+  ],
+  playlist: [
+    { value: "전체", label: "전체" },
+    { value: "출근용", label: "출근용" },
+    { value: "퇴근용", label: "퇴근용" },
+    { value: "따린픽", label: "따린픽" },
+  ],
+};
+
+function renderSortMenu() {
+  const options = SORT_OPTIONS[songSource] || SORT_OPTIONS.clip;
+  sortTabsMenu.innerHTML = "";
+  options.forEach((opt, i) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "genre-tab" + (i === 0 ? " active" : "");
+    btn.dataset.sortValue = opt.value;
+    btn.textContent = opt.label;
+    sortTabsMenu.appendChild(btn);
+  });
+}
+
+async function loadYoutubeGroup(group) {
+  if (youtubeGroupCache[group]) return youtubeGroupCache[group];
+  try {
+    const res = await fetch(`/api/youtube-playlist?group=${group}`);
+    const data = await res.json();
+    youtubeGroupCache[group] = data.items || [];
+  } catch {
+    youtubeGroupCache[group] = [];
+  }
+  return youtubeGroupCache[group];
+}
+
+function renderYoutubePlaylistGrid(songs) {
+  const filtered = youtubeSourceFilter === "전체" ? songs : songs.filter((s) => s.source === youtubeSourceFilter);
+
+  document.getElementById("playerStats").textContent = `트랙 ${filtered.length}개`;
+  songGrid.innerHTML = "";
+
+  if (!filtered.length) {
+    const empty = document.createElement("div");
+    empty.className = "song-empty";
+    empty.textContent = "불러올 곡이 없습니다.";
+    songGrid.appendChild(empty);
+    return;
+  }
+
+  filtered.forEach((song) => {
+    const card = document.createElement("a");
+    card.className = "song-card";
+    card.href = song.url;
+    card.target = "_blank";
+    card.rel = "noopener";
+
+    const art = document.createElement("img");
+    art.className = "song-card-art";
+    art.alt = "";
+    art.src = song.thumbnail;
+
+    const titleEl = document.createElement("div");
+    titleEl.className = "song-card-title";
+    titleEl.textContent = song.title;
+
+    const artistEl = document.createElement("div");
+    artistEl.className = "song-card-artist";
+    artistEl.textContent = song.artist;
+
+    card.append(art, titleEl, artistEl);
+    songGrid.appendChild(card);
+  });
+}
+
+function switchSongSource(newSource) {
+  document.querySelectorAll(".clip-source-slide").forEach((el) => el.classList.toggle("active", el.dataset.source === newSource));
+  songSource = newSource;
+  youtubeSourceFilter = "전체";
+  genreTabsMenu.classList.add("hidden");
+  sortTabsMenu.classList.add("hidden");
+  renderSortMenu();
+
+  if (songSource === "clip") {
+    renderSongGrid();
+  } else {
+    document.getElementById("playerStats").textContent = "";
+    songGrid.innerHTML = `<div class="song-empty">불러오는 중...</div>`;
+    loadYoutubeGroup(songSource).then(renderYoutubePlaylistGrid);
+  }
+}
+
+let clipSourceIndex = 0;
+let clipSourceDragMoved = false;
+
+function updateClipSourceTrackPosition() {
+  const w = clipSourceCarousel.clientWidth;
+  clipSourceTrack.style.transform = `translateX(${-clipSourceIndex * w}px)`;
+}
+
+function setClipSourceIndex(index) {
+  clipSourceIndex = index;
+  updateClipSourceTrackPosition();
+  clipSourceDots.querySelectorAll(".back-menu-dot").forEach((dot, i) => dot.classList.toggle("active", i === index));
+  const source = CLIP_SOURCE_ORDER[index];
+  if (source !== songSource) switchSongSource(source);
+}
+
+function pickRandomSong() {
+  if (!allSongs || !allSongs.length) return null;
+  return allSongs[Math.floor(Math.random() * allSongs.length)];
+}
+
+async function renderClipSourcePreviews() {
+  for (const source of CLIP_SOURCE_ORDER) {
+    let song;
+    if (source === "clip") {
+      song = pickRandomSong();
+    } else {
+      const songs = await loadYoutubeGroup(source);
+      song = songs && songs.length ? songs[Math.floor(Math.random() * songs.length)] : null;
+    }
+    if (!song) continue;
+
+    const titleEl = document.getElementById(`clipSourceTitle-${source}`);
+    const artistEl = document.getElementById(`clipSourceArtist-${source}`);
+    const artEl = document.getElementById(`clipSourceArt-${source}`);
+    if (titleEl) titleEl.textContent = song.title;
+    if (artistEl) artistEl.textContent = song.artist;
+    if (artEl) {
+      if (source === "clip") {
+        const key = albumArtCacheKey(song);
+        artEl.src = (thumbMap && thumbMap[key]) || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E";
+      } else {
+        artEl.src = song.thumbnail || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E";
+      }
+    }
+  }
+}
+
+clipSourceTrack.querySelectorAll(".clip-source-slide").forEach((slide, index) => {
+  slide.addEventListener("click", () => {
+    if (clipSourceDragMoved) return;
+    if (index === clipSourceIndex) {
+      if (index === 0) genreTabsMenu.classList.toggle("hidden");
+      return;
+    }
+    setClipSourceIndex(index);
+  });
+});
+
+const clipSourceSongListOverlay = document.getElementById("clipSourceSongListOverlay");
+
+function setSongListOpen(open) {
+  clipSourceSongListOverlay.classList.toggle("hidden", !open);
+  sortTabs.classList.toggle("hidden", !open);
+}
+
+document.querySelectorAll(".clip-source-chat-icon").forEach((icon) => {
+  icon.addEventListener("pointerdown", (e) => e.stopPropagation());
+  icon.addEventListener("click", (e) => {
+    e.stopPropagation();
+    setSongListOpen(clipSourceSongListOverlay.classList.contains("hidden"));
+  });
+});
+
+document.addEventListener("click", (e) => {
+  if (clipSourceSongListOverlay.classList.contains("hidden")) return;
+  if (clipSourceSongListOverlay.contains(e.target)) return;
+  if (sortTabs.contains(e.target)) return;
+  setSongListOpen(false);
+});
+
+clipSourceSongListOverlay.addEventListener("dragstart", (e) => e.preventDefault());
+
+(function makeClipSourceSongListSwipeable() {
+  let dragging = false;
+  let horizontal = false;
+  let startX = 0;
+  let startY = 0;
+
+  clipSourceSongListOverlay.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    horizontal = false;
+    startX = e.clientX;
+    startY = e.clientY;
+  });
+
+  clipSourceSongListOverlay.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    if (!horizontal && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) {
+      horizontal = true;
+      clipSourceSongListOverlay.setPointerCapture(e.pointerId);
+    }
+    if (horizontal) e.preventDefault();
+  });
+
+  function endDrag(e) {
+    if (!dragging) return;
+    dragging = false;
+    if (horizontal) {
+      const dx = e.clientX - startX;
+      if (dx < -50 && clipSourceIndex < CLIP_SOURCE_ORDER.length - 1) {
+        setClipSourceIndex(clipSourceIndex + 1);
+      } else if (dx > 50 && clipSourceIndex > 0) {
+        setClipSourceIndex(clipSourceIndex - 1);
+      }
+    }
+    horizontal = false;
+  }
+
+  clipSourceSongListOverlay.addEventListener("pointerup", endDrag);
+  clipSourceSongListOverlay.addEventListener("pointercancel", endDrag);
+})();
+
+(function makeClipSourceDraggable() {
+  let dragging = false;
+  let startX = 0;
+
+  clipSourceTrack.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    clipSourceDragMoved = false;
+    startX = e.clientX;
+    clipSourceTrack.setPointerCapture(e.pointerId);
+  });
+
+  clipSourceTrack.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 5) clipSourceDragMoved = true;
+  });
+
+  function endDrag(e) {
+    if (!dragging) return;
+    dragging = false;
+    const dx = e.clientX - startX;
+
+    if (clipSourceDragMoved && Math.abs(dx) > 50) {
+      if (dx < 0 && clipSourceIndex < CLIP_SOURCE_ORDER.length - 1) {
+        setClipSourceIndex(clipSourceIndex + 1);
+        return;
+      }
+      if (dx > 0 && clipSourceIndex > 0) {
+        setClipSourceIndex(clipSourceIndex - 1);
+        return;
+      }
+    }
+    updateClipSourceTrackPosition();
+  }
+
+  clipSourceTrack.addEventListener("pointerup", endDrag);
+  clipSourceTrack.addEventListener("pointerleave", (e) => {
+    if (dragging) endDrag(e);
+  });
+})();
+
+renderSortMenu();
 
 function getFilteredSongs2() {
   const query = song2SearchInput.value.trim().toLowerCase();
@@ -1088,22 +1480,23 @@ function getFilteredSongs2() {
   return filtered;
 }
 
-function toggleSongSelection(key, checked) {
-  if (checked) selectedSongKeys.add(key);
-  else selectedSongKeys.delete(key);
-}
-
 function buildSongRow2(song, num) {
   const key = albumArtCacheKey(song);
   const tr = document.createElement("tr");
 
-  const checkTd = document.createElement("td");
-  checkTd.className = "song2-col-check";
-  const checkboxEl = document.createElement("input");
-  checkboxEl.type = "checkbox";
-  checkboxEl.checked = selectedSongKeys.has(key);
-  checkboxEl.addEventListener("change", () => toggleSongSelection(key, checkboxEl.checked));
-  checkTd.appendChild(checkboxEl);
+  const favTd = document.createElement("td");
+  favTd.className = "song2-col-fav";
+  const favBtn = document.createElement("button");
+  favBtn.type = "button";
+  favBtn.className = "song2-fav-btn" + (isSongFavorite(key) ? " active" : "");
+  favBtn.textContent = isSongFavorite(key) ? "★" : "☆";
+  favBtn.addEventListener("click", () => {
+    toggleSongFavorite(key);
+    favBtn.classList.toggle("active");
+    favBtn.textContent = isSongFavorite(key) ? "★" : "☆";
+    renderFavorites2List();
+  });
+  favTd.appendChild(favBtn);
 
   const numTd = document.createElement("td");
   numTd.className = "song2-col-num";
@@ -1124,7 +1517,7 @@ function buildSongRow2(song, num) {
   genreBadge.textContent = song.genre;
   genreTd.appendChild(genreBadge);
 
-  tr.append(checkTd, numTd, titleTd, artistTd, genreTd);
+  tr.append(favTd, numTd, titleTd, artistTd, genreTd);
   return tr;
 }
 
@@ -1155,7 +1548,1801 @@ function renderSongGrid2() {
   filtered.forEach((song, i) => song2Grid.appendChild(buildSongRow2(song, i + 1)));
 }
 
+let currentMainView = "calendar";
+
+function applyHomeMatchedHeight(el) {
+  if (window.innerWidth <= 900) {
+    el.style.height = "";
+    return;
+  }
+  // songbookView/cafePhotosView share the same "width:100%; max-width:640px" sizing
+  // inside .page, so always derive the height from .page's width (always rendered,
+  // unlike the cards themselves which are hidden when not active) instead of each
+  // card's own measured width — that way playlist always matches photo, even before
+  // photo has ever been opened.
+  const pageWidth = document.querySelector(".page").getBoundingClientRect().width;
+  const width = Math.min(pageWidth, 640);
+  if (!width) return;
+  const mediaHeight = ((width - 6) * 4) / 3;
+  el.style.height = `${mediaHeight + 55 + 6}px`;
+}
+
+new ResizeObserver((entries) => {
+  entries.forEach((entry) => applyHomeMatchedHeight(entry.target));
+}).observe(songbookView);
+new ResizeObserver((entries) => {
+  entries.forEach((entry) => applyHomeMatchedHeight(entry.target));
+}).observe(cafePhotosView);
+
+function showMainView(view) {
+  if (view === "backmenu") hideBackMenuCalendar();
+  appViewEl.classList.toggle("hidden", view !== "calendar");
+  songbookView.classList.toggle("hidden", view !== "songbook");
+  songbook2View.classList.toggle("hidden", view !== "songbook2");
+  songbookGwView.classList.toggle("hidden", view !== "songbookgw");
+  gameView.classList.toggle("hidden", view !== "game");
+  backMenuView.classList.toggle("hidden", view !== "backmenu");
+  cafePhotosView.classList.toggle("hidden", view !== "cafephotos");
+  soopChatView.classList.toggle("hidden", view !== "soopchat");
+  soopChatDayView.classList.toggle("hidden", view !== "soopchatday");
+  youtubeView.classList.toggle("hidden", view !== "youtube");
+  document.body.classList.toggle("youtube-view-open", view === "youtube");
+
+  if (view === "songbook") applyHomeMatchedHeight(songbookView);
+  if (view === "cafephotos") applyHomeMatchedHeight(cafePhotosView);
+  if (view === "soopchat") loadSoopChatView();
+  if (view === "soopchatday") renderSoopChatDayView();
+  sideNavEl.classList.toggle(
+    "hidden",
+    view === "backmenu" ||
+      view === "cafephotos" ||
+      view === "songbook" ||
+      view === "songbook2" ||
+      view === "songbookgw" ||
+      view === "soopchat" ||
+      view === "soopchatday" ||
+      view === "youtube"
+  );
+  backToCalendarBtn.classList.toggle(
+    "hidden",
+    view === "backmenu" ||
+      view === "cafephotos" ||
+      view === "songbook" ||
+      view === "calendar" ||
+      view === "soopchat" ||
+      view === "soopchatday" ||
+      view === "youtube"
+  );
+
+  if (currentMainView === "backmenu" && view !== "backmenu") {
+    const openedViewEl = { songbook: songbookView, songbook2: songbook2View, songbookgw: songbookGwView, cafephotos: cafePhotosView }[view];
+    if (openedViewEl) {
+      openedViewEl.classList.remove("view-opening");
+      void openedViewEl.offsetWidth;
+      openedViewEl.classList.add("view-opening");
+    }
+  }
+  currentMainView = view;
+  if (view !== "backmenu") armBackNav();
+}
+
+let backNavArmed = false;
+
+function armBackNav() {
+  if (backNavArmed) return;
+  backNavArmed = true;
+  history.pushState({ ddarinNav: true }, "", location.href);
+}
+
+window.addEventListener("popstate", () => {
+  backNavArmed = false;
+  if (currentMainView !== "backmenu") {
+    showMainView("backmenu");
+  }
+});
+
+if (currentMainView !== "backmenu") armBackNav();
+
+async function openSongbook() {
+  showMainView("songbook");
+
+  if (!allSongs) {
+    songGrid.innerHTML = `<div class="song-empty">불러오는 중...</div>`;
+    await ensureSongbookSongs();
+  }
+
+  await ensureAlbumArtPreloaded();
+
+  renderSongGrid();
+  renderFavoritesList();
+  renderArtistList();
+  renderClipSourcePreviews();
+}
+
+let songbookGwHamburgerBtn = null;
+let songbookGwNavMenu = null;
+
+const SONGBOOK_GW_NAV_ACTIONS = {
+  home: () => showMainView("backmenu"),
+  calendar: () => {
+    showMainView("backmenu");
+    showBackMenuCalendar();
+  },
+  playlist: openSongbook,
+  Photo: () => {
+    switchCafePhotosTab(cafePhotosTabEls[0], { menuId: "27", titleContains: "" });
+    showMainView("cafephotos");
+  },
+  songbook: openSongbook2Table,
+  mail: () => showMainView("soopchat"),
+};
+
+function openSongbook2() {
+  const clone = songbookView.cloneNode(true);
+  clone.removeAttribute("id");
+  clone.classList.remove("hidden", "view-opening");
+  clone.classList.add("songbook-view-clone");
+  clone.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+
+  songbookGwHamburgerBtn = clone.querySelector(".back-menu-hamburger");
+  songbookGwNavMenu = clone.querySelector(".back-menu-nav-menu");
+  if (songbookGwHamburgerBtn && songbookGwNavMenu) {
+    songbookGwHamburgerBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      songbookGwNavMenu.classList.toggle("hidden");
+    });
+    Object.entries(SONGBOOK_GW_NAV_ACTIONS).forEach(([label, action]) => {
+      const btn = songbookGwNavMenu.querySelector(`[aria-label="${label}"]`);
+      if (btn) btn.addEventListener("click", action);
+    });
+  }
+
+  const backMenuName = clone.querySelector(".back-menu-name");
+  if (backMenuName) {
+    const gwLinkBtn = document.createElement("button");
+    gwLinkBtn.type = "button";
+    gwLinkBtn.className = "songbook-gw-inline-link";
+    gwLinkBtn.innerHTML =
+      '노래책 보기 <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+    gwLinkBtn.addEventListener("click", openSongbook2Table);
+    backMenuName.appendChild(gwLinkBtn);
+  }
+
+  songbookGwBody.innerHTML = "";
+  songbookGwBody.appendChild(clone);
+  showMainView("songbookgw");
+}
+
+document.addEventListener("click", (e) => {
+  if (
+    songbookGwNavMenu &&
+    !songbookGwNavMenu.classList.contains("hidden") &&
+    !songbookGwNavMenu.contains(e.target) &&
+    e.target !== songbookGwHamburgerBtn
+  ) {
+    songbookGwNavMenu.classList.add("hidden");
+  }
+});
+
+async function openSongbook2Table() {
+  showMainView("songbook2");
+
+  if (!allSongs) {
+    song2Grid.innerHTML = `<div class="song-empty">불러오는 중...</div>`;
+    await ensureSongbookSongs();
+  }
+
+  renderSongGrid2();
+  renderFavorites2List();
+  renderArtistList2();
+}
+
+
+document.getElementById("calendarBtn").addEventListener("click", () => showMainView("backmenu"));
+
+const backToCalendarBtn = document.getElementById("backToCalendarBtn");
+backToCalendarBtn.addEventListener("click", () => showMainView("backmenu"));
+const backMenuMedia = document.getElementById("backMenuMedia");
+const backMenuDots = document.getElementById("backMenuDots");
+const backMenuCalendarBox = document.getElementById("backMenuCalendarBox");
+const backMenuCalendarBody = document.getElementById("backMenuCalendarBody");
+
+function showBackMenuCalendar() {
+  const clone = document.querySelector(".app").cloneNode(true);
+  clone.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+  const cloneGrid = clone.querySelector(".grid");
+  const cloneCardView = clone.querySelector(".card-view");
+  if (cloneGrid) cloneGrid.classList.remove("hidden");
+  if (cloneCardView) cloneCardView.classList.add("hidden");
+  clone.addEventListener("click", () => showMainView("calendar"));
+  backMenuCalendarBody.innerHTML = "";
+  backMenuCalendarBody.appendChild(clone);
+
+  const now = new Date();
+  document.getElementById("backMenuTodayDate").textContent = `${now.getMonth() + 1}월 ${now.getDate()}일`;
+
+  const todayEvents = loadEvents()[todayKey()] || [];
+  document.getElementById("backMenuTodaySchedule").textContent = todayEvents.length
+    ? " " + todayEvents.map((ev) => ev.title).join(", ")
+    : " 오늘은 일정이 없습니다";
+
+  backMenuMedia.classList.add("hidden");
+  backMenuCalendarBox.classList.remove("hidden");
+}
+
+function hideBackMenuCalendar() {
+  backMenuCalendarBox.classList.add("hidden");
+  backMenuMedia.classList.remove("hidden");
+  backMenuCalendarBody.innerHTML = "";
+}
+
+const backMenuMediaTrack = document.getElementById("backMenuMediaTrack");
+const backMenuDotEls = backMenuDots.querySelectorAll(".back-menu-dot");
+let backMenuSlideIndex = 0;
+
+function updateBackMenuSlide() {
+  const w = backMenuMedia.clientWidth;
+  backMenuMediaTrack.style.transform = `translateX(${-backMenuSlideIndex * w}px)`;
+  backMenuDotEls.forEach((dot, i) => dot.classList.toggle("active", i === backMenuSlideIndex));
+}
+
+(function makeBackMenuMediaDraggable() {
+  let dragging = false;
+  let dragMoved = false;
+  let startX = 0;
+
+  backMenuMediaTrack.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    dragMoved = false;
+    startX = e.clientX;
+    backMenuMediaTrack.setPointerCapture(e.pointerId);
+    backMenuMediaTrack.style.transition = "none";
+  });
+
+  backMenuMediaTrack.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 5) dragMoved = true;
+    const w = backMenuMedia.clientWidth;
+    backMenuMediaTrack.style.transform = `translateX(${-backMenuSlideIndex * w + dx}px)`;
+  });
+
+  function endDrag(e) {
+    if (!dragging) return;
+    dragging = false;
+    const dx = e.clientX - startX;
+    backMenuMediaTrack.style.transition = "";
+
+    if (dragMoved && Math.abs(dx) > 50) {
+      if (dx < 0 && backMenuSlideIndex < 1) backMenuSlideIndex += 1;
+      else if (dx > 0 && backMenuSlideIndex > 0) backMenuSlideIndex -= 1;
+    }
+    updateBackMenuSlide();
+  }
+
+  backMenuMediaTrack.addEventListener("pointerup", endDrag);
+  backMenuMediaTrack.addEventListener("pointercancel", endDrag);
+})();
+
+document.getElementById("backMenuCalendarBtn").addEventListener("click", () => {
+  if (backMenuCalendarBox.classList.contains("hidden")) {
+    showBackMenuCalendar();
+  } else {
+    hideBackMenuCalendar();
+  }
+});
+document.getElementById("backMenuSongbookBtn").addEventListener("click", openSongbook2Table);
+document.getElementById("backMenuPlaylistBtn").addEventListener("click", openSongbook);
+document.getElementById("backMenuMailBtn").addEventListener("click", () => showMainView("soopchat"));
+document.getElementById("backMenuNavHomeBtn").addEventListener("click", () => showMainView("backmenu"));
+
+const backMenuHamburgerBtn = document.getElementById("backMenuHamburgerBtn");
+const backMenuNavMenu = document.getElementById("backMenuNavMenu");
+backMenuHamburgerBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  backMenuNavMenu.classList.toggle("hidden");
+});
+backMenuNavMenu.addEventListener("click", (e) => {
+  if (e.target.closest(".back-menu-nav-item")) backMenuNavMenu.classList.add("hidden");
+});
+document.addEventListener("click", (e) => {
+  if (!backMenuNavMenu.classList.contains("hidden") && !backMenuNavMenu.contains(e.target) && e.target !== backMenuHamburgerBtn) {
+    backMenuNavMenu.classList.add("hidden");
+  }
+});
+
+function wireNavMenu(prefix, hamburgerId, menuId) {
+  const hamburgerBtn = document.getElementById(hamburgerId);
+  const menu = document.getElementById(menuId);
+  hamburgerBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    menu.classList.toggle("hidden");
+  });
+  menu.addEventListener("click", (e) => {
+    if (e.target.closest(".back-menu-nav-item")) menu.classList.add("hidden");
+  });
+  document.addEventListener("click", (e) => {
+    if (!menu.classList.contains("hidden") && !menu.contains(e.target) && e.target !== hamburgerBtn) {
+      menu.classList.add("hidden");
+    }
+  });
+  document.getElementById(`${prefix}HomeBtn`).addEventListener("click", () => showMainView("backmenu"));
+  document.getElementById(`${prefix}CalendarBtn`).addEventListener("click", () => {
+    showMainView("backmenu");
+    showBackMenuCalendar();
+  });
+  document.getElementById(`${prefix}PlaylistBtn`).addEventListener("click", openSongbook);
+  document.getElementById(`${prefix}PostsBtn`).addEventListener("click", () => {
+    switchCafePhotosTab(cafePhotosTabEls[0], { menuId: "27", titleContains: "" });
+    showMainView("cafephotos");
+  });
+  document.getElementById(`${prefix}SongbookBtn`).addEventListener("click", openSongbook2Table);
+  document.getElementById(`${prefix}MailBtn`).addEventListener("click", () => showMainView("soopchat"));
+}
+
+wireNavMenu("cafePhotosNav", "cafePhotosHamburgerBtn", "cafePhotosNavMenu");
+wireNavMenu("songbookNav", "songbookHamburgerBtn", "songbookNavMenu");
+wireNavMenu("soopChatNav", "soopChatHamburgerBtn", "soopChatNavMenu");
+
+const cafePhotosList = document.getElementById("cafePhotosList");
+
+const cafePhotosProfileMenuBtn = document.getElementById("cafePhotosProfileMenuBtn");
+const cafePhotosProfileMenu = document.getElementById("cafePhotosProfileMenu");
+cafePhotosProfileMenuBtn.addEventListener("click", () => {
+  cafePhotosProfileMenu.classList.toggle("hidden");
+});
+document.addEventListener("click", (e) => {
+  if (!cafePhotosProfileMenuBtn.contains(e.target) && !cafePhotosProfileMenu.contains(e.target)) {
+    cafePhotosProfileMenu.classList.add("hidden");
+  }
+});
+
+const cafePhotoLightbox = document.getElementById("cafePhotoLightbox");
+const cafePhotoLightboxImg = document.getElementById("cafePhotoLightboxImg");
+const cafePhotoLightboxLink = document.getElementById("cafePhotoLightboxLink");
+const cafePhotoPostEl = document.querySelector(".cafe-photo-post");
+const cafePhotoLikeCount = document.getElementById("cafePhotoLikeCount");
+const cafePhotoCommentCount = document.getElementById("cafePhotoCommentCount");
+const cafePhotoWriter = document.getElementById("cafePhotoWriter");
+const cafePhotoTitle = document.getElementById("cafePhotoTitle");
+const cafePhotoMenuBtn = document.getElementById("cafePhotoMenuBtn");
+const cafePhotoMenu = document.getElementById("cafePhotoMenu");
+
+function closeCafePhotoLightbox() {
+  cafePhotoLightbox.classList.add("hidden");
+  cafePhotoPostEl.classList.remove("zoomed");
+  cafePhotoMenu.classList.add("hidden");
+}
+cafePhotoLightbox.addEventListener("click", (e) => {
+  if (e.target === cafePhotoLightbox) closeCafePhotoLightbox();
+});
+document.getElementById("cafePhotoCloseBtn").addEventListener("click", closeCafePhotoLightbox);
+
+// ===== 일정표 공지 팝업 =====
+const calendarAnnounceBackdrop = document.getElementById("calendarAnnounceBackdrop");
+const calendarAnnounceLikeCountEl = document.getElementById("calendarAnnounceLikeCount");
+const calendarAnnounceCommentCountEl = document.getElementById("calendarAnnounceCommentCount");
+const CALENDAR_ANNOUNCE_VIDEO_ID = "FVIbkuZhtq0";
+const CALENDAR_ANNOUNCE_HIDE_KEY = "calendarAnnounceHideUntil";
+const CALENDAR_ANNOUNCE_EXPIRE = new Date("2026-09-16T00:00:00+09:00");
+
+async function loadCalendarAnnounceStats() {
+  try {
+    const res = await fetch(`/api/youtube-video-stats?id=${CALENDAR_ANNOUNCE_VIDEO_ID}`);
+    const data = await res.json();
+    calendarAnnounceLikeCountEl.textContent = (data.likeCount || 0).toLocaleString();
+    calendarAnnounceCommentCountEl.textContent = (data.commentCount || 0).toLocaleString();
+  } catch {
+    // 실패 시 기존 값 유지
+  }
+}
+
+function shouldShowCalendarAnnounce() {
+  const now = new Date();
+  if (now >= CALENDAR_ANNOUNCE_EXPIRE) return false;
+  const hideUntil = localStorage.getItem(CALENDAR_ANNOUNCE_HIDE_KEY);
+  if (hideUntil && now < new Date(hideUntil)) return false;
+  return true;
+}
+
+function openCalendarAnnounce() {
+  if (!shouldShowCalendarAnnounce()) return;
+  loadCalendarAnnounceStats();
+  calendarAnnounceBackdrop.classList.remove("hidden");
+}
+
+function closeCalendarAnnounce() {
+  const popup = calendarAnnounceBackdrop.querySelector(".cafe-photo-post");
+  const icon = document.getElementById("sideNavYoutubeBtn");
+
+  if (!popup || !icon) {
+    calendarAnnounceBackdrop.classList.add("hidden");
+    return;
+  }
+
+  const popupRect = popup.getBoundingClientRect();
+  const iconRect = icon.getBoundingClientRect();
+  const dx = iconRect.left + iconRect.width / 2 - (popupRect.left + popupRect.width / 2);
+  const dy = iconRect.top + iconRect.height / 2 - (popupRect.top + popupRect.height / 2);
+
+  popup.style.transition = "transform 0.2s ease-in, opacity 0.2s ease-in";
+  popup.style.transform = `translate(${dx}px, ${dy}px) scale(0.05)`;
+  popup.style.opacity = "0";
+
+  calendarAnnounceBackdrop.style.transition = "background-color 0.2s ease-in";
+  calendarAnnounceBackdrop.style.backgroundColor = "rgba(0, 0, 0, 0)";
+
+  setTimeout(() => {
+    calendarAnnounceBackdrop.classList.add("hidden");
+    calendarAnnounceBackdrop.style.transition = "";
+    calendarAnnounceBackdrop.style.backgroundColor = "";
+    popup.style.transition = "";
+    popup.style.transform = "";
+    popup.style.opacity = "";
+  }, 200);
+}
+
+calendarAnnounceBackdrop.addEventListener("click", (e) => {
+  if (e.target === calendarAnnounceBackdrop) closeCalendarAnnounce();
+});
+document.getElementById("calendarAnnounceCloseBtn").addEventListener("click", closeCalendarAnnounce);
+document.getElementById("calendarAnnounceHideWeekBtn").addEventListener("click", () => {
+  const until = new Date();
+  until.setDate(until.getDate() + 7);
+  localStorage.setItem(CALENDAR_ANNOUNCE_HIDE_KEY, until.toISOString());
+  closeCalendarAnnounce();
+});
+// ================================================
+
+cafePhotoMenuBtn.addEventListener("click", () => {
+  cafePhotoMenu.classList.toggle("hidden");
+});
+
+document.getElementById("cafePhotoGotoPostBtn").addEventListener("click", () => {
+  const item = cafePhotoItems[cafePhotoIndex];
+  if (item) window.open(item.url, "_blank", "noopener");
+  cafePhotoMenu.classList.add("hidden");
+});
+
+document.addEventListener("click", (e) => {
+  if (!cafePhotoMenuBtn.contains(e.target) && !cafePhotoMenu.contains(e.target)) {
+    cafePhotoMenu.classList.add("hidden");
+  }
+});
+
+let cafePhotoItems = [];
+let cafePhotoIndex = 0;
+
+function renderCafePhotoLightbox() {
+  const item = cafePhotoItems[cafePhotoIndex];
+  if (!item) return;
+  cafePhotoLightboxImg.src = `/api/naver-image?url=${encodeURIComponent(item.image)}`;
+  cafePhotoLikeCount.textContent = (item.likeCount || 0).toLocaleString();
+  cafePhotoCommentCount.textContent = (item.commentCount || 0).toLocaleString();
+  cafePhotoWriter.textContent = item.writer || "";
+  cafePhotoTitle.textContent = item.title || "";
+  cafePhotoBookmarkBtn.classList.toggle("pinned", isCafePhotoPinned(item.url));
+}
+
+const cafePhotoBookmarkBtn = document.getElementById("cafePhotoBookmarkBtn");
+cafePhotoBookmarkBtn.addEventListener("click", () => {
+  const item = cafePhotoItems[cafePhotoIndex];
+  if (!item) return;
+  toggleCafePhotoPinned(item.url);
+  cafePhotoBookmarkBtn.classList.toggle("pinned", isCafePhotoPinned(item.url));
+  renderCafePhotosGrid();
+});
+
+function openCafePhotoLightbox(items, index) {
+  cafePhotoItems = items;
+  cafePhotoIndex = index;
+  cafePhotoPostEl.classList.remove("zoomed");
+  renderCafePhotoLightbox();
+  cafePhotoLightbox.classList.remove("hidden");
+}
+
+(function makeCafePhotoLightboxDraggable() {
+  let dragging = false;
+  let dragMoved = false;
+  let startX = 0;
+
+  cafePhotoLightboxImg.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    dragMoved = false;
+    startX = e.clientX;
+    cafePhotoLightboxImg.setPointerCapture(e.pointerId);
+    cafePhotoLightboxImg.style.transition = "none";
+  });
+
+  cafePhotoLightboxImg.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 5) dragMoved = true;
+    cafePhotoLightboxImg.style.transform = `translateX(${dx}px)`;
+  });
+
+  function endDrag(e) {
+    if (!dragging) return;
+    dragging = false;
+    const dx = e.clientX - startX;
+    cafePhotoLightboxImg.style.transition = "";
+    cafePhotoLightboxImg.style.transform = "";
+
+    if (dragMoved && Math.abs(dx) > 50) {
+      if (dx < 0 && cafePhotoIndex < cafePhotoItems.length - 1) {
+        cafePhotoIndex += 1;
+        renderCafePhotoLightbox();
+      } else if (dx > 0 && cafePhotoIndex > 0) {
+        cafePhotoIndex -= 1;
+        renderCafePhotoLightbox();
+      }
+    }
+  }
+
+  cafePhotoLightboxImg.addEventListener("pointerup", endDrag);
+  cafePhotoLightboxImg.addEventListener("pointerleave", (e) => {
+    if (dragging) endDrag(e);
+  });
+
+  cafePhotoLightboxLink.addEventListener("click", () => {
+    if (dragMoved) return;
+    cafePhotoPostEl.classList.toggle("zoomed");
+  });
+})();
+
+let cafePhotosPage = 1;
+let cafePhotosLoading = false;
+let cafePhotosHasMore = true;
+let cafePhotosAllItems = [];
+let cafePhotosSource = { menuId: "27", titleContains: "" };
+let cafePhotosRequestId = 0;
+
+const CAFE_PHOTOS_PINNED_KEY = "cafe-photos-pinned";
+
+function getPinnedCafePhotos() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(CAFE_PHOTOS_PINNED_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function isCafePhotoPinned(url) {
+  return getPinnedCafePhotos().includes(url);
+}
+
+function toggleCafePhotoPinned(url) {
+  const pinned = getPinnedCafePhotos();
+  const idx = pinned.indexOf(url);
+  if (idx === -1) pinned.unshift(url);
+  else pinned.splice(idx, 1);
+  localStorage.setItem(CAFE_PHOTOS_PINNED_KEY, JSON.stringify(pinned));
+}
+
+function renderCafePhotosGrid() {
+  const pinned = getPinnedCafePhotos();
+  const sorted = [...cafePhotosAllItems].sort((a, b) => {
+    const aPinned = pinned.includes(a.url) ? 1 : 0;
+    const bPinned = pinned.includes(b.url) ? 1 : 0;
+    if (aPinned !== bPinned) return bPinned - aPinned;
+    return a._order - b._order;
+  });
+
+  const scrollTop = cafePhotosList.scrollTop;
+  cafePhotosList.innerHTML = "";
+  sorted.forEach((item, index) => {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "cafe-photo-card";
+
+    const img = document.createElement("img");
+    img.className = "cafe-photo-img";
+    img.src = `/api/naver-image?url=${encodeURIComponent(item.image)}`;
+    img.alt = "";
+    card.appendChild(img);
+
+    card.addEventListener("click", () => openCafePhotoLightbox(sorted, index));
+    cafePhotosList.appendChild(card);
+  });
+  cafePhotosList.scrollTop = scrollTop;
+
+  document.getElementById("cafePhotosPostCount").textContent = cafePhotosAllItems.length;
+}
+
+async function loadCafePhotosPage() {
+  if (cafePhotosLoading || !cafePhotosHasMore) return;
+  cafePhotosLoading = true;
+  const requestId = cafePhotosRequestId;
+
+  try {
+    const params = new URLSearchParams({ page: cafePhotosPage, menuId: cafePhotosSource.menuId });
+    if (cafePhotosSource.titleContains) params.set("titleContains", cafePhotosSource.titleContains);
+    const res = await fetch(`/api/cafe-photos?${params}`);
+    const data = await res.json();
+    if (requestId !== cafePhotosRequestId) return;
+    const items = data.items || [];
+    cafePhotosHasMore = Boolean(data.hasMore);
+    cafePhotosPage += 1;
+
+    items.forEach((item) => {
+      item._order = cafePhotosAllItems.length;
+      cafePhotosAllItems.push(item);
+    });
+    renderCafePhotosGrid();
+
+    if (!cafePhotosAllItems.length && !cafePhotosHasMore) {
+      cafePhotosList.innerHTML = `<p class="cafe-photos-status">게시글을 불러오지 못했습니다.</p>`;
+    }
+  } catch {
+    cafePhotosHasMore = false;
+  } finally {
+    cafePhotosLoading = false;
+  }
+
+  if (
+    requestId === cafePhotosRequestId &&
+    cafePhotosHasMore &&
+    !cafePhotosView.classList.contains("hidden") &&
+    cafePhotosList.scrollHeight <= cafePhotosList.clientHeight
+  ) {
+    loadCafePhotosPage();
+  }
+}
+
+cafePhotosList.addEventListener("scroll", () => {
+  if (cafePhotosView.classList.contains("hidden")) return;
+  const nearBottom = cafePhotosList.scrollTop + cafePhotosList.clientHeight >= cafePhotosList.scrollHeight - 600;
+  if (nearBottom) loadCafePhotosPage();
+});
+
+function switchCafePhotosTab(tabEl, source) {
+  cafePhotosRequestId += 1;
+  document.querySelectorAll(".cafe-photos-tab").forEach((el) => el.classList.toggle("active", el === tabEl));
+  cafePhotosSource = source;
+  cafePhotosPage = 1;
+  cafePhotosLoading = false;
+  cafePhotosHasMore = true;
+  cafePhotosAllItems = [];
+  cafePhotosList.innerHTML = "";
+  loadCafePhotosPage();
+}
+
+const cafePhotosTabEls = document.querySelectorAll(".cafe-photos-tab");
+cafePhotosTabEls[0].addEventListener("click", () =>
+  switchCafePhotosTab(cafePhotosTabEls[0], { menuId: "27", titleContains: "" })
+);
+cafePhotosTabEls[1].addEventListener("click", () =>
+  switchCafePhotosTab(cafePhotosTabEls[1], { menuId: "36", titleContains: "움짤" })
+);
+cafePhotosTabEls[2].addEventListener("click", () =>
+  switchCafePhotosTab(cafePhotosTabEls[2], { menuId: "28", titleContains: "" })
+);
+
+document.getElementById("backMenuPostsBtn").addEventListener("click", () => {
+  switchCafePhotosTab(cafePhotosTabEls[0], { menuId: "27", titleContains: "" });
+  showMainView("cafephotos");
+});
+function syncGameViewHeight() {
+  const wasHidden = songbookView.classList.contains("hidden");
+  if (wasHidden) songbookView.classList.remove("hidden");
+  const h = songbookView.offsetHeight;
+  if (wasHidden) songbookView.classList.add("hidden");
+  if (h > 0) gameView.style.minHeight = `${Math.max(0, h - 100)}px`;
+}
+
+
+
+const MEMO_KEY = "ddarin-memo-2026";
+const memoBtn = document.getElementById("memoBtn");
+const memoPanel = document.getElementById("memoPanel");
+const memoOverlay = document.getElementById("memoOverlay");
+const closeMemoBtn = document.getElementById("closeMemoBtn");
+const memoTabPersonal = document.getElementById("memoTabPersonal");
+const memoTabShared = document.getElementById("memoTabShared");
+const memoAddToggleBtn = document.getElementById("memoAddToggleBtn");
+const memoPersonalSection = document.getElementById("memoPersonalSection");
+const memoSharedSection = document.getElementById("memoSharedSection");
+const memoPersonalList = document.getElementById("memoPersonalList");
+const memoSharedList = document.getElementById("memoSharedList");
+const memoAddModalBackdrop = document.getElementById("memoAddModalBackdrop");
+const memoAddModalTitle = document.getElementById("memoAddModalTitle");
+const memoAddForm = document.getElementById("memoAddForm");
+const memoAddDateInput = document.getElementById("memoAddDateInput");
+const memoAddTitleInput = document.getElementById("memoAddTitleInput");
+const memoAddFieldsGrid = document.getElementById("memoAddFieldsGrid");
+const memoAddMoreBtn = document.getElementById("memoAddMoreBtn");
+const closeMemoAddModalBtn = document.getElementById("closeMemoAddModalBtn");
+
+const todayMemoModalBackdrop = document.getElementById("todayMemoModalBackdrop");
+const todayMemoModalList = document.getElementById("todayMemoModalList");
+const todayMemoHideTodayBtn = document.getElementById("todayMemoHideTodayBtn");
+const todayMemoCloseBtn = document.getElementById("todayMemoCloseBtn");
+const closeTodayMemoModalBtn = document.getElementById("closeTodayMemoModalBtn");
+const TODAY_MEMO_POPUP_DISMISS_KEY = "today-memo-popup-dismissed";
+let todayMemoPopupOnDone = null;
+let todayMemoPopupIds = [];
+
+function loadMemoDismissMap() {
+  try {
+    return JSON.parse(localStorage.getItem(TODAY_MEMO_POPUP_DISMISS_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveMemoDismissMap(map) {
+  localStorage.setItem(TODAY_MEMO_POPUP_DISMISS_KEY, JSON.stringify(map));
+}
+
+function closeTodayMemoModal() {
+  todayMemoModalBackdrop.classList.add("hidden");
+  const onDone = todayMemoPopupOnDone;
+  todayMemoPopupOnDone = null;
+  if (onDone) onDone();
+}
+
+function showTodayMemoPopupIfNeeded(onDone) {
+  const today = todayKey();
+  const dismissMap = loadMemoDismissMap();
+  const todaysMemos = sharedMemoItems.filter((item) => {
+    if (item.date !== today) return false;
+    const dismissedUntil = dismissMap[item.id];
+    return !(dismissedUntil && dismissedUntil >= today);
+  });
+
+  if (!todaysMemos.length) {
+    if (onDone) onDone();
+    return;
+  }
+
+  todayMemoPopupIds = todaysMemos.map((item) => item.id);
+  todayMemoPopupOnDone = onDone || null;
+  renderMemoCards(todayMemoModalList, todaysMemos, false, null, null);
+  todayMemoModalBackdrop.classList.remove("hidden");
+}
+
+closeTodayMemoModalBtn.addEventListener("click", closeTodayMemoModal);
+todayMemoCloseBtn.addEventListener("click", closeTodayMemoModal);
+todayMemoHideTodayBtn.addEventListener("click", () => {
+  const dismissMap = loadMemoDismissMap();
+  const today = todayKey();
+  todayMemoPopupIds.forEach((id) => {
+    dismissMap[id] = today;
+  });
+  saveMemoDismissMap(dismissMap);
+  closeTodayMemoModal();
+});
+todayMemoModalBackdrop.addEventListener("click", (e) => {
+  if (e.target === todayMemoModalBackdrop) closeTodayMemoModal();
+});
+
+const YOUTUBE_RECENT_API_URL = "/api/youtube-recent";
+let youtubeRecentVideos = null;
+
+async function loadYoutubeRecentVideos() {
+  if (youtubeRecentVideos) return youtubeRecentVideos;
+  try {
+    const res = await fetch(YOUTUBE_RECENT_API_URL);
+    youtubeRecentVideos = res.ok ? await res.json() : [];
+  } catch {
+    youtubeRecentVideos = [];
+  }
+  return youtubeRecentVideos;
+}
+
+// ===== 일정표 좌측 유튜브 아이콘 새 영상 알림 점 =====
+const YOUTUBE_SIDEBAR_SEEN_KEY = "sidebar-youtube-seen-until";
+const sideNavYoutubeBadge = document.getElementById("sideNavYoutubeBadge");
+
+async function refreshYoutubeSidebarBadge() {
+  const videos = await loadYoutubeRecentVideos();
+  const latest = (videos || [])[0];
+  const seenUntil = localStorage.getItem(YOUTUBE_SIDEBAR_SEEN_KEY) || "";
+  sideNavYoutubeBadge.classList.toggle("hidden", !latest || latest.published <= seenUntil);
+}
+
+refreshYoutubeSidebarBadge();
+// ================================================
+
+// ===== 유튜브 업로드(WATCH) 화면 =====
+const youtubeView = document.getElementById("youtubeView");
+const youtubeBackBtn = document.getElementById("youtubeBackBtn");
+const youtubeChannelToggle = document.getElementById("youtubeChannelToggle");
+const youtubeCardTrack = document.getElementById("youtubeCardTrack");
+const youtubeCarouselPrevBtn = document.getElementById("youtubeCarouselPrevBtn");
+const youtubeCarouselNextBtn = document.getElementById("youtubeCarouselNextBtn");
+const youtubeChannelLink = document.getElementById("youtubeChannelLink");
+const youtubeHeroCard = document.getElementById("youtubeHeroCard");
+const youtubeHeroThumb = document.getElementById("youtubeHeroThumb");
+const youtubeHeroTitle = document.getElementById("youtubeHeroTitle");
+const youtubeHeroChannel = document.getElementById("youtubeHeroChannel");
+const youtubeHeroTime = document.getElementById("youtubeHeroTime");
+const YOUTUBE_CHANNEL_URLS = {
+  shorts: "https://www.youtube.com/channel/UCuROXT7djegOJSyVp1lhx-w",
+  longform: "https://www.youtube.com/channel/UC5YFkTsmwnAm__Cvt66BRhA",
+};
+let youtubeActiveGroup = "shorts";
+
+function formatTimeAgo(isoDate) {
+  const diffMs = Date.now() - new Date(isoDate).getTime();
+  const minutes = Math.floor(diffMs / 60000);
+  if (minutes < 60) return `${Math.max(minutes, 0)}분 전`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}시간 전`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}일 전`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5) return `${weeks}주 전`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}개월 전`;
+  return `${Math.floor(days / 365)}년 전`;
+}
+
+function renderYoutubeCards() {
+  const videos = (youtubeRecentVideos || []).filter((v) => v.group === youtubeActiveGroup);
+  youtubeCardTrack.innerHTML = "";
+
+  if (!videos.length) {
+    const empty = document.createElement("p");
+    empty.className = "youtube-card-empty";
+    empty.textContent = "업로드된 영상이 없습니다.";
+    youtubeCardTrack.appendChild(empty);
+    return;
+  }
+
+  videos.forEach((v) => {
+    const card = document.createElement("a");
+    card.className = "youtube-card";
+    card.href = v.url;
+    card.target = "_blank";
+    card.rel = "noopener";
+
+    const thumbWrap = document.createElement("div");
+    thumbWrap.className = "youtube-card-thumb-wrap";
+    const thumb = document.createElement("img");
+    thumb.className = "youtube-card-thumb";
+    thumb.src = v.thumbnailLarge || v.thumbnail;
+    thumb.alt = "";
+    thumbWrap.appendChild(thumb);
+    if (v.isShorts) {
+      const badge = document.createElement("span");
+      badge.className = "youtube-card-shorts-badge";
+      badge.textContent = "SHORTS";
+      thumbWrap.appendChild(badge);
+    }
+
+    const title = document.createElement("p");
+    title.className = "youtube-card-title";
+    title.textContent = v.title;
+
+    const meta = document.createElement("div");
+    meta.className = "youtube-card-meta";
+    const channel = document.createElement("span");
+    channel.className = "youtube-card-channel";
+    channel.textContent = v.isShorts ? "Shorts" : "Full";
+    const time = document.createElement("span");
+    time.textContent = formatTimeAgo(v.published);
+    meta.append(channel, time);
+
+    card.append(thumbWrap, title, meta);
+    youtubeCardTrack.appendChild(card);
+  });
+}
+
+function renderYoutubeHero() {
+  const latest = (youtubeRecentVideos || [])[0];
+  if (!latest) {
+    youtubeHeroCard.classList.add("hidden");
+    return;
+  }
+  youtubeHeroCard.classList.remove("hidden");
+  youtubeHeroCard.href = latest.url;
+  youtubeHeroThumb.onerror = () => {
+    youtubeHeroThumb.onerror = null;
+    youtubeHeroThumb.src = latest.thumbnailLarge || latest.thumbnail;
+  };
+  youtubeHeroThumb.src = `https://i.ytimg.com/vi/${latest.id}/maxresdefault.jpg`;
+  youtubeHeroTitle.textContent = latest.title;
+  youtubeHeroChannel.textContent = latest.isShorts ? "Shorts" : "Full";
+  youtubeHeroTime.textContent = formatTimeAgo(latest.published);
+}
+
+async function openYoutubeView() {
+  localStorage.setItem(YOUTUBE_SIDEBAR_SEEN_KEY, new Date().toISOString());
+  sideNavYoutubeBadge.classList.add("hidden");
+
+  showMainView("youtube");
+  await loadYoutubeRecentVideos();
+  renderYoutubeHero();
+  renderYoutubeCards();
+}
+
+document.getElementById("sideNavYoutubeBtn").addEventListener("click", openYoutubeView);
+youtubeBackBtn.addEventListener("click", () => showMainView("calendar"));
+
+youtubeChannelToggle.addEventListener("click", (e) => {
+  const btn = e.target.closest(".youtube-channel-seg");
+  if (!btn) return;
+  youtubeActiveGroup = btn.dataset.group;
+  youtubeChannelToggle.querySelectorAll(".youtube-channel-seg").forEach((el) => el.classList.toggle("active", el === btn));
+  youtubeChannelLink.href = YOUTUBE_CHANNEL_URLS[youtubeActiveGroup];
+  youtubeCardTrack.scrollLeft = 0;
+  renderYoutubeCards();
+});
+
+youtubeCarouselPrevBtn.addEventListener("click", () => {
+  youtubeCardTrack.scrollBy({ left: -320, behavior: "smooth" });
+});
+youtubeCarouselNextBtn.addEventListener("click", () => {
+  youtubeCardTrack.scrollBy({ left: 320, behavior: "smooth" });
+});
+// ================================================
+
+let memoAddExtraRowCount = 0;
+
+function clearMemoExtraTitleRows() {
+  memoAddFieldsGrid.querySelectorAll(".memo-add-extra-input, .memo-add-extra-remove, .memo-add-extra-spacer").forEach((el) => el.remove());
+  memoAddExtraRowCount = 0;
+}
+
+function addMemoExtraTitleRow() {
+  memoAddExtraRowCount += 1;
+  const row = memoAddExtraRowCount + 1; // row 1 = 날짜/제목 기본 행
+
+  const spacer = document.createElement("span");
+  spacer.className = "memo-add-extra-spacer";
+  spacer.style.gridColumn = "1";
+  spacer.style.gridRow = String(row);
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "memo-add-modal-input memo-add-extra-input";
+  input.placeholder = "메모 제목";
+  input.maxLength = 200;
+  input.style.gridColumn = "2";
+  input.style.gridRow = String(row);
+
+  const removeBtn = document.createElement("button");
+  removeBtn.type = "button";
+  removeBtn.className = "memo-add-extra-remove";
+  removeBtn.textContent = "✕";
+  removeBtn.style.gridColumn = "3";
+  removeBtn.style.gridRow = String(row);
+  removeBtn.addEventListener("click", () => {
+    spacer.remove();
+    input.remove();
+    removeBtn.remove();
+  });
+
+  memoAddFieldsGrid.append(spacer, input, removeBtn);
+  input.focus();
+}
+
+memoAddMoreBtn.addEventListener("click", addMemoExtraTitleRow);
+
+const SHARED_MEMO_API_URL = "/api/memo";
+let sharedMemoItems = [];
+let editingMemoId = null;
+let editingMemoIsShared = false;
+
+function openMemoEditModal(item, isShared) {
+  editingMemoId = item.id;
+  editingMemoIsShared = isShared;
+  memoAddModalTitle.textContent = "메모 수정";
+  memoAddDateInput.value = item.date || "";
+  memoAddTitleInput.value = item.text || "";
+  clearMemoExtraTitleRows();
+  memoAddModalBackdrop.classList.remove("hidden");
+  memoAddTitleInput.focus();
+}
+
+function mergeMemoText(existingText, newTexts) {
+  return [existingText, ...newTexts].filter(Boolean).join("\n");
+}
+
+async function addSharedMemoTexts(texts, date) {
+  const { username, password } = getStoredCreds();
+  if (!username || !password) return;
+
+  if (date) {
+    const existing = sharedMemoItems.find((it) => it.date === date);
+    const action = existing ? "edit" : "add";
+    const text = existing ? mergeMemoText(existing.text, texts) : texts.join("\n");
+    const res = await fetch(SHARED_MEMO_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(
+        existing
+          ? { username, password, action, id: existing.id, text, date }
+          : { username, password, action, text, date }
+      ),
+    });
+    const data = await res.json().catch(() => null);
+    if (data && data.items) sharedMemoItems = data.items;
+    renderSharedMemoList();
+    return;
+  }
+
+  for (const t of texts) {
+    const res = await fetch(SHARED_MEMO_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password, action: "add", text: t, date }),
+    });
+    const data = await res.json().catch(() => null);
+    if (data && data.items) sharedMemoItems = data.items;
+  }
+  renderSharedMemoList();
+}
+
+function addPersonalMemoTexts(texts, date) {
+  const items = loadPersonalMemoItems();
+  if (date) {
+    const existing = items.find((it) => it.date === date);
+    if (existing) {
+      existing.text = mergeMemoText(existing.text, texts);
+    } else {
+      items.unshift({ id: Date.now(), text: texts.join("\n"), date });
+    }
+  } else {
+    texts.forEach((t, i) => items.unshift({ id: Date.now() + i, text: t, date }));
+  }
+  savePersonalMemoItems(items);
+  renderPersonalMemoList();
+}
+
+function closeMemoAddModal() {
+  memoAddModalBackdrop.classList.add("hidden");
+  editingMemoId = null;
+}
+
+function updateMemoAddToggleState() {
+  const onShared = memoTabShared.classList.contains("active");
+  memoAddToggleBtn.disabled = onShared && isReadOnly;
+}
+
+function showMemoTab(tab) {
+  const showShared = tab === "shared";
+  memoTabPersonal.classList.toggle("active", !showShared);
+  memoTabShared.classList.toggle("active", showShared);
+  memoPersonalSection.classList.toggle("hidden", showShared);
+  memoSharedSection.classList.toggle("hidden", !showShared);
+  updateMemoAddToggleState();
+}
+
+memoTabPersonal.addEventListener("click", () => showMemoTab("personal"));
+memoTabShared.addEventListener("click", () => showMemoTab("shared"));
+
+memoAddToggleBtn.addEventListener("click", () => {
+  if (memoAddToggleBtn.disabled) return;
+  editingMemoId = null;
+  memoAddModalTitle.textContent = "메모 추가";
+  memoAddDateInput.value = todayKey();
+  memoAddTitleInput.value = "";
+  clearMemoExtraTitleRows();
+  memoAddModalBackdrop.classList.remove("hidden");
+  memoAddTitleInput.focus();
+});
+
+closeMemoAddModalBtn.addEventListener("click", closeMemoAddModal);
+memoAddModalBackdrop.addEventListener("click", (e) => {
+  if (e.target === memoAddModalBackdrop) closeMemoAddModal();
+});
+
+memoAddForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const date = memoAddDateInput.value;
+  const text = memoAddTitleInput.value.trim();
+  if (!text) return;
+
+  const extraTexts = Array.from(memoAddFieldsGrid.querySelectorAll(".memo-add-extra-input"))
+    .map((el) => el.value.trim())
+    .filter(Boolean);
+
+  if (editingMemoId !== null) {
+    const id = editingMemoId;
+    const isShared = editingMemoIsShared;
+    closeMemoAddModal();
+    if (isShared) {
+      const { username, password } = getStoredCreds();
+      if (!username || !password) return;
+      const res = await fetch(SHARED_MEMO_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password, action: "edit", id, text, date }),
+      });
+      const data = await res.json().catch(() => null);
+      if (data && data.items) sharedMemoItems = data.items;
+      if (extraTexts.length) await addSharedMemoTexts(extraTexts, date);
+      else renderSharedMemoList();
+    } else {
+      const items = loadPersonalMemoItems().map((it) => (it.id === id ? { ...it, text, date } : it));
+      savePersonalMemoItems(items);
+      if (extraTexts.length) addPersonalMemoTexts(extraTexts, date);
+      else renderPersonalMemoList();
+    }
+    return;
+  }
+
+  const allTexts = [text, ...extraTexts];
+  const onShared = memoTabShared.classList.contains("active");
+  if (onShared) {
+    if (isReadOnly) return;
+    const { username, password } = getStoredCreds();
+    if (!username || !password) return;
+    closeMemoAddModal();
+    await addSharedMemoTexts(allTexts, date);
+  } else {
+    closeMemoAddModal();
+    addPersonalMemoTexts(allTexts, date);
+  }
+});
+
+let draggedMemoId = null;
+
+function groupMemoItemsByDate(items) {
+  const order = [];
+  const buckets = new Map();
+  items.forEach((item) => {
+    const key = item.date || `__nodate_${item.id}`;
+    if (!buckets.has(key)) {
+      buckets.set(key, { date: item.date || null, items: [] });
+      order.push(key);
+    }
+    buckets.get(key).items.push(item);
+  });
+  return order.map((key) => buckets.get(key));
+}
+
+function formatMemoDateLabel(dateStr) {
+  const parts = (dateStr || "").split("-");
+  if (parts.length !== 3) return dateStr || "";
+  const [, m, d] = parts;
+  return `${parseInt(m, 10)}/${parseInt(d, 10)}`;
+}
+
+function buildMemoItemCard(item, canDelete, onDelete, onEdit, onReorder, orderedItems) {
+  const card = document.createElement("div");
+  card.className = "memo-card";
+
+  const textEl = document.createElement("div");
+  textEl.className = "memo-card-text";
+  const lines = (item.text || "").split("\n").filter((line) => line.length);
+  const multi = lines.length > 1;
+  lines.forEach((line, i) => {
+    const lineEl = document.createElement("div");
+    lineEl.className = "memo-card-line";
+    lineEl.textContent = multi ? `${i + 1}. ${line}` : line;
+    textEl.appendChild(lineEl);
+  });
+  card.appendChild(textEl);
+
+  if (onEdit) {
+    card.addEventListener("dblclick", () => onEdit(item));
+  }
+
+  if (canDelete) {
+    const delBtn = document.createElement("button");
+    delBtn.type = "button";
+    delBtn.className = "memo-card-delete";
+    delBtn.textContent = "✕";
+    delBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      onDelete(item.id);
+    });
+    card.appendChild(delBtn);
+  }
+
+  if (onReorder) {
+    card.draggable = true;
+    card.addEventListener("dragstart", () => {
+      draggedMemoId = item.id;
+      card.classList.add("dragging");
+    });
+    card.addEventListener("dragend", () => {
+      draggedMemoId = null;
+      card.classList.remove("dragging");
+    });
+    card.addEventListener("dragover", (e) => e.preventDefault());
+    card.addEventListener("drop", (e) => {
+      e.preventDefault();
+      if (draggedMemoId === null || draggedMemoId === item.id) return;
+      const fromIdx = orderedItems.findIndex((it) => it.id === draggedMemoId);
+      const toIdx = orderedItems.findIndex((it) => it.id === item.id);
+      if (fromIdx === -1 || toIdx === -1) return;
+      const reordered = orderedItems.slice();
+      const [moved] = reordered.splice(fromIdx, 1);
+      reordered.splice(toIdx, 0, moved);
+      onReorder(reordered);
+    });
+  }
+
+  return card;
+}
+
+function renderMemoCards(listEl, items, canDelete, onDelete, onEdit, onReorder) {
+  listEl.innerHTML = "";
+  if (!items.length) {
+    const empty = document.createElement("div");
+    empty.className = "memo-card-empty";
+    empty.textContent = "메모가 없습니다.";
+    listEl.appendChild(empty);
+    return;
+  }
+
+  const groups = groupMemoItemsByDate(items);
+  const orderedItems = groups.flatMap((g) => g.items);
+
+  groups.forEach((group) => {
+    if (!group.date) {
+      group.items.forEach((item) => {
+        listEl.appendChild(buildMemoItemCard(item, canDelete, onDelete, onEdit, onReorder, orderedItems));
+      });
+      return;
+    }
+
+    const row = document.createElement("div");
+    row.className = "memo-group";
+
+    const dateEl = document.createElement("div");
+    dateEl.className = "memo-group-date";
+    dateEl.textContent = formatMemoDateLabel(group.date);
+    row.appendChild(dateEl);
+
+    const itemsCol = document.createElement("div");
+    itemsCol.className = "memo-group-items";
+    group.items.forEach((item) => {
+      itemsCol.appendChild(buildMemoItemCard(item, canDelete, onDelete, onEdit, onReorder, orderedItems));
+    });
+    row.appendChild(itemsCol);
+
+    listEl.appendChild(row);
+  });
+}
+
+function loadPersonalMemoItems() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(MEMO_KEY) || "[]");
+    return Array.isArray(raw) ? raw : [];
+  } catch {
+    return [];
+  }
+}
+
+function savePersonalMemoItems(items) {
+  localStorage.setItem(MEMO_KEY, JSON.stringify(items));
+}
+
+function renderPersonalMemoList() {
+  renderMemoCards(
+    memoPersonalList,
+    loadPersonalMemoItems(),
+    true,
+    (id) => {
+      savePersonalMemoItems(loadPersonalMemoItems().filter((it) => it.id !== id));
+      renderPersonalMemoList();
+    },
+    (item) => openMemoEditModal(item, false),
+    (reorderedItems) => {
+      savePersonalMemoItems(reorderedItems);
+      renderPersonalMemoList();
+    }
+  );
+}
+
+function renderSharedMemoList() {
+  renderMemoCards(
+    memoSharedList,
+    sharedMemoItems,
+    !isReadOnly,
+    async (id) => {
+      const { username, password } = getStoredCreds();
+      if (!username || !password) return;
+      const res = await fetch(SHARED_MEMO_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password, action: "delete", id }),
+      });
+      const data = await res.json().catch(() => null);
+      if (data && data.items) sharedMemoItems = data.items;
+      renderSharedMemoList();
+    },
+    isReadOnly ? null : (item) => openMemoEditModal(item, true),
+    isReadOnly
+      ? null
+      : async (reorderedItems) => {
+          const { username, password } = getStoredCreds();
+          if (!username || !password) return;
+          sharedMemoItems = reorderedItems;
+          renderSharedMemoList();
+          const res = await fetch(SHARED_MEMO_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username,
+              password,
+              action: "reorder",
+              order: reorderedItems.map((it) => it.id),
+            }),
+          });
+          const data = await res.json().catch(() => null);
+          if (data && data.items) {
+            sharedMemoItems = data.items;
+            renderSharedMemoList();
+          }
+        }
+  );
+}
+
+async function loadSharedMemoList() {
+  if (sharedMemoItems.length) {
+    renderSharedMemoList();
+  } else {
+    memoSharedList.innerHTML = `<div class="memo-card-empty">불러오는 중...</div>`;
+  }
+  try {
+    const res = await fetch(SHARED_MEMO_API_URL);
+    const data = await res.json();
+    sharedMemoItems = (data && data.items) || [];
+  } catch {
+    if (!sharedMemoItems.length) sharedMemoItems = [];
+  }
+  renderSharedMemoList();
+}
+
+function openMemoPanel() {
+  renderPersonalMemoList();
+  showMemoTab("shared");
+  loadSharedMemoList();
+  memoPanel.classList.remove("hidden");
+  memoOverlay.classList.remove("hidden");
+}
+
+function closeMemoPanel() {
+  memoPanel.classList.add("hidden");
+  memoOverlay.classList.add("hidden");
+}
+
+closeMemoBtn.addEventListener("click", closeMemoPanel);
+memoOverlay.addEventListener("click", closeMemoPanel);
+
+const soopChatList = document.getElementById("soopChatList");
+const soopChatDayList = document.getElementById("soopChatDayList");
+let currentSoopChatDayItems = [];
+
+let activeSoopChatDeleteBtn = null;
+let activeSoopChatDeleteBtnJustShown = false;
+
+document.addEventListener("click", (e) => {
+  if (!activeSoopChatDeleteBtn) return;
+  if (activeSoopChatDeleteBtnJustShown) {
+    activeSoopChatDeleteBtnJustShown = false;
+    return;
+  }
+  if (!activeSoopChatDeleteBtn.contains(e.target)) {
+    activeSoopChatDeleteBtn.remove();
+    activeSoopChatDeleteBtn = null;
+  }
+});
+
+const SOOP_CHAT_SEEN_KEY = "soopChatSeenUntil";
+
+function getSoopChatSeenUntil() {
+  return localStorage.getItem(SOOP_CHAT_SEEN_KEY) || "";
+}
+
+function setSoopChatSeenUntil(iso) {
+  if (iso) localStorage.setItem(SOOP_CHAT_SEEN_KEY, iso);
+}
+
+const SOOP_CHAT_HIDDEN_KEY = "soopChatHiddenTimes";
+
+function getSoopChatHiddenTimes() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(SOOP_CHAT_HIDDEN_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function hideSoopChatMessageLocally(time) {
+  const hidden = getSoopChatHiddenTimes();
+  if (!hidden.includes(time)) hidden.push(time);
+  localStorage.setItem(SOOP_CHAT_HIDDEN_KEY, JSON.stringify(hidden));
+}
+
+function formatSoopChatTime(iso) {
+  try {
+    return new Date(iso).toLocaleTimeString("ko-KR", { timeZone: "Asia/Seoul", hour: "2-digit", minute: "2-digit" });
+  } catch {
+    return "";
+  }
+}
+
+function formatSoopChatDate(iso) {
+  try {
+    return new Date(iso).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul", month: "long", day: "numeric" });
+  } catch {
+    return "";
+  }
+}
+
+const SOOP_CHAT_RETENTION_DAYS = 7;
+
+function soopChatDateKeySeoul(input) {
+  const d = input ? new Date(input) : new Date();
+  return d.toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
+}
+
+function soopChatDaysUntilDeletion(iso) {
+  const msgDate = new Date(`${soopChatDateKeySeoul(iso)}T00:00:00+09:00`);
+  const today = new Date(`${soopChatDateKeySeoul()}T00:00:00+09:00`);
+  const daysSince = Math.round((today - msgDate) / (24 * 60 * 60 * 1000));
+  return SOOP_CHAT_RETENTION_DAYS - daysSince;
+}
+
+function groupSoopChatByDate(items) {
+  const groups = [];
+  items.forEach((item) => {
+    const dateKey = formatSoopChatDate(item.time);
+    const groupKey = item.broadcastId || dateKey;
+    const lastGroup = groups[groups.length - 1];
+    if (lastGroup && lastGroup.groupKey === groupKey) {
+      lastGroup.items.push(item);
+    } else {
+      groups.push({ groupKey, dateKey, items: [item] });
+    }
+  });
+  return groups;
+}
+
+async function loadSoopChatView() {
+  soopChatList.innerHTML = `<div class="memo-card-empty">불러오는 중...</div>`;
+
+  try {
+    const res = await fetch("/api/soop-chat");
+    const data = await res.json();
+    const hiddenTimes = getSoopChatHiddenTimes();
+    const items = ((data && data.items) || []).filter((it) => !hiddenTimes.includes(it.time));
+    const seenUntil = getSoopChatSeenUntil();
+    soopChatList.innerHTML = "";
+    groupSoopChatByDate(items).forEach((group) => {
+      const [first, ...rest] = group.items;
+      const isUnread = group.items.some((it) => it.time > seenUntil);
+
+      const card = document.createElement("div");
+      card.className = "soop-chat-row";
+
+      const avatar = document.createElement("span");
+      avatar.className = "back-menu-avatar soop-chat-avatar";
+
+      const info = document.createElement("div");
+      info.className = "soop-chat-info";
+
+      const infoTop = document.createElement("div");
+      infoTop.className = "soop-chat-info-top";
+
+      const nameEl = document.createElement("span");
+      nameEl.className = "soop-chat-name";
+      nameEl.textContent = "DDARIN";
+
+      const retentionNote = document.createElement("span");
+      retentionNote.className = "soop-chat-retention-note";
+      retentionNote.textContent = `${soopChatDaysUntilDeletion(first.time)}일 후 삭제`;
+      nameEl.appendChild(retentionNote);
+
+      const dateEl = document.createElement("span");
+      dateEl.className = "soop-chat-date";
+      dateEl.textContent = group.dateKey;
+
+      const messageEl = document.createElement("div");
+      messageEl.className = "soop-chat-message";
+      messageEl.textContent = `${formatSoopChatTime(first.time)}  ${first.message}`;
+
+      infoTop.append(nameEl, dateEl);
+      info.append(infoTop, messageEl);
+      card.append(avatar, info);
+      let badge = null;
+      if (isUnread) {
+        badge = document.createElement("span");
+        badge.className = "soop-chat-badge";
+        card.appendChild(badge);
+      }
+      soopChatList.appendChild(card);
+
+      card.style.cursor = "pointer";
+
+      let longPressTimer = null;
+      let longPressed = false;
+
+      card.addEventListener("pointerdown", () => {
+        longPressed = false;
+        longPressTimer = setTimeout(() => {
+          longPressed = true;
+          if (card.querySelector(".soop-chat-delete-btn")) return;
+          const delBtn = document.createElement("button");
+          delBtn.type = "button";
+          delBtn.className = "soop-chat-delete-btn";
+          delBtn.textContent = "삭제";
+          delBtn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            group.items.forEach((it) => hideSoopChatMessageLocally(it.time));
+            activeSoopChatDeleteBtn = null;
+            loadSoopChatView();
+          });
+          card.appendChild(delBtn);
+          activeSoopChatDeleteBtn = delBtn;
+          activeSoopChatDeleteBtnJustShown = true;
+        }, 500);
+      });
+      card.addEventListener("pointerup", () => clearTimeout(longPressTimer));
+      card.addEventListener("pointerleave", () => clearTimeout(longPressTimer));
+
+      card.addEventListener("click", () => {
+        if (longPressed) return;
+        if (badge) badge.remove();
+        const groupMaxTime = group.items.reduce((max, it) => (it.time > max ? it.time : max), "");
+        if (groupMaxTime > getSoopChatSeenUntil()) {
+          setSoopChatSeenUntil(groupMaxTime);
+        }
+        if (rest.length) {
+          currentSoopChatDayItems = group.items;
+          showMainView("soopchatday");
+        }
+      });
+    });
+  } catch {
+    soopChatList.innerHTML = "";
+  }
+}
+
+function renderSoopChatDayView() {
+  soopChatDayList.innerHTML = "";
+  currentSoopChatDayItems.forEach((item, index) => {
+    const next = currentSoopChatDayItems[index + 1];
+    const sameMinuteAsNext = next && formatSoopChatTime(item.time) === formatSoopChatTime(next.time);
+
+    const row = document.createElement("div");
+    row.className = "soop-chat-bubble-row";
+
+    const avatar = document.createElement("span");
+    avatar.className = "back-menu-avatar soop-chat-bubble-avatar";
+
+    const bubble = document.createElement("div");
+    bubble.className = "soop-chat-bubble";
+    bubble.textContent = item.message;
+
+    const timeEl = document.createElement("span");
+    timeEl.className = "soop-chat-bubble-time";
+    timeEl.textContent = sameMinuteAsNext ? "" : formatSoopChatTime(item.time);
+
+    row.append(avatar, bubble, timeEl);
+    soopChatDayList.appendChild(row);
+
+    let longPressTimer = null;
+    row.addEventListener("pointerdown", () => {
+      longPressTimer = setTimeout(() => {
+        if (row.querySelector(".soop-chat-delete-btn")) return;
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "soop-chat-delete-btn";
+        delBtn.textContent = "삭제";
+        delBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          hideSoopChatMessageLocally(item.time);
+          activeSoopChatDeleteBtn = null;
+          currentSoopChatDayItems = currentSoopChatDayItems.filter((it) => it.time !== item.time);
+          if (currentSoopChatDayItems.length) {
+            renderSoopChatDayView();
+          } else {
+            showMainView("soopchat");
+          }
+        });
+        row.appendChild(delBtn);
+        activeSoopChatDeleteBtn = delBtn;
+        activeSoopChatDeleteBtnJustShown = true;
+      }, 500);
+    });
+    row.addEventListener("pointerup", () => clearTimeout(longPressTimer));
+    row.addEventListener("pointerleave", () => clearTimeout(longPressTimer));
+  });
+}
+
+document.getElementById("soopChatDayBackBtn").addEventListener("click", () => showMainView("soopchat"));
+
+memoBtn.addEventListener("click", openMemoPanel);
+
+async function hardRefreshApp() {
+  try {
+    if ("serviceWorker" in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map((reg) => reg.unregister()));
+    }
+    if (window.caches) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((key) => caches.delete(key)));
+    }
+  } finally {
+    // location.reload()는 브라우저 HTTP 캐시를 그대로 쓸 수 있어서, 쿼리스트링을 바꿔
+    // 강제로 새 URL처럼 취급되게 만들어 Ctrl+Shift+R(강력 새로고침)과 동일하게 동작시킨다.
+    location.replace(location.pathname + "?_=" + Date.now());
+  }
+}
+
+calendarPostMenuBtn.addEventListener("click", hardRefreshApp);
+
+// ===== 일정 검색 (이전 달 포함 전체 일정에서 제목 검색) =====
+const scheduleSearchBtn = document.getElementById("scheduleSearchBtn");
+const scheduleSearchModalBackdrop = document.getElementById("scheduleSearchModalBackdrop");
+const closeScheduleSearchModalBtn = document.getElementById("closeScheduleSearchModalBtn");
+const scheduleSearchInput = document.getElementById("scheduleSearchInput");
+const scheduleSearchResults = document.getElementById("scheduleSearchResults");
+
+function closeScheduleSearchModal() {
+  scheduleSearchModalBackdrop.classList.add("hidden");
+}
+
+function renderScheduleSearchResults(query) {
+  scheduleSearchResults.innerHTML = "";
+  const q = query.trim().toLowerCase();
+  if (!q) return;
+
+  const events = loadEvents();
+  const matches = [];
+  Object.keys(events).forEach((date) => {
+    events[date].forEach((ev) => {
+      if (ev.title.toLowerCase().includes(q)) matches.push({ date, title: ev.title });
+    });
+  });
+  matches.sort((a, b) => (a.date < b.date ? 1 : -1));
+
+  if (!matches.length) {
+    const empty = document.createElement("div");
+    empty.className = "schedule-search-empty";
+    empty.textContent = "검색 결과가 없습니다.";
+    scheduleSearchResults.appendChild(empty);
+    return;
+  }
+
+  matches.forEach((m) => {
+    const [, mo, d] = m.date.split("-");
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "schedule-search-result";
+
+    const dateEl = document.createElement("span");
+    dateEl.className = "schedule-search-result-date";
+    dateEl.textContent = `${parseInt(mo)}.${parseInt(d)}`;
+
+    const titleEl = document.createElement("span");
+    titleEl.className = "schedule-search-result-title";
+    titleEl.textContent = m.title;
+
+    item.append(dateEl, titleEl);
+    item.addEventListener("click", () => {
+      closeScheduleSearchModal();
+      currentMonth = parseInt(mo) - 1;
+      setViewMode("list");
+      renderGrid();
+      showMainView("calendar");
+      openModal(m.date);
+    });
+
+    scheduleSearchResults.appendChild(item);
+  });
+}
+
+scheduleSearchBtn.addEventListener("click", () => {
+  scheduleSearchModalBackdrop.classList.remove("hidden");
+  scheduleSearchInput.value = "";
+  scheduleSearchResults.innerHTML = "";
+  scheduleSearchInput.focus();
+});
+closeScheduleSearchModalBtn.addEventListener("click", closeScheduleSearchModal);
+scheduleSearchModalBackdrop.addEventListener("click", (e) => {
+  if (e.target === scheduleSearchModalBackdrop) closeScheduleSearchModal();
+});
+scheduleSearchInput.addEventListener("input", () => renderScheduleSearchResults(scheduleSearchInput.value));
+// ================================================
+
+(function makeMemoPanelDraggable() {
+  const header = document.querySelector(".memo-panel-header");
+  let dragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  header.addEventListener("mousedown", (e) => {
+    if (e.target.closest(".memo-panel-close")) return;
+    dragging = true;
+    const rect = memoPanel.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    memoPanel.style.right = "auto";
+    memoPanel.style.left = `${rect.left}px`;
+    memoPanel.style.top = `${rect.top}px`;
+    e.preventDefault();
+  });
+
+  document.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+    memoPanel.style.left = `${e.clientX - offsetX}px`;
+    memoPanel.style.top = `${e.clientY - offsetY}px`;
+  });
+
+  document.addEventListener("mouseup", () => {
+    dragging = false;
+  });
+})();
+songSearchInput.addEventListener("input", renderSongGrid);
+function selectGenreTab(btn) {
+  if (!btn || btn.classList.contains("active")) return;
+  songbookGenre = btn.dataset.genre;
+  genreTabsMenu.querySelectorAll(".genre-tab").forEach((el) => el.classList.toggle("active", el === btn));
+  renderArtistList();
+  renderSongGrid();
+}
+
+genreTabsMenu.addEventListener("click", (e) => {
+  selectGenreTab(e.target.closest(".genre-tab"));
+  genreTabsMenu.classList.add("hidden");
+});
+
+document.addEventListener("click", (e) => {
+  if (!clipSourceCarousel.contains(e.target)) genreTabsMenu.classList.add("hidden");
+  if (!sortTabs.contains(e.target)) sortTabsMenu.classList.add("hidden");
+});
+
+sortTabsToggle.addEventListener("click", () => {
+  sortTabsMenu.classList.toggle("hidden");
+});
+
+sortTabsMenu.addEventListener("click", (e) => {
+  const btn = e.target.closest(".genre-tab");
+  if (!btn) return;
+  sortTabsMenu.querySelectorAll(".genre-tab").forEach((el) => el.classList.toggle("active", el === btn));
+  sortTabsMenu.classList.add("hidden");
+
+  if (songSource === "clip") {
+    songSortMode = btn.dataset.sortValue === "title" ? "title" : "artist";
+    renderSongGrid();
+  } else {
+    youtubeSourceFilter = btn.dataset.sortValue;
+    renderYoutubePlaylistGrid(youtubeGroupCache[songSource] || []);
+  }
+});
+
+
 song2SearchInput.addEventListener("input", renderSongGrid2);
+function selectSongbook2Genre(genre) {
+  songbook2Genre = genre;
+  renderGenreTabs2(songbookGenresList);
+  song2GenreFilterMenu.classList.add("hidden");
+  renderArtistList2();
+  renderSongGrid2();
+}
+
+genre2Tabs.addEventListener("click", (e) => {
+  const btn = e.target.closest(".genre-tab");
+  if (!btn) return;
+  selectSongbook2Genre(btn.dataset.genre);
+});
+
+song2GenreFilterToggle.addEventListener("click", (e) => {
+  e.stopPropagation();
+  song2GenreFilterMenu.classList.toggle("hidden");
+});
+song2GenreFilterMenu.addEventListener("click", (e) => {
+  const btn = e.target.closest(".genre-tab");
+  if (!btn) return;
+  selectSongbook2Genre(btn.dataset.genre);
+});
+document.addEventListener("click", (e) => {
+  if (!song2GenreFilterMenu.classList.contains("hidden") && !song2GenreFilterMenu.contains(e.target) && !song2GenreFilterToggle.contains(e.target)) {
+    song2GenreFilterMenu.classList.add("hidden");
+  }
+});
 
 song2Table.querySelector("thead").addEventListener("click", (e) => {
   const th = e.target.closest(".song2-sortable");
@@ -1179,7 +3366,6 @@ const songRouletteFilterToggle = document.getElementById("songRouletteFilterTogg
 const songRouletteFilterValue = document.getElementById("songRouletteFilterValue");
 const songRouletteFilterMenu = document.getElementById("songRouletteFilterMenu");
 const songRouletteSpinBtn = document.getElementById("songRouletteSpinBtn");
-const songRouletteQueueAddBtn = document.getElementById("songRouletteQueueAddBtn");
 let songRouletteGenre = "전체";
 let songRouletteResultSong = null;
 
@@ -1192,14 +3378,8 @@ songRouletteBtn.addEventListener("click", (e) => {
   e.stopPropagation();
   songRouletteGenre = "전체";
   songRouletteFilterValue.textContent = songRouletteGenre;
-  songRouletteFilterMenu.innerHTML = "";
-  ["전체", ...songbookGenresList].forEach((genre) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "genre-tab" + (genre === songRouletteGenre ? " active" : "");
-    btn.dataset.genre = genre;
-    btn.textContent = genre;
-    songRouletteFilterMenu.appendChild(btn);
+  songRouletteFilterMenu.querySelectorAll(".genre-tab").forEach((el) => {
+    el.classList.toggle("active", el.dataset.genre === songRouletteGenre);
   });
   songRouletteStatus.className = "song-roulette-status";
   songRouletteStatusText.textContent = "대기 중";
@@ -1221,6 +3401,7 @@ songRouletteFilterMenu.addEventListener("click", (e) => {
   songRouletteFilterMenu.querySelectorAll(".genre-tab").forEach((el) => el.classList.toggle("active", el === btn));
   songRouletteFilterMenu.classList.add("hidden");
 });
+
 document.addEventListener("click", (e) => {
   if (!songRouletteModalBackdrop.classList.contains("hidden") && !songRouletteModalBackdrop.contains(e.target) && e.target !== songRouletteBtn) {
     closeSongRouletteModal();
@@ -1256,428 +3437,914 @@ songRouletteSpinBtn.addEventListener("click", () => {
   }, 3000);
 });
 
-songRouletteQueueAddBtn.addEventListener("click", () => {
-  if (!songRouletteResultSong) return;
-  addToSingQueue([albumArtCacheKey(songRouletteResultSong)]);
-});
-
-// ===== 노래책 > 곡 추가/편집 =====
-function renderPlainOptionLabel(opt) {
-  const span = document.createElement("span");
-  span.textContent = opt.label;
-  return span;
+async function apiPost(payload) {
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
 }
 
-function setupCustomSelect(root, { options, initialValue, placeholderLabel, renderLabel }) {
-  const trigger = root.querySelector(".song-select-trigger");
-  const triggerLabel = trigger.querySelector(".song-select-trigger-label");
-  const panel = root.querySelector(".song-select-panel");
+let saveInFlightCount = 0;
 
-  function setValue(value) {
-    root.dataset.value = value;
-    const opt = options.find((o) => String(o.value) === String(value));
-    triggerLabel.innerHTML = "";
-    triggerLabel.classList.toggle("placeholder", !opt);
-    if (opt) {
-      triggerLabel.append(renderLabel(opt));
-    } else {
-      triggerLabel.textContent = placeholderLabel || "";
-    }
+function saveEvents(data) {
+  const hadData = Object.keys(eventsCache || {}).some((k) => (eventsCache[k] || []).length > 0);
+  const hasData = Object.keys(data || {}).some((k) => (data[k] || []).length > 0);
+  if (hadData && !hasData) {
+    const proceed = confirm("모든 일정이 사라진 상태로 저장하려고 합니다. 정말 이대로 저장할까요?");
+    if (!proceed) return;
   }
 
-  function closePanel() {
-    panel.classList.add("hidden");
-  }
+  eventsCache = data;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
-  function openPanel() {
-    panel.innerHTML = "";
-    options.forEach((opt) => {
-      const item = document.createElement("div");
-      item.className = "song-select-option";
-      item.append(renderLabel(opt));
-      item.addEventListener("click", () => {
-        setValue(opt.value);
-        closePanel();
-      });
-      panel.appendChild(item);
+  const { username, password } = getStoredCreds();
+  if (!password || !username) return;
+
+  attemptSaveToServer(data, username, password, 0);
+}
+
+function attemptSaveToServer(data, username, password, retryCount) {
+  saveInFlightCount++;
+  apiPost({ action: "save", events: eventsObjectToFlat(data), username, password })
+    .then((res) => {
+      if (res && res.error === "refused_empty_overwrite") {
+        alert("서버가 빈 데이터로 전체 덮어쓰기를 거부했습니다. 새로고침 후 다시 시도해주세요.");
+        return;
+      }
+      if (res && res.ok) return;
+
+      if (res && res.error === "unauthorized") {
+        clearStoredCreds();
+        isReadOnly = true;
+        updateLockUi();
+        alert("비밀번호가 만료되어 편집 잠금이 해제되었습니다. 다시 로그인해주세요.");
+        return;
+      }
+
+      // 네트워크 오류 등 일시적 실패로 보고 재시도 (로그인 상태는 유지)
+      if (retryCount < 2) {
+        setTimeout(() => attemptSaveToServer(data, username, password, retryCount + 1), 1500);
+      } else {
+        alert("저장 중 네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      }
+    })
+    .finally(() => {
+      saveInFlightCount--;
     });
-    document.querySelectorAll(".song-select-panel").forEach((p) => p.classList.add("hidden"));
-    panel.classList.remove("hidden");
+}
+
+async function syncEventsFromServer() {
+  if (saveInFlightCount > 0) return; // 저장 중일 때는 동기화로 덮어쓰지 않음
+  const flat = await apiGetEvents();
+  if (!flat) return;
+
+  const hadData = Object.keys(eventsCache || {}).length > 0;
+  if (flat.length === 0 && hadData) {
+    // 네트워크 오류 등으로 빈 응답이 온 것으로 보고, 기존 캐시를 지우지 않음
+    return;
   }
 
-  trigger.addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (panel.classList.contains("hidden")) openPanel();
-    else closePanel();
-  });
+  eventsCache = flatToEventsObject(flat);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(eventsCache));
+  refreshCurrentView();
+}
 
-  document.addEventListener("click", (e) => {
-    if (!root.contains(e.target)) closePanel();
-  });
+function withTimeout(promise, ms) {
+  return Promise.race([promise, new Promise((resolve) => setTimeout(() => resolve(null), ms))]);
+}
 
-  setValue(initialValue);
+async function initEvents() {
+  const flat = await withTimeout(apiGetEvents(), 5000);
+  if (flat && flat.length) {
+    console.log("[events] initEvents using fresh fetch, total rows=", flat.length);
+    eventsCache = flatToEventsObject(flat);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(eventsCache));
+  } else {
+    console.log("[events] initEvents FELL BACK to stale localStorage cache. flat=", flat);
+    eventsCache = loadEvents();
+  }
+  console.log("[events] final 2026-08-15 entries=", (eventsCache["2026-08-15"] || []).length, eventsCache["2026-08-15"]);
+}
 
+function dateKey(year, monthIndex, day) {
+  const m = String(monthIndex + 1).padStart(2, "0");
+  const d = String(day).padStart(2, "0");
+  return `${year}-${m}-${d}`;
+}
+
+function todayKey() {
+  const t = new Date();
+  return dateKey(t.getFullYear(), t.getMonth(), t.getDate());
+}
+
+function getWeekStart(date) {
+  const d = new Date(date);
+  const diff = d.getDay(); // 0=일 ... 6=토 (이미 일요일 시작이므로 그대로 사용)
+  d.setDate(d.getDate() - diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function firstWeekOfMonth(monthIndex) {
+  return getWeekStart(new Date(YEAR, monthIndex, 1));
+}
+
+function lastWeekOfMonth(monthIndex) {
+  return getWeekStart(new Date(YEAR, monthIndex + 1, 0));
+}
+
+const WEEKDAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
+
+const ATTENDEE_RE = /\s+w\.\s*(.+)$/i;
+
+function getColorInfo(ev) {
+  if (ev.sheetColor) return { hex: ev.sheetColor };
+  if (ev.color) return { key: ev.color };
+  if (ev.title.includes("휴방")) return { key: "hiatus" };
+  if (ev.title.includes("합방")) return { key: "collab" };
+  if (ev.title.includes("따이봤")) return { key: "gray" };
+  return { key: "blue" };
+}
+
+function hexToRgb(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex || "");
+  if (!m) return null;
+  const n = parseInt(m[1], 16);
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+}
+
+function rgbToHex(c) {
+  return "#" + [c.r, c.g, c.b].map((v) => v.toString(16).padStart(2, "0")).join("");
+}
+
+function mix(rgb, target, ratio) {
   return {
-    getValue: () => root.dataset.value,
-    setValue,
-    setOptions: (newOptions) => {
-      options = newOptions;
-    },
+    r: Math.round(rgb.r + (target - rgb.r) * ratio),
+    g: Math.round(rgb.g + (target - rgb.g) * ratio),
+    b: Math.round(rgb.b + (target - rgb.b) * ratio),
   };
 }
 
-const songAddGenreSelect = setupCustomSelect(document.getElementById("songAddGenreSelect"), {
-  options: [],
-  initialValue: "",
-  placeholderLabel: "장르 선택",
-  renderLabel: renderPlainOptionLabel,
-});
+const EVENT_COLOR_LABELS = {
+  purple: "합방",
+  collab: "합방",
+  blue: "종겜",
+  hiatus: "휴방",
+  gray: "갠방",
+  yellow: "노래관련",
+  green: "게임 출시",
+};
 
-const songSelectAllBtn = document.getElementById("songSelectAllBtn");
-const songDeleteSelectedBtn = document.getElementById("songDeleteSelectedBtn");
-const songQueueAddBtn = document.getElementById("songQueueAddBtn");
-const songAddBtn = document.getElementById("songAddBtn");
-const songAddModalBackdrop = document.getElementById("songAddModalBackdrop");
-const songAddModalTitle = document.getElementById("songAddModalTitle");
-const closeSongAddModalBtn = document.getElementById("closeSongAddModalBtn");
-const songAddForm = document.getElementById("songAddForm");
-const songAddTitleInput = document.getElementById("songAddTitleInput");
-const songAddArtistInput = document.getElementById("songAddArtistInput");
-const songAddNoteInput = document.getElementById("songAddNoteInput");
-const songAddMrInput = document.getElementById("songAddMrInput");
-const songAddSaveBtn = document.getElementById("songAddSaveBtn");
-const cancelSongAddBtn = document.getElementById("cancelSongAddBtn");
+const EVENT_HEX_LABELS = {
+  "#4285f4": "종겜",
+  "#ff6d01": "노래관련",
+  "#cc0000": "휴방",
+  "#e951d0": "커머스",
+  "#8a2be2": "종겜",
+  "#9900ff": "종겜",
+  "#ff6f00": "같이보기",
+};
 
-function closeSongAddModal() {
-  songAddModalBackdrop.classList.add("hidden");
+function getEventBadgeLabel(ev) {
+  const info = getColorInfo(ev);
+  if (info.hex) return EVENT_HEX_LABELS[info.hex.toLowerCase()] || null;
+  return EVENT_COLOR_LABELS[info.key] || null;
 }
 
-let songEditTarget = null;
-
-function openSongAddModal() {
-  const selectedKeys = [...selectedSongKeys];
-  songEditTarget = selectedKeys.length === 1 ? songByKey[selectedKeys[0]] : null;
-
-  songAddModalTitle.textContent = songEditTarget ? "곡 편집" : "곡 추가";
-  songAddSaveBtn.textContent = songEditTarget ? "수정" : "저장";
-
-  songAddGenreSelect.setOptions(songbookGenresList.map((g) => ({ value: g, label: g })));
-
-  if (songEditTarget) {
-    songAddTitleInput.value = songEditTarget.title;
-    songAddArtistInput.value = songEditTarget.artist;
-    songAddNoteInput.value = songEditTarget.note || "";
-    songAddMrInput.value = songEditTarget.mr || "";
-    songAddGenreSelect.setValue(songEditTarget.genre);
-  } else {
-    songAddForm.reset();
-    songAddGenreSelect.setValue("");
-  }
-
-  songAddModalBackdrop.classList.remove("hidden");
-  songAddTitleInput.focus();
-}
-
-songAddBtn.addEventListener("click", openSongAddModal);
-closeSongAddModalBtn.addEventListener("click", closeSongAddModal);
-cancelSongAddBtn.addEventListener("click", closeSongAddModal);
-songAddModalBackdrop.addEventListener("click", (e) => {
-  if (e.target === songAddModalBackdrop) closeSongAddModal();
-});
-
-songAddForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const title = songAddTitleInput.value.trim();
-  const artist = songAddArtistInput.value.trim();
-  const genre = songAddGenreSelect.getValue();
-  if (!title || !artist || !genre) return;
-
-  const note = songAddNoteInput.value.trim();
-  const mr = songAddMrInput.value.trim();
-
-  if (songEditTarget) {
-    const oldKey = albumArtCacheKey(songEditTarget);
-    songEditTarget.genre = genre;
-    songEditTarget.artist = artist;
-    songEditTarget.title = title;
-    songEditTarget.note = note;
-    songEditTarget.mr = mr;
-    const newKey = albumArtCacheKey(songEditTarget);
-
-    if (newKey !== oldKey) {
-      delete songByKey[oldKey];
-      delete localSongOverrides[oldKey];
-      localSongDeletions.add(oldKey);
-
-      const queueIdx = singQueueOrder.indexOf(oldKey);
-      if (queueIdx !== -1) singQueueOrder[queueIdx] = newKey;
-      saveSingQueue();
+function applyEventColor(el, ev) {
+  const info = getColorInfo(ev);
+  if (info.hex) {
+    const rgb = hexToRgb(info.hex);
+    if (rgb) {
+      el.style.background = rgbToHex(mix(rgb, 255, 0.82));
+      el.style.color = rgbToHex(mix(rgb, 0, 0.3));
+      return;
     }
-    songByKey[newKey] = songEditTarget;
-    localSongOverrides[newKey] = songEditTarget;
-    saveSongbookLocalData();
-    selectedSongKeys.clear();
-  } else {
-    const song = { genre, artist, title, note, mr };
-    allSongs = allSongs || [];
-    allSongs.push(song);
-    const key = albumArtCacheKey(song);
-    songByKey[key] = song;
-    localSongOverrides[key] = song;
-    saveSongbookLocalData();
   }
-
-  songbookGenresList = [...new Set(allSongs.map((s) => s.genre))];
-  renderGenreTabs2(songbookGenresList);
-  renderArtistList2();
-  renderSongGrid2();
-
-  closeSongAddModal();
-});
-
-songSelectAllBtn.addEventListener("click", () => {
-  const filteredKeys = getFilteredSongs2().map((song) => albumArtCacheKey(song));
-  const allSelected = filteredKeys.length > 0 && filteredKeys.every((key) => selectedSongKeys.has(key));
-  if (allSelected) {
-    filteredKeys.forEach((key) => selectedSongKeys.delete(key));
-  } else {
-    filteredKeys.forEach((key) => selectedSongKeys.add(key));
-  }
-  renderSongGrid2();
-});
-
-songDeleteSelectedBtn.addEventListener("click", () => {
-  if (!selectedSongKeys.size) return;
-  if (!confirm(`선택한 ${selectedSongKeys.size}곡을 삭제할까요?`)) return;
-
-  allSongs = (allSongs || []).filter((song) => !selectedSongKeys.has(albumArtCacheKey(song)));
-  selectedSongKeys.forEach((key) => {
-    delete songByKey[key];
-    delete localSongOverrides[key];
-    localSongDeletions.add(key);
-  });
-  saveSongbookLocalData();
-  selectedSongKeys.clear();
-
-  songbookGenresList = [...new Set(allSongs.map((s) => s.genre))];
-  renderGenreTabs2(songbookGenresList);
-  renderArtistList2();
-  renderSongGrid2();
-});
-
-songQueueAddBtn.addEventListener("click", () => {
-  if (!selectedSongKeys.size) return;
-  addToSingQueue([...selectedSongKeys]);
-});
-
-// ===== 기능 둘러보기 (코치마크 투어) =====
-const TOUR_STEPS = [
-  {
-    selector: '.song-request-nav-item[data-panel="request"]',
-    panel: "request",
-    title: "노래 신청",
-    desc: "채팅창에 '!제목' 또는 '!제목-가수' 형식으로 올라온 신청곡이 여기 실시간으로 쌓여요. 노래책에 있는 곡이면 자동 매칭되고, 가수명까지 적었는데 노래책에 없으면 '미분류'로 임시 등록한 뒤 대기열에 넣어줘요.",
-  },
-  {
-    selector: "#songRequestAcceptToggle",
-    panel: "request",
-    title: "신청 받기",
-    desc: "이 스위치가 꺼져있으면 채팅에 '!제목'을 적어도 전부 무시돼요. 켜면 '신청 받는 중'으로 바뀌면서 실시간으로 채팅을 감지하기 시작해요. 방송 시작할 때 제일 먼저 켜야 하는 스위치예요.",
-  },
-  {
-    selector: "#songRequestSourceChatBtn",
-    panel: "request",
-    title: "신청 방법 (채팅 / 별풍선)",
-    desc: "'채팅' 모드는 아무나 채팅으로 '!제목-가수'만 적으면 바로 접수돼요. '별풍선' 모드는 설정한 개수(기본 100개) 이상 별풍선을 쏜 사람이 그 직후에 보낸 신청만 받아줘요 — 별풍선 모드를 고르면 옆에 최소 개수 설정이 같이 나타나요.",
-  },
-  {
-    selector: ".song-request-nowplaying-actions",
-    panel: "request",
-    title: "되돌리기 / 다음 곡",
-    desc: "'다음 곡'을 누르면 대기열 맨 앞 곡이 재생 완료 처리되면서 빠지고, 위의 '오늘 N/M곡' 카운트에 더해져요. '되돌리기'는 바로 직전에 넘긴 곡 하나만 다시 대기열 맨 앞으로 되돌려줘요 (두 단계 이상 취소는 안 돼요).",
-  },
-  {
-    selector: ".song-request-queue-left",
-    panel: "request",
-    title: "신청 목록",
-    desc: "접수된 신청곡이 순서대로 쌓이는 곳이에요. 맨 위에 있는 곡이 지금 부를 곡이 되고, 곡을 끌어다 놓으면 순서를 바꿀 수 있어요. '선착순'은 신청한 순서, '별풍선 순'은 후원 개수가 많은 순으로 정렬하고, '초기화'를 누르면 대기열이 통째로 비워져요.",
-  },
-  {
-    selector: ".song-request-queue-right",
-    panel: "request",
-    title: "채팅",
-    desc: "신청 명령어가 들어온 채팅만 모아서 보여줘요. 누가 무슨 곡을 신청했는지, 별풍선은 몇 개였는지, 접수에 실패했는지(빨간 '실패' 표시)까지 한눈에 볼 수 있어요.",
-  },
-  {
-    selector: ".song-request-log-card",
-    panel: "request",
-    title: "로그",
-    desc: "처리 결과와 연결 상태가 실시간으로 찍히는 곳이에요. '노래책 목록에 없는 곡입니다', '최소 별풍선 개수 미달' 같은 실패 사유가 여기 남고, 오른쪽 점 색깔로 지금 수집 중인지(초록) 꺼져 있는지 확인할 수 있어요.",
-  },
-  {
-    selector: '.song-request-nav-item[data-panel="queue"]',
-    panel: "queue",
-    title: "대기열",
-    desc: "신청 목록과 채팅을 잘림 없이 전체 화면으로 쭉 볼 수 있는 곳이에요. 신청이 많이 쌓였을 때 전체 흐름을 한눈에 확인하고 싶을 때 써요.",
-  },
-  {
-    selector: '.song-request-nav-item[data-panel="songbook"]',
-    panel: "songbook",
-    title: "노래책",
-    desc: "방송에서 부를 수 있는 전체 곡 목록이에요. '곡 추가'로 제목/가수/장르/비고/MR 여부까지 입력해서 새 곡을 등록하고, 체크박스로 여러 곡을 골라 '선택삭제'하거나 '대기열 추가'로 바로 신청 큐에 넣을 수도 있어요. 룰렛으로 무작위 선곡도 가능해요.",
-  },
-  {
-    selector: '.song-request-nav-item[data-panel="overlay-nowplaying"]',
-    panel: "overlay-nowplaying",
-    title: "현재 노래 정보",
-    desc: "지금 재생 중인 곡의 제목과 가수만 심플하게 보여주는 OBS 오버레이예요. 다크/화이트 테마, 폰트, 글자 크기, 정렬을 바꿀 수 있고, '복사' 버튼으로 가져간 URL을 OBS 브라우저 소스에 붙여넣으면 돼요.",
-  },
-  {
-    selector: '.song-request-nav-item[data-panel="overlay-queue"]',
-    panel: "overlay-queue",
-    title: "노래 신청 목록",
-    desc: "대기 중인 신청곡들을 리스트로 보여주는 오버레이예요. 테마/폰트뿐 아니라 한 번에 몇 곡까지 보여줄지(최대 개수), 다 안 보일 때 페이지를 넘길지 위아래로 스크롤할지 표시 방식도 고를 수 있어요.",
-  },
-];
-
-const tourOverlay = document.getElementById("tourOverlay");
-const tourHighlight = document.getElementById("tourHighlight");
-const tourTooltip = document.getElementById("tourTooltip");
-const tourStepLabel = document.getElementById("tourStepLabel");
-const tourTitle = document.getElementById("tourTitle");
-const tourDesc = document.getElementById("tourDesc");
-const tourPrevBtn = document.getElementById("tourPrevBtn");
-const tourNextBtn = document.getElementById("tourNextBtn");
-const tourSkipBtn = document.getElementById("tourSkipBtn");
-const featureTourBtn = document.getElementById("featureTourBtn");
-
-let tourStepIndex = 0;
-let tourResizeHandlerAttached = false;
-let tourPanelBeforeStart = null;
-
-function getTourVisibleSteps() {
-  return TOUR_STEPS.filter((step) => !!document.querySelector(step.selector));
+  el.classList.add(`color-${info.key || "blue"}`);
 }
 
-function getActivePanelName() {
-  const active = document.querySelector(".song-request-content-panel.active");
-  return active ? active.dataset.panel : null;
-}
-
-// 설명 대상이 숨겨진 탭 안에 있으면 그 탭을 열어준다 (안 그러면 그 단계가 통째로 건너뛰어짐)
-function activateTourPanel(panel) {
-  if (!panel || getActivePanelName() === panel) return;
-  document
-    .querySelectorAll(".song-request-nav-item[data-panel]")
-    .forEach((el) => el.classList.toggle("active", el.dataset.panel === panel));
-  document
-    .querySelectorAll(".song-request-content-panel")
-    .forEach((p) => p.classList.toggle("active", p.dataset.panel === panel));
-}
-
-function positionTourStep(step) {
-  activateTourPanel(step.panel);
-  const el = document.querySelector(step.selector);
-  if (!el) return false;
-  // 화면 밖에 있는 항목이면 보이는 위치까지 스크롤한 뒤에 좌표를 잰다
-  el.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
-  const rect = el.getBoundingClientRect();
-  const pad = 8;
-  const margin = 12;
-
-  tourHighlight.style.top = `${rect.top - pad}px`;
-  tourHighlight.style.left = `${rect.left - pad}px`;
-  tourHighlight.style.width = `${rect.width + pad * 2}px`;
-  tourHighlight.style.height = `${rect.height + pad * 2}px`;
-
-  const tooltipWidth = tourTooltip.offsetWidth || 340;
-  const tooltipHeight = tourTooltip.offsetHeight || 180;
-
-  let top = rect.bottom + pad + margin;
-  if (top + tooltipHeight > window.innerHeight - margin) {
-    top = rect.top - pad - margin - tooltipHeight;
-  }
-  top = Math.min(top, window.innerHeight - tooltipHeight - margin);
-  if (top < margin) top = margin;
-
-  let left = rect.left;
-  if (left + tooltipWidth > window.innerWidth - margin) {
-    left = window.innerWidth - margin - tooltipWidth;
-  }
-  if (left < margin) left = margin;
-
-  tourTooltip.style.top = `${top}px`;
-  tourTooltip.style.left = `${left}px`;
-  return true;
-}
-
-function renderTourStep() {
-  const steps = getTourVisibleSteps();
-  if (!steps.length || tourStepIndex >= steps.length) {
-    endTour();
+function fillEventContent(el, title) {
+  const match = title.match(ATTENDEE_RE);
+  if (!match) {
+    el.textContent = title;
     return;
   }
-  const step = steps[tourStepIndex];
-  if (!positionTourStep(step)) {
-    tourStepIndex += 1;
-    renderTourStep();
-    return;
-  }
-  tourStepLabel.textContent = `${tourStepIndex + 1} / ${steps.length}`;
-  tourTitle.textContent = step.title;
-  tourDesc.textContent = step.desc;
-  tourPrevBtn.disabled = tourStepIndex === 0;
-  tourNextBtn.textContent = tourStepIndex === steps.length - 1 ? "완료" : "다음";
+
+  el.textContent = title.slice(0, match.index);
+  const icon = document.createElement("span");
+  icon.className = "attendee-icon";
+  icon.textContent = "👥";
+  icon.title = `w. ${match[1].trim()}`;
+  el.appendChild(icon);
 }
 
-function startTour() {
-  tourStepIndex = 0;
-  tourPanelBeforeStart = getActivePanelName();
-  tourOverlay.classList.remove("hidden");
-  renderTourStep();
-  if (!tourResizeHandlerAttached) {
-    window.addEventListener("resize", () => {
-      if (!tourOverlay.classList.contains("hidden")) renderTourStep();
+function renderGrid() {
+  const events = loadEvents();
+  monthTitle.textContent = `${currentMonth + 1}월`;
+  const now = new Date();
+  document.getElementById("calendarPostDate").textContent =
+    `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, "0")}.${String(now.getDate()).padStart(2, "0")}`;
+  prevBtn.disabled = currentMonth === 0;
+  nextBtn.disabled = currentMonth === 11;
+
+  grid.innerHTML = "";
+
+  const firstDay = new Date(YEAR, currentMonth, 1).getDay(); // 0=일 ... 6=토
+  const daysInMonth = new Date(YEAR, currentMonth + 1, 0).getDate();
+  const today = todayKey();
+
+  for (let i = 0; i < firstDay; i++) {
+    const empty = document.createElement("div");
+    empty.className = "day-cell empty";
+    grid.appendChild(empty);
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const key = dateKey(YEAR, currentMonth, day);
+    const cell = document.createElement("div");
+    cell.className = "day-cell";
+    if (key === today) cell.classList.add("today");
+
+    const num = document.createElement("div");
+    num.className = "day-num";
+    num.textContent = day;
+    cell.appendChild(num);
+
+    const menuBtn = document.createElement("button");
+    menuBtn.type = "button";
+    menuBtn.className = "day-cell-menu-btn";
+    menuBtn.textContent = "⋮";
+    menuBtn.setAttribute("aria-label", "더보기");
+    menuBtn.dataset.date = key;
+    menuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openDayCellMenu(menuBtn, key);
     });
-    tourResizeHandlerAttached = true;
+    cell.appendChild(menuBtn);
+
+    const dayEvents = events[key] || [];
+
+    if (dayEvents.length) {
+      const eventsWrap = document.createElement("div");
+      eventsWrap.className = "day-cell-events";
+      dayEvents.forEach((ev) => {
+        const chip = document.createElement("div");
+        chip.className = "event-single";
+        applyEventColor(chip, ev);
+        const chipText = document.createElement("span");
+        chipText.className = "event-single-text";
+        fillEventContent(chipText, ev.title);
+        chip.appendChild(chipText);
+        eventsWrap.appendChild(chip);
+      });
+      cell.appendChild(eventsWrap);
+    }
+
+    cell.addEventListener("click", () => openModal(key));
+    grid.appendChild(cell);
   }
 }
 
-function endTour() {
-  tourOverlay.classList.add("hidden");
-  // 투어 중 탭을 옮겨 다녔으니 원래 보던 탭으로 돌려놓는다
-  activateTourPanel(tourPanelBeforeStart);
-  tourPanelBeforeStart = null;
+function renderCardView() {
+  const events = loadEvents();
+  const today = todayKey();
+  cardList.innerHTML = "";
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(cardWeekStart);
+    d.setDate(d.getDate() + i);
+    const key = dateKey(d.getFullYear(), d.getMonth(), d.getDate());
+
+    const card = document.createElement("div");
+    card.className = "day-card";
+    if (key === today) card.classList.add("today");
+
+    const dateBox = document.createElement("div");
+    dateBox.className = "day-card-date";
+    dateBox.innerHTML = `<div class="day-card-weekday">${WEEKDAY_LABELS[i]}</div><div class="day-card-num">${d.getDate()}</div>`;
+    card.appendChild(dateBox);
+
+    const body = document.createElement("div");
+    body.className = "day-card-body";
+
+    const dayEvents = events[key] || [];
+    if (!dayEvents.length) {
+      const empty = document.createElement("div");
+      empty.className = "day-card-empty";
+      empty.textContent = "오늘은 일정이 없습니다.";
+      body.appendChild(empty);
+    } else {
+      dayEvents.forEach((ev) => {
+        const evBox = document.createElement("div");
+        evBox.className = "day-card-event";
+        applyEventColor(evBox, ev);
+        fillEventContent(evBox, ev.title);
+        body.appendChild(evBox);
+      });
+    }
+    card.appendChild(body);
+
+    card.addEventListener("click", () => openModal(key));
+    cardList.appendChild(card);
+  }
+
+  weekPrevBtn.disabled = cardWeekStart <= firstWeekOfMonth(currentMonth);
+  weekNextBtn.disabled = cardWeekStart >= lastWeekOfMonth(currentMonth);
+
+  const diffDays = Math.round((cardWeekStart - firstWeekOfMonth(currentMonth)) / 86400000);
+  const weekNum = Math.floor(diffDays / 7) + 1;
+  monthTitle.textContent = `${currentMonth + 1}월 ${weekNum}째주`;
 }
 
-featureTourBtn.addEventListener("click", startTour);
-tourSkipBtn.addEventListener("click", endTour);
-tourNextBtn.addEventListener("click", () => {
-  const steps = getTourVisibleSteps();
-  if (tourStepIndex >= steps.length - 1) {
-    endTour();
+function resetCardWeekToMonth() {
+  const first = firstWeekOfMonth(currentMonth);
+  const last = lastWeekOfMonth(currentMonth);
+  const todayWeek = getWeekStart(new Date());
+  cardWeekStart = todayWeek >= first && todayWeek <= last ? todayWeek : first;
+}
+
+function selectColor(color, hex) {
+  selectedColor = color || null;
+  selectedHex = hex || null;
+  const value = hex || color || "gray";
+  colorPickerOptions.forEach((opt) => {
+    const matches = opt.dataset.value === value;
+    opt.classList.toggle("selected", matches);
+    if (matches) colorPickerBtnLabel.textContent = opt.textContent;
+  });
+}
+
+function resetForm() {
+  editingIndex = null;
+  eventTitleInput.value = "";
+  eventAttendeesInput.value = "";
+  selectColor("gray", null);
+  eventSubmitBtn.textContent = "추가";
+}
+
+const modalCafeNotice = document.getElementById("modalCafeNotice");
+const modalCafeNoticeTitle = document.getElementById("modalCafeNoticeTitle");
+
+const cafeNoticeCache = new Map();
+function fetchCafeNoticeCached(key) {
+  if (!cafeNoticeCache.has(key)) {
+    cafeNoticeCache.set(
+      key,
+      fetch(`${CAFE_API_URL}?date=${key}`).then((res) => res.json())
+    );
+  }
+  return cafeNoticeCache.get(key);
+}
+
+async function loadModalCafeNotice(key) {
+  modalCafeNoticeTitle.textContent = "불러오는 중...";
+  modalCafeNotice.classList.remove("hidden");
+  try {
+    const posts = await fetchCafeNoticeCached(key);
+    if (selectedDateKey !== key) return;
+    if (posts && posts.length) {
+      modalCafeNoticeTitle.textContent = posts[0].title;
+      modalCafeNotice.href = posts[0].url;
+    } else {
+      modalCafeNotice.classList.add("hidden");
+    }
+  } catch {
+    cafeNoticeCache.delete(key);
+    if (selectedDateKey === key) modalCafeNotice.classList.add("hidden");
+  }
+}
+
+const SOOP_NOTICE_API_URL = "/api/soop-notice";
+const modalSoopNotice = document.getElementById("modalSoopNotice");
+const modalSoopNoticeTitle = document.getElementById("modalSoopNoticeTitle");
+const modalSoopNoticeContent = document.getElementById("modalSoopNoticeContent");
+
+const soopNoticeCache = new Map();
+function fetchSoopNoticeCached(key) {
+  if (!soopNoticeCache.has(key)) {
+    soopNoticeCache.set(
+      key,
+      fetch(`${SOOP_NOTICE_API_URL}?date=${key}`).then((res) => res.json())
+    );
+  }
+  return soopNoticeCache.get(key);
+}
+
+async function loadModalSoopNotice(key) {
+  modalSoopNoticeTitle.textContent = "불러오는 중...";
+  modalSoopNoticeContent.textContent = "";
+  modalSoopNotice.classList.remove("hidden");
+  try {
+    const posts = await fetchSoopNoticeCached(key);
+    if (selectedDateKey !== key) return;
+    if (posts && posts.length) {
+      modalSoopNoticeTitle.textContent = posts[0].title;
+      modalSoopNoticeContent.textContent = posts[0].content;
+      modalSoopNotice.href = posts[0].url;
+    } else {
+      modalSoopNotice.classList.add("hidden");
+    }
+  } catch {
+    soopNoticeCache.delete(key);
+    if (selectedDateKey === key) modalSoopNotice.classList.add("hidden");
+  }
+}
+
+function prefetchTodayNotices() {
+  const key = todayKey();
+  fetchCafeNoticeCached(key).catch(() => cafeNoticeCache.delete(key));
+  fetchSoopNoticeCached(key).catch(() => soopNoticeCache.delete(key));
+}
+
+function openModal(key) {
+  selectedDateKey = key;
+  const [, m, d] = key.split("-");
+  modalDate.textContent = `${YEAR}년 ${parseInt(m)}월 ${parseInt(d)}일`;
+  modalDate.classList.toggle("clickable", !isReadOnly);
+  managingMode = false;
+  expandedIndex = null;
+  modalManageActions.classList.add("hidden");
+  resetForm();
+  eventForm.classList.add("hidden");
+  renderEventList();
+  modalBackdrop.classList.remove("hidden");
+  loadModalCafeNotice(key);
+  loadModalSoopNotice(key);
+}
+
+modalDate.addEventListener("click", () => {
+  if (isReadOnly) return;
+  managingMode = !managingMode;
+  expandedIndex = null;
+  eventForm.classList.add("hidden");
+  modalManageActions.classList.toggle("hidden", !managingMode);
+  renderEventList();
+});
+
+newEventBtn.addEventListener("click", () => {
+  if (isReadOnly) return;
+  expandedIndex = -1;
+  resetForm();
+  eventForm.classList.remove("hidden");
+  renderEventList();
+  eventTitleInput.focus();
+});
+
+bulkDeleteBtn.addEventListener("click", () => {
+  if (isReadOnly || !selectedDateKey) return;
+  if (!confirm("이 날짜의 모든 일정을 삭제할까요?")) return;
+  const events = loadEvents();
+  delete events[selectedDateKey];
+  saveEvents(events);
+  expandedIndex = null;
+  eventForm.classList.add("hidden");
+  renderEventList();
+  refreshCurrentView();
+});
+
+function editEvent(idx) {
+  if (isReadOnly) return;
+  const events = loadEvents();
+  const ev = (events[selectedDateKey] || [])[idx];
+  if (!ev) return;
+
+  editingIndex = idx;
+  const match = ev.title.match(ATTENDEE_RE);
+  eventTitleInput.value = match ? ev.title.slice(0, match.index).trim() : ev.title;
+  eventAttendeesInput.value = match ? match[1].trim() : "";
+  if (ev.sheetColor) {
+    selectColor(null, ev.sheetColor);
+  } else {
+    selectColor(ev.color || "gray", null);
+  }
+  eventSubmitBtn.textContent = "수정";
+  eventTitleInput.focus();
+}
+
+colorPickerBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  if (colorPickerList.classList.contains("hidden")) {
+    const rect = colorPickerBtn.getBoundingClientRect();
+    colorPickerList.style.top = `${rect.bottom + 4}px`;
+    colorPickerList.style.left = `${rect.left}px`;
+    colorPickerList.style.width = `${rect.width}px`;
+  }
+  colorPickerList.classList.toggle("hidden");
+});
+
+colorPickerOptions.forEach((opt) => {
+  opt.addEventListener("click", () => {
+    const v = opt.dataset.value;
+    if (v.startsWith("#")) selectColor(null, v);
+    else selectColor(v, null);
+    colorPickerList.classList.add("hidden");
+  });
+});
+
+document.addEventListener("click", (e) => {
+  if (!colorPickerList.classList.contains("hidden") && !colorPickerList.contains(e.target) && e.target !== colorPickerBtn) {
+    colorPickerList.classList.add("hidden");
+  }
+});
+
+function closeModal() {
+  modalBackdrop.classList.add("hidden");
+  selectedDateKey = null;
+}
+
+function buildEventCardContent(container, ev) {
+  const match = ev.title.match(ATTENDEE_RE);
+  const titleEl = document.createElement("div");
+  titleEl.className = "event-card-title";
+  titleEl.textContent = match ? ev.title.slice(0, match.index) : ev.title;
+  container.appendChild(titleEl);
+
+  const badgeLabel = getEventBadgeLabel(ev);
+  if (badgeLabel) {
+    const badgeEl = document.createElement("div");
+    badgeEl.className = "event-card-badge";
+    badgeEl.textContent = badgeLabel;
+    applyEventColor(badgeEl, ev);
+    container.appendChild(badgeEl);
+  }
+
+  if (match) {
+    const names = match[1].split(/[,、&]/).map((n) => n.trim()).filter(Boolean);
+    if (names.length) {
+      const attendeesWrap = document.createElement("div");
+      attendeesWrap.className = "event-card-attendees";
+
+      const icon = document.createElement("span");
+      icon.className = "attendees-icon";
+      icon.textContent = "👤";
+      attendeesWrap.appendChild(icon);
+
+      const namesEl = document.createElement("span");
+      namesEl.textContent = names.join(", ");
+      attendeesWrap.appendChild(namesEl);
+
+      container.appendChild(attendeesWrap);
+    }
+  }
+}
+
+function renderEventList() {
+  const events = loadEvents();
+  const list = events[selectedDateKey] || [];
+  const manageable = managingMode && !isReadOnly;
+
+  eventList.innerHTML = "";
+
+  if (manageable && expandedIndex === -1) {
+    const newCard = document.createElement("div");
+    newCard.className = "event-card manageable";
+    const body = document.createElement("div");
+    body.className = "event-card-body";
+    body.appendChild(eventForm);
+    eventForm.classList.remove("hidden");
+    newCard.appendChild(body);
+    eventList.appendChild(newCard);
+  }
+
+  if (!list.length) {
+    if (!(manageable && expandedIndex === -1)) {
+      const empty = document.createElement("p");
+      empty.className = "event-empty";
+      empty.textContent = "등록된 일정이 없습니다.";
+      eventList.appendChild(empty);
+    }
     return;
   }
-  tourStepIndex += 1;
-  renderTourStep();
+
+  list.forEach((ev, idx) => {
+    const card = document.createElement("div");
+    card.className = "event-card";
+
+    if (!manageable) {
+      buildEventCardContent(card, ev);
+      eventList.appendChild(card);
+      return;
+    }
+
+    card.classList.add("manageable");
+    card.draggable = true;
+
+    card.addEventListener("dragstart", () => {
+      draggedEventIndex = idx;
+      card.classList.add("dragging");
+    });
+    card.addEventListener("dragend", () => {
+      draggedEventIndex = null;
+      card.classList.remove("dragging");
+    });
+    card.addEventListener("dragover", (e) => e.preventDefault());
+    card.addEventListener("drop", (e) => {
+      e.preventDefault();
+      if (draggedEventIndex === null || draggedEventIndex === idx) return;
+      const events = loadEvents();
+      const dayList = events[selectedDateKey] || [];
+      const [moved] = dayList.splice(draggedEventIndex, 1);
+      dayList.splice(idx, 0, moved);
+      events[selectedDateKey] = dayList;
+      saveEvents(events);
+      expandedIndex = null;
+      eventForm.classList.add("hidden");
+      renderEventList();
+      refreshCurrentView();
+    });
+
+    const header = document.createElement("div");
+    header.className = "event-card-header";
+
+    const chevron = document.createElement("span");
+    chevron.className = "event-card-chevron";
+    chevron.textContent = expandedIndex === idx ? "▾" : "▸";
+    header.appendChild(chevron);
+
+    buildEventCardContent(header, ev);
+
+    const delBtn = document.createElement("button");
+    delBtn.type = "button";
+    delBtn.className = "event-card-close";
+    delBtn.textContent = "✕";
+    delBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      deleteEvent(idx);
+    });
+    header.appendChild(delBtn);
+
+    header.addEventListener("click", () => {
+      if (expandedIndex === idx) {
+        expandedIndex = null;
+        eventForm.classList.add("hidden");
+      } else {
+        expandedIndex = idx;
+        editEvent(idx);
+      }
+      renderEventList();
+    });
+
+    card.appendChild(header);
+
+    if (expandedIndex === idx) {
+      const body = document.createElement("div");
+      body.className = "event-card-body";
+      body.appendChild(eventForm);
+      eventForm.classList.remove("hidden");
+      card.appendChild(body);
+    }
+
+    eventList.appendChild(card);
+  });
+}
+
+function refreshCurrentView() {
+  renderGrid();
+  if (viewMode === "card") renderCardView();
+}
+
+function deleteEvent(index) {
+  if (isReadOnly) return;
+  const events = loadEvents();
+  const list = events[selectedDateKey] || [];
+  list.splice(index, 1);
+  if (list.length === 0) delete events[selectedDateKey];
+  saveEvents(events);
+  if (editingIndex === index || expandedIndex === index) {
+    resetForm();
+    expandedIndex = null;
+    eventForm.classList.add("hidden");
+  }
+  renderEventList();
+  refreshCurrentView();
+}
+
+eventForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (isReadOnly) return;
+  const baseTitle = eventTitleInput.value.trim();
+  if (!baseTitle || !selectedDateKey) return;
+
+  const attendees = eventAttendeesInput.value.trim();
+  const title = attendees ? `${baseTitle} w.${attendees}` : baseTitle;
+
+  const events = loadEvents();
+  if (!events[selectedDateKey]) events[selectedDateKey] = [];
+
+  const newEvent = selectedHex ? { title, sheetColor: selectedHex } : { title, color: selectedColor };
+  console.log("[eventForm submit] selectedDateKey=", selectedDateKey, "editingIndex=", editingIndex, "newEvent=", newEvent);
+
+  if (editingIndex !== null) {
+    // 앱에서 직접 수정한 일정은 "app" 소유로 승격되어, 이후 월별 탭 동기화가 덮어쓰지 않음
+    events[selectedDateKey][editingIndex] = newEvent;
+  } else {
+    events[selectedDateKey].push(newEvent);
+  }
+  saveEvents(events);
+
+  expandedIndex = null;
+  eventForm.classList.add("hidden");
+  resetForm();
+  renderEventList();
+  refreshCurrentView();
 });
-tourPrevBtn.addEventListener("click", () => {
-  if (tourStepIndex === 0) return;
-  tourStepIndex -= 1;
-  renderTourStep();
+
+prevBtn.addEventListener("click", () => {
+  if (currentMonth > 0) {
+    currentMonth--;
+    renderGrid();
+    if (viewMode === "card") {
+      resetCardWeekToMonth();
+      renderCardView();
+    }
+  }
 });
-tourOverlay.addEventListener("click", (e) => {
-  if (e.target === tourOverlay) endTour();
+
+nextBtn.addEventListener("click", () => {
+  if (currentMonth < 11) {
+    currentMonth++;
+    renderGrid();
+    if (viewMode === "card") {
+      resetCardWeekToMonth();
+      renderCardView();
+    }
+  }
+});
+
+weekPrevBtn.addEventListener("click", () => {
+  cardWeekStart.setDate(cardWeekStart.getDate() - 7);
+  renderCardView();
+});
+
+weekNextBtn.addEventListener("click", () => {
+  cardWeekStart.setDate(cardWeekStart.getDate() + 7);
+  renderCardView();
+});
+
+const viewModeWeekBtn = document.getElementById("viewModeWeekBtn");
+const viewModeMonthBtn = document.getElementById("viewModeMonthBtn");
+
+function setViewMode(mode) {
+  viewMode = mode;
+  viewModeWeekBtn.classList.toggle("active", mode === "card");
+  viewModeMonthBtn.classList.toggle("active", mode === "list");
+  grid.classList.toggle("hidden", mode === "card");
+  cardView.classList.toggle("hidden", mode !== "card");
+  weekdayRow.classList.toggle("card-mode", mode === "card");
+  calendarHeaderEl.classList.toggle("card-mode", mode === "card");
+  if (mode === "card") {
+    resetCardWeekToMonth();
+    renderCardView();
+  }
+}
+
+viewModeWeekBtn.addEventListener("click", () => setViewMode("card"));
+viewModeMonthBtn.addEventListener("click", () => setViewMode("list"));
+
+const mobileViewQuery = window.matchMedia("(max-width: 700px)");
+
+function applyDefaultMobileViewMode() {
+  if (mobileViewQuery.matches && viewMode !== "card") setViewMode("card");
+}
+
+closeModalBtn.addEventListener("click", closeModal);
+modalBackdrop.addEventListener("click", (e) => {
+  if (e.target === modalBackdrop) closeModal();
 });
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && !tourOverlay.classList.contains("hidden")) endTour();
+  if (e.key !== "Escape") return;
+  if (!modalBackdrop.classList.contains("hidden")) closeModal();
 });
 
-// ===== 시작 =====
-loadSongbook().then(() => {
-  fetchSingQueue();
-  setInterval(fetchSingQueue, 5000);
-  setInterval(loadSongbook, 5 * 60 * 1000);
-  renderArtistList2();
-  renderSongGrid2();
+function updateLockUi() {
+  editLockBtn.classList.toggle("unlocked", !isReadOnly);
+  const label = isReadOnly ? "로그인 (눌러서 편집 잠금 해제)" : "로그아웃 (눌러서 편집 잠그기)";
+  editLockBtn.title = label;
+  editLockBtn.setAttribute("aria-label", label);
+  loginBtnLabel.textContent = isReadOnly ? "로그인" : "로그아웃";
+}
+
+async function tryAutoUnlock() {
+  const { username: user, password: pw } = getStoredCreds();
+  if (!pw || !user) {
+    isReadOnly = true;
+    return;
+  }
+  const res = await apiPost({ action: "checkPassword", username: user, password: pw });
+  if (res === null) {
+    // 서버 응답을 못 받은 경우(네트워크 오류 등) - 자격 증명은 그대로 두고 이번 로드만 읽기 전용으로 처리
+    isReadOnly = true;
+    return;
+  }
+  const ok = !!res.ok;
+  isReadOnly = !ok;
+  if (!ok) clearStoredCreds();
+}
+
+const loginModalBackdrop = document.getElementById("loginModalBackdrop");
+const loginForm = document.getElementById("loginForm");
+const loginUsernameInput = document.getElementById("loginUsernameInput");
+const loginPasswordInput = document.getElementById("loginPasswordInput");
+const loginRememberInput = document.getElementById("loginRememberInput");
+const loginError = document.getElementById("loginError");
+const closeLoginModalBtn = document.getElementById("closeLoginModalBtn");
+
+editLockBtn.addEventListener("click", () => {
+  if (!isReadOnly) {
+    clearStoredCreds();
+    isReadOnly = true;
+    updateLockUi();
+    return;
+  }
+
+  loginError.classList.add("hidden");
+  loginUsernameInput.value = "";
+  loginPasswordInput.value = "";
+  loginRememberInput.checked = false;
+  loginModalBackdrop.classList.remove("hidden");
+  loginUsernameInput.focus();
 });
+
+closeLoginModalBtn.addEventListener("click", () => {
+  loginModalBackdrop.classList.add("hidden");
+});
+loginModalBackdrop.addEventListener("click", (e) => {
+  if (e.target === loginModalBackdrop) loginModalBackdrop.classList.add("hidden");
+});
+
+loginForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const username = loginUsernameInput.value.trim();
+  const pw = loginPasswordInput.value;
+  if (!username || !pw) return;
+
+  const res = await apiPost({ action: "checkPassword", username, password: pw });
+  if (res && res.ok) {
+    setStoredCreds(username, pw, loginRememberInput.checked);
+    isReadOnly = false;
+    updateLockUi();
+    loginModalBackdrop.classList.add("hidden");
+  } else {
+    loginError.classList.remove("hidden");
+  }
+});
+
+async function init() {
+  const today = new Date();
+  if (today.getFullYear() === YEAR) currentMonth = today.getMonth();
+
+  const minDelay = new Promise((r) => setTimeout(r, LOADING_GIF_MS));
+  await Promise.all([initEvents(), minDelay]);
+
+  updateLockUi();
+  renderGrid();
+  applyDefaultMobileViewMode();
+
+  loadingScreen.classList.add("hidden");
+  openCalendarAnnounce();
+
+  prefetchTodayNotices();
+  prefetchSongbookInBackground();
+  loadSharedMemoList().then(() => showTodayMemoPopupIfNeeded());
+
+  tryAutoUnlock().then(() => {
+    updateLockUi();
+    refreshCurrentView();
+  });
+}
+init();
+
+const liveAvatarEls = document.querySelectorAll(".back-menu-avatar, .cafe-photos-avatar, .calendar-post-avatar");
+const SOOP_LIVE_URL = "https://play.sooplive.com/insome0319";
+
+liveAvatarEls.forEach((el) => {
+  el.addEventListener("click", () => {
+    if (el.classList.contains("live")) window.open(SOOP_LIVE_URL, "_blank", "noopener");
+  });
+});
+
+async function refreshSoopLiveStatus() {
+  try {
+    const res = await fetch("/api/soop-live");
+    const data = await res.json();
+    liveAvatarEls.forEach((el) => el.classList.toggle("live", Boolean(data.live)));
+  } catch {
+    // 실패 시 이전 상태 유지
+  }
+}
+refreshSoopLiveStatus();
+setInterval(refreshSoopLiveStatus, 60 * 1000);
+
+const SYNC_INTERVAL_MS = 60 * 1000; // 1분
+
+setInterval(() => {
+  syncEventsFromServer();
+}, SYNC_INTERVAL_MS);
