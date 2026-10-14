@@ -1457,14 +1457,46 @@ songQueueAddBtn.addEventListener("click", () => {
 
 // ===== 기능 둘러보기 (코치마크 투어) =====
 const TOUR_STEPS = [
-  { selector: '.song-request-nav-item[data-panel="request"]', title: "노래 신청", desc: "채팅이나 별풍선으로 들어온 신청곡을 확인하고 관리해요." },
-  { selector: '.song-request-nav-item[data-panel="queue"]', title: "대기열", desc: "지금 대기 중인 신청곡 전체 목록과 채팅 로그를 한눈에 볼 수 있어요." },
-  { selector: '.song-request-nav-item[data-panel="songbook"]', title: "노래책", desc: "방송에서 부를 수 있는 전체 노래 목록을 관리해요." },
-  { selector: '.song-request-nav-item[data-panel="overlay-nowplaying"]', title: "현재 노래 정보", desc: "지금 부르고 있는 곡 제목/가수만 보여주는 OBS 오버레이를 설정해요." },
-  { selector: '.song-request-nav-item[data-panel="overlay-queue"]', title: "노래 신청 목록", desc: "대기 중인 신청곡 목록을 보여주는 OBS 오버레이를 설정해요." },
-  { selector: "#songRequestAcceptToggle", title: "신청 받기", desc: "이 토글을 켜야 채팅/별풍선으로 들어오는 신청을 실제로 받기 시작해요." },
-  { selector: "#songRequestSourceChatBtn", title: "채팅 / 별풍선", desc: "신청을 채팅 메시지로 받을지, 별풍선 후원 메시지로만 받을지 선택해요." },
-  { selector: ".song-request-nowplaying-actions", title: "되돌리기 / 건너뛰기", desc: "방금 재생한 곡을 취소하거나, 다음 곡으로 건너뛸 수 있어요." },
+  {
+    selector: '.song-request-nav-item[data-panel="request"]',
+    title: "노래 신청",
+    desc: "채팅창에 '!제목' 또는 '!제목-가수' 형식으로 올라온 신청곡이 여기 실시간으로 쌓여요. 노래책에 있는 곡이면 자동 매칭되고, 가수명까지 적었는데 노래책에 없으면 '미분류'로 임시 등록한 뒤 대기열에 넣어줘요. 왼쪽엔 신청 목록, 오른쪽엔 전체 채팅, 아래 로그엔 실패 사유까지 남아요.",
+  },
+  {
+    selector: '.song-request-nav-item[data-panel="queue"]',
+    title: "대기열",
+    desc: "신청 목록과 채팅을 잘림 없이 전체 화면으로 쭉 볼 수 있는 곳이에요. 신청이 많이 쌓였을 때 전체 흐름을 한눈에 확인하고 싶을 때 써요.",
+  },
+  {
+    selector: '.song-request-nav-item[data-panel="songbook"]',
+    title: "노래책",
+    desc: "방송에서 부를 수 있는 전체 곡 목록이에요. '곡 추가'로 제목/가수/장르/비고/MR 여부까지 입력해서 새 곡을 등록하고, 체크박스로 여러 곡을 골라 '선택삭제'하거나 '대기열 추가'로 바로 신청 큐에 넣을 수도 있어요. 룰렛으로 무작위 선곡도 가능해요.",
+  },
+  {
+    selector: '.song-request-nav-item[data-panel="overlay-nowplaying"]',
+    title: "현재 노래 정보",
+    desc: "지금 재생 중인 곡의 제목과 가수만 심플하게 보여주는 OBS 오버레이예요. 다크/화이트 테마, 폰트, 글자 크기, 정렬을 바꿀 수 있고, '복사' 버튼으로 가져간 URL을 OBS 브라우저 소스에 붙여넣으면 돼요.",
+  },
+  {
+    selector: '.song-request-nav-item[data-panel="overlay-queue"]',
+    title: "노래 신청 목록",
+    desc: "대기 중인 신청곡들을 리스트로 보여주는 오버레이예요. 테마/폰트뿐 아니라 한 번에 몇 곡까지 보여줄지(최대 개수), 다 안 보일 때 페이지를 넘길지 위아래로 스크롤할지 표시 방식도 고를 수 있어요.",
+  },
+  {
+    selector: "#songRequestAcceptToggle",
+    title: "신청 받기",
+    desc: "이 토글이 꺼져있으면 채팅에 '!제목'을 적어도 무시돼요. 켜야 실시간으로 채팅을 감지해서 신청을 받기 시작해요.",
+  },
+  {
+    selector: "#songRequestSourceChatBtn",
+    title: "채팅 / 별풍선",
+    desc: "'채팅' 모드는 아무나 채팅으로 '!제목-가수'만 적으면 바로 신청 접수돼요. '별풍선' 모드는 설정한 개수(기본 100개) 이상 별풍선을 쏜 사람이 그 직후에 보낸 신청 메시지만 받아줘요 — 후원 없이는 신청이 접수되지 않아요.",
+  },
+  {
+    selector: ".song-request-nowplaying-actions",
+    title: "되돌리기 / 건너뛰기",
+    desc: "⏭(건너뛰기)를 누르면 대기열 맨 앞 곡이 재생 완료 처리되면서 빠지고, '오늘 N/M곡' 카운트에 더해져요. ↩(되돌리기)는 바로 직전에 건너뛴 곡 하나만 다시 대기열 맨 앞으로 되돌려줘요 (두 단계 이상 취소는 안 돼요).",
+  },
 ];
 
 const tourOverlay = document.getElementById("tourOverlay");
@@ -1500,8 +1532,8 @@ function positionTourStep(step) {
   tourHighlight.style.width = `${rect.width + pad * 2}px`;
   tourHighlight.style.height = `${rect.height + pad * 2}px`;
 
-  const tooltipWidth = tourTooltip.offsetWidth || 280;
-  const tooltipHeight = tourTooltip.offsetHeight || 150;
+  const tooltipWidth = tourTooltip.offsetWidth || 340;
+  const tooltipHeight = tourTooltip.offsetHeight || 180;
 
   let top = rect.bottom + pad + margin;
   if (top + tooltipHeight > window.innerHeight - margin) {

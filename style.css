@@ -1649,7 +1649,7 @@ body {
 
 .tour-tooltip {
   position: fixed;
-  width: 280px;
+  width: 340px;
   max-width: calc(100vw - 32px);
   background: #fff;
   border-radius: 12px;
