@@ -2,819 +2,436 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>DDARIN</title>
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#4a7fd6">
-<link rel="icon" href="icons/favicon-32.png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="DDARIN">
-
-<link rel="stylesheet" href="style.css?v=611">
+<title>DDARIN 신청곡 받기</title>
+<link rel="stylesheet" href="style.css?v=20">
 </head>
 <body>
-  <div id="loadingScreen" class="loading-screen">
-    <img alt="불러오는 중" class="loading-gif" id="loadingGifImg">
-  </div>
+  <div class="app-shell">
+    <div class="app-body">
+      <div class="song-request-shell">
+        <div class="song-request-nav">
+          <button type="button" class="song-request-nav-item active" data-panel="request">노래 신청</button>
+          <button type="button" class="song-request-nav-item" data-panel="queue">대기열</button>
+          <button type="button" class="song-request-nav-item" data-panel="songbook">노래책</button>
 
-  <button type="button" id="backToCalendarBtn" class="back-to-calendar-btn" aria-label="홈으로">←</button>
+          <div class="song-request-nav-section-label">오버레이</div>
+          <button type="button" class="song-request-nav-item song-request-nav-sub" data-panel="overlay-nowplaying">현재 노래 정보</button>
+          <button type="button" class="song-request-nav-item song-request-nav-sub" data-panel="overlay-queue">노래 신청 목록</button>
 
-  <div class="page">
-  <div class="calendar-post-column">
-    <div class="calendar-post-header">
-      <span class="calendar-post-avatar"></span>
-      <div class="calendar-post-header-text">
-        <span class="calendar-post-name">DDARIN</span>
-        <span id="calendarPostDate" class="calendar-post-date"></span>
-      </div>
-      <button type="button" id="appRefreshBtn" class="calendar-post-menu" aria-label="새로고침">
-        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 9 15 9"/></svg>
-      </button>
-    </div>
-
-  <div class="app">
-    <div class="calendar-header">
-      <header class="toolbar">
-        <button id="prevBtn" class="nav-btn" aria-label="이전 달">◀</button>
-        <h1 id="monthTitle">1월</h1>
-        <button id="nextBtn" class="nav-btn" aria-label="다음 달">▶</button>
-        <div class="view-mode-toggle">
-          <button type="button" id="viewModeWeekBtn" class="view-mode-btn">주간</button>
-          <button type="button" id="viewModeMonthBtn" class="view-mode-btn active">월간</button>
+          <div class="song-request-nav-section-label">도움말</div>
+          <button type="button" id="featureTourBtn" class="song-request-nav-item">기능 둘러보기</button>
         </div>
-      </header>
 
-      <div class="weekday-row">
-        <span class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="sat">토</span>
-      </div>
-
-    </div>
-
-    <div id="grid" class="grid"></div>
-
-    <div id="cardView" class="card-view hidden">
-      <button type="button" id="weekPrevBtn" class="week-nav-btn" aria-label="이전 주">‹</button>
-      <div id="cardList" class="card-list"></div>
-      <button type="button" id="weekNextBtn" class="week-nav-btn" aria-label="다음 주">›</button>
-    </div>
-  </div>
-  </div>
-
-  <div id="backMenuView" class="back-menu-view hidden">
-    <div class="back-menu-top">
-      <span class="back-menu-avatar"></span>
-      <span class="back-menu-name">DDARIN</span>
-      <button type="button" id="backMenuHamburgerBtn" class="back-menu-hamburger" aria-label="메뉴">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
-      </button>
-    </div>
-
-    <div id="backMenuNavMenu" class="back-menu-nav-menu hidden">
-      <button type="button" id="backMenuNavHomeBtn" class="back-menu-nav-item" aria-label="home">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 12 12 4l9 8"/>
-          <path d="M5 10v10h14V10"/>
-        </svg>
-      </button>
-      <button type="button" id="backMenuCalendarBtn" class="back-menu-nav-item" aria-label="calendar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="4" width="18" height="18" rx="2"/>
-          <line x1="16" y1="2" x2="16" y2="6"/>
-          <line x1="8" y1="2" x2="8" y2="6"/>
-          <line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
-      </button>
-      <button type="button" id="backMenuPlaylistBtn" class="back-menu-nav-item" aria-label="playlist">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="6" cy="18" r="3"/>
-          <circle cx="18" cy="16" r="3"/>
-          <path d="M9 18V6l12-2v12"/>
-        </svg>
-      </button>
-      <button type="button" id="backMenuPostsBtn" class="back-menu-nav-item" aria-label="Photo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-          <circle cx="12" cy="13" r="4"/>
-        </svg>
-      </button>
-      <button type="button" id="backMenuSongbookBtn" class="back-menu-nav-item" aria-label="songbook">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round">
-          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-        </svg>
-      </button>
-      <button type="button" id="backMenuMailBtn" class="back-menu-nav-item" aria-label="mail">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="5" width="18" height="14" rx="2"/>
-          <path d="M3 7l9 6 9-6"/>
-        </svg>
-      </button>
-    </div>
-
-    <div id="backMenuMedia" class="back-menu-media">
-      <div id="backMenuMediaTrack" class="back-menu-media-track">
-        <div class="back-menu-media-slide">
-          <video class="back-menu-bg-video" autoplay loop muted playsinline>
-            <source src="따린_배경.mp4" type="video/mp4">
-          </video>
-        </div>
-        <div class="back-menu-media-slide">
-          <video class="back-menu-bg-video" autoplay loop muted playsinline>
-            <source src="따린_배경2.mp4" type="video/mp4">
-          </video>
-        </div>
-      </div>
-
-      <div id="backMenuDots" class="back-menu-dots">
-        <span class="back-menu-dot active"></span>
-        <span class="back-menu-dot"></span>
-      </div>
-    </div>
-
-    <div id="backMenuCalendarBox" class="back-menu-calendar-box hidden">
-      <div id="backMenuCalendarBody" class="back-menu-calendar-body"></div>
-
-      <div class="calendar-post-actions">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-9.5-8.5C1 9 2.5 5 6.5 5c2 0 3.5 1.5 4.5 3 1-1.5 2.5-3 4.5-3 4 0 5.5 4 4 7.5C19 16.65 12 21 12 21z"/></svg>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.3 0-2.5-.3-3.6-.8L3 21l1.8-5.4A8.5 8.5 0 1 1 21 11.5z"/></svg>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>
-        <span class="calendar-post-spacer"></span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg>
-      </div>
-
-      <div class="calendar-post-caption">
-        <span class="calendar-post-caption-name">DDARIN</span><span id="backMenuTodaySchedule"></span>
-      </div>
-      <div id="backMenuTodayDate" class="calendar-post-timestamp"></div>
-    </div>
-  </div>
-
-  <div id="soopChatView" class="back-menu-view hidden">
-    <div class="back-menu-top">
-      <span class="back-menu-avatar"></span>
-      <span class="back-menu-name">DDARIN</span>
-      <button type="button" id="soopChatHamburgerBtn" class="back-menu-hamburger" aria-label="메뉴">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
-      </button>
-    </div>
-
-    <div id="soopChatNavMenu" class="back-menu-nav-menu hidden">
-      <button type="button" id="soopChatNavHomeBtn" class="back-menu-nav-item" aria-label="home">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 12 12 4l9 8"/>
-          <path d="M5 10v10h14V10"/>
-        </svg>
-      </button>
-      <button type="button" id="soopChatNavCalendarBtn" class="back-menu-nav-item" aria-label="calendar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="4" width="18" height="18" rx="2"/>
-          <line x1="16" y1="2" x2="16" y2="6"/>
-          <line x1="8" y1="2" x2="8" y2="6"/>
-          <line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
-      </button>
-      <button type="button" id="soopChatNavPlaylistBtn" class="back-menu-nav-item" aria-label="playlist">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="6" cy="18" r="3"/>
-          <circle cx="18" cy="16" r="3"/>
-          <path d="M9 18V6l12-2v12"/>
-        </svg>
-      </button>
-      <button type="button" id="soopChatNavPostsBtn" class="back-menu-nav-item" aria-label="Photo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-          <circle cx="12" cy="13" r="4"/>
-        </svg>
-      </button>
-      <button type="button" id="soopChatNavSongbookBtn" class="back-menu-nav-item" aria-label="songbook">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round">
-          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-        </svg>
-      </button>
-      <button type="button" id="soopChatNavMailBtn" class="back-menu-nav-item" aria-label="mail">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="5" width="18" height="14" rx="2"/>
-          <path d="M3 7l9 6 9-6"/>
-        </svg>
-      </button>
-    </div>
-
-    <div id="soopChatList" class="memo-card-list soop-chat-list"></div>
-  </div>
-
-  <div id="soopChatDayView" class="back-menu-view hidden">
-    <div class="back-menu-top">
-      <button type="button" id="soopChatDayBackBtn" class="back-menu-hamburger" aria-label="뒤로">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
-      </button>
-      <span class="back-menu-avatar"></span>
-      <span class="back-menu-name">DDARIN</span>
-    </div>
-    <div id="soopChatDayList" class="soop-chat-day-list"></div>
-  </div>
-
-  <div id="youtubeView" class="back-menu-view hidden">
-    <div class="back-menu-top">
-      <button type="button" id="youtubeBackBtn" class="back-menu-hamburger" aria-label="뒤로">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
-      </button>
-      <span class="back-menu-avatar"></span>
-      <span class="back-menu-name">DDARIN</span>
-      <a id="youtubeChannelLink" href="https://www.youtube.com/channel/UCuROXT7djegOJSyVp1lhx-w" target="_blank" rel="noopener" class="youtube-watch-channel-link">채널 바로가기 ↗</a>
-    </div>
-
-    <div class="youtube-watch-panel">
-      <a id="youtubeHeroCard" class="youtube-hero-card hidden" target="_blank" rel="noopener">
-        <img id="youtubeHeroThumb" class="youtube-hero-thumb" alt="">
-        <div class="youtube-hero-overlay">
-          <p id="youtubeHeroTitle" class="youtube-hero-title"></p>
-          <div class="youtube-hero-meta">
-            <span id="youtubeHeroChannel" class="youtube-hero-channel"></span>
-            <span id="youtubeHeroTime"></span>
-          </div>
-        </div>
-      </a>
-
-      <div class="youtube-list-controls">
-        <div id="youtubeChannelToggle" class="youtube-channel-toggle">
-          <button type="button" class="youtube-channel-seg active" data-group="shorts">따린</button>
-          <button type="button" class="youtube-channel-seg" data-group="longform">세이브따린</button>
-        </div>
-        <div class="youtube-watch-nav">
-          <button type="button" id="youtubeCarouselPrevBtn" class="youtube-watch-nav-btn" aria-label="이전">‹</button>
-          <button type="button" id="youtubeCarouselNextBtn" class="youtube-watch-nav-btn" aria-label="다음">›</button>
-        </div>
-      </div>
-
-      <div id="youtubeCardTrack" class="youtube-card-track"></div>
-    </div>
-  </div>
-
-  <div id="cafePhotosView" class="cafe-photos-view hidden">
-    <div class="cafe-photos-profile-top">
-      <div class="cafe-photos-avatar"></div>
-      <div class="cafe-photos-profile-info">
-        <div class="cafe-photos-profile-name-row">
-          <h2 class="cafe-photos-title">DDARIN</h2>
-          <button type="button" id="cafePhotosProfileMenuBtn" class="cafe-photos-profile-menu">•••</button>
-          <div id="cafePhotosProfileMenu" class="cafe-photos-profile-popup hidden">
-            <span class="cafe-photos-profile-popup-btn">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/><polygon points="10 9 15 12 10 15" fill="currentColor" stroke="none"/></svg>
-            </span>
-            <span class="cafe-photos-profile-popup-btn">
-              <svg viewBox="0 0 24 24" width="34" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 9a3 3 0 1 0 0 6c1.5 0 2.5-1.2 3.5-3s2-3 3.5-3a3 3 0 1 1 0 6c-1.5 0-2.5-1.2-3.5-3s-2-3-3.5-3z"/></svg>
-            </span>
-          </div>
-        </div>
-        <a class="cafe-photos-cafe-link" href="https://cafe.naver.com/f-e/cafes/31054486/menus/27?viewType=L" target="_blank" rel="noopener">카페에서 보기 ↗</a>
-        <p class="cafe-photos-profile-stats">게시물 <b id="cafePhotosPostCount">0</b></p>
-      </div>
-      <button type="button" id="cafePhotosHamburgerBtn" class="back-menu-hamburger cafe-photos-hamburger" aria-label="메뉴">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
-      </button>
-    </div>
-
-    <div id="cafePhotosNavMenu" class="back-menu-nav-menu cafe-photos-nav-menu hidden">
-      <button type="button" id="cafePhotosNavHomeBtn" class="back-menu-nav-item" aria-label="home">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 12 12 4l9 8"/>
-          <path d="M5 10v10h14V10"/>
-        </svg>
-      </button>
-      <button type="button" id="cafePhotosNavCalendarBtn" class="back-menu-nav-item" aria-label="calendar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="4" width="18" height="18" rx="2"/>
-          <line x1="16" y1="2" x2="16" y2="6"/>
-          <line x1="8" y1="2" x2="8" y2="6"/>
-          <line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
-      </button>
-      <button type="button" id="cafePhotosNavPlaylistBtn" class="back-menu-nav-item" aria-label="playlist">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="6" cy="18" r="3"/>
-          <circle cx="18" cy="16" r="3"/>
-          <path d="M9 18V6l12-2v12"/>
-        </svg>
-      </button>
-      <button type="button" id="cafePhotosNavPostsBtn" class="back-menu-nav-item" aria-label="Photo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-          <circle cx="12" cy="13" r="4"/>
-        </svg>
-      </button>
-      <button type="button" id="cafePhotosNavSongbookBtn" class="back-menu-nav-item" aria-label="songbook">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round">
-          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-        </svg>
-      </button>
-      <button type="button" id="cafePhotosNavMailBtn" class="back-menu-nav-item" aria-label="mail">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="5" width="18" height="14" rx="2"/>
-          <path d="M3 7l9 6 9-6"/>
-        </svg>
-      </button>
-    </div>
-
-    <button type="button" class="cafe-photos-follow-btn">팔로우</button>
-
-    <div class="cafe-photos-tabs">
-      <span class="cafe-photos-tab active">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      </span>
-      <span class="cafe-photos-tab">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/><polygon points="10 9 15 12 10 15" fill="currentColor" stroke="none"/></svg>
-      </span>
-      <span class="cafe-photos-tab">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M6 18c1-2.5 3.5-4 6-4s5 1.5 6 4"/></svg>
-      </span>
-    </div>
-
-    <div id="cafePhotosList" class="cafe-photos-grid"></div>
-  </div>
-
-  <div id="cafePhotoLightbox" class="cafe-photo-lightbox hidden">
-    <div class="cafe-photo-post">
-      <div class="cafe-photo-post-header">
-        <div class="cafe-photo-post-brand-row">
-          <span class="cafe-photo-post-brand">DDARIN</span>
-          <button type="button" id="cafePhotoMenuBtn" class="cafe-photo-menu-btn" aria-label="더보기">•••</button>
-          <div id="cafePhotoMenu" class="cafe-photo-menu hidden">
-            <button type="button" id="cafePhotoGotoPostBtn" class="cafe-photo-menu-item">게시물로 이동</button>
-          </div>
-        </div>
-        <button type="button" id="cafePhotoCloseBtn" class="cafe-photo-close-btn" aria-label="닫기">✕</button>
-      </div>
-      <div id="cafePhotoLightboxLink" class="cafe-photo-post-imgwrap">
-        <img id="cafePhotoLightboxImg" class="cafe-photo-lightbox-img" alt="">
-      </div>
-      <div class="cafe-photo-post-actions">
-        <span class="calendar-announce-stat">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-9.5-8.5C1 9 2.5 5 6.5 5c2 0 3.5 1.5 4.5 3 1-1.5 2.5-3 4.5-3 4 0 5.5 4 4 7.5C19 16.65 12 21 12 21z"/></svg>
-          <span id="cafePhotoLikeCount"></span>
-        </span>
-        <span class="calendar-announce-stat">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.3 0-2.5-.3-3.6-.8L3 21l1.8-5.4A8.5 8.5 0 1 1 21 11.5z"/></svg>
-          <span id="cafePhotoCommentCount"></span>
-        </span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>
-        <span class="cafe-photo-post-spacer"></span>
-        <button type="button" id="cafePhotoBookmarkBtn" class="cafe-photo-bookmark-btn" aria-label="상단 고정">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg>
-        </button>
-      </div>
-      <p class="cafe-photo-post-caption"><span id="cafePhotoWriter" class="cafe-photo-post-writer"></span> <span id="cafePhotoTitle"></span></p>
-    </div>
-  </div>
-
-  <div id="calendarAnnounceBackdrop" class="cafe-photo-lightbox hidden">
-    <div class="cafe-photo-post">
-      <div class="cafe-photo-post-header calendar-announce-header">
-        <span class="back-menu-avatar calendar-announce-avatar"></span>
-        <span class="calendar-announce-brand">DDARIN</span>
-        <span class="cafe-photo-post-spacer"></span>
-        <button type="button" id="calendarAnnounceCloseBtn" class="cafe-photo-close-btn" aria-label="닫기">✕</button>
-      </div>
-      <a id="calendarAnnounceLink" class="cafe-photo-post-imgwrap" href="https://youtu.be/FVIbkuZhtq0" target="_blank" rel="noopener">
-        <img class="cafe-photo-lightbox-img calendar-announce-img" alt="[8K] KISS OF LIFE(키스 오브 라이프) - Nobody Knows │COVER BY 따린 & 마냥 [청백가요대전2]" src="https://i.ytimg.com/vi/FVIbkuZhtq0/maxresdefault.jpg">
-      </a>
-      <div class="cafe-photo-post-actions">
-        <span class="calendar-announce-stat">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-9.5-8.5C1 9 2.5 5 6.5 5c2 0 3.5 1.5 4.5 3 1-1.5 2.5-3 4.5-3 4 0 5.5 4 4 7.5C19 16.65 12 21 12 21z"/></svg>
-          <span id="calendarAnnounceLikeCount">0</span>
-        </span>
-        <span class="calendar-announce-stat">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.3 0-2.5-.3-3.6-.8L3 21l1.8-5.4A8.5 8.5 0 1 1 21 11.5z"/></svg>
-          <span id="calendarAnnounceCommentCount">0</span>
-        </span>
-      </div>
-      <p class="cafe-photo-post-caption calendar-announce-caption">
-        <span class="cafe-photo-post-writer calendar-announce-writer">DDARIN</span>
-        <span class="calendar-announce-title">[8K] KISS OF LIFE(키스 오브 라이프) - Nobody Knows │COVER BY 따린 & 마냥 [청백가요대전2]</span>
-        <button type="button" id="calendarAnnounceHideWeekBtn" class="calendar-announce-hide-btn">일주일간 보지 않기</button>
-      </p>
-    </div>
-  </div>
-
-  <div id="songbookView" class="songbook-view hidden">
-    <img src="today-mascot2.png" alt="" class="page-top-mascot">
-
-    <div class="back-menu-top">
-      <span class="back-menu-avatar"></span>
-      <span class="back-menu-name">DDARIN</span>
-      <button type="button" id="songbookHamburgerBtn" class="back-menu-hamburger" aria-label="메뉴">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
-      </button>
-    </div>
-
-    <div id="songbookNavMenu" class="back-menu-nav-menu hidden">
-      <button type="button" id="songbookNavHomeBtn" class="back-menu-nav-item" aria-label="home">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 12 12 4l9 8"/>
-          <path d="M5 10v10h14V10"/>
-        </svg>
-      </button>
-      <button type="button" id="songbookNavCalendarBtn" class="back-menu-nav-item" aria-label="calendar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="4" width="18" height="18" rx="2"/>
-          <line x1="16" y1="2" x2="16" y2="6"/>
-          <line x1="8" y1="2" x2="8" y2="6"/>
-          <line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
-      </button>
-      <button type="button" id="songbookNavPlaylistBtn" class="back-menu-nav-item" aria-label="playlist">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="6" cy="18" r="3"/>
-          <circle cx="18" cy="16" r="3"/>
-          <path d="M9 18V6l12-2v12"/>
-        </svg>
-      </button>
-      <button type="button" id="songbookNavPostsBtn" class="back-menu-nav-item" aria-label="Photo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-          <circle cx="12" cy="13" r="4"/>
-        </svg>
-      </button>
-      <button type="button" id="songbookNavSongbookBtn" class="back-menu-nav-item" aria-label="songbook">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round">
-          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-        </svg>
-      </button>
-      <button type="button" id="songbookNavMailBtn" class="back-menu-nav-item" aria-label="mail">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="5" width="18" height="14" rx="2"/>
-          <path d="M3 7l9 6 9-6"/>
-        </svg>
-      </button>
-    </div>
-
-    <div class="songbook-inner">
-    <div class="songbook-header">
-      <div class="songbook-header-actions"></div>
-    </div>
-
-    <div class="songbook-body">
-      <div class="player-panel">
-        <div id="clipSourceCarousel" class="clip-source-carousel">
-          <div id="clipSourceTrack" class="clip-source-track">
-            <button type="button" class="clip-source-slide active" data-source="clip">
-              <img class="clip-source-art" id="clipSourceArt-clip" alt="">
-              <div class="clip-source-info">
-                <div class="clip-source-info-top">
-                  <div class="clip-source-info-text">
-                    <div class="clip-source-song-title" id="clipSourceTitle-clip"></div>
-                    <div class="clip-source-song-artist" id="clipSourceArtist-clip"></div>
-                  </div>
-                  <span class="clip-source-tag">SOOP</span>
-                </div>
-                <div class="clip-source-controls">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6 8.5 6V6l-8.5 6z"/></svg>
-                  <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6v12l8.5-6zM13 6v12l8.5-6z"/></svg>
-                  <svg class="clip-source-chat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H10l-4.5 3.5V16H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>
+        <div class="song-request-content">
+          <div class="song-request-content-panel active" data-panel="request">
+            <div class="song-request-nowplaying-card">
+              <div class="song-request-nowplaying-art">♪</div>
+              <div class="song-request-nowplaying-body">
+                <div id="songRequestNowPlayingTitle" class="song-request-nowplaying-title">현재 노래가 없습니다</div>
+                <div id="songRequestNowPlayingArtist" class="song-request-nowplaying-artist">대기열에서 곡을 선택해 주세요</div>
+              </div>
+              <div class="song-request-nowplaying-side">
+                <span id="songRequestTodayBadge" class="song-request-today-badge">오늘 0/0곡</span>
+                <div class="song-request-nowplaying-actions">
+                  <button type="button" id="songRequestUndoBtn" class="song-request-nowplaying-icon-btn song-request-nowplaying-icon-btn-danger" aria-label="되돌리기">↩</button>
+                  <button type="button" id="songRequestSkipBtn" class="song-request-nowplaying-icon-btn" aria-label="건너뛰기">⏭</button>
                 </div>
               </div>
-            </button>
-            <button type="button" class="clip-source-slide" data-source="youtube">
-              <img class="clip-source-art" id="clipSourceArt-youtube" alt="">
-              <div class="clip-source-info">
-                <div class="clip-source-info-top">
-                  <div class="clip-source-info-text">
-                    <div class="clip-source-song-title" id="clipSourceTitle-youtube"></div>
-                    <div class="clip-source-song-artist" id="clipSourceArtist-youtube"></div>
-                  </div>
-                  <span class="clip-source-tag">커버곡/단체곡</span>
-                </div>
-                <div class="clip-source-controls">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6 8.5 6V6l-8.5 6z"/></svg>
-                  <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6v12l8.5-6zM13 6v12l8.5-6z"/></svg>
-                  <svg class="clip-source-chat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H10l-4.5 3.5V16H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>
-                </div>
+            </div>
+
+            <div class="song-request-panel-header-controls song-request-controls-row">
+              <button type="button" id="songRequestSourceChatBtn" class="song-request-source-btn active" data-source="chat">채팅</button>
+              <button type="button" id="songRequestSourceStarBtn" class="song-request-source-btn" data-source="star">별풍선</button>
+              <div class="song-request-star-filter">
+                <span class="song-request-inline-label">최소 별풍선</span>
+                <input type="number" id="songRequestMinStarInput" class="song-request-star-input" value="100" min="0">
+                <span class="song-request-inline-label">개 이상</span>
+                <button type="button" id="songRequestStarApplyBtn" class="song-request-star-apply-btn">적용</button>
               </div>
-            </button>
-            <button type="button" class="clip-source-slide" data-source="playlist">
-              <img class="clip-source-art" id="clipSourceArt-playlist" alt="">
-              <div class="clip-source-info">
-                <div class="clip-source-info-top">
-                  <div class="clip-source-info-text">
-                    <div class="clip-source-song-title" id="clipSourceTitle-playlist"></div>
-                    <div class="clip-source-song-artist" id="clipSourceArtist-playlist"></div>
-                  </div>
-                  <span class="clip-source-tag">PLAYLIST</span>
+              <span class="song-request-inline-label">신청 받기</span>
+              <button type="button" id="songRequestAcceptToggle" class="song-request-switch" aria-pressed="false"></button>
+            </div>
+
+            <div class="song-request-notice song-request-notice-info">
+              <span class="song-request-notice-icon">ⓘ</span>
+              <p id="songRequestSourceNoticeText">채팅창에 <b>'!제목'</b> 또는 <b>'!제목-가수'</b> 형식으로 메시지를 입력하면 대기열에 표시돼요.</p>
+            </div>
+
+            <div id="songRequestOffNotice" class="song-request-notice song-request-notice-warning">
+              <span class="song-request-notice-icon">⚠</span>
+              <div>
+                <p><b>지금은 노래 신청을 받고 있지 않아요.</b></p>
+                <p>노래 신청을 받으려면 위쪽에 있는 <b>신청 받기</b> 토글을 켜주세요.</p>
+              </div>
+            </div>
+
+            <div class="song-request-queue-columns">
+              <div class="song-request-queue-left song-request-card">
+                <div class="song-request-panel-header">
+                  <span class="song-request-chat-title-group">
+                    <h3>신청 목록</h3>
+                    <button type="button" id="songRequestListClearBtn" class="song-request-chat-log-clear-btn">초기화</button>
+                  </span>
+                  <button type="button" class="song-request-fullview-btn">전체보기</button>
                 </div>
-                <div class="clip-source-controls">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6 8.5 6V6l-8.5 6z"/></svg>
-                  <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6v12l8.5-6zM13 6v12l8.5-6z"/></svg>
-                  <svg class="clip-source-chat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H10l-4.5 3.5V16H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>
+
+                <div class="song-request-sort-tabs">
+                  <button type="button" class="song-request-sort-tab active" data-sort="order">선착순</button>
+                  <button type="button" class="song-request-sort-tab" data-sort="star">별풍선 순</button>
                 </div>
+
+                <div id="songRequestList" class="song-request-list"></div>
               </div>
-            </button>
-          </div>
-          <div id="genreTabsMenu" class="genre-tabs-menu hidden"></div>
-          <div id="clipSourceSongListOverlay" class="clip-source-song-list-overlay hidden">
-            <div id="songGrid" class="song-grid"></div>
-            <input type="text" id="songSearchInput" class="song-search" placeholder="노래 제목 또는 가수를 검색하세요">
-          </div>
-        </div>
 
-        <div class="clip-source-dots-row">
-          <div id="sortTabs" class="genre-tabs song-sort-row hidden">
-            <button type="button" id="sortTabsToggle" class="genre-tabs-toggle">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                <line x1="4" y1="7" x2="16" y2="7"/>
-                <line x1="4" y1="12" x2="13" y2="12"/>
-                <line x1="4" y1="17" x2="10" y2="17"/>
-              </svg>
-              정렬
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div id="sortTabsMenu" class="genre-tabs-menu hidden"></div>
-          </div>
-          <div id="clipSourceDots" class="back-menu-dots clip-source-dots">
-            <span class="back-menu-dot active"></span>
-            <span class="back-menu-dot"></span>
-            <span class="back-menu-dot"></span>
-          </div>
-        </div>
-
-        <p id="playerStats" class="player-stats hidden"></p>
-
-        <div id="playerNoClip" class="player-empty hidden">
-          <p class="player-empty-title">클립이 없습니다</p>
-          <p class="player-empty-sub" id="playerNoClipSong"></p>
-        </div>
-
-        <div class="player-favorites hidden">
-          <h3>즐겨찾기</h3>
-          <div id="favoritesList" class="favorites-list"></div>
-        </div>
-
-        <div class="player-artists hidden">
-          <h3>가수</h3>
-          <div id="artistList" class="artist-list"></div>
-        </div>
-      </div>
-
-      <div class="songbook-main">
-      </div>
-    </div>
-    </div>
-  </div>
-
-  <div id="songbook2View" class="songbook-view hidden">
-    <div class="songbook-inner">
-    <div class="songbook-header">
-      <div class="songbook-title-row">
-        <h1>노래책</h1>
-        <span id="songbookTotalCount" class="songbook-total-count"></span>
-      </div>
-    </div>
-
-    <div class="songbook-body">
-      <div class="player-panel">
-        <button type="button" id="favorites2OpenBtn" class="favorites-open-btn">⭐ 즐겨찾기</button>
-
-        <div class="player-artists">
-          <h3>가수</h3>
-          <div id="artist2List" class="artist-list"></div>
-        </div>
-      </div>
-
-      <div class="songbook-main">
-        <div class="song-search-wrap">
-          <svg class="song-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="song2SearchInput" class="song-search" placeholder="원하는 곡을 제목이나 가수 이름으로 검색해보세요!">
-        </div>
-
-        <div class="songbook-filter-row">
-          <div id="genre2Tabs" class="genre-tabs">
-            <button type="button" class="genre-tab active" data-genre="전체">전체</button>
-          </div>
-          <div class="song-roulette-anchor">
-            <button type="button" id="songRouletteBtn" class="song-roulette-btn">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
-              룰렛
-            </button>
-            <div id="songRouletteModalBackdrop" class="song-roulette-popover hidden">
-              <div class="modal-header-row song-roulette-header-row">
-                <button type="button" id="songRouletteCloseBtn" class="modal-close-x" aria-label="닫기">✕</button>
+              <div class="song-request-queue-right song-request-card">
+                <div class="song-request-panel-header">
+                  <span class="song-request-chat-title-group">
+                    <h3>채팅</h3>
+                    <button type="button" id="songRequestSuccessLogClearBtn" class="song-request-chat-log-clear-btn">초기화</button>
+                  </span>
+                  <button type="button" class="song-request-fullview-btn">전체보기</button>
+                </div>
+                <div id="songRequestSuccessLog" class="song-request-success-log"></div>
               </div>
-              <div id="songRouletteStatus" class="song-roulette-status">
-                <span id="songRouletteStatusDot" class="song-roulette-status-dot"></span>
-                <span id="songRouletteStatusText" class="song-roulette-status-text">대기 중</span>
+            </div>
+
+            <div class="song-request-panel-header song-request-chat-header">
+              <span class="song-request-chat-title-group">
+                <h3>로그</h3>
+                <button type="button" id="songRequestChatLogClearBtn" class="song-request-chat-log-clear-btn">지우기</button>
+              </span>
+              <span id="songRequestChatStatus" class="song-request-chat-status">
+                <span class="song-request-chat-status-dot"></span>연결 중...
+              </span>
+            </div>
+            <div id="songRequestChatLog" class="song-request-chat-log"></div>
+          </div>
+
+          <div class="song-request-content-panel" data-panel="queue">
+            <div class="song-request-queue-columns">
+              <div class="song-request-queue-left song-request-card">
+                <div class="song-request-panel-header">
+                  <h3>신청 목록</h3>
+                </div>
+                <div id="songRequestListFull" class="song-request-list"></div>
               </div>
-              <div class="song-roulette-filter-row">
-                <div class="song-roulette-filter">
-                  <button type="button" id="songRouletteFilterToggle" class="song-roulette-filter-toggle">
-                    <span>장르 필터</span>
-                    <span id="songRouletteFilterValue" class="song-roulette-filter-value">전체</span>
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                  </button>
-                  <div id="songRouletteFilterMenu" class="genre-tabs-menu hidden">
-                    <button type="button" class="genre-tab active" data-genre="전체">전체</button>
-                    <button type="button" class="genre-tab" data-genre="한식">한식</button>
-                    <button type="button" class="genre-tab" data-genre="일식">일식</button>
-                    <button type="button" class="genre-tab" data-genre="양식">양식</button>
+
+              <div class="song-request-queue-right song-request-card">
+                <div class="song-request-panel-header">
+                  <h3>채팅</h3>
+                </div>
+                <div id="songRequestSuccessLogFull" class="song-request-success-log"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="song-request-content-panel" data-panel="songbook">
+            <div class="songbook-panel-inner">
+              <div class="songbook-header">
+                <div class="songbook-title-row">
+                  <h1>노래책</h1>
+                  <span id="songbookTotalCount" class="songbook-total-count"></span>
+                </div>
+                <div class="songbook-header-actions">
+                  <div id="songManageToolbar" class="song-manage-toolbar">
+                    <button type="button" id="songAddBtn" class="song-manage-btn" aria-label="곡 추가" title="곡 추가">곡 추가</button>
+                    <button type="button" id="songSelectAllBtn" class="song-manage-btn">전체선택</button>
+                    <button type="button" id="songDeleteSelectedBtn" class="song-manage-btn song-manage-btn-danger">선택삭제</button>
+                    <button type="button" id="songQueueAddBtn" class="song-manage-btn">대기열 추가</button>
                   </div>
                 </div>
               </div>
-              <button type="button" id="songRouletteSpinBtn" class="song-roulette-spin-btn">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
-                룰렛 시작
-              </button>
+
+              <div class="songbook-body">
+                <div class="player-panel">
+                  <div class="player-artists">
+                    <h3>가수</h3>
+                    <div id="artist2List" class="artist-list"></div>
+                  </div>
+                </div>
+
+                <div class="songbook-main">
+                  <div class="song-search-wrap">
+                    <svg class="song-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="song2SearchInput" class="song-search" placeholder="원하는 곡을 제목이나 가수 이름으로 검색해보세요!">
+                  </div>
+
+                  <div class="songbook-filter-row">
+                    <div id="genre2Tabs" class="genre-tabs">
+                      <button type="button" class="genre-tab active" data-genre="전체">전체</button>
+                    </div>
+                    <div class="song-roulette-anchor">
+                      <button type="button" id="songRouletteBtn" class="song-roulette-btn">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+                        룰렛
+                      </button>
+                      <div id="songRouletteModalBackdrop" class="song-roulette-popover hidden">
+                        <div class="modal-header-row song-roulette-header-row">
+                          <button type="button" id="songRouletteCloseBtn" class="modal-close-x" aria-label="닫기">✕</button>
+                        </div>
+                        <div id="songRouletteStatus" class="song-roulette-status">
+                          <span id="songRouletteStatusDot" class="song-roulette-status-dot"></span>
+                          <span id="songRouletteStatusText" class="song-roulette-status-text">대기 중</span>
+                        </div>
+                        <div class="song-roulette-filter-row">
+                          <div class="song-roulette-filter">
+                            <button type="button" id="songRouletteFilterToggle" class="song-roulette-filter-toggle">
+                              <span>장르 필터</span>
+                              <span id="songRouletteFilterValue" class="song-roulette-filter-value">전체</span>
+                              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                            </button>
+                            <div id="songRouletteFilterMenu" class="genre-tabs-menu hidden">
+                              <button type="button" class="genre-tab active" data-genre="전체">전체</button>
+                            </div>
+                          </div>
+                          <button type="button" id="songRouletteQueueAddBtn" class="song-roulette-queue-add-btn">대기열 추가</button>
+                        </div>
+                        <button type="button" id="songRouletteSpinBtn" class="song-roulette-spin-btn">
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+                          룰렛 시작
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="song2-table-wrap">
+                    <table id="song2Table" class="song2-table">
+                      <thead>
+                        <tr>
+                          <th class="song2-col-check"></th>
+                          <th class="song2-col-num">번호</th>
+                          <th class="song2-col-title song2-sortable" data-sort="title">제목</th>
+                          <th class="song2-col-artist song2-sortable" data-sort="artist">가수</th>
+                          <th class="song2-col-genre">
+                            <div class="song2-genre-filter">
+                              <button type="button" id="song2GenreFilterToggle" class="song2-genre-filter-toggle">
+                                장르
+                                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                              </button>
+                              <div id="song2GenreFilterMenu" class="genre-tabs-menu hidden"></div>
+                            </div>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody id="song2Grid"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="song-request-content-panel" data-panel="overlay-nowplaying">
+            <p class="song-request-overlay-heading song-request-overlay-heading-first">디자인</p>
+            <div class="song-request-overlay-style-row">
+              <div class="song-request-overlay-color-field">
+                <span class="song-request-inline-label">테마</span>
+                <div class="song-request-theme-toggle" id="songRequestOverlayNowplayingThemeToggle">
+                  <button type="button" class="song-request-theme-btn active" data-theme="dark">다크</button>
+                  <button type="button" class="song-request-theme-btn" data-theme="light">화이트</button>
+                </div>
+              </div>
+              <label class="song-request-overlay-style-field">
+                <span class="song-request-inline-label">글자체</span>
+                <select id="songRequestOverlayNowplayingFontSelect" class="song-request-overlay-font-select">
+                  <option value="system">기본</option>
+                  <option value="notosanskr">Noto Sans KR</option>
+                  <option value="nanumgothic">나눔고딕</option>
+                  <option value="nanummyeongjo">나눔명조</option>
+                  <option value="gothica1">Gothic A1</option>
+                  <option value="dohyeon">Do Hyeon</option>
+                  <option value="blackhansans">Black Han Sans</option>
+                  <option value="jua">Jua</option>
+                  <option value="gaegu">Gaegu</option>
+                  <option value="gamjaflower">Gamja Flower</option>
+                  <option value="poorstory">Poor Story</option>
+                  <option value="sunflower">Sunflower</option>
+                  <option value="singleday">Single Day</option>
+                </select>
+              </label>
+              <label class="song-request-overlay-style-field">
+                <span class="song-request-inline-label">글자 크기</span>
+                <input type="number" id="songRequestOverlayNowplayingFontSizeInput" class="song-request-star-input" value="1.4" min="0.6" max="3" step="0.1">
+              </label>
+            </div>
+
+            <div class="song-request-overlay-style-row">
+              <div class="song-request-overlay-color-field">
+                <span class="song-request-inline-label">글자 위치</span>
+                <div class="song-request-theme-toggle" id="songRequestOverlayNowplayingAlignToggle">
+                  <button type="button" class="song-request-theme-btn active" data-align="left">좌측</button>
+                  <button type="button" class="song-request-theme-btn" data-align="center">중앙</button>
+                  <button type="button" class="song-request-theme-btn" data-align="right">우측</button>
+                </div>
+              </div>
+            </div>
+
+            <p class="song-request-overlay-heading">브라우저 소스 URL</p>
+            <div class="song-request-overlay-url-row">
+              <input type="text" id="songRequestOverlayNowplayingUrlInput" class="song-request-overlay-url-input song-request-overlay-url-input-hidden" readonly>
+              <button type="button" id="songRequestOverlayNowplayingEyeBtn" class="song-request-overlay-icon-btn" aria-label="URL 보기">👁</button>
+              <button type="button" id="songRequestOverlayNowplayingCopyBtn" class="song-request-overlay-copy-btn">복사</button>
+            </div>
+            <p class="song-request-overlay-desc">노래 목록이 아니라, 지금 부르고 있는 곡의 제목과 가수만 보여주는 오버레이입니다.</p>
+
+            <p class="song-request-overlay-heading">미리보기</p>
+            <div id="songRequestOverlayNowplayingPreviewWrap" class="song-request-overlay-nowplaying-preview-wrap">
+              <div class="song-request-overlay-nowplaying-preview-card">
+                <span class="song-request-overlay-nowplaying-preview-title">노래 제목</span>
+                <span class="song-request-overlay-nowplaying-preview-artist">가수</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="song-request-content-panel" data-panel="overlay-queue">
+            <p class="song-request-overlay-heading song-request-overlay-heading-first">디자인</p>
+            <div class="song-request-overlay-style-row">
+              <div class="song-request-overlay-color-field">
+                <span class="song-request-inline-label">테마</span>
+                <div class="song-request-theme-toggle" id="songRequestOverlayThemeToggle">
+                  <button type="button" class="song-request-theme-btn active" data-theme="dark">다크</button>
+                  <button type="button" class="song-request-theme-btn" data-theme="light">화이트</button>
+                </div>
+              </div>
+              <label class="song-request-overlay-style-field">
+                <span class="song-request-inline-label">글자체</span>
+                <select id="songRequestOverlayFontSelect" class="song-request-overlay-font-select">
+                  <option value="system">기본</option>
+                  <option value="notosanskr">Noto Sans KR</option>
+                  <option value="nanumgothic">나눔고딕</option>
+                  <option value="nanummyeongjo">나눔명조</option>
+                  <option value="gothica1">Gothic A1</option>
+                  <option value="dohyeon">Do Hyeon</option>
+                  <option value="blackhansans">Black Han Sans</option>
+                  <option value="jua">Jua</option>
+                  <option value="gaegu">Gaegu</option>
+                  <option value="gamjaflower">Gamja Flower</option>
+                  <option value="poorstory">Poor Story</option>
+                  <option value="sunflower">Sunflower</option>
+                  <option value="singleday">Single Day</option>
+                </select>
+              </label>
+            </div>
+
+            <p class="song-request-overlay-heading">표시 방식</p>
+            <div class="song-request-theme-toggle" id="songRequestOverlayDisplayModeToggle">
+              <button type="button" class="song-request-theme-btn active" data-mode="static">정적</button>
+              <button type="button" class="song-request-theme-btn" data-mode="scroll">스크롤</button>
+            </div>
+
+            <div class="song-request-overlay-style-row song-request-overlay-maxcount-row">
+              <label class="song-request-overlay-style-field">
+                <span class="song-request-inline-label">정적일 때 표시 개수</span>
+                <input type="number" id="songRequestOverlayMaxCountInput" class="song-request-star-input" value="3" min="1">
+              </label>
+            </div>
+
+            <p class="song-request-overlay-heading">브라우저 소스 URL</p>
+            <div class="song-request-overlay-url-row">
+              <input type="text" id="songRequestOverlayUrlInput" class="song-request-overlay-url-input song-request-overlay-url-input-hidden" readonly>
+              <button type="button" id="songRequestOverlayEyeBtn" class="song-request-overlay-icon-btn" aria-label="URL 보기">👁</button>
+              <button type="button" id="songRequestOverlayCopyBtn" class="song-request-overlay-copy-btn">복사</button>
+            </div>
+            <p class="song-request-overlay-desc">대기 중인 노래 목록을 실시간으로 보여주는 오버레이입니다.</p>
+
+            <p class="song-request-overlay-heading">미리보기</p>
+            <div id="songRequestOverlayPreviewWrap" class="song-request-overlay-preview-wrap">
+              <div id="songRequestOverlayPreviewViewport" class="song-request-overlay-preview-viewport">
+                <div id="songRequestOverlayPreviewTrack" class="song-request-overlay-preview-track">
+                  <div class="queue-row">
+                    <span class="queue-title">노래 제목 A</span>
+                    <div class="queue-row-bottom">
+                      <span class="queue-artist">가수</span>
+                      <span class="queue-time">방금 전</span>
+                    </div>
+                  </div>
+                  <div class="queue-row">
+                    <span class="queue-title">노래 제목 B</span>
+                    <div class="queue-row-bottom">
+                      <span class="queue-artist">가수</span>
+                      <span class="queue-time">방금 전</span>
+                    </div>
+                  </div>
+                  <div class="queue-row">
+                    <span class="queue-title">노래 제목 C</span>
+                    <div class="queue-row-bottom">
+                      <span class="queue-artist">가수</span>
+                      <span class="queue-time">방금 전</span>
+                    </div>
+                  </div>
+                  <div class="queue-row">
+                    <span class="queue-title">노래 제목 D</span>
+                    <div class="queue-row-bottom">
+                      <span class="queue-artist">가수</span>
+                      <span class="queue-time">방금 전</span>
+                    </div>
+                  </div>
+                  <div class="queue-row">
+                    <span class="queue-title">노래 제목 E</span>
+                    <div class="queue-row-bottom">
+                      <span class="queue-artist">가수</span>
+                      <span class="queue-time">방금 전</span>
+                    </div>
+                  </div>
+                  <div class="queue-row">
+                    <span class="queue-title">노래 제목 F</span>
+                    <div class="queue-row-bottom">
+                      <span class="queue-artist">가수</span>
+                      <span class="queue-time">방금 전</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
-        <div class="song2-table-wrap">
-          <table id="song2Table" class="song2-table">
-            <thead>
-              <tr>
-                <th class="song2-col-fav"></th>
-                <th class="song2-col-num">번호</th>
-                <th class="song2-col-title song2-sortable" data-sort="title">제목</th>
-                <th class="song2-col-artist song2-sortable" data-sort="artist">가수</th>
-                <th class="song2-col-genre">
-                  <div class="song2-genre-filter">
-                    <button type="button" id="song2GenreFilterToggle" class="song2-genre-filter-toggle">
-                      장르
-                      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                    </button>
-                    <div id="song2GenreFilterMenu" class="genre-tabs-menu hidden"></div>
-                  </div>
-                </th>
-              </tr>
-            </thead>
-            <tbody id="song2Grid"></tbody>
-          </table>
-        </div>
       </div>
     </div>
-    </div>
   </div>
 
-  <div id="songbookGwView" class="hidden">
-    <div id="songbookGwBody"></div>
-  </div>
-
-  <div id="favorites2ModalBackdrop" class="modal-backdrop hidden">
-    <div class="modal favorites-modal">
+  <div id="songAddModalBackdrop" class="modal-backdrop hidden">
+    <div class="modal song-add-modal">
       <div class="modal-header-row">
-        <h2>즐겨찾기</h2>
-        <button type="button" id="closeFavorites2ModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
+        <h2 id="songAddModalTitle">곡 추가</h2>
+        <button type="button" id="closeSongAddModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
       </div>
-      <div id="favorites2List" class="favorites-list"></div>
-    </div>
-  </div>
-
-  <div id="gameView" class="songbook-view hidden">
-    <img src="today-mascot3.png" alt="" class="page-top-mascot">
-    <div class="game-tabs">
-      <button type="button" class="game-tab active" data-game="ladder">사다리</button>
-      <button type="button" class="game-tab" data-game="roulette">룰렛</button>
-    </div>
-
-    <div id="ladderPanel" class="game-panel ladder-panel">
-      <div class="ladder-toolbar ladder-toolbar-stacked">
-        <div class="ladder-toolbar-top">
-          <div class="ladder-stepper" id="ladderStepperWrap">
-            <button type="button" id="ladderCountMinus" class="ladder-stepper-btn" aria-label="참가자 줄이기">‹</button>
-            <span id="ladderCountLabel">항목 2개</span>
-            <button type="button" id="ladderCountPlus" class="ladder-stepper-btn" aria-label="참가자 늘리기">›</button>
+      <form id="songAddForm" class="song-add-form" autocomplete="off">
+        <div class="song-add-row song-add-row-2">
+          <label class="song-add-field">
+            <span class="song-add-label">제목</span>
+            <input type="text" id="songAddTitleInput" class="song-add-input" placeholder="제목" maxlength="200" required autocomplete="off">
+          </label>
+          <label class="song-add-field">
+            <span class="song-add-label">가수</span>
+            <input type="text" id="songAddArtistInput" class="song-add-input" placeholder="가수" maxlength="200" required autocomplete="off">
+          </label>
+        </div>
+        <div class="song-add-row song-add-row-2">
+          <div class="song-add-field">
+            <span class="song-add-label">장르</span>
+            <div class="song-select" id="songAddGenreSelect">
+              <button type="button" class="song-select-trigger">
+                <span class="song-select-trigger-label placeholder">장르 선택</span>
+                <span class="song-select-arrow">▾</span>
+              </button>
+              <div class="song-select-panel hidden"></div>
+            </div>
           </div>
-          <div class="ladder-actions" id="ladderMainActions">
-            <button type="button" id="ladderStartBtn" class="ladder-action-btn ladder-start-btn" disabled>▷ START</button>
-            <button type="button" id="ladderResetBtn" class="ladder-reset-icon-btn" aria-label="초기화">↻</button>
-            <button type="button" id="ladderShuffleBtn" class="ladder-action-btn">사다리 섞기</button>
-          </div>
+          <label class="song-add-field">
+            <span class="song-add-label">비고</span>
+            <input type="text" id="songAddNoteInput" class="song-add-input" placeholder="비고 (쉼표로 여러개)" autocomplete="off">
+          </label>
         </div>
-        <div class="ladder-toolbar-bottom">
-          <div class="ladder-speed-row">
-            <span class="ladder-speed-label">속도</span>
-            <input type="range" id="ladderSpeedSlider" min="1" max="10" value="5">
-          </div>
-          <button type="button" id="ladderBlindBtn" class="ladder-action-btn ladder-blind-btn">Blind</button>
+        <label class="song-add-field song-add-field-full">
+          <span class="song-add-label">MR</span>
+          <input type="text" id="songAddMrInput" class="song-add-input" placeholder="MR (시청자 화면에는 표시되지 않아요)" autocomplete="off">
+        </label>
+        <div class="song-add-actions">
+          <button type="submit" id="songAddSaveBtn" class="song-add-save-btn">저장</button>
+          <button type="button" id="cancelSongAddBtn" class="song-add-cancel-btn">취소</button>
         </div>
-      </div>
-      <div id="ladderError" class="sheet-status error hidden"></div>
-      <div id="ladderNamesRow" class="ladder-row"></div>
-      <canvas id="ladderCanvas" class="ladder-canvas"></canvas>
-      <div id="ladderResultsRow" class="ladder-row"></div>
+      </form>
     </div>
-
-    <div id="roulettePanel" class="game-panel roulette-panel hidden">
-      <div class="ladder-toolbar">
-        <div class="ladder-stepper">
-          <button type="button" id="rouletteCountMinus" class="ladder-stepper-btn" aria-label="항목 줄이기">‹</button>
-          <span id="rouletteCountLabel">항목 4개</span>
-          <button type="button" id="rouletteCountPlus" class="ladder-stepper-btn" aria-label="항목 늘리기">›</button>
-        </div>
-        <div class="ladder-actions">
-          <button type="button" id="rouletteSettingsBtn" class="ladder-action-btn">☰ 항목 선택</button>
-          <button type="button" id="rouletteStartBtn" class="ladder-action-btn ladder-start-btn">▷ START</button>
-          <button type="button" id="rouletteResetBtn" class="ladder-action-btn">초기화</button>
-        </div>
-      </div>
-      <div id="rouletteError" class="sheet-status error hidden"></div>
-
-      <div class="roulette-body">
-        <div class="roulette-wheel-wrap">
-          <div class="roulette-canvas-clip">
-            <canvas id="rouletteCanvas" class="roulette-canvas" width="566" height="566"></canvas>
-          </div>
-          <div class="roulette-pointer">▼</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <div id="ladderResultModalBackdrop" class="modal-backdrop hidden">
-    <div class="modal ladder-result-modal">
-      <div class="modal-header-row">
-        <h2>사다리 결과</h2>
-        <button type="button" id="closeLadderResultModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
-      </div>
-      <div id="ladderResultModalList" class="ladder-result-list"></div>
-    </div>
-  </div>
-
-  <div id="rouletteSettingsModalBackdrop" class="modal-backdrop hidden">
-    <div class="modal roulette-settings-modal">
-      <div class="modal-header-row">
-        <h2>항목 선택</h2>
-        <button type="button" id="closeRouletteSettingsModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
-      </div>
-      <div id="rouletteSettingsInputs" class="roulette-settings-inputs"></div>
-      <button type="button" id="rouletteSettingsCloseBtn" class="game-primary-btn">확인</button>
-    </div>
-  </div>
-
-  <div id="rouletteResultModalBackdrop" class="modal-backdrop hidden">
-    <div class="modal ladder-result-modal">
-      <div class="modal-header-row">
-        <h2>룰렛 결과</h2>
-        <button type="button" id="closeRouletteResultModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
-      </div>
-      <div id="rouletteResultCard" class="result-card"></div>
-    </div>
-  </div>
-
-  <div id="scheduleSearchModalBackdrop" class="modal-backdrop hidden">
-    <div class="modal schedule-search-modal">
-      <div class="modal-header-row">
-        <h2>일정 검색</h2>
-        <button type="button" id="closeScheduleSearchModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
-      </div>
-      <input type="text" id="scheduleSearchInput" class="song-search" placeholder="일정 제목을 검색하세요">
-      <div id="scheduleSearchResults" class="schedule-search-results"></div>
-    </div>
-  </div>
-
-  <nav class="side-nav">
-    <div id="sideNavItems" class="side-nav-items">
-      <button type="button" id="calendarBtn" class="side-nav-btn" aria-label="일정표">
-        <svg class="side-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 12 4l9 8"/><path d="M5 10v10h14V10"/></svg>
-      </button>
-      <button type="button" id="sideNavYoutubeBtn" class="side-nav-btn" aria-label="유튜브">
-        <svg class="side-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="4"/><polygon points="10 9 15 12 10 15" fill="currentColor" stroke="none"/></svg>
-        <span id="sideNavYoutubeBadge" class="soop-chat-icon-badge hidden"></span>
-      </button>
-      <button type="button" id="scheduleSearchBtn" class="side-nav-btn" aria-label="일정 검색">
-        <svg class="side-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      </button>
-      <button type="button" id="memoBtn" class="side-nav-btn" aria-label="메모">
-        <svg class="side-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.3 0-2.5-.3-3.6-.8L3 21l1.8-5.4A8.5 8.5 0 1 1 21 11.5z"/></svg>
-      </button>
-      <button type="button" id="editLockBtn" class="side-nav-btn" title="로그인" aria-label="로그인">
-        <svg class="side-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="11" width="18" height="11" rx="2"/>
-          <path class="lock-shackle-closed" d="M7 11V7a5 5 0 0 1 10 0v4"/>
-          <path class="lock-shackle-open" d="M7 11V7a5 5 0 0 1 9.9-1"/>
-        </svg>
-        <span id="loginBtnLabel" class="side-nav-sr">로그인</span>
-      </button>
-      <button type="button" id="menuToggleBtn" class="side-nav-btn" aria-label="메뉴">
-        <svg class="side-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
-      </button>
-      <button type="button" id="featureTourBtn" class="side-nav-btn" aria-label="기능 둘러보기">
-        <svg class="side-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2-2.4 3.4"/>
-          <line x1="12" y1="17" x2="12" y2="17.01"/>
-        </svg>
-      </button>
-    </div>
-  </nav>
   </div>
 
   <div id="tourOverlay" class="tour-overlay hidden">
@@ -833,208 +450,6 @@
     </div>
   </div>
 
-  <div id="dayCellMenu" class="day-cell-menu hidden">
-    <button type="button" id="dayCellSoopBtn" class="day-cell-menu-item">
-      <img class="day-cell-menu-icon" src="soop-icon.png" alt="">
-      <span id="dayCellSoopBtnLabel">방송 요약</span>
-    </button>
-    <div id="dayCellSoopSummary" class="day-cell-summary hidden"></div>
-  </div>
-
-  <div id="songPlayerModalBackdrop" class="song-player-modal-backdrop hidden">
-    <div id="songPlayerModal" class="song-player-modal">
-      <div class="song-player-drag-handle"></div>
-      <span class="song-player-resize-handle" data-corner="nw"></span>
-      <span class="song-player-resize-handle" data-corner="ne"></span>
-      <span class="song-player-resize-handle" data-corner="sw"></span>
-      <span class="song-player-resize-handle" data-corner="se"></span>
-      <button type="button" id="songPlayerModalClose" class="song-player-modal-close" aria-label="닫기">✕</button>
-      <iframe id="songPlayerModalFrame" class="song-player-modal-frame" allow="autoplay; encrypted-media" allowfullscreen frameborder="0"></iframe>
-
-      <div class="song-player-sidebar">
-        <button type="button" id="songPlayerModalFavBtn" class="song-player-side-btn">
-          <svg id="songPlayerModalFavIcon" class="song-player-heart-icon" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-9.5-8.5C1 9 2.5 5 6.5 5c2 0 3.5 1.5 4.5 3 1-1.5 2.5-3 4.5-3 4 0 5.5 4 4 7.5C19 16.65 12 21 12 21z"/></svg>
-          <span id="songPlayerModalFavLabel" class="song-player-side-sr">즐겨찾기 추가</span>
-        </button>
-        <span class="song-player-side-btn song-player-side-static">
-          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.3 0-2.5-.3-3.6-.8L3 21l1.8-5.4A8.5 8.5 0 1 1 21 11.5z"/></svg>
-        </span>
-        <span class="song-player-side-btn song-player-side-static">
-          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-        </span>
-        <span class="song-player-side-btn song-player-side-static">
-          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>
-        </span>
-        <span class="song-player-side-btn song-player-side-static">
-          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg>
-        </span>
-        <span class="song-player-side-btn song-player-side-static">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
-        </span>
-        <span class="song-player-side-avatar"></span>
-      </div>
-
-      <div class="song-player-modal-info">
-        <h3 id="songPlayerModalTitle" class="song-player-modal-title"></h3>
-        <span id="songPlayerModalArtist" class="song-player-modal-artist"></span>
-      </div>
-    </div>
-  </div>
-
-
-  <div id="modalBackdrop" class="modal-backdrop hidden">
-    <div class="modal">
-      <div class="modal-header-row">
-        <h2 id="modalDate">일정</h2>
-        <button type="button" id="closeModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
-      </div>
-
-      <div id="eventList" class="event-list"></div>
-
-      <a id="modalSoopNotice" class="modal-soop-notice hidden" target="_blank" rel="noopener">
-        <div class="modal-soop-notice-header">
-          <span>공지사항</span>
-          <span class="modal-soop-notice-goto">바로가기 ↗</span>
-        </div>
-        <div id="modalSoopNoticeTitle" class="modal-soop-notice-title"></div>
-        <div id="modalSoopNoticeContent" class="modal-soop-notice-content"></div>
-      </a>
-
-      <a id="modalCafeNotice" class="modal-cafe-notice hidden" target="_blank" rel="noopener">
-        <div class="modal-cafe-notice-header">
-          <span>따카오톡</span>
-          <span class="modal-cafe-notice-goto">바로가기 ↗</span>
-        </div>
-        <div id="modalCafeNoticeTitle" class="modal-cafe-notice-title"></div>
-      </a>
-
-      <form id="eventForm" autocomplete="off">
-        <div class="event-field">
-          <label class="event-field-label" for="eventTitle">일정 제목</label>
-          <input type="text" id="eventTitle" placeholder="일정" required maxlength="100" autocomplete="off">
-        </div>
-        <div class="event-field-row">
-          <div class="event-field event-field-half">
-            <label class="event-field-label">유형</label>
-            <div class="color-picker-dropdown">
-              <button type="button" id="colorPickerBtn" class="color-picker-btn">
-                <span id="colorPickerBtnLabel">갠방</span>
-                <span class="color-picker-arrow">⌄</span>
-              </button>
-              <div id="colorPickerList" class="color-picker-list hidden">
-                <button type="button" class="color-picker-option" data-value="gray" style="background:#e2e2e2;">갠방</button>
-                <button type="button" class="color-picker-option" data-value="blue" style="background:#cfe8fb;">종겜</button>
-                <button type="button" class="color-picker-option" data-value="purple" style="background:#e5d9fb;">합방</button>
-                <button type="button" class="color-picker-option" data-value="yellow" style="background:#fffbd6;">노래관련</button>
-                <button type="button" class="color-picker-option" data-value="green" style="background:#d3f3d8;">게임 출시</button>
-                <button type="button" class="color-picker-option" data-value="#cc0000" style="background:#f6d1d1;">휴방</button>
-                <button type="button" class="color-picker-option" data-value="#e951d0" style="background:#fbe0f6;">커머스</button>
-                <button type="button" class="color-picker-option" data-value="#ff6f00" style="background:#ffe5d1;">같이보기</button>
-              </div>
-            </div>
-          </div>
-          <div class="event-field event-field-half">
-            <label class="event-field-label" for="eventAttendees">참여 멤버</label>
-            <div class="attendees-input-row">
-              <span class="attendees-icon">👤</span>
-              <input type="text" id="eventAttendees" placeholder="참여 멤버 (쉼표로 구분)" maxlength="200" autocomplete="off">
-            </div>
-          </div>
-        </div>
-        <div class="modal-actions">
-          <button type="submit" id="eventSubmitBtn" class="primary-btn">추가</button>
-        </div>
-      </form>
-
-      <div id="modalManageActions" class="modal-manage-actions hidden">
-        <button type="button" id="bulkDeleteBtn" class="modal-manage-btn modal-manage-btn-danger">일괄 삭제</button>
-        <button type="button" id="newEventBtn" class="modal-manage-btn modal-manage-btn-primary">+ 새 일정</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="loginModalBackdrop" class="modal-backdrop hidden">
-    <div class="modal">
-      <h2>로그인</h2>
-      <form id="loginForm">
-        <input type="password" id="loginUsernameInput" class="login-input" placeholder="아이디" autocomplete="username" required>
-        <input type="password" id="loginPasswordInput" class="login-input" placeholder="비밀번호" autocomplete="current-password" required>
-        <label class="login-remember-row">
-          <input type="checkbox" id="loginRememberInput">
-          로그인 상태 유지
-        </label>
-        <div id="loginError" class="sheet-status error hidden">아이디 또는 비밀번호가 틀렸습니다.</div>
-        <div class="modal-actions">
-          <button type="submit" class="primary-btn">로그인</button>
-          <button type="button" id="closeLoginModalBtn">취소</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <div id="memoOverlay" class="memo-overlay hidden"></div>
-  <div id="memoPanel" class="memo-panel hidden">
-    <div class="memo-panel-header">
-      <h2>메모</h2>
-      <button type="button" id="closeMemoBtn" class="memo-panel-close" aria-label="닫기">✕</button>
-    </div>
-    <div class="memo-tabs">
-      <button type="button" id="memoTabShared" class="memo-tab">공유</button>
-      <button type="button" id="memoTabPersonal" class="memo-tab">개인</button>
-      <button type="button" id="memoAddToggleBtn" class="memo-add-toggle-btn" aria-label="메모 추가">+</button>
-    </div>
-    <div class="memo-section hidden" id="memoPersonalSection">
-      <div id="memoPersonalList" class="memo-card-list"></div>
-    </div>
-    <div class="memo-section" id="memoSharedSection">
-      <div id="memoSharedList" class="memo-card-list"></div>
-    </div>
-  </div>
-
-  <div id="memoAddModalBackdrop" class="modal-backdrop hidden">
-    <div class="modal">
-      <div class="modal-header-row">
-        <h2 id="memoAddModalTitle">메모 추가</h2>
-        <button type="button" id="closeMemoAddModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
-      </div>
-      <form id="memoAddForm">
-        <div id="memoAddFieldsGrid" class="memo-add-fields-grid">
-          <input type="date" id="memoAddDateInput" class="memo-add-modal-input">
-          <input type="text" id="memoAddTitleInput" class="memo-add-modal-input" placeholder="메모 제목" maxlength="200" required>
-        </div>
-        <div class="modal-actions">
-          <button type="button" id="memoAddMoreBtn" class="memo-add-more-btn" aria-label="입력칸 추가">+</button>
-          <button type="submit" class="primary-btn">추가</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <div id="todayMemoModalBackdrop" class="modal-backdrop hidden">
-    <div class="modal">
-      <div class="modal-header-row">
-        <h2>오늘의 메모</h2>
-        <button type="button" id="closeTodayMemoModalBtn" class="modal-close-x" aria-label="닫기">✕</button>
-      </div>
-      <div id="todayMemoModalList" class="today-memo-list"></div>
-      <div class="modal-actions today-popup-actions">
-        <button type="button" id="todayMemoHideTodayBtn">오늘 하루 보지 않기</button>
-        <button type="button" id="todayMemoCloseBtn" class="primary-btn">닫기</button>
-      </div>
-    </div>
-  </div>
-
-
-
-  <script src="app.js?v=611"></script>
-  <script src="games.js?v=611"></script>
-  <script>
-    // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("service-worker.js", { updateViaCache: "none" }).catch(() => {});
-      });
-    }
-  </script>
+  <script src="app.js?v=20"></script>
 </body>
 </html>

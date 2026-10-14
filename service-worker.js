@@ -1,10 +1,10 @@
-const CACHE_NAME = "ddarin-calendar-v611";
+const CACHE_NAME = "ddarin-calendar-v610";
 const ASSETS = [
   "./",
   "./index.html",
-  "./style.css?v=611",
-  "./app.js?v=611",
-  "./games.js?v=611",
+  "./style.css?v=610",
+  "./app.js?v=610",
+  "./games.js?v=610",
   "./manifest.json",
   "./DDARIN_아바타.jpg",
   "./높은양갈래따린윙크.gif",
