@@ -555,7 +555,7 @@ function renderSongRequestListInto(container, displaySongs) {
   if (!displaySongs.length) {
     const empty = document.createElement("p");
     empty.className = "favorites-empty";
-    empty.textContent = "아직 신청된 곡이 없습니다.";
+    empty.textContent = "🎶 아직 신청된 곡이 없어요";
     container.appendChild(empty);
     return;
   }
@@ -714,7 +714,7 @@ function renderSongRequestSuccessLogInto(container) {
   if (!songRequestSuccessLog.length) {
     const empty = document.createElement("p");
     empty.className = "song-request-empty-text";
-    empty.textContent = "아직 신청된 곡이 없습니다.";
+    empty.textContent = "🎶 아직 신청된 곡이 없어요";
     container.appendChild(empty);
     return;
   }

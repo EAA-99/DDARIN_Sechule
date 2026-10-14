@@ -10,22 +10,22 @@
     <div class="app-body">
       <div class="song-request-shell">
         <div class="song-request-nav">
-          <button type="button" class="song-request-nav-item active" data-panel="request">노래 신청</button>
-          <button type="button" class="song-request-nav-item" data-panel="queue">대기열</button>
-          <button type="button" class="song-request-nav-item" data-panel="songbook">노래책</button>
+          <button type="button" class="song-request-nav-item active" data-panel="request">🎤 노래 신청</button>
+          <button type="button" class="song-request-nav-item" data-panel="queue">📋 대기열</button>
+          <button type="button" class="song-request-nav-item" data-panel="songbook">📖 노래책</button>
 
           <div class="song-request-nav-section-label">오버레이</div>
-          <button type="button" class="song-request-nav-item song-request-nav-sub" data-panel="overlay-nowplaying">현재 노래 정보</button>
-          <button type="button" class="song-request-nav-item song-request-nav-sub" data-panel="overlay-queue">노래 신청 목록</button>
+          <button type="button" class="song-request-nav-item song-request-nav-sub" data-panel="overlay-nowplaying">🎵 현재 노래 정보</button>
+          <button type="button" class="song-request-nav-item song-request-nav-sub" data-panel="overlay-queue">📃 노래 신청 목록</button>
 
           <div class="song-request-nav-section-label">도움말</div>
-          <button type="button" id="featureTourBtn" class="song-request-nav-item">기능 둘러보기</button>
+          <button type="button" id="featureTourBtn" class="song-request-nav-item">❓ 기능 둘러보기</button>
         </div>
 
         <div class="song-request-content">
           <div class="song-request-content-panel active" data-panel="request">
             <div class="song-request-nowplaying-card">
-              <div class="song-request-nowplaying-art">♪</div>
+              <div class="song-request-nowplaying-art">🎵</div>
               <div class="song-request-nowplaying-body">
                 <div id="songRequestNowPlayingTitle" class="song-request-nowplaying-title">현재 노래가 없습니다</div>
                 <div id="songRequestNowPlayingArtist" class="song-request-nowplaying-artist">대기열에서 곡을 선택해 주세요</div>
@@ -40,15 +40,15 @@
             </div>
 
             <div class="song-request-panel-header-controls song-request-controls-row">
-              <button type="button" id="songRequestSourceChatBtn" class="song-request-source-btn active" data-source="chat">채팅</button>
-              <button type="button" id="songRequestSourceStarBtn" class="song-request-source-btn" data-source="star">별풍선</button>
+              <button type="button" id="songRequestSourceChatBtn" class="song-request-source-btn active" data-source="chat">💬 채팅</button>
+              <button type="button" id="songRequestSourceStarBtn" class="song-request-source-btn" data-source="star">⭐ 별풍선</button>
               <div class="song-request-star-filter">
                 <span class="song-request-inline-label">최소 별풍선</span>
                 <input type="number" id="songRequestMinStarInput" class="song-request-star-input" value="100" min="0">
                 <span class="song-request-inline-label">개 이상</span>
                 <button type="button" id="songRequestStarApplyBtn" class="song-request-star-apply-btn">적용</button>
               </div>
-              <span class="song-request-inline-label">신청 받기</span>
+              <span class="song-request-inline-label">🎙️ 신청 받기</span>
               <button type="button" id="songRequestAcceptToggle" class="song-request-switch" aria-pressed="false"></button>
             </div>
 
@@ -69,7 +69,7 @@
               <div class="song-request-queue-left song-request-card">
                 <div class="song-request-panel-header">
                   <span class="song-request-chat-title-group">
-                    <h3>신청 목록</h3>
+                    <h3>🎶 신청 목록</h3>
                     <button type="button" id="songRequestListClearBtn" class="song-request-chat-log-clear-btn">초기화</button>
                   </span>
                   <button type="button" class="song-request-fullview-btn">전체보기</button>
@@ -86,7 +86,7 @@
               <div class="song-request-queue-right song-request-card">
                 <div class="song-request-panel-header">
                   <span class="song-request-chat-title-group">
-                    <h3>채팅</h3>
+                    <h3>💬 채팅</h3>
                     <button type="button" id="songRequestSuccessLogClearBtn" class="song-request-chat-log-clear-btn">초기화</button>
                   </span>
                   <button type="button" class="song-request-fullview-btn">전체보기</button>
@@ -97,7 +97,7 @@
 
             <div class="song-request-panel-header song-request-chat-header">
               <span class="song-request-chat-title-group">
-                <h3>로그</h3>
+                <h3>📝 로그</h3>
                 <button type="button" id="songRequestChatLogClearBtn" class="song-request-chat-log-clear-btn">지우기</button>
               </span>
               <span id="songRequestChatStatus" class="song-request-chat-status">
@@ -111,14 +111,14 @@
             <div class="song-request-queue-columns">
               <div class="song-request-queue-left song-request-card">
                 <div class="song-request-panel-header">
-                  <h3>신청 목록</h3>
+                  <h3>🎶 신청 목록</h3>
                 </div>
                 <div id="songRequestListFull" class="song-request-list"></div>
               </div>
 
               <div class="song-request-queue-right song-request-card">
                 <div class="song-request-panel-header">
-                  <h3>채팅</h3>
+                  <h3>💬 채팅</h3>
                 </div>
                 <div id="songRequestSuccessLogFull" class="song-request-success-log"></div>
               </div>
@@ -129,12 +129,12 @@
             <div class="songbook-panel-inner">
               <div class="songbook-header">
                 <div class="songbook-title-row">
-                  <h1>노래책</h1>
+                  <h1>📖 노래책</h1>
                   <span id="songbookTotalCount" class="songbook-total-count"></span>
                 </div>
                 <div class="songbook-header-actions">
                   <div id="songManageToolbar" class="song-manage-toolbar">
-                    <button type="button" id="songAddBtn" class="song-manage-btn" aria-label="곡 추가" title="곡 추가">곡 추가</button>
+                    <button type="button" id="songAddBtn" class="song-manage-btn" aria-label="곡 추가" title="곡 추가">➕ 곡 추가</button>
                     <button type="button" id="songSelectAllBtn" class="song-manage-btn">전체선택</button>
                     <button type="button" id="songDeleteSelectedBtn" class="song-manage-btn song-manage-btn-danger">선택삭제</button>
                     <button type="button" id="songQueueAddBtn" class="song-manage-btn">대기열 추가</button>
@@ -145,7 +145,7 @@
               <div class="songbook-body">
                 <div class="player-panel">
                   <div class="player-artists">
-                    <h3>가수</h3>
+                    <h3>🎤 가수</h3>
                     <div id="artist2List" class="artist-list"></div>
                   </div>
                 </div>
@@ -222,7 +222,7 @@
           </div>
 
           <div class="song-request-content-panel" data-panel="overlay-nowplaying">
-            <p class="song-request-overlay-heading song-request-overlay-heading-first">디자인</p>
+            <p class="song-request-overlay-heading song-request-overlay-heading-first">🎨 디자인</p>
             <div class="song-request-overlay-style-row">
               <div class="song-request-overlay-color-field">
                 <span class="song-request-inline-label">테마</span>
@@ -266,7 +266,7 @@
               </div>
             </div>
 
-            <p class="song-request-overlay-heading">브라우저 소스 URL</p>
+            <p class="song-request-overlay-heading">🔗 브라우저 소스 URL</p>
             <div class="song-request-overlay-url-row">
               <input type="text" id="songRequestOverlayNowplayingUrlInput" class="song-request-overlay-url-input song-request-overlay-url-input-hidden" readonly>
               <button type="button" id="songRequestOverlayNowplayingEyeBtn" class="song-request-overlay-icon-btn" aria-label="URL 보기">👁</button>
@@ -274,7 +274,7 @@
             </div>
             <p class="song-request-overlay-desc">노래 목록이 아니라, 지금 부르고 있는 곡의 제목과 가수만 보여주는 오버레이입니다.</p>
 
-            <p class="song-request-overlay-heading">미리보기</p>
+            <p class="song-request-overlay-heading">👀 미리보기</p>
             <div id="songRequestOverlayNowplayingPreviewWrap" class="song-request-overlay-nowplaying-preview-wrap">
               <div class="song-request-overlay-nowplaying-preview-card">
                 <span class="song-request-overlay-nowplaying-preview-title">노래 제목</span>
@@ -284,7 +284,7 @@
           </div>
 
           <div class="song-request-content-panel" data-panel="overlay-queue">
-            <p class="song-request-overlay-heading song-request-overlay-heading-first">디자인</p>
+            <p class="song-request-overlay-heading song-request-overlay-heading-first">🎨 디자인</p>
             <div class="song-request-overlay-style-row">
               <div class="song-request-overlay-color-field">
                 <span class="song-request-inline-label">테마</span>
@@ -313,7 +313,7 @@
               </label>
             </div>
 
-            <p class="song-request-overlay-heading">표시 방식</p>
+            <p class="song-request-overlay-heading">🖥️ 표시 방식</p>
             <div class="song-request-theme-toggle" id="songRequestOverlayDisplayModeToggle">
               <button type="button" class="song-request-theme-btn active" data-mode="static">정적</button>
               <button type="button" class="song-request-theme-btn" data-mode="scroll">스크롤</button>
@@ -326,7 +326,7 @@
               </label>
             </div>
 
-            <p class="song-request-overlay-heading">브라우저 소스 URL</p>
+            <p class="song-request-overlay-heading">🔗 브라우저 소스 URL</p>
             <div class="song-request-overlay-url-row">
               <input type="text" id="songRequestOverlayUrlInput" class="song-request-overlay-url-input song-request-overlay-url-input-hidden" readonly>
               <button type="button" id="songRequestOverlayEyeBtn" class="song-request-overlay-icon-btn" aria-label="URL 보기">👁</button>
@@ -334,7 +334,7 @@
             </div>
             <p class="song-request-overlay-desc">대기 중인 노래 목록을 실시간으로 보여주는 오버레이입니다.</p>
 
-            <p class="song-request-overlay-heading">미리보기</p>
+            <p class="song-request-overlay-heading">👀 미리보기</p>
             <div id="songRequestOverlayPreviewWrap" class="song-request-overlay-preview-wrap">
               <div id="songRequestOverlayPreviewViewport" class="song-request-overlay-preview-viewport">
                 <div id="songRequestOverlayPreviewTrack" class="song-request-overlay-preview-track">

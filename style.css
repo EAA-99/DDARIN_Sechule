@@ -56,16 +56,18 @@ body {
   text-align: left;
   border: none;
   background: none;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 9px 12px;
   font-size: 0.85rem;
   font-weight: 700;
   color: #666;
   cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
 }
 
 .song-request-nav-item:hover {
   background: #f5f5f5;
+  transform: translateX(1px);
 }
 
 .song-request-nav-item.active {
@@ -133,7 +135,7 @@ body {
   gap: 16px;
   background: #fff;
   border: 1px solid #eee;
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 26px 16px;
   margin-bottom: 14px;
 }
@@ -142,10 +144,10 @@ body {
   flex-shrink: 0;
   width: 92px;
   height: 92px;
-  border-radius: 10px;
-  background: #eee;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #eaf2fc, #f3e8fd);
   color: #bbb;
-  font-size: 1.8rem;
+  font-size: 2.4rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -230,7 +232,7 @@ body {
 .song-request-card {
   background: #fff;
   border: 1px solid #eee;
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 16px;
 }
 
