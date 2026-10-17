@@ -13,8 +13,18 @@
     font-family: "Malgun Gothic", "Segoe UI", sans-serif;
   }
 
+  /* 화면 네 모서리 중 한 곳에 배치 */
+  body {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+  body[data-pos="tr"] { justify-content: flex-end; }
+  body[data-pos="bl"] { align-items: flex-end; }
+  body[data-pos="br"] { justify-content: flex-end; align-items: flex-end; }
+
   .queue-viewport {
-    height: 100vh;
+    max-height: 100vh;
     overflow: hidden;
   }
 
@@ -33,13 +43,29 @@
     background: var(--overlay-bg, rgba(20, 20, 28, 0.78));
     border-radius: 18px;
     padding: 12px 18px;
-    width: 200px;
+    width: var(--overlay-width, 200px);
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
     font-family: var(--overlay-font, "Malgun Gothic", "Segoe UI", sans-serif);
   }
 
+  .queue-title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    min-width: 0;
+  }
+
+  .queue-index {
+    flex-shrink: 0;
+    font-size: calc(var(--overlay-font-size, 1.05rem) * 0.9);
+    font-weight: 800;
+    color: var(--overlay-color, #ffffff);
+    opacity: 0.55;
+    font-variant-numeric: tabular-nums;
+  }
+
   .queue-title {
-    font-size: 1.05rem;
+    font-size: var(--overlay-font-size, 1.05rem);
     font-weight: 800;
     color: var(--overlay-color, #ffffff);
     white-space: nowrap;
@@ -55,7 +81,7 @@
   }
 
   .queue-artist {
-    font-size: 0.8rem;
+    font-size: calc(var(--overlay-font-size, 1.05rem) * 0.76);
     font-weight: 600;
     color: var(--overlay-color, #c9c9d6);
     opacity: 0.75;
@@ -66,7 +92,7 @@
 
   .queue-time {
     flex-shrink: 0;
-    font-size: 0.7rem;
+    font-size: calc(var(--overlay-font-size, 1.05rem) * 0.67);
     color: var(--overlay-color, #9a9aa6);
     opacity: 0.55;
   }
@@ -88,7 +114,7 @@
   <script>
     const SONGBOOK_SPREADSHEET_ID = "1NhImCLm5diXM0pA45SkB-g2PARivQiVN8bUKlniiOB8";
     const SHEETS_API_KEY = "AIzaSyC0RsFfc5y9GmEaE29niGWD9hbSnpIc7rM";
-    const POLL_MS = 5000;
+    const POLL_MS = 1500;
 
     function albumArtCacheKey(song) {
       return `${song.artist}|${song.title}`.toLowerCase();
@@ -255,7 +281,10 @@
           .map(
             () => `
             <div class="queue-row">
-              <span class="queue-title"></span>
+              <div class="queue-title-row">
+                <span class="queue-index"></span>
+                <span class="queue-title"></span>
+              </div>
               <div class="queue-row-bottom">
                 <span class="queue-artist"></span>
                 <span class="queue-time"></span>
@@ -268,6 +297,8 @@
       const rows = listEl.querySelectorAll(".queue-row");
       songs.forEach((song, i) => {
         const row = rows[i];
+        // 번호는 페이지가 넘어가도 전체 대기열 기준으로 매긴다
+        row.querySelector(".queue-index").textContent = `${validKeys.indexOf(displayKeys[i]) + 1}.`;
         row.querySelector(".queue-title").textContent = song.title;
         row.querySelector(".queue-artist").textContent = song.artist;
         row.querySelector(".queue-time").textContent = formatRelativeTime(times[displayKeys[i]]);
@@ -336,8 +367,14 @@
       const bg = params.get("bg");
       const color = params.get("color");
       const fontKey = params.get("font");
+      const size = params.get("size");
+      const width = params.get("w");
+      const pos = params.get("pos");
       if (bg) document.documentElement.style.setProperty("--overlay-bg", bg);
       if (color) document.documentElement.style.setProperty("--overlay-color", color);
+      if (size) document.documentElement.style.setProperty("--overlay-font-size", `${size}rem`);
+      if (width) document.documentElement.style.setProperty("--overlay-width", `${width}px`);
+      if (pos) document.body.dataset.pos = pos;
       const font = fontKey && OVERLAY_FONTS[fontKey];
       if (font) {
         document.documentElement.style.setProperty("--overlay-font", font.family);

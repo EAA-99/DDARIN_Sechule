@@ -7,15 +7,26 @@
   html, body {
     margin: 0;
     padding: 0;
+    height: 100%;
     background: transparent;
     font-family: "Malgun Gothic", "Segoe UI", sans-serif;
   }
+
+  /* 화면 네 모서리 중 한 곳에 배치 */
+  body {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+  body[data-pos="tr"] { justify-content: flex-end; }
+  body[data-pos="bl"] { align-items: flex-end; }
+  body[data-pos="br"] { justify-content: flex-end; align-items: flex-end; }
 
   #nowPlayingCard {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    width: 300px;
+    width: var(--overlay-width, 300px);
     max-width: calc(100% - 40px);
     box-sizing: border-box;
     margin: 20px;
@@ -56,7 +67,7 @@
   <script>
     const SONGBOOK_SPREADSHEET_ID = "1NhImCLm5diXM0pA45SkB-g2PARivQiVN8bUKlniiOB8";
     const SHEETS_API_KEY = "AIzaSyC0RsFfc5y9GmEaE29niGWD9hbSnpIc7rM";
-    const POLL_MS = 5000;
+    const POLL_MS = 1500;
 
     function albumArtCacheKey(song) {
       return `${song.artist}|${song.title}`.toLowerCase();
@@ -172,10 +183,14 @@
       const fontKey = params.get("font");
       const size = params.get("size");
       const align = params.get("align");
+      const width = params.get("w");
+      const pos = params.get("pos");
       if (bg) document.documentElement.style.setProperty("--overlay-bg", bg);
       if (color) document.documentElement.style.setProperty("--overlay-color", color);
       if (size) document.documentElement.style.setProperty("--overlay-font-size", `${size}rem`);
       if (align) document.documentElement.style.setProperty("--overlay-align", align);
+      if (width) document.documentElement.style.setProperty("--overlay-width", `${width}px`);
+      if (pos) document.body.dataset.pos = pos;
       const font = fontKey && OVERLAY_FONTS[fontKey];
       if (font) {
         document.documentElement.style.setProperty("--overlay-font", font.family);
