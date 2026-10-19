@@ -179,11 +179,19 @@
       });
     }
 
+    // 노래책에 없는 신청곡은 대기열이 직접 제목/가수를 들고 온다
+    let queueExtras = {};
+
+    function songFor(key) {
+      return songByKey[key] || queueExtras[key] || null;
+    }
+
     async function fetchQueue() {
       try {
         const res = await fetch("/api/songbook?resource=queue");
         if (!res.ok) return { keys: [], times: {} };
         const data = await res.json();
+        queueExtras = data.extras && typeof data.extras === "object" ? data.extras : {};
         return {
           keys: Array.isArray(data.queue) ? data.queue : [],
           times: data.times && typeof data.times === "object" ? data.times : {},
@@ -243,7 +251,7 @@
 
       const listEl = document.getElementById("queueList");
       const viewportEl = document.querySelector(".queue-viewport");
-      const validKeys = keys.filter((k) => songByKey[k]);
+      const validKeys = keys.filter(songFor);
       const pageSize = maxCount > 0 ? maxCount : 3;
 
       let displayKeys;
@@ -263,7 +271,7 @@
         ensureStaticPageTimer(pageCount);
       }
 
-      const songs = displayKeys.map((k) => songByKey[k]);
+      const songs = displayKeys.map(songFor);
       const signature = `${displayKeys.join(",")}|${mode}|${maxCount}|${staticPageIndex}`;
 
       if (!songs.length) {
@@ -339,11 +347,37 @@
       });
     }
 
+    // 수집기에서 저장한 모양 설정 (URL을 다시 복사하지 않아도 바로 반영됨)
+    let overlaySettings = null;
+    let lastAppliedSettings = "";
+
+    async function fetchOverlaySettings() {
+      try {
+        const res = await fetch("/api/songbook?resource=overlay");
+        if (!res.ok) return;
+        const data = await res.json();
+        const s = (data && data.queue) || {};
+        if (!Object.keys(s).length) return;
+        overlaySettings = s;
+        const signature = JSON.stringify(s);
+        if (signature !== lastAppliedSettings) {
+          lastAppliedSettings = signature;
+          applySettings(s);
+          lastQueueSignature = null; // 모양이 바뀌었으니 다시 그리게 한다
+        }
+      } catch {
+        // 설정을 못 받아오면 기존 모양을 유지한다
+      }
+    }
+
     async function tick() {
+      await fetchOverlaySettings();
       const { keys, times } = await fetchQueue();
       const params = new URLSearchParams(location.search);
-      const mode = params.get("mode") === "scroll" ? "scroll" : "static";
-      const maxCount = Number(params.get("max")) || 3;
+      const s = overlaySettings || {};
+      const modeValue = s.mode || params.get("mode");
+      const mode = modeValue === "scroll" ? "scroll" : "static";
+      const maxCount = Number(s.max || params.get("max")) || 3;
       renderQueue(keys, times, mode, maxCount);
     }
 
@@ -362,27 +396,47 @@
       singleday: { family: `"Single Day", sans-serif`, google: "Single+Day" },
     };
 
+    const root = document.documentElement;
+
+    function setVar(name, value) {
+      if (value === null || value === undefined || value === "") root.style.removeProperty(name);
+      else root.style.setProperty(name, value);
+    }
+
+    function applySettings(s) {
+      setVar("--overlay-bg", s.bg || null);
+      setVar("--overlay-color", s.color || null);
+      setVar("--overlay-font-size", s.size ? `${s.size}rem` : null);
+      setVar("--overlay-width", s.w ? `${s.w}px` : null);
+      document.body.dataset.pos = s.pos || "tl";
+
+      const font = s.font && OVERLAY_FONTS[s.font];
+      if (font) {
+        setVar("--overlay-font", font.family);
+        let link = document.getElementById("overlayFontLink");
+        if (!link) {
+          link = document.createElement("link");
+          link.id = "overlayFontLink";
+          link.rel = "stylesheet";
+          document.head.appendChild(link);
+        }
+        link.href = `https://fonts.googleapis.com/css2?family=${font.google}&display=swap`;
+      } else {
+        setVar("--overlay-font", null);
+      }
+    }
+
+    // 서버 설정을 받기 전에는 URL 파라미터로 먼저 그려둔다 (예전 방식 호환)
     (() => {
       const params = new URLSearchParams(location.search);
-      const bg = params.get("bg");
-      const color = params.get("color");
-      const fontKey = params.get("font");
-      const size = params.get("size");
-      const width = params.get("w");
-      const pos = params.get("pos");
-      if (bg) document.documentElement.style.setProperty("--overlay-bg", bg);
-      if (color) document.documentElement.style.setProperty("--overlay-color", color);
-      if (size) document.documentElement.style.setProperty("--overlay-font-size", `${size}rem`);
-      if (width) document.documentElement.style.setProperty("--overlay-width", `${width}px`);
-      if (pos) document.body.dataset.pos = pos;
-      const font = fontKey && OVERLAY_FONTS[fontKey];
-      if (font) {
-        document.documentElement.style.setProperty("--overlay-font", font.family);
-        const link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.href = `https://fonts.googleapis.com/css2?family=${font.google}&display=swap`;
-        document.head.appendChild(link);
-      }
+      applySettings({
+        bg: params.get("bg"),
+        color: params.get("color"),
+        font: params.get("font"),
+        size: params.get("size"),
+        w: params.get("w"),
+        pos: params.get("pos"),
+      });
     })();
 
     (async () => {

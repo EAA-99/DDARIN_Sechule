@@ -132,11 +132,15 @@
       });
     }
 
+    // 노래책에 없는 신청곡은 대기열이 직접 제목/가수를 들고 온다
+    let queueExtras = {};
+
     async function fetchNowPlayingKey() {
       try {
         const res = await fetch("/api/songbook?resource=queue");
         if (!res.ok) return null;
         const data = await res.json();
+        queueExtras = data.extras && typeof data.extras === "object" ? data.extras : {};
         const queue = Array.isArray(data.queue) ? data.queue : [];
         return queue[0] || null;
       } catch {
@@ -146,7 +150,7 @@
 
     function renderNowPlaying(key) {
       const card = document.getElementById("nowPlayingCard");
-      const song = key ? songByKey[key] : null;
+      const song = key ? songByKey[key] || queueExtras[key] : null;
       if (!song) {
         card.style.display = "none";
         return;
@@ -156,7 +160,26 @@
       document.getElementById("nowPlayingArtist").textContent = song.artist;
     }
 
+    // 수집기에서 저장한 모양 설정을 그대로 반영 (URL을 다시 복사하지 않아도 됨)
+    let lastAppliedSettings = "";
+
+    async function applyServerSettings() {
+      try {
+        const res = await fetch("/api/songbook?resource=overlay");
+        if (!res.ok) return;
+        const data = await res.json();
+        const s = (data && data.nowplaying) || {};
+        const signature = JSON.stringify(s);
+        if (signature === lastAppliedSettings) return;
+        lastAppliedSettings = signature;
+        applySettings(s);
+      } catch {
+        // 설정을 못 받아오면 기존 모양을 유지한다
+      }
+    }
+
     async function tick() {
+      await applyServerSettings();
       const key = await fetchNowPlayingKey();
       renderNowPlaying(key);
     }
@@ -176,29 +199,49 @@
       singleday: { family: `"Single Day", sans-serif`, google: "Single+Day" },
     };
 
+    const root = document.documentElement;
+
+    function setVar(name, value) {
+      if (value === null || value === undefined || value === "") root.style.removeProperty(name);
+      else root.style.setProperty(name, value);
+    }
+
+    function applySettings(s) {
+      setVar("--overlay-bg", s.bg || null);
+      setVar("--overlay-color", s.color || null);
+      setVar("--overlay-font-size", s.size ? `${s.size}rem` : null);
+      setVar("--overlay-align", s.align || null);
+      setVar("--overlay-width", s.w ? `${s.w}px` : null);
+      document.body.dataset.pos = s.pos || "tl";
+
+      const font = s.font && OVERLAY_FONTS[s.font];
+      if (font) {
+        setVar("--overlay-font", font.family);
+        let link = document.getElementById("overlayFontLink");
+        if (!link) {
+          link = document.createElement("link");
+          link.id = "overlayFontLink";
+          link.rel = "stylesheet";
+          document.head.appendChild(link);
+        }
+        link.href = `https://fonts.googleapis.com/css2?family=${font.google}&display=swap`;
+      } else {
+        setVar("--overlay-font", null);
+      }
+    }
+
+    // 서버 설정을 받기 전에는 URL 파라미터로 먼저 그려둔다 (예전 방식 호환)
     (() => {
       const params = new URLSearchParams(location.search);
-      const bg = params.get("bg");
-      const color = params.get("color");
-      const fontKey = params.get("font");
-      const size = params.get("size");
-      const align = params.get("align");
-      const width = params.get("w");
-      const pos = params.get("pos");
-      if (bg) document.documentElement.style.setProperty("--overlay-bg", bg);
-      if (color) document.documentElement.style.setProperty("--overlay-color", color);
-      if (size) document.documentElement.style.setProperty("--overlay-font-size", `${size}rem`);
-      if (align) document.documentElement.style.setProperty("--overlay-align", align);
-      if (width) document.documentElement.style.setProperty("--overlay-width", `${width}px`);
-      if (pos) document.body.dataset.pos = pos;
-      const font = fontKey && OVERLAY_FONTS[fontKey];
-      if (font) {
-        document.documentElement.style.setProperty("--overlay-font", font.family);
-        const link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.href = `https://fonts.googleapis.com/css2?family=${font.google}&display=swap`;
-        document.head.appendChild(link);
-      }
+      applySettings({
+        bg: params.get("bg"),
+        color: params.get("color"),
+        font: params.get("font"),
+        size: params.get("size"),
+        align: params.get("align"),
+        w: params.get("w"),
+        pos: params.get("pos"),
+      });
     })();
 
     (async () => {
