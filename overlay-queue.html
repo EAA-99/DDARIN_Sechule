@@ -36,22 +36,26 @@
     width: fit-content;
   }
 
+  /* 번호는 왼쪽에 두고, 제목과 가수는 그 오른쪽에 세로로 쌓는다 */
   .queue-row {
     display: flex;
-    flex-direction: column;
-    gap: 3px;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 7px;
     background: var(--overlay-bg, rgba(20, 20, 28, 0.78));
     border-radius: 18px;
     padding: 12px 18px;
     width: var(--overlay-width, 200px);
+    box-sizing: border-box;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
     font-family: var(--overlay-font, "Malgun Gothic", "Segoe UI", sans-serif);
   }
 
-  .queue-title-row {
+  .queue-main {
     display: flex;
-    align-items: baseline;
-    gap: 7px;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
     min-width: 0;
   }
 
@@ -289,13 +293,13 @@
           .map(
             () => `
             <div class="queue-row">
-              <div class="queue-title-row">
-                <span class="queue-index"></span>
+              <span class="queue-index"></span>
+              <div class="queue-main">
                 <span class="queue-title"></span>
-              </div>
-              <div class="queue-row-bottom">
-                <span class="queue-artist"></span>
-                <span class="queue-time"></span>
+                <div class="queue-row-bottom">
+                  <span class="queue-artist"></span>
+                  <span class="queue-time"></span>
+                </div>
               </div>
             </div>`
           )
