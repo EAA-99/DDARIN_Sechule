@@ -1,4 +1,4 @@
-const KV_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+﻿const KV_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
 const KV_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
 
 async function kvCommand(cmd) {
@@ -29,16 +29,35 @@ async function getState() {
 
 async function getQueue() {
   const { result } = await kvCommand(["GET", "songbook_queue"]);
-  if (!result) return { queue: [], times: {} };
+  if (!result) return { queue: [], times: {}, extras: {}, senders: {} };
   try {
     const parsed = JSON.parse(result);
-    if (Array.isArray(parsed)) return { queue: parsed, times: {} };
+    if (Array.isArray(parsed)) return { queue: parsed, times: {}, extras: {}, senders: {} };
     return {
       queue: Array.isArray(parsed.queue) ? parsed.queue : [],
       times: parsed.times && typeof parsed.times === "object" ? parsed.times : {},
+      // 노래책에 없는 신청곡의 제목/가수 (노래책을 건드리지 않기 위해 대기열이 직접 들고 있음)
+      extras: parsed.extras && typeof parsed.extras === "object" ? parsed.extras : {},
+      // 곡별 신청자 닉네임 (수집을 껐다 켜도 유지되도록 서버에 함께 보관)
+      senders: parsed.senders && typeof parsed.senders === "object" ? parsed.senders : {},
     };
   } catch {
-    return { queue: [], times: {} };
+    return { queue: [], times: {}, extras: {}, senders: {} };
+  }
+}
+
+// 오버레이 모양 설정 (수집기에서 저장하면 OBS 오버레이가 바로 따라감)
+async function getOverlaySettings() {
+  const { result } = await kvCommand(["GET", "songbook_overlay_settings"]);
+  if (!result) return { queue: {}, nowplaying: {} };
+  try {
+    const parsed = JSON.parse(result);
+    return {
+      queue: parsed && typeof parsed.queue === "object" && parsed.queue ? parsed.queue : {},
+      nowplaying: parsed && typeof parsed.nowplaying === "object" && parsed.nowplaying ? parsed.nowplaying : {},
+    };
+  } catch {
+    return { queue: {}, nowplaying: {} };
   }
 }
 
@@ -79,14 +98,29 @@ export default async function handler(req, res) {
       res.status(200).json(await getLyricsSync());
       return;
     }
+    if (req.query.resource === "overlay") {
+      res.status(200).json(await getOverlaySettings());
+      return;
+    }
     res.status(200).json(await getState());
     return;
   }
 
   if (req.method === "POST") {
-    const { key, overrides, deletions, resource, queue, times, title, artist, lines, position, playing } = req.body || {};
+    const { key, overrides, deletions, resource, queue, times, extras, senders, title, artist, lines, position, playing, overlay } =
+      req.body || {};
     if (key !== process.env.SONGBOOK_APP_KEY) {
       res.status(401).json({ success: false });
+      return;
+    }
+
+    if (resource === "overlay") {
+      const settings = {
+        queue: overlay && typeof overlay.queue === "object" && overlay.queue ? overlay.queue : {},
+        nowplaying: overlay && typeof overlay.nowplaying === "object" && overlay.nowplaying ? overlay.nowplaying : {},
+      };
+      await kvCommand(["SET", "songbook_overlay_settings", JSON.stringify(settings)]);
+      res.status(200).json({ success: true });
       return;
     }
 
@@ -94,6 +128,8 @@ export default async function handler(req, res) {
       const queueState = {
         queue: Array.isArray(queue) ? queue : [],
         times: times && typeof times === "object" ? times : {},
+        extras: extras && typeof extras === "object" ? extras : {},
+        senders: senders && typeof senders === "object" ? senders : {},
       };
       await kvCommand(["SET", "songbook_queue", JSON.stringify(queueState)]);
       res.status(200).json({ success: true });
