@@ -148,8 +148,10 @@
       }
     }
 
-    function renderNowPlaying(key) {
+    function renderNowPlaying(entryId) {
       const card = document.getElementById("nowPlayingCard");
+      // 같은 곡 중복 신청 시 뒤에 " 2", " 3"이 붙으므로 곡 키만 떼어낸다
+      const key = entryId ? String(entryId).split("\u0000")[0] : null;
       const song = key ? songByKey[key] || queueExtras[key] : null;
       if (!song) {
         card.style.display = "none";
