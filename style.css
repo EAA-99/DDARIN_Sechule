@@ -4945,33 +4945,32 @@ body.youtube-view-open {
   color: var(--sb-text);
 }
 
-@media (prefers-color-scheme: dark) {
-  #songbook2View {
-    --sb-bg: #15132b;
-    --sb-card: #211e40;
-    --sb-text: #fff;
-    --sb-muted: rgba(255, 255, 255, 0.5);
-    --sb-line: rgba(255, 255, 255, 0.08);
-    --sb-lead: rgba(255, 255, 255, 0.18);
-    --sb-accent: #9d86ff;
-    --sb-genre-on: #2b2656;
-    --sb-panel: #262250;
-    --sb-panel-shadow: rgba(0, 0, 0, 0.5);
-    --sb-ini: rgba(255, 255, 255, 0.06);
-    --sb-ini-text: rgba(255, 255, 255, 0.8);
-    --sb-card-shadow: none;
-    --sb-fav-off: rgba(255, 255, 255, 0.2);
-    --sb-fav-on: #ffc93d;
-    --sb-yang: #6ea8ff;
-    --sb-han: #5fd39a;
-    --sb-il: #ff7fae;
-    --sb-hero:
-      radial-gradient(circle at 82% 18%, rgba(255, 255, 255, 0.25) 0 1px, transparent 2px),
-      radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.2) 0 1px, transparent 2px),
-      radial-gradient(circle at 60% 12%, rgba(255, 255, 255, 0.18) 0 1px, transparent 2px),
-      linear-gradient(180deg, #7d5ce4 0%, #4d40b8 60%, #15132b 100%);
-    --sb-hero-radius: 0;
-  }
+/* 다크모드: app.js가 기기 설정이나 헤더의 🌙 버튼 선택에 따라 data-theme을 붙임 */
+#songbook2View[data-theme="dark"] {
+  --sb-bg: #15132b;
+  --sb-card: #211e40;
+  --sb-text: #fff;
+  --sb-muted: rgba(255, 255, 255, 0.5);
+  --sb-line: rgba(255, 255, 255, 0.08);
+  --sb-lead: rgba(255, 255, 255, 0.18);
+  --sb-accent: #9d86ff;
+  --sb-genre-on: #2b2656;
+  --sb-panel: #262250;
+  --sb-panel-shadow: rgba(0, 0, 0, 0.5);
+  --sb-ini: rgba(255, 255, 255, 0.06);
+  --sb-ini-text: rgba(255, 255, 255, 0.8);
+  --sb-card-shadow: none;
+  --sb-fav-off: rgba(255, 255, 255, 0.2);
+  --sb-fav-on: #ffc93d;
+  --sb-yang: #6ea8ff;
+  --sb-han: #5fd39a;
+  --sb-il: #ff7fae;
+  --sb-hero:
+    radial-gradient(circle at 82% 18%, rgba(255, 255, 255, 0.25) 0 1px, transparent 2px),
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.2) 0 1px, transparent 2px),
+    radial-gradient(circle at 60% 12%, rgba(255, 255, 255, 0.18) 0 1px, transparent 2px),
+    linear-gradient(180deg, #7d5ce4 0%, #4d40b8 60%, #15132b 100%);
+  --sb-hero-radius: 0;
 }
 
 #songbook2View .sb2-side {
@@ -4989,16 +4988,36 @@ body.youtube-view-open {
   color: #fff;
 }
 
-@media (prefers-color-scheme: dark) {
-  #songbook2View .sb2-hero {
-    border-radius: 0;
-  }
+#songbook2View[data-theme="dark"] .sb2-hero {
+  border-radius: 0;
 }
 
-#songbook2View .sb2-fav-btn {
+#songbook2View .sb2-hero-actions {
   position: absolute;
   top: 18px;
   right: 18px;
+  display: flex;
+  gap: 8px;
+}
+
+#songbook2View .sb2-theme-btn {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  cursor: pointer;
+}
+
+#songbook2View .sb2-theme-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+#songbook2View .sb2-fav-btn {
   display: flex;
   align-items: center;
   gap: 6px;

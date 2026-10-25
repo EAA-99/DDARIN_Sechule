@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=614">
+<link rel="stylesheet" href="style.css?v=615">
 </head>
 <body>
   <button type="button" id="backToCalendarBtn" class="back-to-calendar-btn" aria-label="홈으로">←</button>
@@ -536,7 +536,10 @@
   <div id="songbook2View" class="songbook-view hidden">
     <div class="sb2-side">
       <div class="sb2-hero">
-        <button type="button" id="favorites2OpenBtn" class="sb2-fav-btn" aria-label="즐겨찾기">★<span class="sb2-fav-label">즐겨찾기</span></button>
+        <div class="sb2-hero-actions">
+          <button type="button" id="songbook2ThemeBtn" class="sb2-theme-btn"></button>
+          <button type="button" id="favorites2OpenBtn" class="sb2-fav-btn" aria-label="즐겨찾기">★<span class="sb2-fav-label">즐겨찾기</span></button>
+        </div>
         <div class="sb2-kicker">DDARIN</div>
         <h1 class="sb2-big">SONGBOOK</h1>
         <span id="songbookTotalCount" class="sb2-meta"></span>
@@ -963,8 +966,8 @@
 
 
 
-  <script src="app.js?v=614"></script>
-  <script src="games.js?v=614"></script>
+  <script src="app.js?v=615"></script>
+  <script src="games.js?v=615"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {

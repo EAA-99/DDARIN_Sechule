@@ -267,6 +267,27 @@ favorites2ModalBackdrop.addEventListener("click", (e) => {
   if (e.target === favorites2ModalBackdrop) closeFavorites2Modal();
 });
 
+// 노래책 다크모드: 직접 고른 게 있으면 그걸, 없으면 기기 설정을 따름
+const SONGBOOK2_THEME_KEY = "songbook2-theme";
+const songbook2ThemeBtn = document.getElementById("songbook2ThemeBtn");
+const darkSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+const THEME_ICON_MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+const THEME_ICON_SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+
+function applySongbook2Theme() {
+  const theme = localStorage.getItem(SONGBOOK2_THEME_KEY) || (darkSchemeQuery.matches ? "dark" : "light");
+  songbook2View.dataset.theme = theme;
+  songbook2ThemeBtn.innerHTML = theme === "dark" ? THEME_ICON_SUN : THEME_ICON_MOON;
+  songbook2ThemeBtn.setAttribute("aria-label", theme === "dark" ? "라이트모드로 보기" : "다크모드로 보기");
+}
+
+songbook2ThemeBtn.addEventListener("click", () => {
+  localStorage.setItem(SONGBOOK2_THEME_KEY, songbook2View.dataset.theme === "dark" ? "light" : "dark");
+  applySongbook2Theme();
+});
+darkSchemeQuery.addEventListener("change", applySongbook2Theme);
+applySongbook2Theme();
+
 let songbook2Genre = "전체";
 let songbook2Artist = "전체";
 let songSortMode2 = "artist";
