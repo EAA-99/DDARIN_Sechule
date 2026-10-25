@@ -58,12 +58,6 @@
     flex-shrink: 0;
   }
 
-  .back-menu-calendar-box {
-    aspect-ratio: unset;
-    flex: 1;
-    min-height: 0;
-  }
-
   .soop-chat-day-list {
     aspect-ratio: unset;
     flex: 1;
@@ -151,46 +145,6 @@
 .back-menu-hamburger svg {
   width: 22px;
   height: 22px;
-}
-
-.back-menu-media {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 3 / 4;
-  background: #000;
-  overflow: hidden;
-  touch-action: pan-y;
-}
-
-@media (max-width: 900px) {
-  .back-menu-media {
-    flex: 1;
-    aspect-ratio: unset;
-    min-height: 0;
-    touch-action: none;
-  }
-}
-
-.back-menu-media-track {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  cursor: grab;
-  transition: transform 0.25s ease;
-}
-
-.back-menu-media-slide {
-  width: 100%;
-  height: 100%;
-  flex-shrink: 0;
-}
-
-.back-menu-bg-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  pointer-events: none;
 }
 
 .back-menu-dots {
@@ -422,137 +376,6 @@ body {
   font-weight: 700;
   flex-shrink: 0;
   cursor: pointer;
-}
-
-.calendar-post-actions {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 12px 4px;
-  color: #2a2a2a;
-}
-
-.calendar-post-actions svg {
-  width: 22px;
-  height: 22px;
-}
-
-.calendar-post-spacer {
-  flex: 1;
-}
-
-.back-menu-calendar-box {
-  aspect-ratio: 3 / 4;
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-}
-
-.back-menu-calendar-box.hidden {
-  display: none;
-}
-
-.back-menu-calendar-body {
-  padding: 0 16px;
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-}
-
-.back-menu-calendar-body .app {
-  padding: 0;
-  background: #fff;
-  border: 1px solid #e5e5e5;
-  border-radius: 12px;
-  overflow: hidden;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  width: 100% !important;
-  max-width: 100% !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-}
-
-.back-menu-calendar-body .toolbar,
-.back-menu-calendar-body .card-view {
-  display: none;
-}
-
-.back-menu-calendar-body .calendar-header {
-  flex-shrink: 0;
-  position: static;
-}
-
-.back-menu-calendar-body .weekday-row {
-  grid-template-columns: repeat(7, 1fr) !important;
-  overflow: visible !important;
-}
-
-.back-menu-calendar-body .grid {
-  flex: 1;
-  min-height: 0;
-  min-width: 0;
-  grid-auto-rows: 1fr;
-  grid-template-columns: repeat(7, 1fr) !important;
-  max-height: none !important;
-  overflow: visible !important;
-}
-
-.back-menu-calendar-body .event-single-text {
-  font-size: 0.55rem;
-  line-height: 1.1;
-  -webkit-line-clamp: 2;
-}
-
-.back-menu-calendar-body .day-cell {
-  height: auto;
-  min-height: 0;
-  padding: 4px;
-  gap: 2px;
-}
-
-.calendar-post-actions,
-.calendar-post-caption,
-.calendar-post-timestamp {
-  flex-shrink: 0;
-}
-
-.back-menu-calendar-body .day-num {
-  font-size: 0.8rem;
-}
-
-.back-menu-calendar-body .day-cell-menu-btn {
-  display: none;
-}
-
-.back-menu-calendar-body .day-cell-events {
-  gap: 2px;
-}
-
-.back-menu-calendar-body .event-single {
-  padding: 2px;
-  border-radius: 4px;
-}
-
-.calendar-post-caption {
-  padding: 6px 12px 0;
-  font-size: 0.95rem;
-  color: #2a2a2a;
-}
-
-.calendar-post-caption-name {
-  font-weight: 800;
-  margin-right: 4px;
-}
-
-.calendar-post-timestamp {
-  padding: 4px 12px 14px;
-  font-size: 0.8rem;
-  color: #999;
 }
 
 .calendar-header {
@@ -1223,17 +1046,6 @@ body {
 .day-cell:nth-child(7n+1) .day-num { color: #e0577a; }
 .day-cell.today:nth-child(7n) .day-num,
 .day-cell.today:nth-child(7n+1) .day-num { color: #fff; }
-
-.back-menu-calendar-body .day-cell.today .day-num {
-  background: none;
-  color: #2a2a2a;
-  width: auto;
-  height: auto;
-  border-radius: 0;
-}
-
-.back-menu-calendar-body .day-cell.today:nth-child(7n) .day-num { color: #4a7fd6; }
-.back-menu-calendar-body .day-cell.today:nth-child(7n+1) .day-num { color: #e0577a; }
 
 .event-single {
   flex: 1;
@@ -5506,5 +5318,364 @@ body.youtube-view-open {
 
   #songbook2View .song-roulette-anchor {
     right: 18px;
+  }
+}
+
+/* 홈(#backMenuView): 따린 카드 + 이번 주 + 메뉴 */
+#backMenuView {
+  --home-muted: rgba(30, 25, 70, 0.5);
+  --home-line: rgba(30, 25, 70, 0.08);
+  --home-accent: #6a52e6;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 16px 18px;
+  background: #f6f5fb;
+  color: #1d1b33;
+  text-align: left;
+}
+
+#backMenuView.hidden {
+  display: none;
+}
+
+.home-poster {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px;
+  overflow: hidden;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #8670ea 0%, #6a5fd6 30%, #3b3290 60%, #1c1840 85%);
+  color: #fff;
+}
+
+.home-poster-art {
+  position: absolute;
+  top: -70px;
+  right: -16%;
+  width: 92%;
+  height: auto;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 30%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 30%);
+}
+
+.home-poster::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(28, 24, 64, 0) 48%, rgba(40, 34, 96, 0.7) 68%, rgba(28, 24, 64, 0.97) 100%);
+}
+
+.home-poster > *:not(.home-poster-art) {
+  position: relative;
+  z-index: 1;
+}
+
+.home-kicker {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.28em;
+  opacity: 0.85;
+}
+
+.home-big {
+  margin: 6px 0 2px;
+  font-size: 2.6rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.25);
+}
+
+.home-big small {
+  margin-left: 6px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  opacity: 0.8;
+}
+
+.home-on-air {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.home-on-air.hidden {
+  display: none;
+}
+
+.home-on-air i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #5fd39a;
+}
+
+.home-on-air.hiatus i {
+  background: #ff7fae;
+}
+
+.home-today-title {
+  margin-top: 8px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.home-today-with {
+  margin-top: 2px;
+  font-size: 0.8rem;
+  opacity: 0.75;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-card {
+  flex: none;
+  padding: 12px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 1px 4px var(--home-line);
+}
+
+.home-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 2px 4px 8px;
+}
+
+.home-card-head b {
+  font-size: 0.88rem;
+}
+
+.home-card-link {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--home-accent);
+  font-size: 0.76rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.home-week-strip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.home-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 0 7px;
+  border-radius: 14px;
+}
+
+.home-day span {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--home-muted);
+}
+
+.home-day b {
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.home-day i {
+  display: flex;
+  gap: 2px;
+  height: 5px;
+}
+
+.home-day em {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+.home-day.on {
+  background: var(--home-accent);
+  color: #fff;
+}
+
+.home-day.on span {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.home-upcoming {
+  margin-top: 6px;
+}
+
+.home-ev {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 4px;
+  border-top: 1px dashed var(--home-line);
+}
+
+.home-ev-day {
+  width: 54px;
+  flex: none;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--home-muted);
+}
+
+.home-ev-bar {
+  width: 3px;
+  height: 26px;
+  flex: none;
+  border-radius: 2px;
+}
+
+.home-ev-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.home-ev-text b,
+.home-ev-text span {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-ev-text b {
+  font-size: 0.86rem;
+}
+
+.home-ev-text span {
+  font-size: 0.74rem;
+  color: var(--home-muted);
+}
+
+.home-menu {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 20px;
+}
+
+.home-menu button {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 4px;
+  border: none;
+  border-top: 1px dashed var(--home-line);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.home-menu button:nth-child(-n + 2) {
+  border-top: none;
+}
+
+.home-menu-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: #fff;
+}
+
+.home-menu-icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.home-menu-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.home-menu-text b,
+.home-menu-text span {
+  display: block;
+}
+
+.home-menu-text b {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.home-menu-text span {
+  margin-top: 1px;
+  font-size: 0.76rem;
+  color: var(--home-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-menu-chev {
+  color: var(--home-muted);
+  font-size: 1.1rem;
+}
+
+/* PC: 그림은 카드 오른쪽, 글자는 왼쪽 */
+@media (min-width: 901px) {
+  .home-poster {
+    justify-content: center;
+    padding: 28px;
+  }
+
+  .home-poster-art {
+    top: 0;
+    right: 0;
+    width: 62%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 22%;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .home-poster::after {
+    background: linear-gradient(90deg, #2a2468 0%, #2a2468 38%, rgba(42, 36, 104, 0.6) 52%, rgba(42, 36, 104, 0) 70%);
+  }
+
+  .home-big {
+    font-size: 3.2rem;
+  }
+}
+
+/* 모바일: 다가오는 일정은 숨기고 메뉴는 한 줄씩 */
+@media (max-width: 900px) {
+  .home-upcoming {
+    display: none;
+  }
+
+  .home-menu {
+    grid-template-columns: 1fr;
+  }
+
+  .home-menu button:nth-child(2) {
+    border-top: 1px dashed var(--home-line);
   }
 }

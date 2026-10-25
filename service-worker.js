@@ -1,10 +1,10 @@
-const CACHE_NAME = "ddarin-calendar-v615";
+const CACHE_NAME = "ddarin-calendar-v616";
 const ASSETS = [
   "./",
   "./index.html",
-  "./style.css?v=615",
-  "./app.js?v=615",
-  "./games.js?v=615",
+  "./style.css?v=616",
+  "./app.js?v=616",
+  "./games.js?v=616",
   "./manifest.json",
   "./DDARIN_아바타.jpg",
   "./icons/icon-192.png",
@@ -19,6 +19,7 @@ const ASSETS = [
   "./로그인.png",
   "./메뉴판2.png",
   "./게임메뉴.png",
+  "./따린_홈.jpg",
 ];
 
 self.addEventListener("install", (e) => {

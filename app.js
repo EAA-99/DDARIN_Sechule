@@ -1758,9 +1758,12 @@ new ResizeObserver((entries) => {
 new ResizeObserver((entries) => {
   entries.forEach((entry) => applyHomeMatchedHeight(entry.target));
 }).observe(cafePhotosView);
+new ResizeObserver((entries) => {
+  entries.forEach((entry) => applyHomeMatchedHeight(entry.target));
+}).observe(backMenuView);
 
 function showMainView(view) {
-  if (view === "backmenu") hideBackMenuCalendar();
+  if (view === "backmenu") renderHome();
   appViewEl.classList.toggle("hidden", view !== "calendar");
   songbookView.classList.toggle("hidden", view !== "songbook");
   songbook2View.classList.toggle("hidden", view !== "songbook2");
@@ -1773,6 +1776,7 @@ function showMainView(view) {
   youtubeView.classList.toggle("hidden", view !== "youtube");
   document.body.classList.toggle("youtube-view-open", view === "youtube");
 
+  if (view === "backmenu") applyHomeMatchedHeight(backMenuView);
   if (view === "songbook") applyHomeMatchedHeight(songbookView);
   if (view === "cafephotos") applyHomeMatchedHeight(cafePhotosView);
   if (view === "soopchat") loadSoopChatView();
@@ -1849,10 +1853,7 @@ let songbookGwNavMenu = null;
 
 const SONGBOOK_GW_NAV_ACTIONS = {
   home: () => showMainView("backmenu"),
-  calendar: () => {
-    showMainView("backmenu");
-    showBackMenuCalendar();
-  },
+  calendar: () => showMainView("calendar"),
   playlist: openSongbook,
   Photo: () => {
     switchCafePhotosTab(cafePhotosTabEls[0], { menuId: "27", titleContains: "" });
@@ -1927,114 +1928,110 @@ document.getElementById("calendarBtn").addEventListener("click", () => showMainV
 
 const backToCalendarBtn = document.getElementById("backToCalendarBtn");
 backToCalendarBtn.addEventListener("click", () => showMainView("backmenu"));
-const backMenuMedia = document.getElementById("backMenuMedia");
-const backMenuDots = document.getElementById("backMenuDots");
-const backMenuCalendarBox = document.getElementById("backMenuCalendarBox");
-const backMenuCalendarBody = document.getElementById("backMenuCalendarBody");
+// 홈: 따린 카드(오늘 일정) + 이번 주 달력 + 메뉴
+const HOME_DOT_COLORS = {
+  blue: "#4a7fd6",
+  gray: "#9a9a9a",
+  pink: "#e0558d",
+  green: "#3cb46e",
+  purple: "#8a6cf0",
+  orange: "#e8913a",
+  hiatus: "#d0607a",
+  collab: "#7a62c9",
+  yellow: "#e0b830",
+};
 
-function showBackMenuCalendar() {
-  const clone = document.querySelector(".app").cloneNode(true);
-  clone.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
-  const cloneGrid = clone.querySelector(".grid");
-  const cloneCardView = clone.querySelector(".card-view");
-  if (cloneGrid) cloneGrid.classList.remove("hidden");
-  if (cloneCardView) cloneCardView.classList.add("hidden");
-  clone.addEventListener("click", () => showMainView("calendar"));
-  backMenuCalendarBody.innerHTML = "";
-  backMenuCalendarBody.appendChild(clone);
+function homeDotColor(ev) {
+  const info = getColorInfo(ev);
+  const rgb = info.hex && hexToRgb(info.hex);
+  return rgb ? rgbToHex(mix(rgb, 0, 0.1)) : HOME_DOT_COLORS[info.key] || HOME_DOT_COLORS.blue;
+}
 
+function splitEventTitle(title) {
+  const match = title.match(ATTENDEE_RE);
+  return match ? [title.slice(0, match.index), `w. ${match[1]}`] : [title, ""];
+}
+
+function renderHome() {
+  const events = loadEvents();
   const now = new Date();
-  document.getElementById("backMenuTodayDate").textContent = `${now.getMonth() + 1}월 ${now.getDate()}일`;
+  const todayEvents = events[todayKey()] || [];
 
-  const todayEvents = loadEvents()[todayKey()] || [];
-  document.getElementById("backMenuTodaySchedule").textContent = todayEvents.length
-    ? " " + todayEvents.map((ev) => ev.title).join(", ")
-    : " 오늘은 일정이 없습니다";
+  const dateEl = document.getElementById("homeTodayDate");
+  dateEl.textContent = `${now.getMonth() + 1}.${now.getDate()}`;
+  const dowEl = document.createElement("small");
+  dowEl.textContent = `${WEEKDAY_LABELS[now.getDay()]}요일`;
+  dateEl.appendChild(dowEl);
 
-  backMenuMedia.classList.add("hidden");
-  backMenuCalendarBox.classList.remove("hidden");
-}
+  const badgeEl = document.getElementById("homeTodayBadge");
+  const isHiatus = todayEvents.some((ev) => ev.title.includes("휴방"));
+  badgeEl.classList.toggle("hidden", !todayEvents.length);
+  badgeEl.classList.toggle("hiatus", isHiatus);
+  badgeEl.querySelector("span").textContent = isHiatus ? "오늘은 휴방이에요" : "오늘 방송 있어요";
 
-function hideBackMenuCalendar() {
-  backMenuCalendarBox.classList.add("hidden");
-  backMenuMedia.classList.remove("hidden");
-  backMenuCalendarBody.innerHTML = "";
-}
+  const [title, withText] = todayEvents.length ? splitEventTitle(todayEvents[0].title) : ["오늘은 일정이 없어요", ""];
+  document.getElementById("homeTodayTitle").textContent = todayEvents.length > 1 ? `${title} 외 ${todayEvents.length - 1}개` : title;
+  document.getElementById("homeTodayWith").textContent = withText;
 
-const backMenuMediaTrack = document.getElementById("backMenuMediaTrack");
-const backMenuDotEls = backMenuDots.querySelectorAll(".back-menu-dot");
-let backMenuSlideIndex = 0;
-
-function updateBackMenuSlide() {
-  const w = backMenuMedia.clientWidth;
-  backMenuMediaTrack.style.transform = `translateX(${-backMenuSlideIndex * w}px)`;
-  backMenuDotEls.forEach((dot, i) => dot.classList.toggle("active", i === backMenuSlideIndex));
-}
-
-(function makeBackMenuMediaDraggable() {
-  let dragging = false;
-  let dragMoved = false;
-  let startX = 0;
-
-  backMenuMediaTrack.addEventListener("pointerdown", (e) => {
-    dragging = true;
-    dragMoved = false;
-    startX = e.clientX;
-    backMenuMediaTrack.setPointerCapture(e.pointerId);
-    backMenuMediaTrack.style.transition = "none";
-  });
-
-  backMenuMediaTrack.addEventListener("pointermove", (e) => {
-    if (!dragging) return;
-    const dx = e.clientX - startX;
-    if (Math.abs(dx) > 5) dragMoved = true;
-    const w = backMenuMedia.clientWidth;
-    backMenuMediaTrack.style.transform = `translateX(${-backMenuSlideIndex * w + dx}px)`;
-  });
-
-  function endDrag(e) {
-    if (!dragging) return;
-    dragging = false;
-    const dx = e.clientX - startX;
-    backMenuMediaTrack.style.transition = "";
-
-    if (dragMoved && Math.abs(dx) > 50) {
-      if (dx < 0 && backMenuSlideIndex < 1) backMenuSlideIndex += 1;
-      else if (dx > 0 && backMenuSlideIndex > 0) backMenuSlideIndex -= 1;
-    }
-    updateBackMenuSlide();
+  const weekStrip = document.getElementById("homeWeekStrip");
+  weekStrip.innerHTML = "";
+  const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i);
+    const key = dateKey(d.getFullYear(), d.getMonth(), d.getDate());
+    const dayEl = document.createElement("div");
+    dayEl.className = "home-day" + (key === todayKey() ? " on" : "");
+    const dowLabel = document.createElement("span");
+    dowLabel.textContent = WEEKDAY_LABELS[d.getDay()];
+    const numEl = document.createElement("b");
+    numEl.textContent = d.getDate();
+    const dotsEl = document.createElement("i");
+    (events[key] || []).slice(0, 3).forEach((ev) => {
+      const dot = document.createElement("em");
+      dot.style.background = homeDotColor(ev);
+      dotsEl.appendChild(dot);
+    });
+    dayEl.append(dowLabel, numEl, dotsEl);
+    weekStrip.appendChild(dayEl);
   }
 
-  backMenuMediaTrack.addEventListener("pointerup", endDrag);
-  backMenuMediaTrack.addEventListener("pointercancel", endDrag);
-})();
+  const upcomingEl = document.getElementById("homeUpcoming");
+  upcomingEl.innerHTML = "";
+  Object.keys(events)
+    .filter((key) => key > todayKey())
+    .sort()
+    .flatMap((key) => events[key].map((ev) => [key, ev]))
+    .slice(0, 3)
+    .forEach(([key, ev]) => {
+      const [y, m, d] = key.split("-").map(Number);
+      const row = document.createElement("div");
+      row.className = "home-ev";
+      const dayEl = document.createElement("span");
+      dayEl.className = "home-ev-day";
+      dayEl.textContent = `${m}.${d} ${WEEKDAY_LABELS[new Date(y, m - 1, d).getDay()]}`;
+      const bar = document.createElement("i");
+      bar.className = "home-ev-bar";
+      bar.style.background = homeDotColor(ev);
+      const [evTitle, evWith] = splitEventTitle(ev.title);
+      const textEl = document.createElement("div");
+      textEl.className = "home-ev-text";
+      const titleEl = document.createElement("b");
+      titleEl.textContent = evTitle;
+      textEl.appendChild(titleEl);
+      if (evWith) {
+        const withEl = document.createElement("span");
+        withEl.textContent = evWith;
+        textEl.appendChild(withEl);
+      }
+      row.append(dayEl, bar, textEl);
+      upcomingEl.appendChild(row);
+    });
+}
 
-document.getElementById("backMenuCalendarBtn").addEventListener("click", () => {
-  if (backMenuCalendarBox.classList.contains("hidden")) {
-    showBackMenuCalendar();
-  } else {
-    hideBackMenuCalendar();
-  }
-});
-document.getElementById("backMenuSongbookBtn").addEventListener("click", openSongbook2Table);
-document.getElementById("backMenuPlaylistBtn").addEventListener("click", openSongbook);
-document.getElementById("backMenuMailBtn").addEventListener("click", () => showMainView("soopchat"));
-document.getElementById("backMenuNavHomeBtn").addEventListener("click", () => showMainView("backmenu"));
-
-const backMenuHamburgerBtn = document.getElementById("backMenuHamburgerBtn");
-const backMenuNavMenu = document.getElementById("backMenuNavMenu");
-backMenuHamburgerBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-  backMenuNavMenu.classList.toggle("hidden");
-});
-backMenuNavMenu.addEventListener("click", (e) => {
-  if (e.target.closest(".back-menu-nav-item")) backMenuNavMenu.classList.add("hidden");
-});
-document.addEventListener("click", (e) => {
-  if (!backMenuNavMenu.classList.contains("hidden") && !backMenuNavMenu.contains(e.target) && e.target !== backMenuHamburgerBtn) {
-    backMenuNavMenu.classList.add("hidden");
-  }
-});
+document.getElementById("homeAllScheduleBtn").addEventListener("click", () => showMainView("calendar"));
+document.getElementById("homePlaylistBtn").addEventListener("click", openSongbook);
+document.getElementById("homeSongbookBtn").addEventListener("click", openSongbook2Table);
+document.getElementById("homeChatBtn").addEventListener("click", () => showMainView("soopchat"));
 
 function wireNavMenu(prefix, hamburgerId, menuId) {
   const hamburgerBtn = document.getElementById(hamburgerId);
@@ -2052,10 +2049,7 @@ function wireNavMenu(prefix, hamburgerId, menuId) {
     }
   });
   document.getElementById(`${prefix}HomeBtn`).addEventListener("click", () => showMainView("backmenu"));
-  document.getElementById(`${prefix}CalendarBtn`).addEventListener("click", () => {
-    showMainView("backmenu");
-    showBackMenuCalendar();
-  });
+  document.getElementById(`${prefix}CalendarBtn`).addEventListener("click", () => showMainView("calendar"));
   document.getElementById(`${prefix}PlaylistBtn`).addEventListener("click", openSongbook);
   document.getElementById(`${prefix}PostsBtn`).addEventListener("click", () => {
     switchCafePhotosTab(cafePhotosTabEls[0], { menuId: "27", titleContains: "" });
@@ -2404,7 +2398,7 @@ cafePhotosTabEls[2].addEventListener("click", () =>
   switchCafePhotosTab(cafePhotosTabEls[2], { menuId: "28", titleContains: "" })
 );
 
-document.getElementById("backMenuPostsBtn").addEventListener("click", () => {
+document.getElementById("homePhotoBtn").addEventListener("click", () => {
   switchCafePhotosTab(cafePhotosTabEls[0], { menuId: "27", titleContains: "" });
   showMainView("cafephotos");
 });
@@ -4294,6 +4288,7 @@ function renderEventList() {
 function refreshCurrentView() {
   renderGrid();
   if (viewMode === "card") renderCardView();
+  if (currentMainView === "backmenu") renderHome();
 }
 
 function deleteEvent(index) {

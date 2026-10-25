@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=615">
+<link rel="stylesheet" href="style.css?v=616">
 </head>
 <body>
   <button type="button" id="backToCalendarBtn" class="back-to-calendar-btn" aria-label="홈으로">←</button>
@@ -61,92 +61,45 @@
   </div>
 
   <div id="backMenuView" class="back-menu-view hidden">
-    <div class="back-menu-top">
-      <span class="back-menu-avatar"></span>
-      <span class="back-menu-name">DDARIN</span>
-      <button type="button" id="backMenuHamburgerBtn" class="back-menu-hamburger" aria-label="메뉴">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
-      </button>
+    <div class="home-poster">
+      <img class="home-poster-art" src="따린_홈.jpg" alt="">
+      <div class="home-kicker">DDARIN · TODAY</div>
+      <div id="homeTodayDate" class="home-big"></div>
+      <div id="homeTodayBadge" class="home-on-air hidden"><i></i><span></span></div>
+      <div id="homeTodayTitle" class="home-today-title"></div>
+      <div id="homeTodayWith" class="home-today-with"></div>
     </div>
 
-    <div id="backMenuNavMenu" class="back-menu-nav-menu hidden">
-      <button type="button" id="backMenuNavHomeBtn" class="back-menu-nav-item" aria-label="home">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 12 12 4l9 8"/>
-          <path d="M5 10v10h14V10"/>
-        </svg>
-      </button>
-      <button type="button" id="backMenuCalendarBtn" class="back-menu-nav-item" aria-label="calendar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="4" width="18" height="18" rx="2"/>
-          <line x1="16" y1="2" x2="16" y2="6"/>
-          <line x1="8" y1="2" x2="8" y2="6"/>
-          <line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
-      </button>
-      <button type="button" id="backMenuPlaylistBtn" class="back-menu-nav-item" aria-label="playlist">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="6" cy="18" r="3"/>
-          <circle cx="18" cy="16" r="3"/>
-          <path d="M9 18V6l12-2v12"/>
-        </svg>
-      </button>
-      <button type="button" id="backMenuPostsBtn" class="back-menu-nav-item" aria-label="Photo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-          <circle cx="12" cy="13" r="4"/>
-        </svg>
-      </button>
-      <button type="button" id="backMenuSongbookBtn" class="back-menu-nav-item" aria-label="songbook">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round">
-          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-        </svg>
-      </button>
-      <button type="button" id="backMenuMailBtn" class="back-menu-nav-item" aria-label="mail">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="5" width="18" height="14" rx="2"/>
-          <path d="M3 7l9 6 9-6"/>
-        </svg>
-      </button>
+    <div class="home-card">
+      <div class="home-card-head">
+        <b>이번 주</b>
+        <button type="button" id="homeAllScheduleBtn" class="home-card-link">전체 일정 ›</button>
+      </div>
+      <div id="homeWeekStrip" class="home-week-strip"></div>
+      <div id="homeUpcoming" class="home-upcoming"></div>
     </div>
 
-    <div id="backMenuMedia" class="back-menu-media">
-      <div id="backMenuMediaTrack" class="back-menu-media-track">
-        <div class="back-menu-media-slide">
-          <video class="back-menu-bg-video" autoplay loop muted playsinline>
-            <source src="따린_배경.mp4" type="video/mp4">
-          </video>
-        </div>
-        <div class="back-menu-media-slide">
-          <video class="back-menu-bg-video" autoplay loop muted playsinline>
-            <source src="따린_배경2.mp4" type="video/mp4">
-          </video>
-        </div>
-      </div>
-
-      <div id="backMenuDots" class="back-menu-dots">
-        <span class="back-menu-dot active"></span>
-        <span class="back-menu-dot"></span>
-      </div>
-    </div>
-
-    <div id="backMenuCalendarBox" class="back-menu-calendar-box hidden">
-      <div id="backMenuCalendarBody" class="back-menu-calendar-body"></div>
-
-      <div class="calendar-post-actions">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-9.5-8.5C1 9 2.5 5 6.5 5c2 0 3.5 1.5 4.5 3 1-1.5 2.5-3 4.5-3 4 0 5.5 4 4 7.5C19 16.65 12 21 12 21z"/></svg>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.3 0-2.5-.3-3.6-.8L3 21l1.8-5.4A8.5 8.5 0 1 1 21 11.5z"/></svg>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>
-        <span class="calendar-post-spacer"></span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg>
-      </div>
-
-      <div class="calendar-post-caption">
-        <span class="calendar-post-caption-name">DDARIN</span><span id="backMenuTodaySchedule"></span>
-      </div>
-      <div id="backMenuTodayDate" class="calendar-post-timestamp"></div>
+    <div class="home-card home-menu">
+      <button type="button" id="homePlaylistBtn">
+        <span class="home-menu-icon" style="background: linear-gradient(160deg, #5b7be6, #232c6b)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><path d="M9 18V6l12-2v12"/></svg></span>
+        <span class="home-menu-text"><b>Playlist</b><span>라이브 클립 · 커버곡 · 플레이리스트</span></span>
+        <span class="home-menu-chev">›</span>
+      </button>
+      <button type="button" id="homeSongbookBtn">
+        <span class="home-menu-icon" style="background: linear-gradient(160deg, #8a6cf0, #4d40b8)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+        <span class="home-menu-text"><b>노래책</b><span>따린이 부를 수 있는 노래</span></span>
+        <span class="home-menu-chev">›</span>
+      </button>
+      <button type="button" id="homePhotoBtn">
+        <span class="home-menu-icon" style="background: linear-gradient(160deg, #e08bb5, #8a4a7a)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>
+        <span class="home-menu-text"><b>사진</b><span>카페 사진 모아보기</span></span>
+        <span class="home-menu-chev">›</span>
+      </button>
+      <button type="button" id="homeChatBtn">
+        <span class="home-menu-icon" style="background: linear-gradient(160deg, #c95f9c, #3b2459)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
+        <span class="home-menu-text"><b>채팅</b><span>SOOP 채팅 기록</span></span>
+        <span class="home-menu-chev">›</span>
+      </button>
     </div>
   </div>
 
@@ -966,8 +919,8 @@
 
 
 
-  <script src="app.js?v=615"></script>
-  <script src="games.js?v=615"></script>
+  <script src="app.js?v=616"></script>
+  <script src="games.js?v=616"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {
