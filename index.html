@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=612">
+<link rel="stylesheet" href="style.css?v=614">
 </head>
 <body>
   <button type="button" id="backToCalendarBtn" class="back-to-calendar-btn" aria-label="홈으로">←</button>
@@ -463,81 +463,46 @@
             <button type="button" class="clip-source-slide active" data-source="clip">
               <img class="clip-source-art" id="clipSourceArt-clip" alt="">
               <div class="clip-source-poster" id="clipSourcePoster-clip"></div>
-              <div class="clip-source-info">
-                <div class="clip-source-info-top">
-                  <div class="clip-source-info-text">
-                    <div class="clip-source-song-title" id="clipSourceTitle-clip"></div>
-                    <div class="clip-source-song-artist" id="clipSourceArtist-clip"></div>
-                  </div>
-                  <span class="clip-source-tag">SOOP</span>
-                </div>
-                <div class="clip-source-controls">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6 8.5 6V6l-8.5 6z"/></svg>
-                  <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6v12l8.5-6zM13 6v12l8.5-6z"/></svg>
-                  <svg class="clip-source-chat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H10l-4.5 3.5V16H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>
-                </div>
-              </div>
+              <span class="clip-source-list-btn clip-source-chat-icon" role="button" aria-label="곡 목록"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H10l-4.5 3.5V16H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg></span>
             </button>
             <button type="button" class="clip-source-slide" data-source="youtube">
               <img class="clip-source-art" id="clipSourceArt-youtube" alt="">
               <div class="clip-source-poster" id="clipSourcePoster-youtube"></div>
-              <div class="clip-source-info">
-                <div class="clip-source-info-top">
-                  <div class="clip-source-info-text">
-                    <div class="clip-source-song-title" id="clipSourceTitle-youtube"></div>
-                    <div class="clip-source-song-artist" id="clipSourceArtist-youtube"></div>
-                  </div>
-                  <span class="clip-source-tag">커버곡/단체곡</span>
-                </div>
-                <div class="clip-source-controls">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6 8.5 6V6l-8.5 6z"/></svg>
-                  <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6v12l8.5-6zM13 6v12l8.5-6z"/></svg>
-                  <svg class="clip-source-chat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H10l-4.5 3.5V16H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>
-                </div>
-              </div>
+              <span class="clip-source-list-btn clip-source-chat-icon" role="button" aria-label="곡 목록"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H10l-4.5 3.5V16H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg></span>
             </button>
             <button type="button" class="clip-source-slide" data-source="playlist">
               <img class="clip-source-art" id="clipSourceArt-playlist" alt="">
               <div class="clip-source-poster" id="clipSourcePoster-playlist"></div>
-              <div class="clip-source-info">
-                <div class="clip-source-info-top">
-                  <div class="clip-source-info-text">
-                    <div class="clip-source-song-title" id="clipSourceTitle-playlist"></div>
-                    <div class="clip-source-song-artist" id="clipSourceArtist-playlist"></div>
-                  </div>
-                  <span class="clip-source-tag">PLAYLIST</span>
-                </div>
-                <div class="clip-source-controls">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6 8.5 6V6l-8.5 6z"/></svg>
-                  <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6v12l8.5-6zM13 6v12l8.5-6z"/></svg>
-                  <svg class="clip-source-chat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H10l-4.5 3.5V16H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>
-                </div>
-              </div>
+              <span class="clip-source-list-btn clip-source-chat-icon" role="button" aria-label="곡 목록"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H10l-4.5 3.5V16H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg></span>
             </button>
           </div>
           <div id="genreTabsMenu" class="genre-tabs-menu hidden"></div>
           <div id="clipSourceSongListOverlay" class="clip-source-song-list-overlay hidden">
+            <div class="clip-source-song-list-head">
+              <div>
+                <div class="clip-source-song-list-title" id="clipSourceSongListTitle"></div>
+                <p id="playerStats" class="player-stats"></p>
+              </div>
+              <button type="button" class="clip-source-song-list-close" id="clipSourceSongListClose" aria-label="닫기">✕</button>
+            </div>
+            <input type="text" id="songSearchInput" class="song-search" placeholder="노래 제목 또는 가수 검색">
+            <div id="sortTabs" class="genre-tabs song-sort-row hidden">
+              <button type="button" id="sortTabsToggle" class="genre-tabs-toggle">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                  <line x1="4" y1="7" x2="16" y2="7"/>
+                  <line x1="4" y1="12" x2="13" y2="12"/>
+                  <line x1="4" y1="17" x2="10" y2="17"/>
+                </svg>
+                정렬
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div id="sortTabsMenu" class="genre-tabs-menu hidden"></div>
+            </div>
             <div id="songGrid" class="song-grid"></div>
-            <input type="text" id="songSearchInput" class="song-search" placeholder="노래 제목 또는 가수를 검색하세요">
           </div>
         </div>
 
         <div class="clip-source-dots-row">
-          <div id="sortTabs" class="genre-tabs song-sort-row hidden">
-            <button type="button" id="sortTabsToggle" class="genre-tabs-toggle">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                <line x1="4" y1="7" x2="16" y2="7"/>
-                <line x1="4" y1="12" x2="13" y2="12"/>
-                <line x1="4" y1="17" x2="10" y2="17"/>
-              </svg>
-              정렬
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div id="sortTabsMenu" class="genre-tabs-menu hidden"></div>
-          </div>
           <div id="clipSourceDots" class="back-menu-dots clip-source-dots">
             <span class="back-menu-dot active"></span>
             <span class="back-menu-dot"></span>
@@ -545,7 +510,6 @@
           </div>
         </div>
 
-        <p id="playerStats" class="player-stats hidden"></p>
 
         <div id="playerNoClip" class="player-empty hidden">
           <p class="player-empty-title">클립이 없습니다</p>
@@ -570,34 +534,56 @@
   </div>
 
   <div id="songbook2View" class="songbook-view hidden">
-    <div class="songbook-inner">
-    <div class="songbook-header">
-      <div class="songbook-title-row">
-        <h1>노래책</h1>
-        <span id="songbookTotalCount" class="songbook-total-count"></span>
+    <div class="sb2-side">
+      <div class="sb2-hero">
+        <button type="button" id="favorites2OpenBtn" class="sb2-fav-btn" aria-label="즐겨찾기">★<span class="sb2-fav-label">즐겨찾기</span></button>
+        <div class="sb2-kicker">DDARIN</div>
+        <h1 class="sb2-big">SONGBOOK</h1>
+        <span id="songbookTotalCount" class="sb2-meta"></span>
+        <div class="song-search-wrap">
+          <svg class="song-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="song2SearchInput" class="song-search" placeholder="제목이나 가수로 검색">
+        </div>
+      </div>
+      <div id="genre2Tabs" class="sb2-genres">
+        <button type="button" class="genre-tab active" data-genre="전체">전체</button>
       </div>
     </div>
 
-    <div class="songbook-body">
-      <div class="player-panel">
-        <button type="button" id="favorites2OpenBtn" class="favorites-open-btn">⭐ 즐겨찾기</button>
-
-        <div class="player-artists">
-          <h3>가수</h3>
+    <div class="sb2-main">
+      <div class="sb2-toolbar">
+        <span id="song2Count" class="sb2-count"></span>
+        <button type="button" id="artist2Toggle" class="sb2-ini-btn">
+          <span id="artist2ToggleLabel">가수 ㄱ–ㅎ</span>
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </div>
+      <div class="sb2-list-wrap">
+        <div id="artist2Panel" class="sb2-panel hidden">
           <div id="artist2List" class="artist-list"></div>
         </div>
-      </div>
-
-      <div class="songbook-main">
-        <div class="song-search-wrap">
-          <svg class="song-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="song2SearchInput" class="song-search" placeholder="원하는 곡을 제목이나 가수 이름으로 검색해보세요!">
+        <div class="song2-table-wrap">
+          <table id="song2Table" class="song2-table">
+            <thead>
+              <tr>
+                <th class="song2-col-fav"></th>
+                <th class="song2-col-num">번호</th>
+                <th class="song2-col-title song2-sortable" data-sort="title">제목</th>
+                <th class="song2-col-artist song2-sortable" data-sort="artist">가수</th>
+                <th class="song2-col-genre">
+                  <div class="song2-genre-filter">
+                    <button type="button" id="song2GenreFilterToggle" class="song2-genre-filter-toggle">
+                      장르
+                      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div id="song2GenreFilterMenu" class="genre-tabs-menu hidden"></div>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="song2Grid"></tbody>
+          </table>
         </div>
-
-        <div class="songbook-filter-row">
-          <div id="genre2Tabs" class="genre-tabs">
-            <button type="button" class="genre-tab active" data-genre="전체">전체</button>
-          </div>
           <div class="song-roulette-anchor">
             <button type="button" id="songRouletteBtn" class="song-roulette-btn">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
@@ -632,32 +618,7 @@
               </button>
             </div>
           </div>
-        </div>
-
-        <div class="song2-table-wrap">
-          <table id="song2Table" class="song2-table">
-            <thead>
-              <tr>
-                <th class="song2-col-fav"></th>
-                <th class="song2-col-num">번호</th>
-                <th class="song2-col-title song2-sortable" data-sort="title">제목</th>
-                <th class="song2-col-artist song2-sortable" data-sort="artist">가수</th>
-                <th class="song2-col-genre">
-                  <div class="song2-genre-filter">
-                    <button type="button" id="song2GenreFilterToggle" class="song2-genre-filter-toggle">
-                      장르
-                      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                    </button>
-                    <div id="song2GenreFilterMenu" class="genre-tabs-menu hidden"></div>
-                  </div>
-                </th>
-              </tr>
-            </thead>
-            <tbody id="song2Grid"></tbody>
-          </table>
-        </div>
       </div>
-    </div>
     </div>
   </div>
 
@@ -1002,8 +963,8 @@
 
 
 
-  <script src="app.js?v=612"></script>
-  <script src="games.js?v=612"></script>
+  <script src="app.js?v=614"></script>
+  <script src="games.js?v=614"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {
