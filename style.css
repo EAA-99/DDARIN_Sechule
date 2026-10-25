@@ -258,23 +258,6 @@
 }
 
 
-.loading-screen {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #fff;
-}
-
-.loading-gif {
-  width: min(220px, 60vw);
-  height: min(220px, 60vw);
-  object-fit: cover;
-  border-radius: 50%;
-}
-
 html {
   overflow-x: hidden;
   overflow-y: scroll;
@@ -4309,16 +4292,97 @@ body.youtube-view-open {
   overflow: hidden;
 }
 
+/* 카드 배경 = 곡 목록 포스터. 별빛 점 3개 + 카드별 그라데이션 */
+.clip-source-slide[data-source] {
+  --poster-stars:
+    radial-gradient(circle at 80% 8%, rgba(255, 255, 255, 0.18) 0 1px, transparent 2px),
+    radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.22) 0 1px, transparent 2px),
+    radial-gradient(circle at 62% 22%, rgba(255, 255, 255, 0.15) 0 1px, transparent 2px);
+}
+
 .clip-source-slide[data-source="clip"] {
-  background: url("playlist배경.jpg") center/cover no-repeat;
+  background: var(--poster-stars), linear-gradient(180deg, #5b7be6 0%, #4659c9 45%, #232c6b 100%);
 }
 
 .clip-source-slide[data-source="youtube"] {
-  background: url("youtube배경.png") center/cover no-repeat;
+  background: var(--poster-stars), linear-gradient(180deg, #c95f9c 0%, #9a4a95 45%, #3b2459 100%);
 }
 
 .clip-source-slide[data-source="playlist"] {
-  background: url("soop 배경.png") center/cover no-repeat;
+  background: var(--poster-stars), linear-gradient(180deg, #7d5ce4 0%, #5b4fd0 45%, #2d2a6e 100%);
+}
+
+.clip-source-poster {
+  position: absolute;
+  inset: 0;
+  padding: 26px 22px 0;
+  color: #fff;
+  overflow: hidden;
+}
+
+.clip-source-poster-kicker {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.28em;
+  opacity: 0.75;
+}
+
+.clip-source-poster-title {
+  font-size: 2.1rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 4px 0;
+}
+
+.clip-source-poster-meta {
+  font-size: 0.78rem;
+  opacity: 0.7;
+  margin-bottom: 16px;
+}
+
+.clip-source-poster-section {
+  margin-bottom: 14px;
+}
+
+.clip-source-poster-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.clip-source-poster-section-head span:last-child {
+  font-weight: 600;
+  opacity: 0.65;
+}
+
+.clip-source-poster-track {
+  display: flex;
+  gap: 10px;
+  font-size: 0.8rem;
+  line-height: 1.75;
+  white-space: nowrap;
+}
+
+.clip-source-poster-num {
+  width: 18px;
+  flex-shrink: 0;
+  opacity: 0.5;
+  font-variant-numeric: tabular-nums;
+}
+
+.clip-source-poster-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.clip-source-poster-artist {
+  opacity: 0.6;
 }
 
 .clip-source-art {

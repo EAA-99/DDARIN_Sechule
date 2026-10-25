@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=611">
+<link rel="stylesheet" href="style.css?v=612">
 </head>
 <body>
   <button type="button" id="backToCalendarBtn" class="back-to-calendar-btn" aria-label="홈으로">←</button>
@@ -462,6 +462,7 @@
           <div id="clipSourceTrack" class="clip-source-track">
             <button type="button" class="clip-source-slide active" data-source="clip">
               <img class="clip-source-art" id="clipSourceArt-clip" alt="">
+              <div class="clip-source-poster" id="clipSourcePoster-clip"></div>
               <div class="clip-source-info">
                 <div class="clip-source-info-top">
                   <div class="clip-source-info-text">
@@ -480,6 +481,7 @@
             </button>
             <button type="button" class="clip-source-slide" data-source="youtube">
               <img class="clip-source-art" id="clipSourceArt-youtube" alt="">
+              <div class="clip-source-poster" id="clipSourcePoster-youtube"></div>
               <div class="clip-source-info">
                 <div class="clip-source-info-top">
                   <div class="clip-source-info-text">
@@ -498,6 +500,7 @@
             </button>
             <button type="button" class="clip-source-slide" data-source="playlist">
               <img class="clip-source-art" id="clipSourceArt-playlist" alt="">
+              <div class="clip-source-poster" id="clipSourcePoster-playlist"></div>
               <div class="clip-source-info">
                 <div class="clip-source-info-top">
                   <div class="clip-source-info-text">
@@ -999,8 +1002,8 @@
 
 
 
-  <script src="app.js?v=611"></script>
-  <script src="games.js?v=611"></script>
+  <script src="app.js?v=612"></script>
+  <script src="games.js?v=612"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {

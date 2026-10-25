@@ -1303,14 +1303,89 @@ function pickRandomSong() {
   return allSongs[Math.floor(Math.random() * allSongs.length)];
 }
 
+const CLIP_SOURCE_POSTER_TITLES = { clip: "LIVE CLIP", youtube: "COVERS", playlist: "PLAYLIST" };
+
+function groupSongsBy(songs, field) {
+  const groups = [];
+  songs.forEach((song) => {
+    let group = groups.find((g) => g.name === song[field]);
+    if (!group) {
+      group = { name: song[field], songs: [] };
+      groups.push(group);
+    }
+    group.songs.push(song);
+  });
+  return groups;
+}
+
+function renderClipSourcePoster(source, groups) {
+  const poster = document.getElementById(`clipSourcePoster-${source}`);
+  if (!poster) return;
+  poster.innerHTML = "";
+
+  const kicker = document.createElement("div");
+  kicker.className = "clip-source-poster-kicker";
+  kicker.textContent = "DDARIN";
+
+  const title = document.createElement("div");
+  title.className = "clip-source-poster-title";
+  title.textContent = CLIP_SOURCE_POSTER_TITLES[source];
+
+  const total = groups.reduce((sum, g) => sum + g.songs.length, 0);
+  const meta = document.createElement("div");
+  meta.className = "clip-source-poster-meta";
+  meta.textContent = `${total} TRACKS · ${groups.length} LISTS`;
+
+  poster.append(kicker, title, meta);
+
+  const perSection = groups.length <= 2 ? 5 : 3;
+  groups.slice(0, 3).forEach((group) => {
+    const section = document.createElement("div");
+    section.className = "clip-source-poster-section";
+
+    const head = document.createElement("div");
+    head.className = "clip-source-poster-section-head";
+    const nameEl = document.createElement("span");
+    nameEl.textContent = group.name;
+    const countEl = document.createElement("span");
+    countEl.textContent = `${group.songs.length}곡`;
+    head.append(nameEl, countEl);
+    section.appendChild(head);
+
+    group.songs.slice(0, perSection).forEach((song, i) => {
+      const row = document.createElement("div");
+      row.className = "clip-source-poster-track";
+
+      const num = document.createElement("span");
+      num.className = "clip-source-poster-num";
+      num.textContent = String(i + 1).padStart(2, "0");
+
+      const name = document.createElement("span");
+      name.className = "clip-source-poster-name";
+      const artist = document.createElement("span");
+      artist.className = "clip-source-poster-artist";
+      artist.textContent = ` · ${song.artist.replace(/\s*-\s*Topic$/, "")}`;
+      name.append(song.title, artist);
+
+      row.append(num, name);
+      section.appendChild(row);
+    });
+
+    poster.appendChild(section);
+  });
+}
+
 async function renderClipSourcePreviews() {
   for (const source of CLIP_SOURCE_ORDER) {
     let song;
     if (source === "clip") {
       song = pickRandomSong();
+      const clipSongs = (allSongs || []).filter((s) => !s.deletedFromLiveClip && thumbMap && thumbMap[albumArtCacheKey(s)]);
+      renderClipSourcePoster(source, groupSongsBy(clipSongs, "genre"));
     } else {
       const songs = await loadYoutubeGroup(source);
       song = songs && songs.length ? songs[Math.floor(Math.random() * songs.length)] : null;
+      renderClipSourcePoster(source, groupSongsBy(songs || [], "source"));
     }
     if (!song) continue;
 
