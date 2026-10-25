@@ -7,7 +7,6 @@ const SHEETS_API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSH
 const SONGBOOK_SPREADSHEET_ID = "1NhImCLm5diXM0pA45SkB-g2PARivQiVN8bUKlniiOB8";
 const SONGBOOK_CLIPS_SPREADSHEET_ID = "17EmfOEPVGesH9FXnh7xsKvBYYIhi2TrerSzY23E2N9A";
 
-const LOADING_GIF_MS = 1540;
 
 const YEAR = 2026;
 const STORAGE_KEY = "calendar-events-2026";
@@ -37,16 +36,6 @@ let currentMonth = 0; // 0 = January
 let selectedDateKey = null;
 let isReadOnly = true;
 
-const loadingScreen = document.getElementById("loadingScreen");
-const loadingGifImg = document.getElementById("loadingGifImg");
-const CALENDAR_LOADING_GIFS = [
-  "높은양갈래따린윙크.gif",
-  "단발오잉따린.gif",
-  "단발음뫄.gif",
-  "양갈래하트윙크따린.gif",
-  "키네시스어센트따린.gif",
-];
-loadingGifImg.src = CALENDAR_LOADING_GIFS[Math.floor(Math.random() * CALENDAR_LOADING_GIFS.length)];
 const monthTitle = document.getElementById("monthTitle");
 const grid = document.getElementById("grid");
 const weekdayRow = document.querySelector(".weekday-row");
@@ -4301,14 +4290,12 @@ async function init() {
   const today = new Date();
   if (today.getFullYear() === YEAR) currentMonth = today.getMonth();
 
-  const minDelay = new Promise((r) => setTimeout(r, LOADING_GIF_MS));
-  await Promise.all([initEvents(), minDelay]);
-
   updateLockUi();
   renderGrid();
   applyDefaultMobileViewMode();
 
-  loadingScreen.classList.add("hidden");
+  await initEvents();
+  refreshCurrentView();
   openCalendarAnnounce();
 
   prefetchTodayNotices();
