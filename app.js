@@ -4680,11 +4680,12 @@ function setViewMode(mode) {
   cardView.classList.toggle("hidden", mode !== "card");
   weekdayRow.classList.toggle("card-mode", mode === "card");
   calendarHeaderEl.classList.toggle("card-mode", mode === "card");
+  // 새 디자인 월간을 먼저 숨겨야 주간 높이를 제대로 잼
+  syncMonthDesign();
   if (mode === "card") {
     resetCardWeekToMonth();
     renderCardView();
   }
-  syncMonthDesign();
 }
 
 viewModeWeekBtn.addEventListener("click", () => setViewMode("card"));
@@ -4986,6 +4987,8 @@ function mnPopHead(key, label) {
 function openMonthPopup(key) {
   mnPopKey = key;
   const dayEvents = loadEvents()[key] || [];
+  // 모바일에서 일정 없는 날은 "일정 없음" 카드만 (공지가 있으면 그때만 아래에 붙음)
+  const emptyMobile = !dayEvents.length && mnMobileQuery.matches;
   const evHtml = dayEvents.length
     ? dayEvents
         .map((ev) => {
@@ -5002,12 +5005,14 @@ function openMonthPopup(key) {
           );
         })
         .join("")
-    : '<div class="mn-none">이날은 일정이 없어요</div>';
+    : emptyMobile
+      ? '<div class="mn-pev mn-pev-none" style="--c:#9a9a9a"><div class="mn-pev-top"><b>일정 없음</b></div></div>'
+      : '<div class="mn-none">이날은 일정이 없어요</div>';
   const actions = isReadOnly
     ? ""
     : '<div class="mn-pop-actions"><button type="button" data-mnp="manage">관리</button><button type="button" class="main" data-mnp="add">+ 일정 추가</button></div>';
   mnPop.innerHTML =
-    '<div class="mn-pop">' +
+    `<div class="mn-pop${emptyMobile ? " mn-pop-empty" : ""}">` +
     mnPopHead(key, "SCHEDULE") +
     '<div class="mn-pop-body"><div class="mn-col mn-col-ev"><div class="mn-col-h">일정</div>' + evHtml + actions + "</div>" +
     '<div class="mn-col mn-col-nt"><div class="mn-col-h">공지</div><div class="mn-none mn-loading">불러오는 중...</div></div></div></div>';
@@ -5020,8 +5025,9 @@ function openMonthPopup(key) {
     if (--pending || mnPopKey !== key || !notes.isConnected) return;
     notes.querySelector(".mn-loading").remove();
     const found = boxes.filter(Boolean);
+    notes.classList.toggle("has", found.length > 0);
     if (found.length) notes.append(...found);
-    else notes.insertAdjacentHTML("beforeend", '<div class="mn-none">이날은 공지가 없어요</div>');
+    else if (!emptyMobile) notes.insertAdjacentHTML("beforeend", '<div class="mn-none">이날은 공지가 없어요</div>');
   };
   const makeBox = (label, post, withContent) => {
     const box = document.createElement("a");

@@ -7056,8 +7056,8 @@ body.youtube-view-open {
 .mn-ev b {
   display: block;
   min-width: 0;
-  font-size: 1.05rem;
-  font-weight: 800;
+  font-size: 0.9rem;
+  font-weight: 500;
   line-height: 1.4;
   word-break: keep-all;
   overflow-wrap: anywhere;
@@ -7600,6 +7600,19 @@ body.youtube-view-open {
     border-left: none;
     border-top: 1px solid var(--mn-line);
   }
+
+  /* 일정 없는 날: "일정 없음" 카드만, 창은 내용만큼 */
+  .mn-pop.mn-pop-empty {
+    height: auto;
+  }
+
+  .mn-pop-empty .mn-col-nt:not(.has) {
+    display: none;
+  }
+
+  .mn-pev-none b {
+    color: var(--mn-muted);
+  }
 }
 
 /* 새 디자인 사이드바 (PC): 연보라 둥근 판, 홈은 보라 */
@@ -7672,5 +7685,89 @@ body.youtube-view-open {
 
   :root.cal-new[data-theme="dark"] #calendarBtn {
     color: #fff;
+  }
+}
+
+/* 주간 일정 글씨 크게 */
+.wk-hd-top small {
+  font-size: 0.74rem;
+}
+
+.wk-view .wk-seg button {
+  font-size: 0.86rem;
+}
+
+.wk-nav b {
+  font-size: 1.8rem;
+}
+
+.wk-range,
+.wk-sum {
+  font-size: 0.9rem;
+}
+
+.wk-date b {
+  font-size: 1.5rem;
+}
+
+.wk-date span {
+  font-size: 0.8rem;
+}
+
+.wk-day.today .wk-date span {
+  font-size: 0.72rem;
+}
+
+.wk-view .wk-none {
+  font-size: 0.92rem;
+}
+
+.wk-ev-time {
+  font-size: 0.86rem;
+}
+
+.wk-ev-top b {
+  font-size: 1.12rem;
+}
+
+.wk-ev-meta {
+  font-size: 0.86rem;
+}
+
+.wk-box-head {
+  font-size: 0.8rem;
+}
+
+.wk-box b {
+  font-size: 0.95rem;
+}
+
+.wk-box p {
+  font-size: 0.9rem;
+}
+
+.wk-view .wk-detail-btn {
+  font-size: 0.88rem;
+}
+
+@media (min-width: 901px) {
+  .wk-det-k {
+    font-size: 0.76rem;
+  }
+
+  .wk-det-d {
+    font-size: 2.3rem;
+  }
+
+  .wk-det-d em {
+    font-size: 1.15rem;
+  }
+
+  .wk-det-ev .wk-ev-top b {
+    font-size: 1.3rem;
+  }
+
+  .wk-det-ev .wk-ev-meta {
+    font-size: 0.95rem;
   }
 }
