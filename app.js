@@ -1777,6 +1777,7 @@ function showMainView(view) {
 
   if (view === "backmenu") applyHomeMatchedHeight(backMenuView);
   if (view === "calendar" && viewMode === "card") requestAnimationFrame(fitWeekView);
+  if (view === "calendar") requestAnimationFrame(fitMonthNew);
   if (view === "songbook") applyHomeMatchedHeight(songbookView);
   if (view === "cafephotos") applyHomeMatchedHeight(cafePhotosView);
   if (view === "soopchat") loadSoopChatView();
@@ -4195,6 +4196,12 @@ function renderCardView() {
 // 주간 일정이 스크롤 없이 화면 높이에 딱 맞게 (줌이 걸린 부모를 고려해 실제 보이는 크기로 계산)
 function fitWeekView() {
   if (cardView.classList.contains("hidden")) return;
+  // PC에선 기본 월간 달력과 같은 높이
+  const classic = !mnMobileQuery.matches && classicAppHeight();
+  if (classic) {
+    cardView.style.height = `${classic - 6}px`;
+    return;
+  }
   const rect = cardView.getBoundingClientRect();
   const scale = cardView.offsetHeight ? rect.height / cardView.offsetHeight : 1;
   const available = window.innerHeight - rect.top - 16;
@@ -4659,6 +4666,7 @@ document.getElementById("wkTodayBtn").addEventListener("click", () => {
 
 window.addEventListener("resize", () => {
   if (viewMode === "card") renderCardView();
+  fitMonthNew();
 });
 
 const viewModeWeekBtn = document.getElementById("viewModeWeekBtn");
@@ -4804,6 +4812,28 @@ function mnMembers(title) {
   return match ? match[1].split(/[,、&]/).map((n) => n.trim()).filter(Boolean).join(", ") : "";
 }
 
+// 기본 월간 달력이 보였을 때의 판 높이 (잠깐 기본 상태로 바꿔서 재고 바로 되돌림)
+function classicAppHeight() {
+  const app = grid.closest(".app");
+  const els = [grid, monthNewView, cardView, calendarHeaderEl, weekdayRow];
+  const saved = els.map((el) => el.className);
+  grid.classList.remove("hidden");
+  monthNewView.classList.add("hidden");
+  cardView.classList.add("hidden");
+  calendarHeaderEl.classList.remove("card-mode", "mn-mode");
+  weekdayRow.classList.remove("card-mode");
+  const height = app.offsetHeight;
+  els.forEach((el, i) => (el.className = saved[i]));
+  return height;
+}
+
+// PC 새 디자인 월간도 기본 달력과 같은 높이 (일정이 많아 넘치면 그만큼 늘어남)
+function fitMonthNew() {
+  if (monthNewView.classList.contains("hidden")) return;
+  const classic = !mnMobileQuery.matches && classicAppHeight();
+  monthNewView.style.minHeight = classic ? `${classic - 6}px` : "";
+}
+
 function syncMonthDesign() {
   const isNew = calDesign === "new" && viewMode === "list";
   document.documentElement.classList.toggle("cal-new", calDesign === "new");
@@ -4919,6 +4949,7 @@ function renderMonthNew() {
     `<div class="mn-arrows"><button type="button" data-mn="prev" aria-label="이전 달"${currentMonth === 0 ? " disabled" : ""}>${MN_ARROW(-1)}</button>` +
     `<button type="button" data-mn="next" aria-label="다음 달"${currentMonth === 11 ? " disabled" : ""}>${MN_ARROW(1)}</button></div></div></div>` +
     body;
+  fitMonthNew();
 }
 
 monthNewView.addEventListener("click", (e) => {
