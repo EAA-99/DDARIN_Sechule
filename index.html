@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=616">
+<link rel="stylesheet" href="style.css?v=617">
 </head>
 <body>
   <button type="button" id="backToCalendarBtn" class="back-to-calendar-btn" aria-label="홈으로">←</button>
@@ -63,7 +63,8 @@
   <div id="backMenuView" class="back-menu-view hidden">
     <div class="home-poster">
       <img class="home-poster-art" src="따린_홈.jpg" alt="">
-      <div class="home-kicker">DDARIN · TODAY</div>
+      <button type="button" id="themeToggleBtn" class="home-theme-btn"></button>
+      <div id="homeKicker" class="home-kicker">DDARIN · TODAY</div>
       <div id="homeTodayDate" class="home-big"></div>
       <div id="homeTodayBadge" class="home-on-air hidden"><i></i><span></span></div>
       <div id="homeTodayTitle" class="home-today-title"></div>
@@ -209,20 +210,8 @@
     <div class="cafe-photos-profile-top">
       <div class="cafe-photos-avatar"></div>
       <div class="cafe-photos-profile-info">
-        <div class="cafe-photos-profile-name-row">
-          <h2 class="cafe-photos-title">DDARIN</h2>
-          <button type="button" id="cafePhotosProfileMenuBtn" class="cafe-photos-profile-menu">•••</button>
-          <div id="cafePhotosProfileMenu" class="cafe-photos-profile-popup hidden">
-            <span class="cafe-photos-profile-popup-btn">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/><polygon points="10 9 15 12 10 15" fill="currentColor" stroke="none"/></svg>
-            </span>
-            <span class="cafe-photos-profile-popup-btn">
-              <svg viewBox="0 0 24 24" width="34" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 9a3 3 0 1 0 0 6c1.5 0 2.5-1.2 3.5-3s2-3 3.5-3a3 3 0 1 1 0 6c-1.5 0-2.5-1.2-3.5-3s-2-3-3.5-3z"/></svg>
-            </span>
-          </div>
-        </div>
-        <a class="cafe-photos-cafe-link" href="https://cafe.naver.com/f-e/cafes/31054486/menus/27?viewType=L" target="_blank" rel="noopener">카페에서 보기 ↗</a>
-        <p class="cafe-photos-profile-stats">게시물 <b id="cafePhotosPostCount">0</b></p>
+        <div class="cafe-photos-kicker">DDARIN</div>
+        <h2 class="cafe-photos-title">앨범</h2>
       </div>
       <button type="button" id="cafePhotosHamburgerBtn" class="back-menu-hamburger cafe-photos-hamburger" aria-label="메뉴">
         <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
@@ -271,38 +260,28 @@
       </button>
     </div>
 
-    <button type="button" class="cafe-photos-follow-btn">팔로우</button>
-
     <div class="cafe-photos-tabs">
-      <span class="cafe-photos-tab active">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      </span>
-      <span class="cafe-photos-tab">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/><polygon points="10 9 15 12 10 15" fill="currentColor" stroke="none"/></svg>
-      </span>
-      <span class="cafe-photos-tab">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M6 18c1-2.5 3.5-4 6-4s5 1.5 6 4"/></svg>
-      </span>
+      <button type="button" class="cafe-photos-tab active">팬아트</button>
+      <button type="button" class="cafe-photos-tab">움짤</button>
+      <button type="button" class="cafe-photos-tab">AI</button>
+    </div>
+
+    <div class="cafe-photos-sub">
+      <span>게시물 <b id="cafePhotosPostCount">0</b>개</span>
+      <a class="cafe-photos-cafe-link" href="https://cafe.naver.com/f-e/cafes/31054486/menus/27?viewType=L" target="_blank" rel="noopener">카페에서 보기 ↗</a>
     </div>
 
     <div id="cafePhotosList" class="cafe-photos-grid"></div>
   </div>
 
   <div id="cafePhotoLightbox" class="cafe-photo-lightbox hidden">
-    <div class="cafe-photo-post">
-      <div class="cafe-photo-post-header">
-        <div class="cafe-photo-post-brand-row">
-          <span class="cafe-photo-post-brand">DDARIN</span>
-          <button type="button" id="cafePhotoMenuBtn" class="cafe-photo-menu-btn" aria-label="더보기">•••</button>
-          <div id="cafePhotoMenu" class="cafe-photo-menu hidden">
-            <button type="button" id="cafePhotoGotoPostBtn" class="cafe-photo-menu-item">게시물로 이동</button>
-          </div>
-        </div>
-        <button type="button" id="cafePhotoCloseBtn" class="cafe-photo-close-btn" aria-label="닫기">✕</button>
-      </div>
+    <div class="cafe-photo-post cafe-photo-pola">
+      <button type="button" id="cafePhotoCloseBtn" class="cafe-photo-close-btn" aria-label="닫기">✕</button>
       <div id="cafePhotoLightboxLink" class="cafe-photo-post-imgwrap">
         <img id="cafePhotoLightboxImg" class="cafe-photo-lightbox-img" alt="">
       </div>
+      <p id="cafePhotoTitle" class="cafe-photo-pola-title"></p>
+      <div class="cafe-photo-pola-meta"><span id="cafePhotoWriter"></span><span id="cafePhotoDate"></span></div>
       <div class="cafe-photo-post-actions">
         <span class="calendar-announce-stat">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-9.5-8.5C1 9 2.5 5 6.5 5c2 0 3.5 1.5 4.5 3 1-1.5 2.5-3 4.5-3 4 0 5.5 4 4 7.5C19 16.65 12 21 12 21z"/></svg>
@@ -312,13 +291,12 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.3 0-2.5-.3-3.6-.8L3 21l1.8-5.4A8.5 8.5 0 1 1 21 11.5z"/></svg>
           <span id="cafePhotoCommentCount"></span>
         </span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>
-        <span class="cafe-photo-post-spacer"></span>
         <button type="button" id="cafePhotoBookmarkBtn" class="cafe-photo-bookmark-btn" aria-label="상단 고정">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg>
         </button>
+        <span class="cafe-photo-post-spacer"></span>
+        <button type="button" id="cafePhotoGotoPostBtn" class="cafe-photo-goto-btn">게시물로 이동 ↗</button>
       </div>
-      <p class="cafe-photo-post-caption"><span id="cafePhotoWriter" class="cafe-photo-post-writer"></span> <span id="cafePhotoTitle"></span></p>
     </div>
   </div>
 
@@ -490,7 +468,6 @@
     <div class="sb2-side">
       <div class="sb2-hero">
         <div class="sb2-hero-actions">
-          <button type="button" id="songbook2ThemeBtn" class="sb2-theme-btn"></button>
           <button type="button" id="favorites2OpenBtn" class="sb2-fav-btn" aria-label="즐겨찾기">★<span class="sb2-fav-label">즐겨찾기</span></button>
         </div>
         <div class="sb2-kicker">DDARIN</div>
@@ -919,8 +896,8 @@
 
 
 
-  <script src="app.js?v=616"></script>
-  <script src="games.js?v=616"></script>
+  <script src="app.js?v=617"></script>
+  <script src="games.js?v=617"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {

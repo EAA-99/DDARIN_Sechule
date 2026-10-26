@@ -1283,10 +1283,10 @@ body {
   max-width: 640px;
   height: calc(100vh - 40px);
   margin-top: -50px;
-  padding: 0 24px 24px;
+  padding: 0;
   padding-top: env(safe-area-inset-top);
-  background: #fff;
-  color: #2a2a2a;
+  background: #f7f5f2;
+  color: #2f2a3d;
   text-align: left;
   display: flex;
   flex-direction: column;
@@ -1305,29 +1305,29 @@ body {
 }
 
 .cafe-photos-profile-top,
-.cafe-photos-follow-btn,
-.cafe-photos-tabs {
+.cafe-photos-tabs,
+.cafe-photos-sub {
   flex-shrink: 0;
 }
 
 .cafe-photos-hamburger {
   position: absolute;
-  top: 10px;
-  right: 14px;
+  top: 22px;
+  right: 18px;
   z-index: 21;
 }
 
 .cafe-photos-profile-top {
   display: flex;
   align-items: center;
-  gap: 20px;
-  margin-bottom: 16px;
+  gap: 12px;
+  padding: 22px 20px 0;
 }
 
 .cafe-photos-avatar {
   box-sizing: border-box;
-  width: 90px;
-  height: 90px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: #eee url("DDARIN_아바타.jpg") center/cover no-repeat;
   flex-shrink: 0;
@@ -1337,116 +1337,82 @@ body {
   min-width: 0;
 }
 
-.cafe-photos-profile-name-row {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.cafe-photos-kicker {
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  color: #a49cb3;
 }
 
 .cafe-photos-title {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: 1.35rem;
   font-weight: 800;
-}
-
-.cafe-photos-profile-menu {
-  border: none;
-  background: none;
-  padding: 0;
-  color: #999;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.cafe-photos-profile-popup {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 5;
-  display: flex;
-  gap: 10px;
-  margin-top: 8px;
-  padding: 10px;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-}
-
-.cafe-photos-profile-popup-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
-  background: #f5f6f8;
-  color: #2a2a2a;
-  cursor: pointer;
-}
-
-.cafe-photos-cafe-link {
-  display: inline-block;
-  margin-top: 2px;
-  color: #4a7fd6;
-  font-size: 0.85rem;
-  text-decoration: none;
-}
-
-.cafe-photos-profile-stats {
-  margin: 8px 0 0;
-  font-size: 0.85rem;
-  color: #444;
-}
-
-.cafe-photos-follow-btn {
-  display: block;
-  width: 100%;
-  border: none;
-  border-radius: 10px;
-  padding: 12px;
-  margin-bottom: 16px;
-  background: #4a5fd6;
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.9rem;
-  cursor: pointer;
+  line-height: 1.2;
 }
 
 .cafe-photos-tabs {
   display: flex;
-  justify-content: center;
-  gap: 60px;
-  border-top: 1px solid #eee;
-  margin-bottom: 2px;
+  gap: 6px;
+  padding: 14px 20px 0;
 }
 
 .cafe-photos-tab {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 24px;
-  color: #999;
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid #e6e1ea;
+  border-radius: 999px;
+  background: none;
+  color: #8d859e;
+  font: inherit;
+  font-size: 0.82rem;
   cursor: pointer;
 }
 
 .cafe-photos-tab.active {
-  color: #2a2a2a;
-  border-top: 2px solid #2a2a2a;
-  margin-top: -1px;
+  border-color: #f8d7e3;
+  background: #f8d7e3;
+  color: #a3436a;
+}
+
+.cafe-photos-sub {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 14px 20px 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #a49cb3;
+}
+
+.cafe-photos-sub b {
+  font-weight: 600;
+}
+
+.cafe-photos-cafe-link {
+  color: #2f2a3d;
+  font-weight: 700;
+  text-decoration: none;
 }
 
 .cafe-photos-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   align-content: start;
-  gap: 2px;
-  background: #e5e5e5;
-  padding-bottom: 24px;
+  gap: 24px 18px;
+  padding: 18px 24px 30px;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   scrollbar-width: none;
+}
+
+@media (max-width: 900px) {
+  .cafe-photos-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 14px;
+    padding: 16px 20px 26px;
+  }
 }
 
 .cafe-photos-grid::-webkit-scrollbar {
@@ -1456,17 +1422,61 @@ body {
 .cafe-photos-status {
   grid-column: 1 / -1;
   padding: 24px;
-  color: #888;
-  background: #fff;
+  color: #a49cb3;
 }
 
+/* 폴라로이드 카드 + 마스킹 테이프 */
 .cafe-photo-card {
+  position: relative;
   display: block;
   width: 100%;
-  padding: 0;
+  padding: 7px 7px 10px;
   border: none;
-  background: none;
+  border-radius: 3px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(40, 30, 60, 0.06), 0 6px 18px rgba(40, 30, 60, 0.06);
+  color: inherit;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
+  transform: rotate(-0.8deg);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.cafe-photo-card:nth-child(even) {
+  transform: rotate(0.8deg);
+}
+
+.cafe-photo-card:hover {
+  transform: rotate(0) translateY(-2px);
+  box-shadow: 0 2px 4px rgba(40, 30, 60, 0.06), 0 12px 26px rgba(40, 30, 60, 0.1);
+}
+
+.cafe-photo-tape {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  width: 46px;
+  height: 16px;
+  margin-left: -23px;
+  border-radius: 1px;
+  background: rgba(232, 222, 210, 0.82);
+  box-shadow: 0 1px 1px rgba(40, 30, 60, 0.05);
+  transform: rotate(-3deg);
+}
+
+.cafe-photo-card:nth-child(3n + 2) .cafe-photo-tape {
+  background: rgba(240, 214, 224, 0.78);
+  transform: rotate(2.5deg);
+}
+
+.cafe-photo-card:nth-child(3n) .cafe-photo-tape {
+  background: rgba(222, 216, 236, 0.8);
+  transform: rotate(-1.5deg);
+}
+
+.cafe-photo-card.pinned .cafe-photo-tape {
+  background: rgba(248, 215, 227, 0.95);
 }
 
 .cafe-photo-img {
@@ -1474,7 +1484,34 @@ body {
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
-  background: #f0f0f0;
+  background: #eee;
+}
+
+.cafe-photo-card-title {
+  display: block;
+  margin-top: 9px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cafe-photo-card-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 2px;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: #a49cb3;
+}
+
+.cafe-photo-card-meta span:first-child {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cafe-photo-lightbox {
@@ -1514,59 +1551,6 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 12px 14px;
-}
-
-.cafe-photo-post-brand-row {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.cafe-photo-post-brand {
-  font-weight: 800;
-  font-size: 0.95rem;
-  color: #2a2a2a;
-  letter-spacing: 0.02em;
-}
-
-.cafe-photo-menu-btn {
-  border: none;
-  background: none;
-  padding: 0;
-  color: #999;
-  font-size: 0.9rem;
-  letter-spacing: 1px;
-  cursor: pointer;
-}
-
-.cafe-photo-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 5;
-  margin-top: 6px;
-  padding: 6px;
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 10px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-}
-
-.cafe-photo-menu-item {
-  border: none;
-  background: none;
-  padding: 8px 12px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #2a2a2a;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.cafe-photo-menu-item:hover {
-  background: #f5f6f8;
-  border-radius: 6px;
 }
 
 .cafe-photo-close-btn {
@@ -1625,6 +1609,93 @@ body {
 
 .cafe-photo-bookmark-btn.pinned svg {
   fill: currentColor;
+}
+
+/* 사진 보기: 큰 폴라로이드 한 장 */
+#cafePhotoLightbox {
+  background: rgba(47, 42, 61, 0.55);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.cafe-photo-pola {
+  position: relative;
+  width: min(420px, 100%);
+  max-width: none;
+  padding: 12px 12px 14px;
+  border-radius: 4px;
+  overflow: visible;
+  box-shadow: 0 20px 50px rgba(30, 20, 50, 0.3);
+  text-align: left;
+  color: #2f2a3d;
+}
+
+.cafe-photo-pola.zoomed {
+  width: min(700px, 100%);
+}
+
+.cafe-photo-pola .cafe-photo-close-btn {
+  position: absolute;
+  top: -14px;
+  right: -10px;
+  z-index: 1;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #fff;
+  color: #2f2a3d;
+  box-shadow: 0 4px 12px rgba(30, 20, 50, 0.2);
+}
+
+.cafe-photo-pola .cafe-photo-lightbox-img {
+  max-height: 62vh;
+  background: #f2efea;
+}
+
+.cafe-photo-pola-title {
+  margin: 12px 0 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.cafe-photo-pola-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #a49cb3;
+}
+
+.cafe-photo-pola .cafe-photo-post-actions {
+  gap: 14px;
+  margin-top: 12px;
+  padding: 12px 0 0;
+  border-top: 1px solid #f0ecf2;
+  color: #6d6580;
+}
+
+.cafe-photo-pola .cafe-photo-post-actions svg {
+  width: 17px;
+  height: 17px;
+}
+
+.cafe-photo-pola .calendar-announce-stat {
+  font-size: 0.82rem;
+}
+
+.cafe-photo-goto-btn {
+  height: 32px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 999px;
+  background: #f8d7e3;
+  color: #a3436a;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
 }
 
 .calendar-announce-header {
@@ -4757,8 +4828,8 @@ body.youtube-view-open {
   color: var(--sb-text);
 }
 
-/* 다크모드: app.js가 기기 설정이나 헤더의 🌙 버튼 선택에 따라 data-theme을 붙임 */
-#songbook2View[data-theme="dark"] {
+/* 다크모드: app.js가 기기 설정이나 홈의 🌙 버튼 선택에 따라 html에 data-theme을 붙임 */
+:root[data-theme="dark"] #songbook2View {
   --sb-bg: #15132b;
   --sb-card: #211e40;
   --sb-text: #fff;
@@ -4800,7 +4871,7 @@ body.youtube-view-open {
   color: #fff;
 }
 
-#songbook2View[data-theme="dark"] .sb2-hero {
+:root[data-theme="dark"] #songbook2View .sb2-hero {
   border-radius: 0;
 }
 
@@ -4810,23 +4881,6 @@ body.youtube-view-open {
   right: 18px;
   display: flex;
   gap: 8px;
-}
-
-#songbook2View .sb2-theme-btn {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.16);
-  color: #fff;
-  cursor: pointer;
-}
-
-#songbook2View .sb2-theme-btn svg {
-  width: 18px;
-  height: 18px;
 }
 
 #songbook2View .sb2-fav-btn {
@@ -5370,7 +5424,7 @@ body.youtube-view-open {
   background: linear-gradient(180deg, rgba(28, 24, 64, 0) 48%, rgba(40, 34, 96, 0.7) 68%, rgba(28, 24, 64, 0.97) 100%);
 }
 
-.home-poster > *:not(.home-poster-art) {
+.home-poster > *:not(.home-poster-art):not(.home-theme-btn) {
   position: relative;
   z-index: 1;
 }
@@ -5481,6 +5535,11 @@ body.youtube-view-open {
 }
 
 .home-day {
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -5519,6 +5578,14 @@ body.youtube-view-open {
 
 .home-day.on span {
   color: rgba(255, 255, 255, 0.8);
+}
+
+.home-day.today:not(.on) {
+  box-shadow: inset 0 0 0 1.5px var(--home-accent);
+}
+
+.home-day:not(.on):hover {
+  background: rgba(106, 82, 230, 0.08);
 }
 
 .home-upcoming {
@@ -5678,4 +5745,328 @@ body.youtube-view-open {
   .home-menu button:nth-child(2) {
     border-top: 1px dashed var(--home-line);
   }
+}
+
+/* 홈 따린 카드 오른쪽 위 다크/라이트 버튼 */
+.home-theme-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  cursor: pointer;
+}
+
+.home-theme-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ================= 다크모드 (앱 전체) ================= */
+:root[data-theme="dark"] {
+  --dk-bg: #0f0d22;
+  --dk-surface: #15132b;
+  --dk-card: #211e40;
+  --dk-card-2: #1a1835;
+  --dk-line: rgba(255, 255, 255, 0.08);
+  --dk-text: #ecebf5;
+  --dk-muted: rgba(236, 235, 245, 0.55);
+  --dk-accent: #9d86ff;
+  color-scheme: dark;
+}
+
+:root[data-theme="dark"] body {
+  background: var(--dk-bg);
+  color: var(--dk-text);
+}
+
+/* 공통 틀 (홈·채팅·유튜브·Playlist·사진·노래책 바깥 틀) */
+:root[data-theme="dark"] .back-menu-view,
+:root[data-theme="dark"] #songbookView,
+:root[data-theme="dark"] .songbook-view-clone,
+:root[data-theme="dark"] .cafe-photos-view {
+  border-color: var(--dk-line);
+  background: var(--dk-surface);
+  color: var(--dk-text);
+  box-shadow: none;
+}
+
+:root[data-theme="dark"] .back-menu-top {
+  border-bottom-color: var(--dk-line);
+}
+
+:root[data-theme="dark"] .back-menu-name,
+:root[data-theme="dark"] .cafe-photos-title {
+  color: var(--dk-text);
+}
+
+:root[data-theme="dark"] .back-menu-hamburger svg,
+:root[data-theme="dark"] .back-menu-nav-item svg {
+  stroke: var(--dk-text);
+}
+
+:root[data-theme="dark"] .back-menu-nav-menu {
+  border-color: var(--dk-line);
+  background: var(--dk-card);
+}
+
+/* 홈 */
+:root[data-theme="dark"] #backMenuView {
+  --home-muted: var(--dk-muted);
+  --home-line: var(--dk-line);
+  --home-accent: var(--dk-accent);
+  background: var(--dk-surface);
+  color: var(--dk-text);
+}
+
+:root[data-theme="dark"] .home-card {
+  background: var(--dk-card);
+  box-shadow: none;
+}
+
+:root[data-theme="dark"] .home-day.on {
+  background: #6a52e6;
+}
+
+/* 일정표 */
+:root[data-theme="dark"] .app {
+  border-color: var(--dk-line);
+  background: var(--dk-surface);
+}
+
+:root[data-theme="dark"] .calendar-header,
+:root[data-theme="dark"] .card-view,
+:root[data-theme="dark"] .day-card,
+:root[data-theme="dark"] .day-cell {
+  background: var(--dk-card);
+  color: var(--dk-text);
+}
+
+:root[data-theme="dark"] .day-cell {
+  border-color: var(--dk-line);
+}
+
+:root[data-theme="dark"] .day-cell.empty {
+  background: var(--dk-card-2);
+}
+
+:root[data-theme="dark"] .grid {
+  border-color: var(--dk-line);
+}
+
+:root[data-theme="dark"] .weekday-row,
+:root[data-theme="dark"] .day-num,
+:root[data-theme="dark"] .day-card-num,
+:root[data-theme="dark"] .calendar-post-name,
+:root[data-theme="dark"] .nav-btn,
+:root[data-theme="dark"] .week-nav-btn {
+  color: var(--dk-text);
+}
+
+:root[data-theme="dark"] .card-list {
+  background: var(--dk-surface);
+}
+
+:root[data-theme="dark"] .day-card-date {
+  background: var(--dk-card-2);
+}
+
+:root[data-theme="dark"] .view-mode-btn.active {
+  background: var(--dk-accent);
+  color: #fff;
+}
+
+:root[data-theme="dark"] .event-card {
+  border-bottom-color: var(--dk-line);
+}
+
+:root[data-theme="dark"] .side-nav {
+  border-top-color: var(--dk-line);
+  background: var(--dk-surface);
+}
+
+:root[data-theme="dark"] .side-nav-btn {
+  color: var(--dk-text);
+}
+
+/* Playlist 곡 목록 화면은 원래 어두운 판이라 그대로, 바깥 점만 */
+:root[data-theme="dark"] #songbookView .songbook-inner,
+:root[data-theme="dark"] .songbook-view-clone .songbook-inner {
+  background: transparent;
+}
+
+:root[data-theme="dark"] .clip-source-dots .back-menu-dot {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+:root[data-theme="dark"] .clip-source-dots .back-menu-dot.active {
+  background: var(--dk-accent);
+}
+
+/* 사진 */
+:root[data-theme="dark"] .cafe-photos-kicker,
+:root[data-theme="dark"] .cafe-photos-sub,
+:root[data-theme="dark"] .cafe-photo-card-meta,
+:root[data-theme="dark"] .cafe-photo-pola-meta {
+  color: var(--dk-muted);
+}
+
+:root[data-theme="dark"] .cafe-photos-cafe-link {
+  color: var(--dk-text);
+}
+
+:root[data-theme="dark"] .cafe-photos-tab {
+  border-color: var(--dk-line);
+  color: var(--dk-muted);
+}
+
+:root[data-theme="dark"] .cafe-photos-tab.active {
+  border-color: rgba(248, 215, 227, 0.18);
+  background: rgba(248, 215, 227, 0.18);
+  color: #f6c3d6;
+}
+
+:root[data-theme="dark"] .cafe-photo-card,
+:root[data-theme="dark"] .cafe-photo-pola {
+  background: var(--dk-card);
+  color: var(--dk-text);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+:root[data-theme="dark"] .cafe-photo-tape {
+  opacity: 0.55;
+}
+
+:root[data-theme="dark"] .cafe-photo-img,
+:root[data-theme="dark"] .cafe-photo-pola .cafe-photo-lightbox-img {
+  background: var(--dk-card-2);
+}
+
+:root[data-theme="dark"] #cafePhotoLightbox {
+  background: rgba(8, 6, 20, 0.7);
+}
+
+:root[data-theme="dark"] .cafe-photo-pola .cafe-photo-close-btn {
+  background: var(--dk-card);
+  color: var(--dk-text);
+}
+
+:root[data-theme="dark"] .cafe-photo-pola .cafe-photo-post-actions {
+  border-top-color: var(--dk-line);
+  color: var(--dk-muted);
+}
+
+:root[data-theme="dark"] .cafe-photo-goto-btn {
+  background: rgba(248, 215, 227, 0.18);
+  color: #f6c3d6;
+}
+
+/* 채팅·창 */
+:root[data-theme="dark"] .memo-card,
+:root[data-theme="dark"] .soop-chat-day-list,
+:root[data-theme="dark"] .modal {
+  background: var(--dk-card);
+  color: var(--dk-text);
+}
+
+/* 다크모드: 창(일정 상세·로그인·검색)·룰렛·게임·유튜브 */
+:root[data-theme="dark"] #modalBackdrop .modal,
+:root[data-theme="dark"] #loginModalBackdrop .modal {
+  border-color: var(--dk-card);
+  background: var(--dk-surface);
+  color: var(--dk-text);
+}
+
+:root[data-theme="dark"] .event-card-title,
+:root[data-theme="dark"] .modal-soop-notice-title {
+  color: var(--dk-text);
+}
+
+:root[data-theme="dark"] .modal-soop-notice {
+  border-color: rgba(240, 226, 168, 0.25);
+  background: rgba(240, 226, 168, 0.08);
+}
+
+:root[data-theme="dark"] .modal-soop-notice-content,
+:root[data-theme="dark"] .login-remember-row {
+  color: var(--dk-muted);
+}
+
+:root[data-theme="dark"] .login-input,
+:root[data-theme="dark"] .song-search {
+  border-color: var(--dk-line);
+  background: var(--dk-card);
+  color: var(--dk-text);
+}
+
+:root[data-theme="dark"] .song-roulette-popover {
+  background: var(--dk-card);
+  color: var(--dk-text);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="dark"] .song-roulette-status {
+  background: var(--dk-card-2);
+}
+
+:root[data-theme="dark"] .song-roulette-status-text,
+:root[data-theme="dark"] .song-roulette-filter-toggle {
+  color: var(--dk-text);
+}
+
+:root[data-theme="dark"] #gameView,
+:root[data-theme="dark"] #youtubeView {
+  background: var(--dk-surface);
+  color: var(--dk-text);
+}
+
+:root[data-theme="dark"] .game-tab {
+  border-color: var(--dk-line);
+  color: var(--dk-muted);
+}
+
+:root[data-theme="dark"] .game-tab.active {
+  background: var(--dk-accent);
+  color: #fff;
+}
+
+:root[data-theme="dark"] .ladder-reset-icon-btn,
+:root[data-theme="dark"] .ladder-action-btn {
+  border-color: var(--dk-line);
+  background: var(--dk-card);
+  color: var(--dk-text);
+}
+
+:root[data-theme="dark"] .ladder-avatar {
+  border-color: var(--dk-line);
+  background: var(--dk-card);
+}
+
+:root[data-theme="dark"] .youtube-card-thumb-wrap {
+  background: var(--dk-card);
+}
+
+:root[data-theme="dark"] .youtube-card-title {
+  color: var(--dk-text);
+}
+
+:root[data-theme="dark"] .youtube-card-meta,
+:root[data-theme="dark"] .youtube-card-channel,
+:root[data-theme="dark"] .youtube-card-empty {
+  color: var(--dk-muted);
+}
+
+:root[data-theme="dark"] .modal-actions button:not(.primary-btn):not(.memo-add-more-btn) {
+  border-color: var(--dk-line);
+  background: var(--dk-card);
+  color: var(--dk-text);
 }

@@ -267,26 +267,24 @@ favorites2ModalBackdrop.addEventListener("click", (e) => {
   if (e.target === favorites2ModalBackdrop) closeFavorites2Modal();
 });
 
-// 노래책 다크모드: 직접 고른 게 있으면 그걸, 없으면 기기 설정을 따름
-const SONGBOOK2_THEME_KEY = "songbook2-theme";
-const songbook2ThemeBtn = document.getElementById("songbook2ThemeBtn");
-const darkSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+// 다크모드(앱 전체): 기본은 라이트, 홈의 버튼으로 다크를 고른 경우에만 다크
+const THEME_KEY = "app-theme";
+const themeToggleBtn = document.getElementById("themeToggleBtn");
 const THEME_ICON_MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
 const THEME_ICON_SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
 
-function applySongbook2Theme() {
-  const theme = localStorage.getItem(SONGBOOK2_THEME_KEY) || (darkSchemeQuery.matches ? "dark" : "light");
-  songbook2View.dataset.theme = theme;
-  songbook2ThemeBtn.innerHTML = theme === "dark" ? THEME_ICON_SUN : THEME_ICON_MOON;
-  songbook2ThemeBtn.setAttribute("aria-label", theme === "dark" ? "라이트모드로 보기" : "다크모드로 보기");
+function applyTheme() {
+  const theme = localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light";
+  document.documentElement.dataset.theme = theme;
+  themeToggleBtn.innerHTML = theme === "dark" ? THEME_ICON_SUN : THEME_ICON_MOON;
+  themeToggleBtn.setAttribute("aria-label", theme === "dark" ? "라이트모드로 보기" : "다크모드로 보기");
 }
 
-songbook2ThemeBtn.addEventListener("click", () => {
-  localStorage.setItem(SONGBOOK2_THEME_KEY, songbook2View.dataset.theme === "dark" ? "light" : "dark");
-  applySongbook2Theme();
+themeToggleBtn.addEventListener("click", () => {
+  localStorage.setItem(THEME_KEY, document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+  applyTheme();
 });
-darkSchemeQuery.addEventListener("change", applySongbook2Theme);
-applySongbook2Theme();
+applyTheme();
 
 let songbook2Genre = "전체";
 let songbook2Artist = "전체";
@@ -1763,6 +1761,7 @@ new ResizeObserver((entries) => {
 }).observe(backMenuView);
 
 function showMainView(view) {
+  if (view === "backmenu" && currentMainView !== "backmenu") homeSelectedKey = null;
   if (view === "backmenu") renderHome();
   appViewEl.classList.toggle("hidden", view !== "calendar");
   songbookView.classList.toggle("hidden", view !== "songbook");
@@ -1952,25 +1951,34 @@ function splitEventTitle(title) {
   return match ? [title.slice(0, match.index), `w. ${match[1]}`] : [title, ""];
 }
 
+// 홈 이번 주 달력에서 고른 날 (홈에 다시 들어오면 오늘로)
+let homeSelectedKey = null;
+
 function renderHome() {
   const events = loadEvents();
   const now = new Date();
-  const todayEvents = events[todayKey()] || [];
+  const selectedKey = homeSelectedKey || todayKey();
+  const isToday = selectedKey === todayKey();
+  const [sy, sm, sd] = selectedKey.split("-").map(Number);
+  const selectedDate = new Date(sy, sm - 1, sd);
+  const dayEvents = events[selectedKey] || [];
 
+  document.getElementById("homeKicker").textContent = isToday ? "DDARIN · TODAY" : "DDARIN · SCHEDULE";
   const dateEl = document.getElementById("homeTodayDate");
-  dateEl.textContent = `${now.getMonth() + 1}.${now.getDate()}`;
+  dateEl.textContent = `${sm}.${sd}`;
   const dowEl = document.createElement("small");
-  dowEl.textContent = `${WEEKDAY_LABELS[now.getDay()]}요일`;
+  dowEl.textContent = `${WEEKDAY_LABELS[selectedDate.getDay()]}요일`;
   dateEl.appendChild(dowEl);
 
   const badgeEl = document.getElementById("homeTodayBadge");
-  const isHiatus = todayEvents.some((ev) => ev.title.includes("휴방"));
-  badgeEl.classList.toggle("hidden", !todayEvents.length);
+  const isHiatus = dayEvents.some((ev) => ev.title.includes("휴방"));
+  const dayWord = isToday ? "오늘" : "이날";
+  badgeEl.classList.toggle("hidden", !dayEvents.length);
   badgeEl.classList.toggle("hiatus", isHiatus);
-  badgeEl.querySelector("span").textContent = isHiatus ? "오늘은 휴방이에요" : "오늘 방송 있어요";
+  badgeEl.querySelector("span").textContent = isHiatus ? `${dayWord}은 휴방이에요` : `${dayWord} 방송 있어요`;
 
-  const [title, withText] = todayEvents.length ? splitEventTitle(todayEvents[0].title) : ["오늘은 일정이 없어요", ""];
-  document.getElementById("homeTodayTitle").textContent = todayEvents.length > 1 ? `${title} 외 ${todayEvents.length - 1}개` : title;
+  const [title, withText] = dayEvents.length ? splitEventTitle(dayEvents[0].title) : [`${dayWord}은 일정이 없어요`, ""];
+  document.getElementById("homeTodayTitle").textContent = dayEvents.length > 1 ? `${title} 외 ${dayEvents.length - 1}개` : title;
   document.getElementById("homeTodayWith").textContent = withText;
 
   const weekStrip = document.getElementById("homeWeekStrip");
@@ -1979,8 +1987,13 @@ function renderHome() {
   for (let i = 0; i < 7; i++) {
     const d = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i);
     const key = dateKey(d.getFullYear(), d.getMonth(), d.getDate());
-    const dayEl = document.createElement("div");
-    dayEl.className = "home-day" + (key === todayKey() ? " on" : "");
+    const dayEl = document.createElement("button");
+    dayEl.type = "button";
+    dayEl.className = "home-day" + (key === selectedKey ? " on" : "") + (key === todayKey() ? " today" : "");
+    dayEl.addEventListener("click", () => {
+      homeSelectedKey = key;
+      renderHome();
+    });
     const dowLabel = document.createElement("span");
     dowLabel.textContent = WEEKDAY_LABELS[d.getDay()];
     const numEl = document.createElement("b");
@@ -2065,17 +2078,6 @@ wireNavMenu("soopChatNav", "soopChatHamburgerBtn", "soopChatNavMenu");
 
 const cafePhotosList = document.getElementById("cafePhotosList");
 
-const cafePhotosProfileMenuBtn = document.getElementById("cafePhotosProfileMenuBtn");
-const cafePhotosProfileMenu = document.getElementById("cafePhotosProfileMenu");
-cafePhotosProfileMenuBtn.addEventListener("click", () => {
-  cafePhotosProfileMenu.classList.toggle("hidden");
-});
-document.addEventListener("click", (e) => {
-  if (!cafePhotosProfileMenuBtn.contains(e.target) && !cafePhotosProfileMenu.contains(e.target)) {
-    cafePhotosProfileMenu.classList.add("hidden");
-  }
-});
-
 const cafePhotoLightbox = document.getElementById("cafePhotoLightbox");
 const cafePhotoLightboxImg = document.getElementById("cafePhotoLightboxImg");
 const cafePhotoLightboxLink = document.getElementById("cafePhotoLightboxLink");
@@ -2084,13 +2086,11 @@ const cafePhotoLikeCount = document.getElementById("cafePhotoLikeCount");
 const cafePhotoCommentCount = document.getElementById("cafePhotoCommentCount");
 const cafePhotoWriter = document.getElementById("cafePhotoWriter");
 const cafePhotoTitle = document.getElementById("cafePhotoTitle");
-const cafePhotoMenuBtn = document.getElementById("cafePhotoMenuBtn");
-const cafePhotoMenu = document.getElementById("cafePhotoMenu");
+const cafePhotoDate = document.getElementById("cafePhotoDate");
 
 function closeCafePhotoLightbox() {
   cafePhotoLightbox.classList.add("hidden");
   cafePhotoPostEl.classList.remove("zoomed");
-  cafePhotoMenu.classList.add("hidden");
 }
 cafePhotoLightbox.addEventListener("click", (e) => {
   if (e.target === cafePhotoLightbox) closeCafePhotoLightbox();
@@ -2173,20 +2173,9 @@ document.getElementById("calendarAnnounceHideWeekBtn").addEventListener("click",
 });
 // ================================================
 
-cafePhotoMenuBtn.addEventListener("click", () => {
-  cafePhotoMenu.classList.toggle("hidden");
-});
-
 document.getElementById("cafePhotoGotoPostBtn").addEventListener("click", () => {
   const item = cafePhotoItems[cafePhotoIndex];
   if (item) window.open(item.url, "_blank", "noopener");
-  cafePhotoMenu.classList.add("hidden");
-});
-
-document.addEventListener("click", (e) => {
-  if (!cafePhotoMenuBtn.contains(e.target) && !cafePhotoMenu.contains(e.target)) {
-    cafePhotoMenu.classList.add("hidden");
-  }
 });
 
 let cafePhotoItems = [];
@@ -2200,6 +2189,7 @@ function renderCafePhotoLightbox() {
   cafePhotoCommentCount.textContent = (item.commentCount || 0).toLocaleString();
   cafePhotoWriter.textContent = item.writer || "";
   cafePhotoTitle.textContent = item.title || "";
+  cafePhotoDate.textContent = item.published ? new Date(item.published).toLocaleDateString("ko-KR") : "";
   cafePhotoBookmarkBtn.classList.toggle("pinned", isCafePhotoPinned(item.url));
 }
 
@@ -2313,13 +2303,29 @@ function renderCafePhotosGrid() {
   sorted.forEach((item, index) => {
     const card = document.createElement("button");
     card.type = "button";
-    card.className = "cafe-photo-card";
+    card.className = "cafe-photo-card" + (pinned.includes(item.url) ? " pinned" : "");
+
+    const tape = document.createElement("i");
+    tape.className = "cafe-photo-tape";
 
     const img = document.createElement("img");
     img.className = "cafe-photo-img";
     img.src = `/api/naver-image?url=${encodeURIComponent(item.image)}`;
     img.alt = "";
-    card.appendChild(img);
+
+    const titleEl = document.createElement("b");
+    titleEl.className = "cafe-photo-card-title";
+    titleEl.textContent = item.title || "";
+
+    const metaEl = document.createElement("span");
+    metaEl.className = "cafe-photo-card-meta";
+    const writerEl = document.createElement("span");
+    writerEl.textContent = item.writer || "";
+    const likeEl = document.createElement("span");
+    likeEl.textContent = `♡ ${(item.likeCount || 0).toLocaleString()}`;
+    metaEl.append(writerEl, likeEl);
+
+    card.append(tape, img, titleEl, metaEl);
 
     card.addEventListener("click", () => openCafePhotoLightbox(sorted, index));
     cafePhotosList.appendChild(card);
