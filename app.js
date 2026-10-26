@@ -2536,9 +2536,31 @@ const youtubeView = document.getElementById("youtubeView");
 const youtubeBackBtn = document.getElementById("youtubeBackBtn");
 const youtubeChannelToggle = document.getElementById("youtubeChannelToggle");
 const youtubeCardTrack = document.getElementById("youtubeCardTrack");
-const youtubeCarouselPrevBtn = document.getElementById("youtubeCarouselPrevBtn");
-const youtubeCarouselNextBtn = document.getElementById("youtubeCarouselNextBtn");
 const youtubeChannelLink = document.getElementById("youtubeChannelLink");
+const youtubeHeroBadge = document.getElementById("youtubeHeroBadge");
+const YOUTUBE_CHANNEL_NAMES = { shorts: "따린", longform: "세이브따린" };
+const YOUTUBE_SEEN_KEY = "youtube-seen-videos";
+
+function getSeenYoutubeIds() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(YOUTUBE_SEEN_KEY) || "[]"));
+  } catch {
+    return new Set();
+  }
+}
+
+function markYoutubeSeen(id) {
+  const seen = getSeenYoutubeIds();
+  seen.add(id);
+  localStorage.setItem(YOUTUBE_SEEN_KEY, JSON.stringify([...seen].slice(-200)));
+}
+
+function youtubeMonthLabel(isoDate) {
+  const d = new Date(isoDate);
+  const now = new Date();
+  if (d.getFullYear() !== now.getFullYear()) return `${d.getFullYear()}년 ${d.getMonth() + 1}월`;
+  return d.getMonth() === now.getMonth() ? `${d.getMonth() + 1}월 · 이번 달` : `${d.getMonth() + 1}월`;
+}
 const youtubeHeroCard = document.getElementById("youtubeHeroCard");
 const youtubeHeroThumb = document.getElementById("youtubeHeroThumb");
 const youtubeHeroTitle = document.getElementById("youtubeHeroTitle");
@@ -2565,73 +2587,90 @@ function formatTimeAgo(isoDate) {
   return `${Math.floor(days / 365)}년 전`;
 }
 
+// 고른 채널의 최신 영상은 위에 크게, 나머지는 달별로 묶어 목록으로 (쇼츠는 세로 카드, 풀영상은 가로 줄)
 function renderYoutubeCards() {
-  const videos = (youtubeRecentVideos || []).filter((v) => v.group === youtubeActiveGroup);
+  const videos = (youtubeRecentVideos || []).filter((v) => v.group === youtubeActiveGroup).slice(1);
+  const seen = getSeenYoutubeIds();
   youtubeCardTrack.innerHTML = "";
+  youtubeCardTrack.classList.toggle("tall", youtubeActiveGroup === "shorts");
 
   if (!videos.length) {
     const empty = document.createElement("p");
-    empty.className = "youtube-card-empty";
+    empty.className = "yt-empty";
     empty.textContent = "업로드된 영상이 없습니다.";
     youtubeCardTrack.appendChild(empty);
     return;
   }
 
+  let lastMonth = null;
   videos.forEach((v) => {
+    const month = youtubeMonthLabel(v.published);
+    if (month !== lastMonth) {
+      const divider = document.createElement("div");
+      divider.className = "yt-month";
+      divider.textContent = month;
+      youtubeCardTrack.appendChild(divider);
+      lastMonth = month;
+    }
+
     const card = document.createElement("a");
-    card.className = "youtube-card";
+    card.className = "yt-vid" + (seen.has(v.id) ? " seen" : "");
     card.href = v.url;
     card.target = "_blank";
     card.rel = "noopener";
+    card.addEventListener("click", () => {
+      markYoutubeSeen(v.id);
+      card.classList.add("seen");
+    });
 
-    const thumbWrap = document.createElement("div");
-    thumbWrap.className = "youtube-card-thumb-wrap";
+    const thumbWrap = document.createElement("span");
+    thumbWrap.className = "yt-vid-thumb";
     const thumb = document.createElement("img");
-    thumb.className = "youtube-card-thumb";
     thumb.src = v.thumbnailLarge || v.thumbnail;
     thumb.alt = "";
-    thumbWrap.appendChild(thumb);
-    if (v.isShorts) {
-      const badge = document.createElement("span");
-      badge.className = "youtube-card-shorts-badge";
-      badge.textContent = "SHORTS";
-      thumbWrap.appendChild(badge);
-    }
+    thumb.loading = "lazy";
+    const seenMark = document.createElement("span");
+    seenMark.className = "yt-seen-mark";
+    seenMark.textContent = "✓ 본 영상";
+    thumbWrap.append(thumb, seenMark);
 
-    const title = document.createElement("p");
-    title.className = "youtube-card-title";
+    const text = document.createElement("span");
+    text.className = "yt-vid-text";
+    const title = document.createElement("b");
     title.textContent = v.title;
-
-    const meta = document.createElement("div");
-    meta.className = "youtube-card-meta";
-    const channel = document.createElement("span");
-    channel.className = "youtube-card-channel";
-    channel.textContent = v.isShorts ? "Shorts" : "Full";
     const time = document.createElement("span");
+    time.className = "yt-vid-time";
     time.textContent = formatTimeAgo(v.published);
-    meta.append(channel, time);
+    // 쇼츠는 시간을 썸네일 오른쪽 아래에 얹음
+    if (youtubeActiveGroup === "shorts") thumbWrap.appendChild(time);
+    else text.appendChild(time);
+    text.prepend(title);
 
-    card.append(thumbWrap, title, meta);
+    card.append(thumbWrap, text);
     youtubeCardTrack.appendChild(card);
   });
 }
 
 function renderYoutubeHero() {
-  const latest = (youtubeRecentVideos || [])[0];
+  const latest = (youtubeRecentVideos || []).find((v) => v.group === youtubeActiveGroup);
   if (!latest) {
     youtubeHeroCard.classList.add("hidden");
     return;
   }
   youtubeHeroCard.classList.remove("hidden");
   youtubeHeroCard.href = latest.url;
+  youtubeHeroCard.onclick = () => markYoutubeSeen(latest.id);
   youtubeHeroThumb.onerror = () => {
     youtubeHeroThumb.onerror = null;
     youtubeHeroThumb.src = latest.thumbnailLarge || latest.thumbnail;
   };
   youtubeHeroThumb.src = `https://i.ytimg.com/vi/${latest.id}/maxresdefault.jpg`;
   youtubeHeroTitle.textContent = latest.title;
-  youtubeHeroChannel.textContent = latest.isShorts ? "Shorts" : "Full";
+  youtubeHeroChannel.textContent = YOUTUBE_CHANNEL_NAMES[latest.group] || "";
   youtubeHeroTime.textContent = formatTimeAgo(latest.published);
+  const fresh = Date.now() - new Date(latest.published).getTime() <= 7 * 86400000;
+  youtubeHeroBadge.classList.toggle("fresh", fresh);
+  youtubeHeroBadge.textContent = fresh ? "NEW" : "최신";
 }
 
 async function openYoutubeView() {
@@ -2653,15 +2692,10 @@ youtubeChannelToggle.addEventListener("click", (e) => {
   youtubeActiveGroup = btn.dataset.group;
   youtubeChannelToggle.querySelectorAll(".youtube-channel-seg").forEach((el) => el.classList.toggle("active", el === btn));
   youtubeChannelLink.href = YOUTUBE_CHANNEL_URLS[youtubeActiveGroup];
-  youtubeCardTrack.scrollLeft = 0;
+  document.getElementById("youtubeMoreLabel").textContent = `${YOUTUBE_CHANNEL_NAMES[youtubeActiveGroup]} 채널에서 더 보기`;
+  youtubeCardTrack.parentElement.scrollTop = 0;
+  renderYoutubeHero();
   renderYoutubeCards();
-});
-
-youtubeCarouselPrevBtn.addEventListener("click", () => {
-  youtubeCardTrack.scrollBy({ left: -320, behavior: "smooth" });
-});
-youtubeCarouselNextBtn.addEventListener("click", () => {
-  youtubeCardTrack.scrollBy({ left: 320, behavior: "smooth" });
 });
 // ================================================
 

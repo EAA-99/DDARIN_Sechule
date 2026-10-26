@@ -2309,14 +2309,41 @@ body {
   display: none;
 }
 
-/* ===== 유튜브 업로드(WATCH) 화면 ===== */
+/* ===== 유튜브 화면: 고른 채널 최신 영상 크게 + 달별 지난 영상 ===== */
 #youtubeView {
+  --yt-bg: #f6f5fb;
+  --yt-card: #fff;
+  --yt-text: #1d1b33;
+  --yt-muted: rgba(30, 25, 70, 0.5);
+  --yt-line: rgba(30, 25, 70, 0.1);
+  --yt-accent: #6a52e6;
+  --yt-shadow: 0 1px 4px rgba(30, 25, 70, 0.07);
   width: 100%;
   max-width: 1500px;
-  background: #fff;
-  overflow: hidden;
+  height: calc(100dvh - 40px);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  border: 3px solid rgba(30, 25, 70, 0.08);
+  border-radius: 22px;
+  background: var(--yt-bg);
+  color: var(--yt-text);
+  text-align: left;
+}
+
+#youtubeView.hidden {
+  display: none;
+}
+
+:root[data-theme="dark"] #youtubeView {
+  --yt-bg: #15132b;
+  --yt-card: #211e40;
+  --yt-text: #ecebf5;
+  --yt-muted: rgba(236, 235, 245, 0.55);
+  --yt-line: rgba(255, 255, 255, 0.1);
+  --yt-accent: #9d86ff;
+  --yt-shadow: none;
+  border-color: rgba(255, 255, 255, 0.06);
 }
 
 body.youtube-view-open {
@@ -2325,226 +2352,450 @@ body.youtube-view-open {
   overscroll-behavior: none;
 }
 
-.youtube-watch-panel {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 18px 16px;
-  overflow: hidden;
-}
-
-.youtube-watch-channel-link {
-  flex-shrink: 0;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #1c6dd0;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.youtube-list-controls {
+.yt-hd {
+  flex: none;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 10px;
-  margin-bottom: 12px;
+  padding: 18px 20px 12px;
 }
 
-.youtube-channel-toggle {
-  display: flex;
-  width: 160px;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.youtube-channel-seg {
-  flex: 1;
+.yt-back {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
   border: none;
-  background: #111a33;
-  color: #fff;
-  padding: 5px 8px;
-  text-align: center;
-  font-size: 0.72rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.youtube-channel-seg.active {
-  background: #6ec3f4;
-  color: #0a1f33;
-}
-
-.youtube-watch-nav {
-  display: flex;
-  gap: 6px;
-}
-
-.youtube-watch-nav-btn {
-  width: 28px;
-  height: 28px;
   border-radius: 50%;
-  border: 1px solid #eee;
-  background: #f5f6f8;
-  color: #333;
-  font-size: 1rem;
-  line-height: 1;
+  background: var(--yt-card);
+  box-shadow: var(--yt-shadow);
+  color: var(--yt-muted);
   cursor: pointer;
 }
 
-.youtube-watch-nav-btn:hover {
-  background: #eaeaee;
+.yt-back svg {
+  width: 16px;
+  height: 16px;
 }
 
-.youtube-hero-card {
+.yt-ttl {
+  flex: 1;
+  min-width: 0;
+}
+
+.yt-ttl small {
+  display: block;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  color: var(--yt-muted);
+}
+
+.yt-ttl b {
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+}
+
+.yt-seg {
+  flex: none;
+  display: flex;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--yt-card);
+  box-shadow: var(--yt-shadow);
+}
+
+.yt-seg .youtube-channel-seg {
+  height: 30px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: var(--yt-muted);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.yt-seg .youtube-channel-seg.active {
+  background: var(--yt-accent);
+  color: #fff;
+}
+
+/* 모바일: 최신 영상 + 목록이 함께 스크롤 */
+.yt-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.yt-body::-webkit-scrollbar,
+.yt-right::-webkit-scrollbar {
+  display: none;
+}
+
+.yt-hero {
   position: relative;
   display: block;
-  width: 100%;
+  margin: 0 20px;
   aspect-ratio: 16 / 9;
-  max-height: 45vh;
-  border-radius: 16px;
   overflow: hidden;
-  background: #f0f0f0;
-  margin-bottom: 16px;
-  flex-shrink: 0;
+  border-radius: 20px;
+  background: #000;
+  color: #fff;
   text-decoration: none;
 }
 
-.youtube-hero-thumb {
+.yt-hero.hidden {
+  display: none;
+}
+
+.yt-hero-thumb {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
+  transition: transform 0.3s;
 }
 
-.youtube-hero-overlay {
+.yt-hero:hover .yt-hero-thumb {
+  transform: scale(1.03);
+}
+
+.yt-hero::after {
+  content: "";
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 24px 20px 18px;
-  background: linear-gradient(180deg, rgba(13, 13, 18, 0) 0%, rgba(13, 13, 18, 0.92) 90%);
+  inset: 0;
+  background: linear-gradient(180deg, rgba(21, 19, 43, 0) 38%, rgba(21, 19, 43, 0.92) 100%);
 }
 
-.youtube-hero-title {
-  margin: 0 0 6px;
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: #fff;
+.yt-hero-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #4d40b8;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.yt-hero-badge.fresh::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ff3d3d;
+  animation: yt-pulse 1.6s infinite;
+}
+
+@keyframes yt-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.yt-hero-play {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 44%;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  transition: transform 0.2s, background 0.2s;
+}
+
+.yt-hero:hover .yt-hero-play {
+  transform: scale(1.08);
+  background: #ff3d3d;
+}
+
+.yt-hero-play svg {
+  width: 22px;
+  height: 22px;
+  margin-left: 3px;
+}
+
+.yt-hero-info {
+  position: absolute;
+  z-index: 1;
+  left: 16px;
+  right: 16px;
+  bottom: 14px;
+}
+
+.yt-hero-info b {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  font-size: 1.05rem;
+  font-weight: 900;
+  line-height: 1.3;
 }
 
-.youtube-hero-meta {
+.yt-hero-info > span {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.82rem;
-  color: #ccc;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  opacity: 0.8;
 }
 
-.youtube-hero-channel {
-  font-weight: 700;
-  color: #fff;
+.yt-hero-avatar {
+  width: 18px;
+  height: 18px;
+  margin-right: 2px;
 }
 
-.youtube-card-track {
+.yt-list-hd {
+  padding: 18px 20px 6px;
+  font-size: 0.95rem;
+  font-weight: 900;
+}
+
+/* 지난 영상: 풀영상은 가로 줄, 쇼츠(.tall)는 세로 카드 2열 */
+.yt-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  padding: 0 20px 14px;
+}
+
+.yt-list.tall {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.yt-month {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0 0;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--yt-muted);
+}
+
+.yt-month::after {
+  content: "";
   flex: 1;
-  min-height: 0;
-  display: flex;
-  gap: 14px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-behavior: smooth;
-  padding-bottom: 4px;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  height: 1px;
+  background: var(--yt-line);
 }
 
-.youtube-card-track::-webkit-scrollbar {
-  display: none;
-}
-
-.youtube-card {
-  flex-shrink: 0;
-  width: 230px;
+.yt-vid {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  text-decoration: none;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 16px;
+  background: var(--yt-card);
+  box-shadow: var(--yt-shadow);
   color: inherit;
+  text-decoration: none;
+  transition: transform 0.15s;
 }
 
-.youtube-card-thumb-wrap {
+.yt-vid:hover {
+  transform: translateY(-1px);
+}
+
+.yt-vid-thumb {
   position: relative;
-  width: 100%;
-  aspect-ratio: 3 / 4;
-  border-radius: 12px;
+  flex: none;
+  width: 132px;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
-  background: #f0f0f0;
+  border-radius: 10px;
+  background: #000;
 }
 
-.youtube-card-thumb {
+.yt-vid-thumb img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.25s;
+}
+
+.yt-vid-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.yt-vid-text b {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.84rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.yt-vid-time {
+  margin-top: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--yt-muted);
+}
+
+.yt-list.tall .yt-vid {
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.yt-list.tall .yt-vid-thumb {
+  width: 100%;
+  aspect-ratio: 9 / 14;
+  border-radius: 16px;
+  box-shadow: var(--yt-shadow);
+}
+
+.yt-list.tall .yt-vid:hover .yt-vid-thumb img {
+  transform: scale(1.04);
+}
+
+.yt-list.tall .yt-vid-time {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  margin: 0;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(21, 19, 43, 0.7);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+
+.yt-seen-mark {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 1;
+  display: none;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(21, 19, 43, 0.7);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 800;
+}
+
+.yt-vid.seen .yt-seen-mark {
   display: block;
 }
 
-.youtube-card-shorts-badge {
-  position: absolute;
-  left: 6px;
-  top: 6px;
-  background: #f5c518;
-  color: #1a1a1a;
-  font-size: 0.6rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  padding: 2px 6px;
-  border-radius: 4px;
+.yt-vid.seen .yt-vid-thumb img {
+  filter: saturate(0.5);
+  opacity: 0.7;
 }
 
-.youtube-card-title {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  line-height: 1.3;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.yt-vid.seen .yt-vid-text b {
+  opacity: 0.55;
 }
 
-.youtube-card-meta {
+.yt-empty {
+  grid-column: 1 / -1;
+  padding: 20px 0;
+  font-size: 0.85rem;
+  color: var(--yt-muted);
+}
+
+.yt-more {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  font-size: 0.8rem;
-  color: #888;
+  height: 46px;
+  margin: 2px 20px 22px;
+  border: 1.5px dashed var(--yt-line);
+  border-radius: 14px;
+  color: var(--yt-accent);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-decoration: none;
 }
 
-.youtube-card-channel {
-  color: #555;
-  font-weight: 700;
+.yt-more svg {
+  width: 16px;
+  height: 16px;
+  color: #ff3d3d;
 }
 
-.youtube-card-empty {
-  color: #777;
-  font-size: 0.85rem;
-  padding: 20px 0;
-}
-
-@media (max-width: 900px) {
-  #youtubeView {
-    height: calc(100dvh - 40px);
+/* PC: 왼쪽 최신 영상 / 오른쪽 목록만 스크롤 */
+@media (min-width: 901px) {
+  .yt-hd {
+    padding: 22px 24px 14px;
   }
 
-  .youtube-card {
-    width: 190px;
+  .yt-body {
+    display: grid;
+    grid-template-columns: 42% minmax(0, 1fr);
+    gap: 22px;
+    padding: 0 24px 24px;
+    overflow: hidden;
+  }
+
+  .yt-hero {
+    margin: 0;
+    aspect-ratio: auto;
+    height: 100%;
+  }
+
+  .yt-hero-info b {
+    font-size: 1.35rem;
+  }
+
+  .yt-right {
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  .yt-list-hd {
+    padding: 0 0 8px;
+  }
+
+  .yt-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    padding: 0 0 14px;
+  }
+
+  .yt-list.tall {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .yt-more {
+    margin: 0 0 4px;
   }
 }
 
@@ -5859,8 +6110,7 @@ body.youtube-view-open {
   color: var(--dk-text);
 }
 
-:root[data-theme="dark"] #gameView,
-:root[data-theme="dark"] #youtubeView {
+:root[data-theme="dark"] #gameView {
   background: var(--dk-surface);
   color: var(--dk-text);
 }
@@ -5885,20 +6135,6 @@ body.youtube-view-open {
 :root[data-theme="dark"] .ladder-avatar {
   border-color: var(--dk-line);
   background: var(--dk-card);
-}
-
-:root[data-theme="dark"] .youtube-card-thumb-wrap {
-  background: var(--dk-card);
-}
-
-:root[data-theme="dark"] .youtube-card-title {
-  color: var(--dk-text);
-}
-
-:root[data-theme="dark"] .youtube-card-meta,
-:root[data-theme="dark"] .youtube-card-channel,
-:root[data-theme="dark"] .youtube-card-empty {
-  color: var(--dk-muted);
 }
 
 :root[data-theme="dark"] .modal-actions button:not(.primary-btn):not(.memo-add-more-btn) {

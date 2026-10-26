@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=618">
+<link rel="stylesheet" href="style.css?v=619">
 </head>
 <body>
   <button type="button" id="backToCalendarBtn" class="back-to-calendar-btn" aria-label="홈으로">←</button>
@@ -194,39 +194,36 @@
   </div>
 
   <div id="youtubeView" class="back-menu-view hidden">
-    <div class="back-menu-top">
-      <button type="button" id="youtubeBackBtn" class="back-menu-hamburger" aria-label="뒤로">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3a3f52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+    <div class="yt-hd">
+      <button type="button" id="youtubeBackBtn" class="yt-back" aria-label="뒤로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
-      <span class="back-menu-avatar"></span>
-      <span class="back-menu-name">DDARIN</span>
-      <a id="youtubeChannelLink" href="https://www.youtube.com/channel/UCuROXT7djegOJSyVp1lhx-w" target="_blank" rel="noopener" class="youtube-watch-channel-link">채널 바로가기 ↗</a>
+      <div class="yt-ttl"><small>DDARIN</small><b>YOUTUBE</b></div>
+      <div id="youtubeChannelToggle" class="yt-seg">
+        <button type="button" class="youtube-channel-seg active" data-group="shorts">따린</button>
+        <button type="button" class="youtube-channel-seg" data-group="longform">세이브따린</button>
+      </div>
     </div>
 
-    <div class="youtube-watch-panel">
-      <a id="youtubeHeroCard" class="youtube-hero-card hidden" target="_blank" rel="noopener">
-        <img id="youtubeHeroThumb" class="youtube-hero-thumb" alt="">
-        <div class="youtube-hero-overlay">
-          <p id="youtubeHeroTitle" class="youtube-hero-title"></p>
-          <div class="youtube-hero-meta">
-            <span id="youtubeHeroChannel" class="youtube-hero-channel"></span>
-            <span id="youtubeHeroTime"></span>
-          </div>
-        </div>
+    <div class="yt-body">
+      <a id="youtubeHeroCard" class="yt-hero hidden" target="_blank" rel="noopener">
+        <img id="youtubeHeroThumb" class="yt-hero-thumb" alt="">
+        <span id="youtubeHeroBadge" class="yt-hero-badge"></span>
+        <span class="yt-hero-play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span>
+        <span class="yt-hero-info">
+          <b id="youtubeHeroTitle"></b>
+          <span><span class="back-menu-avatar yt-hero-avatar"></span><span id="youtubeHeroChannel"></span> · <span id="youtubeHeroTime"></span></span>
+        </span>
       </a>
 
-      <div class="youtube-list-controls">
-        <div id="youtubeChannelToggle" class="youtube-channel-toggle">
-          <button type="button" class="youtube-channel-seg active" data-group="shorts">따린</button>
-          <button type="button" class="youtube-channel-seg" data-group="longform">세이브따린</button>
-        </div>
-        <div class="youtube-watch-nav">
-          <button type="button" id="youtubeCarouselPrevBtn" class="youtube-watch-nav-btn" aria-label="이전">‹</button>
-          <button type="button" id="youtubeCarouselNextBtn" class="youtube-watch-nav-btn" aria-label="다음">›</button>
-        </div>
+      <div class="yt-right">
+        <div class="yt-list-hd">지난 영상</div>
+        <div id="youtubeCardTrack" class="yt-list"></div>
+        <a id="youtubeChannelLink" class="yt-more" href="https://www.youtube.com/channel/UCuROXT7djegOJSyVp1lhx-w" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12a31 31 0 0 0 .5 4.8 3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.8 31 31 0 0 0-.5-4.8zM9.7 15.1V8.9l5.8 3.1-5.8 3.1z"/></svg>
+          <span id="youtubeMoreLabel">따린 채널에서 더 보기</span>
+        </a>
       </div>
-
-      <div id="youtubeCardTrack" class="youtube-card-track"></div>
     </div>
   </div>
 
@@ -920,8 +917,8 @@
 
 
 
-  <script src="app.js?v=618"></script>
-  <script src="games.js?v=618"></script>
+  <script src="app.js?v=619"></script>
+  <script src="games.js?v=619"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {
