@@ -7037,24 +7037,28 @@ body.youtube-view-open {
 /* 같은 날 일정은 가장 긴 일정에 맞춰 같은 높이 */
 .mn-evs {
   display: grid;
+  flex: 1;
   grid-auto-rows: 1fr;
   gap: 6px;
 }
 
+/* 기본 일정표처럼 일정이 칸을 꽉 채우고 글씨는 가운데 크게 */
 .mn-ev {
   display: flex;
   align-items: center;
-  padding: 6px 9px;
-  border-radius: 8px;
+  justify-content: center;
+  padding: 8px 10px;
+  border-radius: 10px;
+  text-align: center;
   background: color-mix(in srgb, var(--c) 26%, var(--mn-card));
 }
 
 .mn-ev b {
   display: block;
   min-width: 0;
-  font-size: 0.82rem;
+  font-size: 1.05rem;
   font-weight: 800;
-  line-height: 1.35;
+  line-height: 1.4;
   word-break: keep-all;
   overflow-wrap: anywhere;
 }
