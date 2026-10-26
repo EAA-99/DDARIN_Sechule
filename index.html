@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=617">
+<link rel="stylesheet" href="style.css?v=618">
 </head>
 <body>
   <button type="button" id="backToCalendarBtn" class="back-to-calendar-btn" aria-label="홈으로">←</button>
@@ -52,10 +52,34 @@
 
     <div id="grid" class="grid"></div>
 
-    <div id="cardView" class="card-view hidden">
-      <button type="button" id="weekPrevBtn" class="week-nav-btn" aria-label="이전 주">‹</button>
-      <div id="cardList" class="card-list"></div>
-      <button type="button" id="weekNextBtn" class="week-nav-btn" aria-label="다음 주">›</button>
+    <div id="cardView" class="wk-view hidden">
+      <div class="wk-left">
+        <div class="wk-hd">
+          <div class="wk-hd-top">
+            <small>DDARIN · WEEKLY</small>
+            <div class="wk-seg">
+              <button type="button" class="on">주간</button>
+              <button type="button" id="wkMonthBtn">월간</button>
+            </div>
+          </div>
+          <div class="wk-nav">
+            <div>
+              <b id="wkTitle"></b>
+              <span id="wkRange" class="wk-range"></span>
+            </div>
+            <div class="wk-arrows">
+              <button type="button" id="weekPrevBtn" aria-label="이전 주"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+              <button type="button" id="weekNextBtn" aria-label="다음 주"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+            </div>
+          </div>
+          <div class="wk-sum">
+            <span id="wkSummary" class="wk-sum-counts"></span>
+            <button type="button" id="wkTodayBtn" class="wk-today-link">오늘</button>
+          </div>
+        </div>
+        <div id="cardList" class="wk-tl"></div>
+      </div>
+      <div id="wkDetail" class="wk-detail"></div>
     </div>
   </div>
   </div>
@@ -896,8 +920,8 @@
 
 
 
-  <script src="app.js?v=617"></script>
-  <script src="games.js?v=617"></script>
+  <script src="app.js?v=618"></script>
+  <script src="games.js?v=618"></script>
   <script>
     // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
     if ("serviceWorker" in navigator) {

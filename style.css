@@ -509,10 +509,6 @@ body {
     font-size: 0.65rem !important;
   }
 
-  .card-view {
-    padding-top: 4px !important;
-  }
-
   .page {
     padding-top: 12px;
   }
@@ -648,114 +644,6 @@ body {
 .weekday-row .sun { color: #e0577a; }
 .weekday-row .sat { color: #4a7fd6; }
 
-.card-view {
-  display: flex;
-  align-items: stretch;
-  gap: 8px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 12px 0 24px;
-}
-
-.week-nav-btn {
-  flex-shrink: 0;
-  border: none;
-  background: none;
-  font-size: 1.8rem;
-  color: #2a2a2a;
-  cursor: pointer;
-  padding: 8px;
-}
-
-.week-nav-btn:hover {
-  color: #4a7fd6;
-}
-
-.card-list {
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 10px;
-  min-height: 60vh;
-  min-width: 0;
-}
-
-.day-card {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 0;
-  cursor: pointer;
-  background: #fff;
-  border-radius: 14px;
-}
-
-.day-card.today {
-  outline: 2px dashed #4a7fd6;
-  outline-offset: 4px;
-  border-radius: 14px;
-}
-
-.day-card-date {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  border: 2px solid #f0d9a0;
-  border-radius: 14px;
-  padding: 8px 4px;
-  background: #fffdf5;
-}
-
-.day-card-weekday {
-  font-size: 0.78rem;
-  color: #b8912f;
-}
-
-.day-card-num {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #2a2a2a;
-}
-
-.day-card-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 0;
-  min-height: 0;
-}
-
-.day-card-empty {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px dashed #ddd;
-  border-radius: 14px;
-  padding: 16px;
-  text-align: center;
-  color: #aaa;
-  font-size: 0.85rem;
-}
-
-.day-card-event {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 14px;
-  padding: 12px 8px;
-  font-weight: 700;
-  font-size: 0.9rem;
-  text-align: center;
-  word-break: keep-all;
-  overflow-wrap: break-word;
-}
-
 .grid {
   display: grid;
   width: 100%;
@@ -809,46 +697,6 @@ body {
 
   .weekday-row.card-mode {
     display: none;
-  }
-
-  .card-view {
-    background: #fff;
-  }
-
-  .card-list {
-    grid-template-columns: 1fr;
-    gap: 6px;
-    height: calc(77vh + 50px);
-    min-height: 0;
-    overflow-y: auto;
-    padding-left: 8px;
-    padding-right: 8px;
-    background: #fff;
-  }
-
-  .day-card {
-    flex-direction: row;
-    align-items: stretch;
-    gap: 8px;
-    padding: 0;
-  }
-
-  .day-card-date {
-    flex-direction: column;
-    justify-content: center;
-    min-width: 52px;
-    padding: 4px 4px;
-  }
-
-  .day-card-body {
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .day-card-event {
-    justify-content: flex-start;
-    text-align: left;
-    padding: 6px 8px;
   }
 
   .app {
@@ -5844,8 +5692,6 @@ body.youtube-view-open {
 }
 
 :root[data-theme="dark"] .calendar-header,
-:root[data-theme="dark"] .card-view,
-:root[data-theme="dark"] .day-card,
 :root[data-theme="dark"] .day-cell {
   background: var(--dk-card);
   color: var(--dk-text);
@@ -5865,19 +5711,9 @@ body.youtube-view-open {
 
 :root[data-theme="dark"] .weekday-row,
 :root[data-theme="dark"] .day-num,
-:root[data-theme="dark"] .day-card-num,
 :root[data-theme="dark"] .calendar-post-name,
-:root[data-theme="dark"] .nav-btn,
-:root[data-theme="dark"] .week-nav-btn {
+:root[data-theme="dark"] .nav-btn {
   color: var(--dk-text);
-}
-
-:root[data-theme="dark"] .card-list {
-  background: var(--dk-surface);
-}
-
-:root[data-theme="dark"] .day-card-date {
-  background: var(--dk-card-2);
 }
 
 :root[data-theme="dark"] .view-mode-btn.active {
@@ -6069,4 +5905,593 @@ body.youtube-view-open {
   border-color: var(--dk-line);
   background: var(--dk-card);
   color: var(--dk-text);
+}
+
+/* 주간 일정: 세로 타임라인 (일곱 날 같은 높이, 화면에 딱 맞음) */
+.calendar-header.card-mode {
+  display: none;
+}
+
+.wk-view {
+  --wk-bg: #f6f5fb;
+  --wk-card: #fff;
+  --wk-text: #1d1b33;
+  --wk-muted: rgba(30, 25, 70, 0.5);
+  --wk-faint: rgba(30, 25, 70, 0.28);
+  --wk-line: rgba(30, 25, 70, 0.1);
+  --wk-accent: #6a52e6;
+  --wk-soft: #efeafe;
+  --wk-shadow: 0 1px 4px rgba(30, 25, 70, 0.07);
+  display: flex;
+  overflow: hidden;
+  border-radius: 22px;
+  background: var(--wk-bg);
+  color: var(--wk-text);
+  text-align: left;
+}
+
+.wk-view.hidden {
+  display: none;
+}
+
+:root[data-theme="dark"] .wk-view {
+  --wk-bg: #15132b;
+  --wk-card: #211e40;
+  --wk-text: #ecebf5;
+  --wk-muted: rgba(236, 235, 245, 0.55);
+  --wk-faint: rgba(236, 235, 245, 0.28);
+  --wk-line: rgba(255, 255, 255, 0.1);
+  --wk-accent: #9d86ff;
+  --wk-soft: rgba(157, 134, 255, 0.12);
+  --wk-shadow: none;
+}
+
+.wk-view button {
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wk-left {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.wk-left::-webkit-scrollbar {
+  display: none;
+}
+
+/* 머리 */
+.wk-hd {
+  flex: none;
+  padding: 20px 22px 6px;
+}
+
+.wk-hd-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wk-hd-top small {
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  color: var(--wk-muted);
+}
+
+.wk-seg {
+  display: flex;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--wk-card);
+  box-shadow: var(--wk-shadow);
+}
+
+.wk-view .wk-seg button {
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: var(--wk-muted);
+}
+
+.wk-view .wk-seg button.on {
+  background: var(--wk-accent);
+  color: #fff;
+}
+
+.wk-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.wk-nav b {
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.wk-range {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--wk-muted);
+}
+
+.wk-arrows {
+  display: flex;
+  gap: 6px;
+}
+
+.wk-view .wk-arrows button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--wk-card);
+  box-shadow: var(--wk-shadow);
+  color: var(--wk-muted);
+}
+
+.wk-view .wk-arrows button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.wk-arrows svg {
+  width: 16px;
+  height: 16px;
+}
+
+.wk-sum {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  padding: 8px 14px;
+  border-radius: 14px;
+  background: var(--wk-card);
+  box-shadow: var(--wk-shadow);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--wk-muted);
+}
+
+.wk-sum-counts {
+  flex: 1;
+  display: flex;
+  gap: 14px;
+}
+
+.wk-sum-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wk-sum-item i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.wk-sum-item.broadcast i {
+  background: #4a7fd6;
+}
+
+.wk-sum-item.release i {
+  background: #3cb46e;
+}
+
+.wk-sum-item.hiatus i {
+  background: #d0607a;
+}
+
+.wk-sum-item b {
+  font-weight: 900;
+  color: var(--wk-text);
+}
+
+.wk-view .wk-today-link {
+  font-weight: 800;
+  color: var(--wk-accent);
+}
+
+/* 타임라인: 일곱 날이 남은 높이를 똑같이 나눠 가짐, 펼친 날만 늘어남 */
+.wk-tl {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 6px 22px 16px;
+}
+
+.wk-day {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 52px;
+  display: grid;
+  grid-template-columns: 40px 14px minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: center;
+}
+
+.wk-tl.has-open .wk-day {
+  flex: 0 0 64px;
+}
+
+.wk-tl.has-open .wk-day:has(.wk-ev.open) {
+  flex: 0 0 auto;
+  align-items: start;
+}
+
+.wk-day::before {
+  content: "";
+  position: absolute;
+  left: 58px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--wk-line);
+}
+
+.wk-day:first-child::before {
+  top: 50%;
+}
+
+.wk-day:last-child::before {
+  bottom: 50%;
+}
+
+.wk-day.past::before {
+  background: color-mix(in srgb, var(--wk-accent) 30%, transparent);
+}
+
+.wk-view .wk-date {
+  display: block;
+  padding: 0;
+  text-align: right;
+  line-height: 1.05;
+}
+
+.wk-date b {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+
+.wk-date span {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--wk-muted);
+}
+
+.wk-date.sun b {
+  color: #e0577a;
+}
+
+.wk-date.sat b {
+  color: #4a7fd6;
+}
+
+.wk-day.today .wk-date span {
+  display: inline-block;
+  margin-top: 3px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--wk-accent);
+  color: #fff;
+  font-size: 0.62rem;
+  line-height: 1.3;
+}
+
+.wk-dot {
+  position: relative;
+  z-index: 1;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--wk-faint);
+  background: var(--wk-bg);
+}
+
+.wk-dot.has {
+  border-color: var(--c);
+  background: var(--c);
+}
+
+.wk-day.today .wk-dot {
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--wk-accent) 22%, transparent);
+}
+
+.wk-day:has(.wk-ev.open) .wk-date {
+  padding-top: 6px;
+}
+
+.wk-day:has(.wk-ev.open) .wk-dot {
+  margin-top: 12px;
+}
+
+.wk-day.past .wk-date,
+.wk-day.past .wk-ev:not(.open),
+.wk-day.past .wk-none {
+  opacity: 0.45;
+}
+
+.wk-body {
+  min-width: 0;
+  padding: 6px 0;
+}
+
+.wk-view .wk-none {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--wk-faint);
+}
+
+.wk-view .wk-ev {
+  display: block;
+  width: calc(100% + 20px);
+  margin: 0 -10px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  transition: background 0.15s;
+}
+
+.wk-view .wk-ev:hover {
+  background: color-mix(in srgb, var(--wk-accent) 6%, transparent);
+}
+
+.wk-view .wk-ev.open {
+  background: var(--wk-card);
+  box-shadow: var(--wk-shadow);
+}
+
+.wk-ev-top {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.wk-ev-time {
+  flex: none;
+  font-size: 0.74rem;
+  font-weight: 900;
+  color: var(--c);
+  font-variant-numeric: tabular-nums;
+}
+
+.wk-ev-top b {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wk-ev-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--wk-muted);
+}
+
+.wk-ev-kind {
+  flex: none;
+  font-weight: 800;
+  color: var(--c);
+}
+
+.wk-ev-with {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wk-ev.open .wk-ev-top b,
+.wk-ev.open .wk-ev-with {
+  white-space: normal;
+}
+
+.wk-more {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.wk-box {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--wk-soft);
+  color: var(--wk-text);
+  text-decoration: none;
+}
+
+.wk-box-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--wk-accent);
+}
+
+.wk-box b {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 0.82rem;
+}
+
+.wk-box p {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.55;
+  opacity: 0.85;
+  white-space: pre-line;
+}
+
+.wk-view .wk-detail-btn {
+  align-self: flex-end;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--wk-accent);
+}
+
+/* PC: 왼쪽 타임라인 + 오른쪽 고른 날 상세 */
+.wk-detail {
+  display: none;
+}
+
+@media (min-width: 901px) {
+  .wk-left {
+    flex: 0 0 46%;
+    border-right: 1px solid var(--wk-line);
+  }
+
+  .wk-hd {
+    padding: 24px 28px 6px;
+  }
+
+  .wk-tl {
+    padding: 6px 28px 18px;
+  }
+
+  .wk-day {
+    cursor: pointer;
+  }
+
+  .wk-day.sel .wk-date b {
+    color: var(--wk-accent);
+  }
+
+  .wk-day.sel .wk-body {
+    margin: 0 -10px;
+    padding: 6px 10px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--wk-accent) 8%, transparent);
+  }
+
+  .wk-view .wk-ev {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .wk-view .wk-ev:hover {
+    background: none;
+  }
+
+  .wk-detail {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 26px 32px;
+    overflow-y: auto;
+  }
+
+  .wk-det-k {
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.24em;
+    color: var(--wk-accent);
+  }
+
+  .wk-det-d {
+    margin-top: -6px;
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+
+  .wk-det-d em {
+    margin-left: 8px;
+    font-style: normal;
+    font-size: 1rem;
+    color: var(--wk-muted);
+  }
+
+  .wk-det-none {
+    margin-top: 10px;
+    font-weight: 700;
+    color: var(--wk-faint);
+  }
+
+  .wk-det-list,
+  .wk-det-notices {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .wk-det-ev {
+    padding: 16px 18px;
+    border-left: 4px solid var(--c);
+    border-radius: 16px;
+    background: var(--wk-card);
+    box-shadow: var(--wk-shadow);
+  }
+
+  .wk-det-ev .wk-ev-top b {
+    font-size: 1.1rem;
+    white-space: normal;
+  }
+
+  .wk-det-ev .wk-ev-meta {
+    margin-top: 6px;
+    font-size: 0.82rem;
+  }
+
+  .wk-det-ev .wk-ev-with {
+    white-space: normal;
+  }
+}
+
+/* 주간 모드에선 바깥 하늘색 틀 대신 타임라인 판이 틀 역할 */
+.app:has(.wk-view:not(.hidden)) {
+  padding: 0;
+  border: 3px solid rgba(30, 25, 70, 0.08);
+  border-radius: 22px;
+  background: transparent;
+}
+
+:root[data-theme="dark"] .app:has(.wk-view:not(.hidden)) {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* 일정표 화면에선 아래 고정 메뉴가 숨겨지니까, 주간 모드일 땐 그 자리 여백도 뺌 */
+.page:has(.calendar-post-column:not(.hidden) .wk-view:not(.hidden)) {
+  padding-bottom: 0;
+}
+
+.wk-box-slot {
+  display: none;
+}
+
+.wk-ev.open .wk-ev-meta {
+  display: block;
+  line-height: 1.5;
 }

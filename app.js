@@ -1776,6 +1776,7 @@ function showMainView(view) {
   document.body.classList.toggle("youtube-view-open", view === "youtube");
 
   if (view === "backmenu") applyHomeMatchedHeight(backMenuView);
+  if (view === "calendar" && viewMode === "card") requestAnimationFrame(fitWeekView);
   if (view === "songbook") applyHomeMatchedHeight(songbookView);
   if (view === "cafephotos") applyHomeMatchedHeight(cafePhotosView);
   if (view === "soopchat") loadSoopChatView();
@@ -3898,55 +3899,270 @@ function renderGrid() {
   }
 }
 
+// 주간 일정: 세로 타임라인. 모바일은 일정을 누르면 그 자리에서 펼치고, PC는 오른쪽에 고른 날 상세
+const wkDetail = document.getElementById("wkDetail");
+const wideWeekQuery = window.matchMedia("(min-width: 901px)");
+let wkOpenId = null;
+let wkSelKey = null;
+
+function weekEventTime(title) {
+  const match = title.match(/^(\d{1,2})시\s*/);
+  if (!match) return ["", title];
+  const hour = Number(match[1]);
+  return [`${String(hour < 12 ? hour + 12 : hour).padStart(2, "0")}:00`, title.slice(match[0].length)];
+}
+
+function weekEventKind(ev) {
+  if (getColorInfo(ev).key === "green") return "release";
+  return getEventBadgeLabel(ev) === "휴방" ? "hiatus" : "broadcast";
+}
+
+// 공지사항(SOOP)·따카오톡(카페) 상자를 비동기로 채움
+function fillWeekNotices(container, key) {
+  // 응답 순서와 상관없이 공지사항 → 따카오톡 순서로, 뒤에 붙는 버튼보다 앞에 놓이게 자리를 먼저 잡아둠
+  const slots = [document.createElement("span"), document.createElement("span")];
+  slots.forEach((slot) => {
+    slot.className = "wk-box-slot";
+    container.appendChild(slot);
+  });
+  const addBox = (slot, label, title, content, url) => {
+    const box = document.createElement("a");
+    box.className = "wk-box";
+    box.href = url;
+    box.target = "_blank";
+    box.rel = "noopener";
+    box.addEventListener("click", (e) => e.stopPropagation());
+    const head = document.createElement("span");
+    head.className = "wk-box-head";
+    head.innerHTML = `<span>${label}</span><span>바로가기 ↗</span>`;
+    const titleEl = document.createElement("b");
+    titleEl.textContent = title;
+    box.append(head, titleEl);
+    if (content) {
+      const p = document.createElement("p");
+      p.textContent = content;
+      box.appendChild(p);
+    }
+    slot.replaceWith(box);
+  };
+  fetchSoopNoticeCached(key)
+    .then((posts) => posts && posts.length && addBox(slots[0], "공지사항", posts[0].title, posts[0].content, posts[0].url))
+    .catch(() => soopNoticeCache.delete(key));
+  fetchCafeNoticeCached(key)
+    .then((posts) => posts && posts.length && addBox(slots[1], "따카오톡", posts[0].title, "", posts[0].url))
+    .catch(() => cafeNoticeCache.delete(key));
+}
+
+function buildWeekEvent(ev, key, withMore, tag = "button") {
+  const el = document.createElement(tag);
+  if (tag === "button") el.type = "button";
+  el.style.setProperty("--c", homeDotColor(ev));
+
+  const [rawTitle, withText] = splitEventTitle(ev.title);
+  const [time, title] = weekEventTime(rawTitle);
+  const top = document.createElement("span");
+  top.className = "wk-ev-top";
+  if (time) {
+    const timeEl = document.createElement("span");
+    timeEl.className = "wk-ev-time";
+    timeEl.textContent = time;
+    top.appendChild(timeEl);
+  }
+  const titleEl = document.createElement("b");
+  titleEl.textContent = title;
+  top.appendChild(titleEl);
+
+  const meta = document.createElement("span");
+  meta.className = "wk-ev-meta";
+  const kindEl = document.createElement("span");
+  kindEl.className = "wk-ev-kind";
+  kindEl.textContent = getEventBadgeLabel(ev) || "방송";
+  meta.appendChild(kindEl);
+  if (withText) {
+    const withEl = document.createElement("span");
+    withEl.className = "wk-ev-with";
+    withEl.textContent = `· ${withText.replace(/^w\.\s*/, "")}`;
+    meta.appendChild(withEl);
+  }
+  el.append(top, meta);
+
+  if (withMore) {
+    const more = document.createElement("span");
+    more.className = "wk-more";
+    fillWeekNotices(more, key);
+    const detailBtn = document.createElement("span");
+    detailBtn.className = "wk-detail-btn";
+    detailBtn.setAttribute("role", "button");
+    detailBtn.textContent = "자세히 보기 ›";
+    detailBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openModal(key);
+    });
+    more.appendChild(detailBtn);
+    el.appendChild(more);
+  }
+  return el;
+}
+
+function renderWeekDetail(key) {
+  const events = loadEvents()[key] || [];
+  const [y, m, d] = key.split("-").map(Number);
+  wkDetail.innerHTML = "";
+
+  const kicker = document.createElement("div");
+  kicker.className = "wk-det-k";
+  kicker.textContent = key === todayKey() ? "TODAY" : "SCHEDULE";
+  const dateEl = document.createElement("div");
+  dateEl.className = "wk-det-d";
+  dateEl.textContent = `${m}월 ${d}일`;
+  const dowEl = document.createElement("em");
+  dowEl.textContent = `${WEEKDAY_LABELS[new Date(y, m - 1, d).getDay()]}요일`;
+  dateEl.appendChild(dowEl);
+  wkDetail.append(kicker, dateEl);
+
+  if (!events.length) {
+    const none = document.createElement("div");
+    none.className = "wk-det-none";
+    none.textContent = "이날은 일정이 없어요";
+    wkDetail.appendChild(none);
+  }
+  const list = document.createElement("div");
+  list.className = "wk-det-list";
+  events.forEach((ev) => {
+    const card = buildWeekEvent(ev, key, false, "div");
+    card.classList.add("wk-det-ev");
+    list.appendChild(card);
+  });
+  wkDetail.appendChild(list);
+
+  const notices = document.createElement("div");
+  notices.className = "wk-det-notices";
+  fillWeekNotices(notices, key);
+  wkDetail.appendChild(notices);
+
+  const detailBtn = document.createElement("button");
+  detailBtn.type = "button";
+  detailBtn.className = "wk-detail-btn";
+  detailBtn.textContent = "자세히 보기 ›";
+  detailBtn.addEventListener("click", () => openModal(key));
+  wkDetail.appendChild(detailBtn);
+}
+
 function renderCardView() {
   const events = loadEvents();
   const today = todayKey();
   cardList.innerHTML = "";
 
+  const weekKeys = [];
   for (let i = 0; i < 7; i++) {
-    const d = new Date(cardWeekStart);
-    d.setDate(d.getDate() + i);
-    const key = dateKey(d.getFullYear(), d.getMonth(), d.getDate());
+    const d = new Date(cardWeekStart.getFullYear(), cardWeekStart.getMonth(), cardWeekStart.getDate() + i);
+    weekKeys.push(dateKey(d.getFullYear(), d.getMonth(), d.getDate()));
+  }
+  if (!weekKeys.includes(wkSelKey)) wkSelKey = weekKeys.includes(today) ? today : weekKeys[0];
 
-    const card = document.createElement("div");
-    card.className = "day-card";
-    if (key === today) card.classList.add("today");
+  const counts = { broadcast: 0, release: 0, hiatus: 0 };
 
-    const dateBox = document.createElement("div");
-    dateBox.className = "day-card-date";
-    dateBox.innerHTML = `<div class="day-card-weekday">${WEEKDAY_LABELS[i]}</div><div class="day-card-num">${d.getDate()}</div>`;
-    card.appendChild(dateBox);
+  weekKeys.forEach((key, i) => {
+    const [y, m, d] = key.split("-").map(Number);
+    const dayEvents = events[key] || [];
+    dayEvents.forEach((ev) => counts[weekEventKind(ev)]++);
+
+    const row = document.createElement("div");
+    row.className = "wk-day";
+    if (key === today) row.classList.add("today");
+    if (key < today) row.classList.add("past");
+    if (key === wkSelKey) row.classList.add("sel");
+    row.addEventListener("click", () => {
+      if (!wideWeekQuery.matches) return;
+      wkSelKey = key;
+      renderCardView();
+    });
+
+    const dateEl = document.createElement("button");
+    dateEl.type = "button";
+    dateEl.className = "wk-date" + (i === 0 ? " sun" : i === 6 ? " sat" : "");
+    dateEl.innerHTML = `<b>${d}</b><span>${key === today ? "오늘" : WEEKDAY_LABELS[i]}</span>`;
+    dateEl.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openModal(key);
+    });
+
+    const dot = document.createElement("i");
+    dot.className = "wk-dot";
+    if (dayEvents.length) {
+      dot.classList.add("has");
+      dot.style.setProperty("--c", homeDotColor(dayEvents[0]));
+    }
 
     const body = document.createElement("div");
-    body.className = "day-card-body";
-
-    const dayEvents = events[key] || [];
+    body.className = "wk-body";
     if (!dayEvents.length) {
-      const empty = document.createElement("div");
-      empty.className = "day-card-empty";
-      empty.textContent = "오늘은 일정이 없습니다.";
-      body.appendChild(empty);
-    } else {
-      dayEvents.forEach((ev) => {
-        const evBox = document.createElement("div");
-        evBox.className = "day-card-event";
-        applyEventColor(evBox, ev);
-        fillEventContent(evBox, ev.title);
-        body.appendChild(evBox);
+      const none = document.createElement("button");
+      none.type = "button";
+      none.className = "wk-none";
+      none.textContent = "일정 없음";
+      none.addEventListener("click", (e) => {
+        if (wideWeekQuery.matches) return;
+        e.stopPropagation();
+        openModal(key);
       });
+      body.appendChild(none);
     }
-    card.appendChild(body);
+    dayEvents.forEach((ev, index) => {
+      const id = `${key}#${index}`;
+      const open = !wideWeekQuery.matches && wkOpenId === id;
+      const evEl = buildWeekEvent(ev, key, open);
+      evEl.className = "wk-ev" + (open ? " open" : "");
+      evEl.addEventListener("click", (e) => {
+        if (wideWeekQuery.matches) return;
+        e.stopPropagation();
+        wkOpenId = wkOpenId === id ? null : id;
+        renderCardView();
+      });
+      body.appendChild(evEl);
+    });
 
-    card.addEventListener("click", () => openModal(key));
-    cardList.appendChild(card);
-  }
+    row.append(dateEl, dot, body);
+    cardList.appendChild(row);
+  });
 
-  weekPrevBtn.disabled = cardWeekStart <= firstWeekOfMonth(currentMonth);
-  weekNextBtn.disabled = cardWeekStart >= lastWeekOfMonth(currentMonth);
+  cardList.classList.toggle("has-open", cardList.querySelector(".wk-ev.open") !== null);
+  renderWeekDetail(wkSelKey);
+
+  const summary = document.getElementById("wkSummary");
+  summary.innerHTML = "";
+  [
+    ["broadcast", "방송"],
+    ["release", "출시"],
+    ["hiatus", "휴방"],
+  ].forEach(([kind, label]) => {
+    const item = document.createElement("span");
+    item.className = `wk-sum-item ${kind}`;
+    item.innerHTML = `<i></i>${label} <b>${counts[kind]}</b>`;
+    summary.appendChild(item);
+  });
+
+  const [fy, fm, fd] = weekKeys[0].split("-").map(Number);
+  const [ly, lm, ld] = weekKeys[6].split("-").map(Number);
+  document.getElementById("wkRange").textContent = `${fm}.${fd} 일 – ${lm}.${ld} 토`;
+
+  weekPrevBtn.disabled = currentMonth === 0 && cardWeekStart <= firstWeekOfMonth(0);
+  weekNextBtn.disabled = currentMonth === 11 && cardWeekStart >= lastWeekOfMonth(11);
 
   const diffDays = Math.round((cardWeekStart - firstWeekOfMonth(currentMonth)) / 86400000);
   const weekNum = Math.floor(diffDays / 7) + 1;
   monthTitle.textContent = `${currentMonth + 1}월 ${weekNum}째주`;
+  document.getElementById("wkTitle").textContent = monthTitle.textContent;
+  fitWeekView();
+}
+
+// 주간 일정이 스크롤 없이 화면 높이에 딱 맞게 (줌이 걸린 부모를 고려해 실제 보이는 크기로 계산)
+function fitWeekView() {
+  if (cardView.classList.contains("hidden")) return;
+  const rect = cardView.getBoundingClientRect();
+  const scale = cardView.offsetHeight ? rect.height / cardView.offsetHeight : 1;
+  const available = window.innerHeight - rect.top - 16;
+  cardView.style.height = `${Math.max(460, available / (scale || 1))}px`;
 }
 
 function resetCardWeekToMonth() {
@@ -4365,14 +4581,48 @@ nextBtn.addEventListener("click", () => {
   }
 });
 
+// 주 이동: 달의 처음/끝을 넘어가면 옆 달로 넘어감
 weekPrevBtn.addEventListener("click", () => {
   cardWeekStart.setDate(cardWeekStart.getDate() - 7);
+  if (cardWeekStart < firstWeekOfMonth(currentMonth)) {
+    if (currentMonth === 0) {
+      cardWeekStart.setDate(cardWeekStart.getDate() + 7);
+      return;
+    }
+    currentMonth--;
+    renderGrid();
+  }
+  wkOpenId = null;
   renderCardView();
 });
 
 weekNextBtn.addEventListener("click", () => {
   cardWeekStart.setDate(cardWeekStart.getDate() + 7);
+  if (cardWeekStart > lastWeekOfMonth(currentMonth)) {
+    if (currentMonth === 11) {
+      cardWeekStart.setDate(cardWeekStart.getDate() - 7);
+      return;
+    }
+    currentMonth++;
+    renderGrid();
+  }
+  wkOpenId = null;
   renderCardView();
+});
+
+document.getElementById("wkTodayBtn").addEventListener("click", () => {
+  const today = new Date();
+  if (today.getFullYear() !== YEAR) return;
+  currentMonth = today.getMonth();
+  renderGrid();
+  resetCardWeekToMonth();
+  wkSelKey = todayKey();
+  wkOpenId = null;
+  renderCardView();
+});
+
+window.addEventListener("resize", () => {
+  if (viewMode === "card") renderCardView();
 });
 
 const viewModeWeekBtn = document.getElementById("viewModeWeekBtn");
@@ -4394,6 +4644,7 @@ function setViewMode(mode) {
 
 viewModeWeekBtn.addEventListener("click", () => setViewMode("card"));
 viewModeMonthBtn.addEventListener("click", () => setViewMode("list"));
+document.getElementById("wkMonthBtn").addEventListener("click", () => setViewMode("list"));
 
 const mobileViewQuery = window.matchMedia("(max-width: 700px)");
 
