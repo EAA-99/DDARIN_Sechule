@@ -3931,6 +3931,8 @@ function renderGrid() {
     cell.addEventListener("click", () => openModal(key));
     grid.appendChild(cell);
   }
+
+  if (!monthNewView.classList.contains("hidden")) renderMonthNew();
 }
 
 // 주간 일정: 세로 타임라인. 모바일은 일정을 누르면 그 자리에서 펼치고, PC는 오른쪽에 고른 날 상세
@@ -4674,6 +4676,7 @@ function setViewMode(mode) {
     resetCardWeekToMonth();
     renderCardView();
   }
+  syncMonthDesign();
 }
 
 viewModeWeekBtn.addEventListener("click", () => setViewMode("card"));
@@ -4768,6 +4771,318 @@ loginForm.addEventListener("submit", async (e) => {
   }
 });
 
+// 월간 새 디자인: 맨 위 토글로 기본(지금 달력) ↔ 새 디자인. 고른 걸 기억함 (처음엔 기본)
+// PC는 큰 달력 + 날짜를 누르면 왼쪽 일정 · 오른쪽 공지 창, 모바일은 작은 달력 + 주별 목록
+const CAL_DESIGN_KEY = "calendar-month-design";
+const monthNewView = document.getElementById("monthNewView");
+const calDesignToggle = document.getElementById("calDesignToggle");
+const mnMobileQuery = window.matchMedia("(max-width: 700px)");
+let calDesign = "classic";
+try {
+  if (localStorage.getItem(CAL_DESIGN_KEY) === "new") calDesign = "new";
+} catch {}
+
+const MN_KINDS = [
+  ["gray", "갠방"],
+  ["blue", "종겜"],
+  ["purple", "합방"],
+  ["yellow", "노래관련"],
+  ["green", "게임 출시"],
+  ["#cc0000", "휴방"],
+  ["#e951d0", "커머스"],
+  ["#ff6f00", "같이보기"],
+];
+const MN_ARROW = (dir) =>
+  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="${dir < 0 ? "15 18 9 12 15 6" : "9 18 15 12 9 6"}"/></svg>`;
+
+function mnEsc(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+}
+
+function mnMembers(title) {
+  const match = title.match(ATTENDEE_RE);
+  return match ? match[1].split(/[,、&]/).map((n) => n.trim()).filter(Boolean).join(", ") : "";
+}
+
+function syncMonthDesign() {
+  const isNew = calDesign === "new" && viewMode === "list";
+  document.documentElement.classList.toggle("cal-new", calDesign === "new");
+  calDesignToggle.querySelectorAll("[data-design]").forEach((b) => b.classList.toggle("on", b.dataset.design === calDesign));
+  grid.classList.toggle("hidden", viewMode === "card" || isNew);
+  monthNewView.classList.toggle("hidden", !isNew);
+  calendarHeaderEl.classList.toggle("mn-mode", isNew);
+  if (isNew) renderMonthNew();
+}
+
+calDesignToggle.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-design]");
+  if (!btn) return;
+  calDesign = btn.dataset.design;
+  try {
+    localStorage.setItem(CAL_DESIGN_KEY, calDesign);
+  } catch {}
+  syncMonthDesign();
+});
+
+function renderMonthNew() {
+  const events = loadEvents();
+  const today = todayKey();
+  const firstDay = new Date(YEAR, currentMonth, 1).getDay();
+  const daysInMonth = new Date(YEAR, currentMonth + 1, 0).getDate();
+  const mobile = mnMobileQuery.matches;
+  const dow = WEEKDAY_LABELS.map((l, i) => `<span class="${i === 0 ? "sun" : i === 6 ? "sat" : ""}">${l}</span>`).join("");
+
+  let body = "";
+  if (!mobile) {
+    let cells = "";
+    for (let i = 0; i < firstDay; i++) cells += '<div class="mn-cell out"></div>';
+    for (let day = 1; day <= daysInMonth; day++) {
+      const key = dateKey(YEAR, currentMonth, day);
+      const wd = (firstDay + day - 1) % 7;
+      const dayEvents = events[key] || [];
+      const chips = dayEvents
+        .map((ev) => {
+          const [title] = splitEventTitle(ev.title);
+          return `<div class="mn-ev" style="--c:${homeDotColor(ev)}"><b>${mnEsc(title)}${mnMembers(ev.title) ? ' <i class="mn-mem">👥</i>' : ""}</b></div>`;
+        })
+        .join("");
+      cells +=
+        `<div class="mn-cell${wd === 0 ? " sun" : wd === 6 ? " sat" : ""}${key === today ? " today" : ""}" data-key="${key}">` +
+        `<div class="mn-n"><span>${day}</span>${key === today ? "<em>오늘</em>" : ""}</div>` +
+        (chips ? `<div class="mn-evs">${chips}</div>` : "") +
+        "</div>";
+    }
+    body = `<div class="mn-cal"><div class="mn-dow">${dow}</div><div class="mn-grid">${cells}</div></div>`;
+  } else {
+    // 작은 달력: 일정 있는 날엔 색 점, 이번 주는 연보라
+    const thisWeek = getWeekStart(new Date()).getTime();
+    let mini = "";
+    for (let i = 0; i < firstDay; i++) mini += "<span></span>";
+    for (let day = 1; day <= daysInMonth; day++) {
+      const key = dateKey(YEAR, currentMonth, day);
+      const wd = (firstDay + day - 1) % 7;
+      const dayEvents = events[key] || [];
+      const inWeek = getWeekStart(new Date(YEAR, currentMonth, day)).getTime() === thisWeek;
+      mini +=
+        `<button type="button" class="mn-mini-day${wd === 0 ? " sun" : wd === 6 ? " sat" : ""}${inWeek ? " week" : ""}${key === today ? " today" : ""}" data-key="${key}">` +
+        `<b>${day}</b><i${dayEvents.length ? ` style="--c:${homeDotColor(dayEvents[0])}"` : ' class="none"'}></i></button>`;
+    }
+    // 주별 목록 (일정 없는 날은 빠짐)
+    const weeks = [];
+    for (let day = 1; day <= daysInMonth; day++) {
+      const wd = (firstDay + day - 1) % 7;
+      if (day === 1 || wd === 0) weeks.push({ from: day, to: day, days: [] });
+      const week = weeks[weeks.length - 1];
+      week.to = day;
+      const key = dateKey(YEAR, currentMonth, day);
+      if ((events[key] || []).length) week.days.push({ key, day, wd });
+    }
+    const m = currentMonth + 1;
+    const list = weeks
+      .filter((w) => w.days.length)
+      .map((w) => {
+        const isThisWeek = getWeekStart(new Date(YEAR, currentMonth, w.from)).getTime() === thisWeek;
+        const rows = w.days
+          .map(({ key, day, wd }) => {
+            const evs = events[key]
+              .map((ev) => {
+                const [title] = splitEventTitle(ev.title);
+                const label = getEventBadgeLabel(ev);
+                const members = mnMembers(ev.title);
+                return (
+                  `<div class="mn-li-ev" style="--c:${homeDotColor(ev)}"><b>${mnEsc(title)}</b>` +
+                  `<small>${label ? `<span>${label}</span>` : ""}${members ? `${label ? " · " : ""}👥 ${mnEsc(members)}` : ""}</small></div>`
+                );
+              })
+              .join("");
+            return (
+              `<button type="button" class="mn-li${key === today ? " today" : ""}" data-key="${key}">` +
+              `<span class="mn-li-date${wd === 0 ? " sun" : wd === 6 ? " sat" : ""}"><b>${day}</b><small>${key === today ? "오늘" : WEEKDAY_LABELS[wd]}</small></span>` +
+              `<span class="mn-li-evs">${evs}</span></button>`
+            );
+          })
+          .join("");
+        return (
+          `<div class="mn-week"><div class="mn-week-h"><b>${weeks.indexOf(w) + 1}주차</b><span>${m}.${w.from} – ${m}.${w.to}</span>${isThisWeek ? "<em>이번 주</em>" : ""}</div>${rows}</div>`
+        );
+      })
+      .join("");
+    body =
+      `<div class="mn-mini"><div class="mn-dow">${dow}</div><div class="mn-mini-grid">${mini}</div></div>` +
+      `<div class="mn-list">${list || '<p class="mn-empty">이번 달은 일정이 없어요</p>'}</div>`;
+  }
+
+  monthNewView.innerHTML =
+    '<div class="mn-hd"><div class="mn-hd-top"><small>DDARIN · MONTHLY</small>' +
+    '<div class="mn-seg"><button type="button" data-mn="week">주간</button><button type="button" class="on">월간</button></div></div>' +
+    `<div class="mn-nav"><div><b>${currentMonth + 1}월</b><span>${YEAR}</span></div>` +
+    `<div class="mn-arrows"><button type="button" data-mn="prev" aria-label="이전 달"${currentMonth === 0 ? " disabled" : ""}>${MN_ARROW(-1)}</button>` +
+    `<button type="button" data-mn="next" aria-label="다음 달"${currentMonth === 11 ? " disabled" : ""}>${MN_ARROW(1)}</button></div></div></div>` +
+    body;
+}
+
+monthNewView.addEventListener("click", (e) => {
+  const action = e.target.closest("[data-mn]");
+  if (action) {
+    if (action.dataset.mn === "week") setViewMode("card");
+    else if (action.dataset.mn === "prev") prevBtn.click();
+    else if (action.dataset.mn === "next") nextBtn.click();
+    return;
+  }
+  const day = e.target.closest("[data-key]");
+  if (day) openMonthPopup(day.dataset.key);
+});
+
+mnMobileQuery.addEventListener("change", () => {
+  if (!monthNewView.classList.contains("hidden")) renderMonthNew();
+});
+
+// 날짜 창: 왼쪽 일정(+관리·일정 추가), 오른쪽 공지사항·따카오톡. 크기는 날짜와 상관없이 같음
+const mnPop = document.createElement("div");
+mnPop.className = "mn-pop-bg hidden";
+document.body.appendChild(mnPop);
+let mnPopKey = null;
+
+function mnPopHead(key, label) {
+  const [y, m, d] = key.split("-").map(Number);
+  const wd = WEEKDAY_LABELS[new Date(y, m - 1, d).getDay()];
+  return (
+    `<div class="mn-pop-head"><small>DDARIN · ${label}</small><div class="mn-pop-d">${m}월 ${d}일<em>${wd}요일${key === todayKey() ? " · 오늘" : ""}</em></div>` +
+    '<button type="button" class="mn-pop-x" data-mnp="close" aria-label="닫기">✕</button></div>'
+  );
+}
+
+function openMonthPopup(key) {
+  mnPopKey = key;
+  const dayEvents = loadEvents()[key] || [];
+  const evHtml = dayEvents.length
+    ? dayEvents
+        .map((ev) => {
+          const [rawTitle] = splitEventTitle(ev.title);
+          const [time, title] = weekEventTime(rawTitle);
+          const label = getEventBadgeLabel(ev);
+          const members = mnMembers(ev.title);
+          return (
+            `<div class="mn-pev" style="--c:${homeDotColor(ev)}"><div class="mn-pev-top">` +
+            (time ? `<span class="mn-pev-time">${time}</span>` : "") +
+            `<b>${mnEsc(title)}</b>${label ? `<span class="mn-pev-kind">${label}</span>` : ""}</div>` +
+            (members ? `<div class="mn-pev-mem"><i>👥</i><span>${mnEsc(members)}</span></div>` : "") +
+            "</div>"
+          );
+        })
+        .join("")
+    : '<div class="mn-none">이날은 일정이 없어요</div>';
+  const actions = isReadOnly
+    ? ""
+    : '<div class="mn-pop-actions"><button type="button" data-mnp="manage">관리</button><button type="button" class="main" data-mnp="add">+ 일정 추가</button></div>';
+  mnPop.innerHTML =
+    '<div class="mn-pop">' +
+    mnPopHead(key, "SCHEDULE") +
+    '<div class="mn-pop-body"><div class="mn-col mn-col-ev"><div class="mn-col-h">일정</div>' + evHtml + actions + "</div>" +
+    '<div class="mn-col mn-col-nt"><div class="mn-col-h">공지</div><div class="mn-none mn-loading">불러오는 중...</div></div></div></div>';
+  mnPop.classList.remove("hidden");
+
+  const notes = mnPop.querySelector(".mn-col-nt");
+  const boxes = [null, null];
+  let pending = 2;
+  const done = () => {
+    if (--pending || mnPopKey !== key || !notes.isConnected) return;
+    notes.querySelector(".mn-loading").remove();
+    const found = boxes.filter(Boolean);
+    if (found.length) notes.append(...found);
+    else notes.insertAdjacentHTML("beforeend", '<div class="mn-none">이날은 공지가 없어요</div>');
+  };
+  const makeBox = (label, post, withContent) => {
+    const box = document.createElement("a");
+    box.className = "mn-box";
+    box.href = post.url;
+    box.target = "_blank";
+    box.rel = "noopener";
+    box.innerHTML = `<span class="mn-box-head"><span>${label}</span><span>바로가기 ↗</span></span><b>${mnEsc(post.title)}</b>`;
+    if (withContent && post.content) {
+      const p = document.createElement("p");
+      p.textContent = post.content;
+      box.appendChild(p);
+    }
+    return box;
+  };
+  fetchSoopNoticeCached(key)
+    .then((posts) => {
+      if (posts && posts.length) boxes[0] = makeBox("공지사항", posts[0], true);
+    })
+    .catch(() => soopNoticeCache.delete(key))
+    .finally(done);
+  fetchCafeNoticeCached(key)
+    .then((posts) => {
+      if (posts && posts.length) boxes[1] = makeBox("따카오톡", posts[0], false);
+    })
+    .catch(() => cafeNoticeCache.delete(key))
+    .finally(done);
+}
+
+function openMonthAddForm(key) {
+  mnPop.innerHTML =
+    '<div class="mn-pop">' +
+    mnPopHead(key, "일정 추가") +
+    '<form class="mn-pop-body mn-form" autocomplete="off">' +
+    '<label class="mn-field"><span>일정 제목</span><input name="title" placeholder="예: 9시 메이플 보스 데이" required></label>' +
+    '<div class="mn-field"><span>유형</span><div class="mn-kinds">' +
+    MN_KINDS.map(
+      ([value, label], i) =>
+        `<button type="button" class="${i === 0 ? "on" : ""}" data-kind="${value}" style="--c:${homeDotColor(value.startsWith("#") ? { title: "", sheetColor: value } : { title: "", color: value })}">${label}</button>`
+    ).join("") +
+    "</div></div>" +
+    '<label class="mn-field"><span>참여 멤버</span><div class="mn-with"><i>👤</i><input name="attendees" placeholder="쉼표로 구분"></div></label>' +
+    '<div class="mn-pop-actions"><button type="button" data-mnp="back">취소</button><button type="submit" class="main">추가</button></div>' +
+    "</form></div>";
+  mnPop.querySelector("input[name=title]").focus();
+}
+
+function closeMonthPopup() {
+  mnPop.classList.add("hidden");
+  mnPop.innerHTML = "";
+  mnPopKey = null;
+}
+
+mnPop.addEventListener("click", (e) => {
+  const kind = e.target.closest("[data-kind]");
+  if (kind) {
+    kind.parentElement.querySelectorAll("[data-kind]").forEach((b) => b.classList.toggle("on", b === kind));
+    return;
+  }
+  const action = e.target.closest("[data-mnp]");
+  if (e.target === mnPop || (action && action.dataset.mnp === "close")) closeMonthPopup();
+  else if (!action) return;
+  else if (action.dataset.mnp === "manage") {
+    const key = mnPopKey;
+    closeMonthPopup();
+    openModal(key);
+    modalDate.click();
+  } else if (action.dataset.mnp === "add") openMonthAddForm(mnPopKey);
+  else if (action.dataset.mnp === "back") openMonthPopup(mnPopKey);
+});
+
+mnPop.addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (isReadOnly || !mnPopKey) return;
+  const form = e.target;
+  const baseTitle = form.elements.namedItem("title").value.trim();
+  if (!baseTitle) return;
+  const attendees = form.elements.namedItem("attendees").value.trim();
+  const title = attendees ? `${baseTitle} w.${attendees}` : baseTitle;
+  const kind = form.querySelector("[data-kind].on").dataset.kind;
+  const events = loadEvents();
+  if (!events[mnPopKey]) events[mnPopKey] = [];
+  events[mnPopKey].push(kind.startsWith("#") ? { title, sheetColor: kind } : { title, color: kind });
+  saveEvents(events);
+  refreshCurrentView();
+  openMonthPopup(mnPopKey);
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !mnPop.classList.contains("hidden")) closeMonthPopup();
+});
+
 async function init() {
   const today = new Date();
   if (today.getFullYear() === YEAR) currentMonth = today.getMonth();
@@ -4775,6 +5090,7 @@ async function init() {
   updateLockUi();
   renderGrid();
   applyDefaultMobileViewMode();
+  syncMonthDesign();
 
   await initEvents();
   refreshCurrentView();

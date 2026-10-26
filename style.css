@@ -6731,3 +6731,934 @@ body.youtube-view-open {
   display: block;
   line-height: 1.5;
 }
+
+/* 월간 디자인 토글 (아이콘만, 선택된 쪽으로 보라 원이 미끄러짐) */
+.cal-design-toggle {
+  position: relative;
+  display: flex;
+  gap: 2px;
+  margin-right: 12px;
+  padding: 3px;
+  border-radius: 999px;
+  background: #f1eff9;
+  box-shadow: inset 0 0 0 1px rgba(106, 82, 230, 0.1);
+  flex-shrink: 0;
+}
+
+.cal-design-toggle::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(150deg, #8a6cf0, #5b4fd0);
+  box-shadow: 0 2px 6px rgba(91, 79, 208, 0.4);
+  transition: transform 0.22s cubic-bezier(0.3, 0.7, 0.3, 1);
+}
+
+:root.cal-new .cal-design-toggle::before {
+  transform: translateX(28px);
+}
+
+.cal-design-toggle button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: rgba(30, 25, 70, 0.38);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.cal-design-toggle button:hover {
+  color: #6a52e6;
+}
+
+.cal-design-toggle button.on {
+  color: #fff;
+}
+
+.cal-design-toggle svg {
+  width: 14px;
+  height: 14px;
+}
+
+:root[data-theme="dark"] .cal-design-toggle {
+  background: #211e40;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+:root[data-theme="dark"] .cal-design-toggle button {
+  color: rgba(236, 235, 245, 0.45);
+}
+
+:root[data-theme="dark"] .cal-design-toggle button.on {
+  color: #fff;
+}
+
+/* 새 디자인 월간: 큰 달력 (주간 일정과 같은 판) */
+.calendar-header.mn-mode {
+  display: none;
+}
+
+.app:has(.mn-view:not(.hidden)) {
+  padding: 0;
+  border: 3px solid rgba(30, 25, 70, 0.08);
+  border-radius: 22px;
+  background: transparent;
+}
+
+:root[data-theme="dark"] .app:has(.mn-view:not(.hidden)) {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.mn-view {
+  --mn-bg: #f6f5fb;
+  --mn-card: #fff;
+  --mn-text: #1d1b33;
+  --mn-muted: rgba(30, 25, 70, 0.5);
+  --mn-line: rgba(30, 25, 70, 0.08);
+  --mn-accent: #6a52e6;
+  --mn-soft: #efeafe;
+  --mn-shadow: 0 1px 4px rgba(30, 25, 70, 0.07);
+  border-radius: 20px;
+  background: var(--mn-bg);
+  color: var(--mn-text);
+  text-align: left;
+}
+
+:root[data-theme="dark"] .mn-view {
+  --mn-bg: #15132b;
+  --mn-card: #211e40;
+  --mn-text: #ecebf5;
+  --mn-muted: rgba(236, 235, 245, 0.55);
+  --mn-line: rgba(255, 255, 255, 0.1);
+  --mn-accent: #9d86ff;
+  --mn-soft: rgba(157, 134, 255, 0.14);
+  --mn-shadow: none;
+}
+
+.mn-view button {
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mn-hd {
+  padding: 22px 26px 10px;
+}
+
+.mn-hd-top,
+.mn-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mn-hd-top small {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  color: var(--mn-muted);
+}
+
+.mn-seg {
+  display: flex;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--mn-card);
+  box-shadow: var(--mn-shadow);
+}
+
+.mn-view .mn-seg button {
+  height: 30px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--mn-muted);
+}
+
+.mn-view .mn-seg button.on {
+  background: var(--mn-accent);
+  color: #fff;
+}
+
+.mn-nav {
+  margin-top: 6px;
+}
+
+.mn-nav b {
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.mn-nav span {
+  margin-left: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--mn-muted);
+}
+
+.mn-arrows {
+  display: flex;
+  gap: 8px;
+}
+
+.mn-view .mn-arrows button {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--mn-card);
+  box-shadow: var(--mn-shadow);
+  color: var(--mn-muted);
+}
+
+.mn-view .mn-arrows button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.mn-arrows svg {
+  width: 18px;
+  height: 18px;
+}
+
+.mn-cal {
+  padding: 0 26px 26px;
+}
+
+.mn-dow {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  padding-bottom: 8px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--mn-muted);
+  text-align: center;
+}
+
+.mn-dow .sun {
+  color: #e0577a;
+}
+
+.mn-dow .sat {
+  color: #4a7fd6;
+}
+
+.mn-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.mn-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  min-height: 132px;
+  padding: 10px 10px 12px;
+  border-radius: 14px;
+  background: var(--mn-card);
+  box-shadow: var(--mn-shadow);
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+
+.mn-cell:hover {
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--mn-accent) 45%, transparent), var(--mn-shadow);
+}
+
+.mn-cell.out {
+  visibility: hidden;
+}
+
+.mn-n {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+.mn-cell.sun .mn-n {
+  color: #e0577a;
+}
+
+.mn-cell.sat .mn-n {
+  color: #4a7fd6;
+}
+
+.mn-cell.today {
+  box-shadow: 0 0 0 2px var(--mn-accent), var(--mn-shadow);
+}
+
+.mn-cell.today .mn-n span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin: -3px 0 -3px -3px;
+  border-radius: 50%;
+  background: var(--mn-accent);
+  color: #fff;
+}
+
+.mn-cell.today .mn-n em {
+  font-style: normal;
+  font-size: 0.66rem;
+  font-weight: 800;
+  color: var(--mn-accent);
+}
+
+/* 같은 날 일정은 가장 긴 일정에 맞춰 같은 높이 */
+.mn-evs {
+  display: grid;
+  grid-auto-rows: 1fr;
+  gap: 6px;
+}
+
+.mn-ev {
+  display: flex;
+  align-items: center;
+  padding: 6px 9px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--c) 26%, var(--mn-card));
+}
+
+.mn-ev b {
+  display: block;
+  min-width: 0;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.35;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.mn-mem {
+  font-style: normal;
+  font-size: 0.82em;
+  margin-left: 2px;
+}
+
+/* 모바일: 작은 달력 + 주별 목록 */
+.mn-mini {
+  margin: 0 16px;
+  padding: 12px 10px 8px;
+  border-radius: 18px;
+  background: var(--mn-card);
+  box-shadow: var(--mn-shadow);
+}
+
+.mn-mini .mn-dow {
+  gap: 0;
+  padding-bottom: 4px;
+  font-size: 0.72rem;
+}
+
+.mn-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  row-gap: 2px;
+}
+
+.mn-view .mn-mini-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 5px 0 4px;
+}
+
+.mn-mini-day b {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.mn-mini-day.sun b {
+  color: #e0577a;
+}
+
+.mn-mini-day.sat b {
+  color: #4a7fd6;
+}
+
+.mn-mini-day.week b {
+  background: var(--mn-soft);
+}
+
+.mn-mini-day.today b {
+  background: var(--mn-accent);
+  color: #fff;
+}
+
+.mn-mini-day i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--c);
+}
+
+.mn-mini-day i.none {
+  background: transparent;
+}
+
+.mn-list {
+  padding: 6px 16px 20px;
+}
+
+.mn-week-h {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 16px 2px 8px;
+}
+
+.mn-week-h b {
+  font-size: 0.95rem;
+  font-weight: 900;
+}
+
+.mn-week-h span {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--mn-muted);
+}
+
+.mn-week-h em {
+  margin-left: auto;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--mn-soft);
+  color: var(--mn-accent);
+  font-style: normal;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.mn-view .mn-li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--mn-card);
+  box-shadow: var(--mn-shadow);
+}
+
+.mn-view .mn-li.today {
+  box-shadow: 0 0 0 2px var(--mn-accent), var(--mn-shadow);
+}
+
+.mn-li-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 28px;
+  flex-shrink: 0;
+}
+
+.mn-li-date b {
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.mn-li-date small {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--mn-muted);
+}
+
+.mn-li-date.sun b {
+  color: #e0577a;
+}
+
+.mn-li-date.sat b {
+  color: #4a7fd6;
+}
+
+.mn-li-evs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.mn-li-ev b {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 800;
+  line-height: 1.35;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.mn-li-ev small {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--mn-muted);
+}
+
+.mn-li-ev small span {
+  color: var(--c);
+}
+
+.mn-empty {
+  padding: 24px 0;
+  text-align: center;
+  font-size: 0.86rem;
+  color: var(--mn-muted);
+}
+
+/* 날짜 창 */
+.mn-pop-bg {
+  --mn-card: #fff;
+  --mn-text: #1d1b33;
+  --mn-muted: rgba(30, 25, 70, 0.5);
+  --mn-line: rgba(30, 25, 70, 0.08);
+  --mn-accent: #6a52e6;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(30, 25, 60, 0.18);
+  color: var(--mn-text);
+  text-align: left;
+}
+
+:root[data-theme="dark"] .mn-pop-bg {
+  --mn-card: #211e40;
+  --mn-text: #ecebf5;
+  --mn-muted: rgba(236, 235, 245, 0.55);
+  --mn-line: rgba(255, 255, 255, 0.1);
+  --mn-accent: #9d86ff;
+  background: rgba(8, 6, 20, 0.45);
+}
+
+.mn-pop-bg button {
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.mn-pop {
+  display: flex;
+  flex-direction: column;
+  width: 760px;
+  max-width: 100%;
+  height: min(560px, 100%);
+  overflow: hidden;
+  border-radius: 22px;
+  background: var(--mn-card);
+  box-shadow: 0 20px 50px rgba(20, 15, 50, 0.28);
+}
+
+.mn-pop-head {
+  position: relative;
+  flex: none;
+  padding: 20px 22px 18px;
+  color: #fff;
+  background: linear-gradient(160deg, #8a6cf0, #5b4fd0);
+}
+
+.mn-pop-head small {
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  opacity: 0.85;
+}
+
+.mn-pop-d {
+  margin-top: 2px;
+  font-size: 1.6rem;
+  font-weight: 900;
+}
+
+.mn-pop-d em {
+  margin-left: 6px;
+  font-style: normal;
+  font-size: 0.9rem;
+  font-weight: 700;
+  opacity: 0.8;
+}
+
+.mn-pop-x {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.mn-pop-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  flex: 1;
+  min-height: 0;
+}
+
+.mn-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  min-height: 0;
+  padding: 16px 22px 20px;
+  overflow-y: auto;
+}
+
+.mn-col-nt {
+  background: color-mix(in srgb, var(--mn-accent) 6%, var(--mn-card));
+  border-left: 1px solid var(--mn-line);
+}
+
+.mn-col-h {
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  color: var(--mn-muted);
+}
+
+.mn-none {
+  padding: 14px 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--mn-muted);
+}
+
+.mn-pev {
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--c) 18%, var(--mn-card));
+}
+
+.mn-pev-top {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.mn-pev-time {
+  font-size: 0.76rem;
+  font-weight: 900;
+  color: var(--c);
+}
+
+.mn-pev-top b {
+  min-width: 0;
+  font-size: 1rem;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.mn-pev-kind {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--c);
+  color: #fff;
+  font-size: 0.64rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.mn-pev-mem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.mn-pev-mem i {
+  font-style: normal;
+  font-size: 0.85rem;
+}
+
+.mn-pev-mem span {
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.mn-box {
+  display: block;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--mn-card);
+  box-shadow: 0 2px 8px rgba(40, 30, 90, 0.06);
+  color: inherit;
+  text-decoration: none;
+}
+
+.mn-box-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--mn-accent);
+}
+
+.mn-box b {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 0.86rem;
+  overflow-wrap: anywhere;
+}
+
+.mn-box p {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.55;
+  opacity: 0.85;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.mn-pop-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+.mn-pop-actions button {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  background: color-mix(in srgb, var(--mn-accent) 12%, var(--mn-card));
+  color: var(--mn-accent);
+}
+
+.mn-pop-actions button.main {
+  background: var(--mn-accent);
+  color: #fff;
+}
+
+/* 일정 추가 */
+.mn-pop-body.mn-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 22px 20px;
+  overflow-y: auto;
+}
+
+.mn-field {
+  display: block;
+}
+
+.mn-field > span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--mn-muted);
+}
+
+.mn-field input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  border: 1.5px solid var(--mn-line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--mn-accent) 4%, var(--mn-card));
+  color: var(--mn-text);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  outline: none;
+}
+
+.mn-field input:focus {
+  border-color: var(--mn-accent);
+}
+
+.mn-kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mn-kinds button {
+  height: 32px;
+  padding: 0 12px;
+  border: 1.5px solid transparent;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--c) 24%, var(--mn-card));
+  color: var(--mn-text);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.mn-kinds button.on {
+  border-color: var(--c);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--c) 30%, transparent);
+}
+
+.mn-kinds button.on::before {
+  content: "✓ ";
+}
+
+.mn-with {
+  position: relative;
+}
+
+.mn-with i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-style: normal;
+  font-size: 0.85rem;
+}
+
+.mn-with input {
+  padding-left: 36px;
+}
+
+@media (max-width: 700px) {
+  .mn-hd {
+    padding: 18px 18px 10px;
+  }
+
+  .mn-nav b {
+    font-size: 1.6rem;
+  }
+
+  .mn-pop-bg {
+    padding: 16px;
+  }
+
+  .mn-pop {
+    height: min(620px, 100%);
+  }
+
+  .mn-pop-body {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .mn-col {
+    overflow: visible;
+  }
+
+  .mn-col-nt {
+    flex: 1 0 auto;
+    border-left: none;
+    border-top: 1px solid var(--mn-line);
+  }
+}
+
+/* 새 디자인 사이드바 (PC): 연보라 둥근 판, 홈은 보라 */
+@media (min-width: 701px) {
+  :root.cal-new .side-nav-items {
+    gap: 6px;
+    padding: 10px 8px;
+    border: 3px solid rgba(30, 25, 70, 0.06);
+    border-radius: 24px;
+    background: #f6f5fb;
+  }
+
+  :root.cal-new .side-nav-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 15px;
+    color: rgba(30, 25, 70, 0.5);
+    transition: background 0.15s, color 0.15s;
+  }
+
+  :root.cal-new .side-nav-btn:hover {
+    background: #ebe6fd;
+    color: #6a52e6;
+  }
+
+  :root.cal-new #calendarBtn {
+    background: linear-gradient(150deg, #8a6cf0, #5b4fd0);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(91, 79, 208, 0.35);
+  }
+
+  :root.cal-new .side-nav-icon {
+    width: 23px;
+    height: 23px;
+  }
+
+  :root.cal-new .side-nav-btn.unlocked {
+    color: #6a52e6;
+  }
+
+  :root.cal-new .side-nav-btn .soop-chat-icon-badge {
+    top: 9px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    border-color: #f6f5fb;
+  }
+
+  :root.cal-new[data-theme="dark"] .side-nav-btn .soop-chat-icon-badge {
+    border-color: #15132b;
+  }
+
+  :root.cal-new[data-theme="dark"] .side-nav {
+    background: transparent;
+  }
+
+  :root.cal-new[data-theme="dark"] .side-nav-items {
+    border-color: rgba(255, 255, 255, 0.06);
+    background: #15132b;
+  }
+
+  :root.cal-new[data-theme="dark"] .side-nav-btn {
+    color: rgba(236, 235, 245, 0.55);
+  }
+
+  :root.cal-new[data-theme="dark"] .side-nav-btn:hover {
+    background: rgba(157, 134, 255, 0.14);
+    color: #9d86ff;
+  }
+
+  :root.cal-new[data-theme="dark"] #calendarBtn {
+    color: #fff;
+  }
+}
