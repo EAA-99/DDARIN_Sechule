@@ -6348,7 +6348,7 @@ body.youtube-view-open {
 
 /* 타임라인: 일곱 날이 남은 높이를 똑같이 나눠 가짐, 펼친 날만 늘어남 */
 .wk-tl {
-  flex: 1;
+  flex: 1 0 auto;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -6357,7 +6357,8 @@ body.youtube-view-open {
 
 .wk-day {
   position: relative;
-  flex: 1 1 0;
+  /* 일정이 여러 개인 날은 내용만큼 늘어나고, 남는 공간은 고르게 나눔 (겹침 방지) */
+  flex: 1 0 auto;
   min-height: 52px;
   display: grid;
   grid-template-columns: 40px 14px minmax(0, 1fr);
@@ -6366,7 +6367,8 @@ body.youtube-view-open {
 }
 
 .wk-tl.has-open .wk-day {
-  flex: 0 0 64px;
+  flex: 0 0 auto;
+  min-height: 64px;
 }
 
 .wk-tl.has-open .wk-day:has(.wk-ev.open) {
