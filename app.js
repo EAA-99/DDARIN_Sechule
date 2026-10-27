@@ -2134,7 +2134,7 @@ function openCalendarAnnounce() {
 
 function closeCalendarAnnounce() {
   const popup = calendarAnnounceBackdrop.querySelector(".cafe-photo-post");
-  const icon = document.getElementById("sideNavYoutubeBtn");
+  const icon = document.getElementById("homeYoutubeBtn");
 
   if (!popup || !icon) {
     calendarAnnounceBackdrop.classList.add("hidden");
@@ -2518,15 +2518,15 @@ async function loadYoutubeRecentVideos() {
   return youtubeRecentVideos;
 }
 
-// ===== 일정표 좌측 유튜브 아이콘 새 영상 알림 점 =====
+// ===== 홈 메뉴 유튜브 아이콘 새 영상 알림 점 =====
 const YOUTUBE_SIDEBAR_SEEN_KEY = "sidebar-youtube-seen-until";
-const sideNavYoutubeBadge = document.getElementById("sideNavYoutubeBadge");
+const youtubeNewBadge = document.getElementById("youtubeNewBadge");
 
 async function refreshYoutubeSidebarBadge() {
   const videos = await loadYoutubeRecentVideos();
   const latest = (videos || [])[0];
   const seenUntil = localStorage.getItem(YOUTUBE_SIDEBAR_SEEN_KEY) || "";
-  sideNavYoutubeBadge.classList.toggle("hidden", !latest || latest.published <= seenUntil);
+  youtubeNewBadge.classList.toggle("hidden", !latest || latest.published <= seenUntil);
 }
 
 refreshYoutubeSidebarBadge();
@@ -2680,7 +2680,7 @@ let youtubeReturnView = "calendar";
 async function openYoutubeView(returnView = "calendar") {
   youtubeReturnView = returnView;
   localStorage.setItem(YOUTUBE_SIDEBAR_SEEN_KEY, new Date().toISOString());
-  sideNavYoutubeBadge.classList.add("hidden");
+  youtubeNewBadge.classList.add("hidden");
 
   showMainView("youtube");
   await loadYoutubeRecentVideos();
@@ -2688,7 +2688,6 @@ async function openYoutubeView(returnView = "calendar") {
   renderYoutubeCards();
 }
 
-document.getElementById("sideNavYoutubeBtn").addEventListener("click", () => openYoutubeView("calendar"));
 youtubeBackBtn.addEventListener("click", () => showMainView(youtubeReturnView));
 
 youtubeChannelToggle.addEventListener("click", (e) => {

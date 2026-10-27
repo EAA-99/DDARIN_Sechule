@@ -5761,6 +5761,7 @@ body.youtube-view-open {
 }
 
 .home-menu-icon {
+  position: relative;
   flex: none;
   display: grid;
   place-items: center;
@@ -7690,84 +7691,88 @@ body.youtube-view-open {
 
 /* 주간 일정 글씨 크게 */
 .wk-hd-top small {
-  font-size: 0.74rem;
+  font-size: 0.8rem;
 }
 
 .wk-view .wk-seg button {
-  font-size: 0.86rem;
+  font-size: 0.95rem;
 }
 
 .wk-nav b {
-  font-size: 1.8rem;
+  font-size: 2.1rem;
 }
 
 .wk-range,
 .wk-sum {
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .wk-date b {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
 }
 
 .wk-date span {
-  font-size: 0.8rem;
-}
-
-.wk-day.today .wk-date span {
-  font-size: 0.72rem;
-}
-
-.wk-view .wk-none {
-  font-size: 0.92rem;
-}
-
-.wk-ev-time {
-  font-size: 0.86rem;
-}
-
-.wk-ev-top b {
-  font-size: 1.12rem;
-}
-
-.wk-ev-meta {
-  font-size: 0.86rem;
-}
-
-.wk-box-head {
-  font-size: 0.8rem;
-}
-
-.wk-box b {
-  font-size: 0.95rem;
-}
-
-.wk-box p {
   font-size: 0.9rem;
 }
 
-.wk-view .wk-detail-btn {
+.wk-day.today .wk-date span {
+  font-size: 0.8rem;
+}
+
+.wk-view .wk-none {
+  font-size: 1.05rem;
+}
+
+.wk-ev-time {
+  font-size: 0.98rem;
+}
+
+.wk-ev-top b {
+  font-size: 1.32rem;
+}
+
+.wk-ev-meta {
+  font-size: 1rem;
+}
+
+.wk-box-head {
   font-size: 0.88rem;
+}
+
+.wk-box b {
+  font-size: 1.08rem;
+}
+
+.wk-box p {
+  font-size: 1rem;
+}
+
+.wk-view .wk-detail-btn {
+  font-size: 1rem;
 }
 
 @media (min-width: 901px) {
   .wk-det-k {
-    font-size: 0.76rem;
+    font-size: 0.84rem;
   }
 
   .wk-det-d {
-    font-size: 2.3rem;
+    font-size: 2.7rem;
   }
 
   .wk-det-d em {
+    font-size: 1.3rem;
+  }
+
+  .wk-det-none {
     font-size: 1.15rem;
   }
 
   .wk-det-ev .wk-ev-top b {
-    font-size: 1.3rem;
+    font-size: 1.55rem;
   }
 
   .wk-det-ev .wk-ev-meta {
-    font-size: 0.95rem;
+    font-size: 1.08rem;
   }
 }
