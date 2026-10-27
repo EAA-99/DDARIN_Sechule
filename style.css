@@ -7051,6 +7051,10 @@ body.youtube-view-open {
   padding: 8px 10px;
   border-radius: 10px;
   text-align: center;
+  background: color-mix(in srgb, var(--c) 15%, var(--mn-card));
+}
+
+:root[data-theme="dark"] .mn-ev {
   background: color-mix(in srgb, var(--c) 26%, var(--mn-card));
 }
 
@@ -7058,7 +7062,7 @@ body.youtube-view-open {
   display: block;
   min-width: 0;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 700;
   line-height: 1.4;
   word-break: keep-all;
   overflow-wrap: anywhere;
