@@ -5062,23 +5062,142 @@ function openMonthPopup(key) {
     .finally(done);
 }
 
+// 일정 제목 · 유형 · 참여 멤버 입력칸 (ev가 있으면 그 값으로 채움)
+function mnFormFields(ev) {
+  const match = ev ? ev.title.match(ATTENDEE_RE) : null;
+  const baseTitle = ev ? (match ? ev.title.slice(0, match.index).trim() : ev.title) : "";
+  const info = ev ? getColorInfo(ev) : null;
+  const current = !info ? "gray" : info.hex ? info.hex.toLowerCase() : { collab: "purple", hiatus: "#cc0000" }[info.key] || info.key;
+  const selected = MN_KINDS.some(([value]) => value === current) ? current : "gray";
+  return (
+    `<label class="mn-field"><span>일정 제목</span><input name="title" value="${mnEsc(baseTitle)}" placeholder="예: 9시 메이플 보스 데이" required></label>` +
+    '<div class="mn-field"><span>유형</span><div class="mn-kinds">' +
+    MN_KINDS.map(
+      ([value, label]) =>
+        `<button type="button" class="${value === selected ? "on" : ""}" data-kind="${value}" style="--c:${homeDotColor(value.startsWith("#") ? { title: "", sheetColor: value } : { title: "", color: value })}">${label}</button>`
+    ).join("") +
+    "</div></div>" +
+    `<label class="mn-field"><span>참여 멤버</span><div class="mn-with"><i>👤</i><input name="attendees" value="${mnEsc(match ? match[1].trim() : "")}" placeholder="쉼표로 구분"></div></label>`
+  );
+}
+
 function openMonthAddForm(key) {
   mnPop.innerHTML =
     '<div class="mn-pop">' +
     mnPopHead(key, "일정 추가") +
-    '<form class="mn-pop-body mn-form" autocomplete="off">' +
-    '<label class="mn-field"><span>일정 제목</span><input name="title" placeholder="예: 9시 메이플 보스 데이" required></label>' +
-    '<div class="mn-field"><span>유형</span><div class="mn-kinds">' +
-    MN_KINDS.map(
-      ([value, label], i) =>
-        `<button type="button" class="${i === 0 ? "on" : ""}" data-kind="${value}" style="--c:${homeDotColor(value.startsWith("#") ? { title: "", sheetColor: value } : { title: "", color: value })}">${label}</button>`
-    ).join("") +
-    "</div></div>" +
-    '<label class="mn-field"><span>참여 멤버</span><div class="mn-with"><i>👤</i><input name="attendees" placeholder="쉼표로 구분"></div></label>' +
+    '<form class="mn-pop-body mn-form" data-idx="-1" autocomplete="off">' +
+    mnFormFields(null) +
     '<div class="mn-pop-actions"><button type="button" data-mnp="back">취소</button><button type="submit" class="main">추가</button></div>' +
     "</form></div>";
   mnPop.querySelector("input[name=title]").focus();
 }
+
+// 일정 관리: 왼쪽 목록(수정 · 삭제 · 순서 바꾸기), PC는 오른쪽에서 수정 / 모바일은 고른 일정 바로 밑에서 수정
+const MN_ICON = {
+  grip: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>',
+  pen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>',
+  up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>',
+  down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>',
+};
+let mnDragIdx = null;
+
+function openMonthManage(key, editIdx = null) {
+  mnPopKey = key;
+  const list = loadEvents()[key] || [];
+  const mobile = mnMobileQuery.matches;
+  const isNew = editIdx === -1;
+  const form =
+    editIdx === null
+      ? ""
+      : `<form class="mn-form mn-edit" data-idx="${editIdx}" autocomplete="off"><div class="mn-col-h">${isNew ? "새 일정" : "일정 수정"}</div>` +
+        mnFormFields(isNew ? null : list[editIdx]) +
+        `<div class="mn-pop-actions"><button type="button" data-mnp="edit-cancel">취소</button><button type="submit" class="main">${isNew ? "추가" : "저장"}</button></div></form>`;
+  const cards =
+    list
+      .map((ev, i) => {
+        const [rawTitle] = splitEventTitle(ev.title);
+        const [time, title] = weekEventTime(rawTitle);
+        const label = getEventBadgeLabel(ev);
+        const members = mnMembers(ev.title);
+        const move = mobile
+          ? `<button type="button" data-mnp="up" data-idx="${i}" aria-label="위로"${i === 0 ? " disabled" : ""}>${MN_ICON.up}</button>` +
+            `<button type="button" data-mnp="down" data-idx="${i}" aria-label="아래로"${i === list.length - 1 ? " disabled" : ""}>${MN_ICON.down}</button>`
+          : "";
+        return (
+          `<div class="mn-mev${i === editIdx ? " on" : ""}"${mobile ? "" : ' draggable="true"'} data-idx="${i}" style="--c:${homeDotColor(ev)}">` +
+          (mobile ? "" : `<span class="mn-grip" aria-hidden="true">${MN_ICON.grip}</span>`) +
+          '<div class="mn-mev-main"><div class="mn-pev-top">' +
+          (time ? `<span class="mn-pev-time">${time}</span>` : "") +
+          `<b>${mnEsc(title)}</b>${label ? `<span class="mn-pev-kind">${label}</span>` : ""}</div>` +
+          (members ? `<div class="mn-pev-mem"><i>👥</i><span>${mnEsc(members)}</span></div>` : "") +
+          "</div>" +
+          `<div class="mn-mev-btns">${move}<button type="button" data-mnp="edit" data-idx="${i}" aria-label="수정">${MN_ICON.pen}</button>` +
+          `<button type="button" class="del" data-mnp="del" data-idx="${i}" aria-label="삭제">${MN_ICON.trash}</button></div></div>` +
+          (mobile && i === editIdx ? form : "")
+        );
+      })
+      .join("") || '<div class="mn-none">이날은 일정이 없어요</div>';
+  const actions =
+    '<div class="mn-pop-actions mn-manage-actions">' +
+    (list.length ? '<button type="button" class="danger" data-mnp="bulk">일괄 삭제</button>' : "") +
+    '<span></span><button type="button" data-mnp="new">+ 새 일정</button><button type="button" class="main" data-mnp="done">완료</button></div>';
+  const right = mobile
+    ? ""
+    : '<div class="mn-col mn-col-nt mn-col-edit">' +
+      (form ||
+        `<div class="mn-edit-empty">${MN_ICON.pen}<b>왼쪽에서 일정을 고르면<br>여기서 바로 수정할 수 있어요</b><span>${MN_ICON.grip} 끌어서 순서를 바꿀 수 있어요</span></div>`) +
+      "</div>";
+  mnPop.innerHTML =
+    '<div class="mn-pop mn-pop-manage">' +
+    mnPopHead(key, "일정 관리") +
+    `<div class="mn-pop-body"><div class="mn-col mn-col-ev"><div class="mn-col-h">일정 ${list.length}개</div>` +
+    (mobile && isNew ? form : "") +
+    cards +
+    actions +
+    "</div>" +
+    right +
+    "</div></div>";
+  mnPop.classList.remove("hidden");
+  const input = mnPop.querySelector(".mn-edit input[name=title]");
+  if (input) input.focus();
+}
+
+// 관리 화면에서 목록을 바꾸고 저장 → 다시 그림
+function mnUpdateDay(change) {
+  if (isReadOnly || !mnPopKey) return;
+  const events = loadEvents();
+  const list = events[mnPopKey] || [];
+  change(list);
+  if (list.length) events[mnPopKey] = list;
+  else delete events[mnPopKey];
+  saveEvents(events);
+  refreshCurrentView();
+  openMonthManage(mnPopKey);
+}
+
+mnPop.addEventListener("dragstart", (e) => {
+  const card = e.target.closest(".mn-mev");
+  if (!card) return;
+  mnDragIdx = Number(card.dataset.idx);
+  card.classList.add("dragging");
+});
+mnPop.addEventListener("dragend", () => {
+  mnDragIdx = null;
+  mnPop.querySelectorAll(".mn-mev.dragging").forEach((c) => c.classList.remove("dragging"));
+});
+mnPop.addEventListener("dragover", (e) => {
+  if (mnDragIdx !== null && e.target.closest(".mn-mev")) e.preventDefault();
+});
+mnPop.addEventListener("drop", (e) => {
+  const card = e.target.closest(".mn-mev");
+  if (!card || mnDragIdx === null) return;
+  e.preventDefault();
+  const from = mnDragIdx;
+  const to = Number(card.dataset.idx);
+  mnDragIdx = null;
+  if (from !== to) mnUpdateDay((list) => list.splice(to, 0, list.splice(from, 1)[0]));
+});
 
 function closeMonthPopup() {
   mnPop.classList.add("hidden");
@@ -5095,13 +5214,24 @@ mnPop.addEventListener("click", (e) => {
   const action = e.target.closest("[data-mnp]");
   if (e.target === mnPop || (action && action.dataset.mnp === "close")) closeMonthPopup();
   else if (!action) return;
-  else if (action.dataset.mnp === "manage") {
-    const key = mnPopKey;
-    closeMonthPopup();
-    openModal(key);
-    modalDate.click();
-  } else if (action.dataset.mnp === "add") openMonthAddForm(mnPopKey);
-  else if (action.dataset.mnp === "back") openMonthPopup(mnPopKey);
+  else if (action.dataset.mnp === "manage" || action.dataset.mnp === "edit-cancel") openMonthManage(mnPopKey);
+  else if (action.dataset.mnp === "add") openMonthAddForm(mnPopKey);
+  else if (action.dataset.mnp === "back" || action.dataset.mnp === "done") openMonthPopup(mnPopKey);
+  else if (action.dataset.mnp === "new") openMonthManage(mnPopKey, -1);
+  else if (action.dataset.mnp === "edit") {
+    const idx = Number(action.dataset.idx);
+    openMonthManage(mnPopKey, action.closest(".mn-mev.on") ? null : idx);
+  } else if (action.dataset.mnp === "up" || action.dataset.mnp === "down") {
+    const idx = Number(action.dataset.idx);
+    const to = action.dataset.mnp === "up" ? idx - 1 : idx + 1;
+    mnUpdateDay((list) => list.splice(to, 0, list.splice(idx, 1)[0]));
+  } else if (action.dataset.mnp === "del") {
+    const idx = Number(action.dataset.idx);
+    const [title] = splitEventTitle((loadEvents()[mnPopKey] || [])[idx]?.title || "");
+    if (confirm(`"${title.trim()}" 일정을 삭제할까요?`)) mnUpdateDay((list) => list.splice(idx, 1));
+  } else if (action.dataset.mnp === "bulk") {
+    if (confirm("이 날짜의 모든 일정을 삭제할까요?")) mnUpdateDay((list) => list.splice(0));
+  }
 });
 
 mnPop.addEventListener("submit", (e) => {
@@ -5113,12 +5243,16 @@ mnPop.addEventListener("submit", (e) => {
   const attendees = form.elements.namedItem("attendees").value.trim();
   const title = attendees ? `${baseTitle} w.${attendees}` : baseTitle;
   const kind = form.querySelector("[data-kind].on").dataset.kind;
+  const newEvent = kind.startsWith("#") ? { title, sheetColor: kind } : { title, color: kind };
+  const idx = Number(form.dataset.idx);
   const events = loadEvents();
   if (!events[mnPopKey]) events[mnPopKey] = [];
-  events[mnPopKey].push(kind.startsWith("#") ? { title, sheetColor: kind } : { title, color: kind });
+  if (idx >= 0) events[mnPopKey][idx] = newEvent;
+  else events[mnPopKey].push(newEvent);
   saveEvents(events);
   refreshCurrentView();
-  openMonthPopup(mnPopKey);
+  if (form.classList.contains("mn-edit")) openMonthManage(mnPopKey);
+  else openMonthPopup(mnPopKey);
 });
 
 document.addEventListener("keydown", (e) => {

@@ -7780,3 +7780,177 @@ body.youtube-view-open {
     font-size: 1.08rem;
   }
 }
+
+/* 새 디자인 일정 관리: 목록(끌어서 순서 · 수정 · 삭제) + 수정 칸 */
+.mn-mev {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px 10px 8px;
+  border: 1.5px solid transparent;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--c) 14%, var(--mn-card));
+  transition: border-color 0.15s, box-shadow 0.15s, opacity 0.15s;
+}
+
+.mn-mev[draggable="true"] {
+  cursor: grab;
+}
+
+.mn-mev.on {
+  border-color: var(--mn-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--mn-accent) 18%, transparent);
+}
+
+.mn-mev.dragging {
+  opacity: 0.4;
+}
+
+.mn-grip {
+  display: grid;
+  flex: none;
+  color: var(--mn-muted);
+}
+
+.mn-grip svg {
+  width: 16px;
+  height: 16px;
+}
+
+.mn-mev-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.mn-mev-main .mn-pev-top b {
+  font-size: 0.95rem;
+}
+
+.mn-mev-btns {
+  display: flex;
+  flex: none;
+  gap: 4px;
+}
+
+.mn-pop-bg .mn-mev-btns button {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--mn-card) 75%, transparent);
+  color: var(--mn-muted);
+  transition: background 0.15s, color 0.15s;
+}
+
+.mn-pop-bg .mn-mev-btns button:hover {
+  background: var(--mn-card);
+  color: var(--mn-accent);
+}
+
+.mn-pop-bg .mn-mev-btns button.del:hover {
+  color: #d0476a;
+}
+
+.mn-pop-bg .mn-mev-btns button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.mn-mev-btns svg {
+  width: 15px;
+  height: 15px;
+}
+
+.mn-manage-actions {
+  flex-wrap: wrap;
+}
+
+.mn-manage-actions span {
+  flex: 1;
+}
+
+.mn-pop-actions button.danger {
+  background: color-mix(in srgb, #e0577a 12%, var(--mn-card));
+  color: #d0476a;
+}
+
+.mn-edit {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 14px;
+}
+
+.mn-col-edit .mn-kinds button {
+  height: 30px;
+  padding: 0 10px;
+}
+
+.mn-edit-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: auto;
+  text-align: center;
+  color: var(--mn-muted);
+}
+
+.mn-edit-empty > svg {
+  width: 34px;
+  height: 34px;
+  opacity: 0.5;
+}
+
+.mn-edit-empty b {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.mn-edit-empty span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.mn-edit-empty span svg {
+  width: 14px;
+  height: 14px;
+}
+
+@media (max-width: 700px) {
+  .mn-mev {
+    flex-wrap: wrap;
+    row-gap: 8px;
+    padding: 12px 12px 10px;
+  }
+
+  .mn-mev-main {
+    flex-basis: 100%;
+  }
+
+  .mn-mev-btns {
+    margin-left: auto;
+  }
+
+  .mn-pop-bg .mn-mev-btns button {
+    width: 28px;
+    height: 30px;
+  }
+
+  .mn-col-ev .mn-edit {
+    flex: none;
+    padding: 14px;
+    border: 1px solid var(--mn-line);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--mn-accent) 5%, var(--mn-card));
+  }
+
+  .mn-col-ev .mn-edit .mn-pop-actions {
+    margin-top: 0;
+  }
+}
