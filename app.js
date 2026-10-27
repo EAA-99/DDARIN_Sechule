@@ -2046,7 +2046,7 @@ function renderHome() {
 document.getElementById("homeAllScheduleBtn").addEventListener("click", () => showMainView("calendar"));
 document.getElementById("homePlaylistBtn").addEventListener("click", openSongbook);
 document.getElementById("homeSongbookBtn").addEventListener("click", openSongbook2Table);
-document.getElementById("homeChatBtn").addEventListener("click", () => showMainView("soopchat"));
+document.getElementById("homeYoutubeBtn").addEventListener("click", () => openYoutubeView("backmenu"));
 
 function wireNavMenu(prefix, hamburgerId, menuId) {
   const hamburgerBtn = document.getElementById(hamburgerId);
@@ -2674,7 +2674,11 @@ function renderYoutubeHero() {
   youtubeHeroBadge.textContent = fresh ? "NEW" : "최신";
 }
 
-async function openYoutubeView() {
+// 뒤로 가기는 들어온 곳으로 (홈 메뉴 → 홈, 사이드바 → 일정표)
+let youtubeReturnView = "calendar";
+
+async function openYoutubeView(returnView = "calendar") {
+  youtubeReturnView = returnView;
   localStorage.setItem(YOUTUBE_SIDEBAR_SEEN_KEY, new Date().toISOString());
   sideNavYoutubeBadge.classList.add("hidden");
 
@@ -2684,8 +2688,8 @@ async function openYoutubeView() {
   renderYoutubeCards();
 }
 
-document.getElementById("sideNavYoutubeBtn").addEventListener("click", openYoutubeView);
-youtubeBackBtn.addEventListener("click", () => showMainView("calendar"));
+document.getElementById("sideNavYoutubeBtn").addEventListener("click", () => openYoutubeView("calendar"));
+youtubeBackBtn.addEventListener("click", () => showMainView(youtubeReturnView));
 
 youtubeChannelToggle.addEventListener("click", (e) => {
   const btn = e.target.closest(".youtube-channel-seg");
