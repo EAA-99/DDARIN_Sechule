@@ -4783,14 +4783,16 @@ loginForm.addEventListener("submit", async (e) => {
   }
 });
 
-// 월간 새 디자인: 맨 위 토글로 기본(지금 달력) ↔ 새 디자인. 고른 걸 기억함 (처음엔 기본)
+// 월간 새 디자인: 맨 위 토글로 기본(지금 달력) ↔ 새 디자인. 처음엔 기본, 그 뒤엔 고른 걸 기억함
+// (예전 키에 저장된 선택은 버리고 모두 기본에서 다시 시작)
 // PC는 큰 달력 + 날짜를 누르면 왼쪽 일정 · 오른쪽 공지 창, 모바일은 작은 달력 + 주별 목록
-const CAL_DESIGN_KEY = "calendar-month-design";
+const CAL_DESIGN_KEY = "calendar-month-design-v2";
 const monthNewView = document.getElementById("monthNewView");
 const calDesignToggle = document.getElementById("calDesignToggle");
 const mnMobileQuery = window.matchMedia("(max-width: 700px)");
 let calDesign = "classic";
 try {
+  localStorage.removeItem("calendar-month-design");
   if (localStorage.getItem(CAL_DESIGN_KEY) === "new") calDesign = "new";
 } catch {}
 

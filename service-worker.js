@@ -1,10 +1,10 @@
-const CACHE_NAME = "ddarin-calendar-v628";
+const CACHE_NAME = "ddarin-calendar-v630";
 const ASSETS = [
   "./",
   "./index.html",
-  "./style.css?v=628",
-  "./app.js?v=628",
-  "./games.js?v=628",
+  "./style.css?v=630",
+  "./app.js?v=630",
+  "./games.js?v=630",
   "./manifest.json",
   "./DDARIN_아바타.jpg",
   "./icons/icon-192.png",
@@ -35,13 +35,19 @@ self.addEventListener("install", (e) => {
   self.skipWaiting();
 });
 
+// 새 버전이 깔리면(앱을 켤 때) 열려 있는 화면을 한 번 새로고침해서 바로 최신으로 보이게 함
 self.addEventListener("activate", (e) => {
   e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+    (async () => {
+      const keys = await caches.keys();
+      const isUpdate = keys.some((k) => k.startsWith("ddarin-calendar-") && k !== CACHE_NAME);
+      await Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)));
+      await self.clients.claim();
+      if (!isUpdate) return;
+      const windows = await self.clients.matchAll({ type: "window" });
+      windows.forEach((client) => client.navigate(client.url).catch(() => {}));
+    })()
   );
-  self.clients.claim();
 });
 
 self.addEventListener("fetch", (e) => {

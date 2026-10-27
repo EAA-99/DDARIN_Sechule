@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=628">
+<link rel="stylesheet" href="style.css?v=630">
 </head>
 <body>
   <button type="button" id="backToCalendarBtn" class="back-to-calendar-btn" aria-label="홈으로">←</button>
@@ -919,10 +919,11 @@
 
 
 
-  <script src="app.js?v=628"></script>
-  <script src="games.js?v=628"></script>
+  <script src="app.js?v=630"></script>
+  <script src="games.js?v=630"></script>
   <script>
-    // 자동 업데이트/새로고침 없음 — 새 버전은 화면 상단의 새로고침 버튼을 눌러야 반영된다.
+    // 앱을 켤 때 새 버전이 있으면 서비스워커가 깔리면서 한 번 새로고침해 줌(service-worker.js activate).
+    // 쓰는 도중 새로 나온 버전은 화면 상단의 새로고침 버튼으로 반영.
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("service-worker.js", { updateViaCache: "none" }).catch(() => {});
