@@ -3451,7 +3451,7 @@ function renderScheduleSearchResults(query) {
       setViewMode("list");
       renderGrid();
       showMainView("calendar");
-      openModal(m.date);
+      openDayPopup(m.date);
     });
 
     scheduleSearchResults.appendChild(item);
@@ -4036,7 +4036,7 @@ function buildWeekEvent(ev, key, withMore, tag = "button") {
     detailBtn.textContent = "자세히 보기 ›";
     detailBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      openModal(key);
+      openDayPopup(key);
     });
     more.appendChild(detailBtn);
     el.appendChild(more);
@@ -4084,7 +4084,7 @@ function renderWeekDetail(key) {
   detailBtn.type = "button";
   detailBtn.className = "wk-detail-btn";
   detailBtn.textContent = "자세히 보기 ›";
-  detailBtn.addEventListener("click", () => openModal(key));
+  detailBtn.addEventListener("click", () => openDayPopup(key));
   wkDetail.appendChild(detailBtn);
 }
 
@@ -4124,7 +4124,7 @@ function renderCardView() {
     dateEl.innerHTML = `<b>${d}</b><span>${key === today ? "오늘" : WEEKDAY_LABELS[i]}</span>`;
     dateEl.addEventListener("click", (e) => {
       e.stopPropagation();
-      openModal(key);
+      openDayPopup(key);
     });
 
     const dot = document.createElement("i");
@@ -4144,7 +4144,7 @@ function renderCardView() {
       none.addEventListener("click", (e) => {
         if (wideWeekQuery.matches) return;
         e.stopPropagation();
-        openModal(key);
+        openDayPopup(key);
       });
       body.appendChild(none);
     }
@@ -5079,6 +5079,12 @@ function mnFormFields(ev) {
     "</div></div>" +
     `<label class="mn-field"><span>참여 멤버</span><div class="mn-with"><i>👤</i><input name="attendees" value="${mnEsc(match ? match[1].trim() : "")}" placeholder="쉼표로 구분"></div></label>`
   );
+}
+
+// 주간 · 검색에서 날짜를 열 때: 새 디자인이면 새 날짜 창, 기본이면 예전 창
+function openDayPopup(key) {
+  if (calDesign === "new") openMonthPopup(key);
+  else openModal(key);
 }
 
 function openMonthAddForm(key) {
