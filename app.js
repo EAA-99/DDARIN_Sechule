@@ -8,7 +8,10 @@ const SONGBOOK_SPREADSHEET_ID = "1NhImCLm5diXM0pA45SkB-g2PARivQiVN8bUKlniiOB8";
 const SONGBOOK_CLIPS_SPREADSHEET_ID = "17EmfOEPVGesH9FXnh7xsKvBYYIhi2TrerSzY23E2N9A";
 
 
-const YEAR = 2026;
+// 일정표는 2026·2027년 두 해를 오갈 수 있음 (처음엔 오늘이 속한 해)
+const MIN_YEAR = 2026;
+const MAX_YEAR = 2027;
+let YEAR = Math.min(MAX_YEAR, Math.max(MIN_YEAR, new Date().getFullYear()));
 const STORAGE_KEY = "calendar-events-2026";
 const EDIT_PW_KEY = "calendar-edit-pw-2026";
 const EDIT_USER_KEY = "calendar-edit-user-2026";
@@ -45,6 +48,7 @@ grid.addEventListener("scroll", () => {
 });
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
+const yearSeg = document.getElementById("yearSeg");
 const cardView = document.getElementById("cardView");
 const cardList = document.getElementById("cardList");
 const weekPrevBtn = document.getElementById("weekPrevBtn");
@@ -3447,6 +3451,8 @@ function renderScheduleSearchResults(query) {
     item.append(dateEl, titleEl);
     item.addEventListener("click", () => {
       closeScheduleSearchModal();
+      const y = parseInt(m.date);
+      if (y >= MIN_YEAR && y <= MAX_YEAR) YEAR = y;
       currentMonth = parseInt(mo) - 1;
       setViewMode("list");
       renderGrid();
@@ -3876,8 +3882,9 @@ function renderGrid() {
   const now = new Date();
   document.getElementById("calendarPostDate").textContent =
     `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, "0")}.${String(now.getDate()).padStart(2, "0")}`;
-  prevBtn.disabled = currentMonth === 0;
-  nextBtn.disabled = currentMonth === 11;
+  prevBtn.disabled = YEAR === MIN_YEAR && currentMonth === 0;
+  nextBtn.disabled = YEAR === MAX_YEAR && currentMonth === 11;
+  yearSeg.querySelectorAll("[data-year]").forEach((b) => b.classList.toggle("active", Number(b.dataset.year) === YEAR));
 
   grid.innerHTML = "";
 
@@ -4186,8 +4193,8 @@ function renderCardView() {
   const [ly, lm, ld] = weekKeys[6].split("-").map(Number);
   document.getElementById("wkRange").textContent = `${fm}.${fd} 일 – ${lm}.${ld} 토`;
 
-  weekPrevBtn.disabled = currentMonth === 0 && cardWeekStart <= firstWeekOfMonth(0);
-  weekNextBtn.disabled = currentMonth === 11 && cardWeekStart >= lastWeekOfMonth(11);
+  weekPrevBtn.disabled = YEAR === MIN_YEAR && currentMonth === 0 && cardWeekStart <= firstWeekOfMonth(0);
+  weekNextBtn.disabled = YEAR === MAX_YEAR && currentMonth === 11 && cardWeekStart >= lastWeekOfMonth(11);
 
   const diffDays = Math.round((cardWeekStart - firstWeekOfMonth(currentMonth)) / 86400000);
   const weekNum = Math.floor(diffDays / 7) + 1;
@@ -4314,7 +4321,7 @@ function prefetchTodayNotices() {
 function openModal(key) {
   selectedDateKey = key;
   const [, m, d] = key.split("-");
-  modalDate.textContent = `${YEAR}년 ${parseInt(m)}월 ${parseInt(d)}일`;
+  modalDate.textContent = `${parseInt(key)}년 ${parseInt(m)}월 ${parseInt(d)}일`;
   modalDate.classList.toggle("clickable", !isReadOnly);
   managingMode = false;
   expandedIndex = null;
@@ -4605,9 +4612,29 @@ eventForm.addEventListener("submit", (e) => {
   refreshCurrentView();
 });
 
+function switchCalendarYear(y) {
+  const today = new Date();
+  YEAR = y;
+  currentMonth = today.getFullYear() === y ? today.getMonth() : 0;
+  renderGrid();
+  if (viewMode === "card") {
+    resetCardWeekToMonth();
+    renderCardView();
+  }
+}
+
+yearSeg.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-year]");
+  if (b && Number(b.dataset.year) !== YEAR) switchCalendarYear(Number(b.dataset.year));
+});
+
 prevBtn.addEventListener("click", () => {
-  if (currentMonth > 0) {
-    currentMonth--;
+  if (currentMonth > 0 || YEAR > MIN_YEAR) {
+    if (currentMonth > 0) currentMonth--;
+    else {
+      YEAR--;
+      currentMonth = 11;
+    }
     renderGrid();
     if (viewMode === "card") {
       resetCardWeekToMonth();
@@ -4617,8 +4644,12 @@ prevBtn.addEventListener("click", () => {
 });
 
 nextBtn.addEventListener("click", () => {
-  if (currentMonth < 11) {
-    currentMonth++;
+  if (currentMonth < 11 || YEAR < MAX_YEAR) {
+    if (currentMonth < 11) currentMonth++;
+    else {
+      YEAR++;
+      currentMonth = 0;
+    }
     renderGrid();
     if (viewMode === "card") {
       resetCardWeekToMonth();
@@ -4631,11 +4662,15 @@ nextBtn.addEventListener("click", () => {
 weekPrevBtn.addEventListener("click", () => {
   cardWeekStart.setDate(cardWeekStart.getDate() - 7);
   if (cardWeekStart < firstWeekOfMonth(currentMonth)) {
-    if (currentMonth === 0) {
+    if (currentMonth === 0 && YEAR === MIN_YEAR) {
       cardWeekStart.setDate(cardWeekStart.getDate() + 7);
       return;
     }
-    currentMonth--;
+    if (currentMonth > 0) currentMonth--;
+    else {
+      YEAR--;
+      currentMonth = 11;
+    }
     renderGrid();
   }
   wkOpenId = null;
@@ -4645,11 +4680,15 @@ weekPrevBtn.addEventListener("click", () => {
 weekNextBtn.addEventListener("click", () => {
   cardWeekStart.setDate(cardWeekStart.getDate() + 7);
   if (cardWeekStart > lastWeekOfMonth(currentMonth)) {
-    if (currentMonth === 11) {
+    if (currentMonth === 11 && YEAR === MAX_YEAR) {
       cardWeekStart.setDate(cardWeekStart.getDate() - 7);
       return;
     }
-    currentMonth++;
+    if (currentMonth < 11) currentMonth++;
+    else {
+      YEAR++;
+      currentMonth = 0;
+    }
     renderGrid();
   }
   wkOpenId = null;
@@ -4658,7 +4697,9 @@ weekNextBtn.addEventListener("click", () => {
 
 document.getElementById("wkTodayBtn").addEventListener("click", () => {
   const today = new Date();
-  if (today.getFullYear() !== YEAR) return;
+  const ty = today.getFullYear();
+  if (ty < MIN_YEAR || ty > MAX_YEAR) return;
+  YEAR = ty;
   currentMonth = today.getMonth();
   renderGrid();
   resetCardWeekToMonth();
@@ -4688,6 +4729,9 @@ function setViewMode(mode) {
   if (mode === "card") {
     resetCardWeekToMonth();
     renderCardView();
+  } else {
+    // 주간 제목("10월 5째주")이 월간에 남지 않게
+    monthTitle.textContent = `${currentMonth + 1}월`;
   }
 }
 
@@ -4951,14 +4995,22 @@ function renderMonthNew() {
   monthNewView.innerHTML =
     '<div class="mn-hd"><div class="mn-hd-top"><small>DDARIN · MONTHLY</small>' +
     '<div class="mn-seg"><button type="button" data-mn="week">주간</button><button type="button" class="on">월간</button></div></div>' +
-    `<div class="mn-nav"><div><b>${currentMonth + 1}월</b><span>${YEAR}</span></div>` +
-    `<div class="mn-arrows"><button type="button" data-mn="prev" aria-label="이전 달"${currentMonth === 0 ? " disabled" : ""}>${MN_ARROW(-1)}</button>` +
-    `<button type="button" data-mn="next" aria-label="다음 달"${currentMonth === 11 ? " disabled" : ""}>${MN_ARROW(1)}</button></div></div></div>` +
+    `<div class="mn-nav"><div><b>${currentMonth + 1}월</b><span class="mn-year">` +
+    [MIN_YEAR, MAX_YEAR].map((y) => `<button type="button" data-mn-year="${y}"${y === YEAR ? ' class="on"' : ""}>${y}</button>`).join("") +
+    `</span></div>` +
+    `<div class="mn-arrows"><button type="button" data-mn="prev" aria-label="이전 달"${prevBtn.disabled ? " disabled" : ""}>${MN_ARROW(-1)}</button>` +
+    `<button type="button" data-mn="next" aria-label="다음 달"${nextBtn.disabled ? " disabled" : ""}>${MN_ARROW(1)}</button></div></div></div>` +
     body;
   fitMonthNew();
 }
 
 monthNewView.addEventListener("click", (e) => {
+  const yearBtn = e.target.closest("[data-mn-year]");
+  if (yearBtn) {
+    const y = Number(yearBtn.dataset.mnYear);
+    if (y !== YEAR) switchCalendarYear(y);
+    return;
+  }
   const action = e.target.closest("[data-mn]");
   if (action) {
     if (action.dataset.mn === "week") setViewMode("card");

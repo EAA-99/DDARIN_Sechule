@@ -7956,3 +7956,84 @@ body.youtube-view-open {
     margin-top: 0;
   }
 }
+
+/* 연도 고르기 (2026 | 2027) - 기본 디자인: 주간/월간 토글과 같은 모양, 달력 왼쪽 끝에 */
+.year-seg {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: #f2f2f2;
+}
+
+.year-seg button {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: #888;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.year-seg button.active {
+  background: #cfe2f7;
+  color: #1c5fa8;
+}
+
+:root[data-theme="dark"] .year-seg {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+:root[data-theme="dark"] .year-seg button.active {
+  background: var(--dk-accent);
+  color: #fff;
+}
+
+@media (max-width: 900px) {
+  .year-seg {
+    top: auto;
+    bottom: 2px;
+    left: 4px;
+    transform: none;
+    padding: 0;
+    background: transparent;
+  }
+
+  .year-seg button {
+    padding: 3px 8px;
+    font-size: 0.65rem;
+  }
+}
+
+/* 새 디자인: 월 옆 연도 고르기 */
+.mn-nav .mn-year {
+  display: inline-flex;
+  gap: 2px;
+  margin-left: 10px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--mn-card);
+  box-shadow: var(--mn-shadow);
+  vertical-align: 6px;
+}
+
+.mn-view .mn-year button {
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--mn-muted);
+}
+
+.mn-view .mn-year button.on {
+  background: var(--mn-accent);
+  color: #fff;
+}
