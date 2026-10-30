@@ -4,6 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>DDARIN</title>
+<script>
+  // 2026-10-30 이후 처음 켤 때 딱 한 번 새로고침 (그 뒤로는 안 함).
+  // 새 버전이 깔리면서 서비스워커가 이미 새로고침한 경우(?updated=1)는 그걸로 대신함
+  (function () {
+    var KEY = "ddarin-reload-once-20261030";
+    try {
+      var url = new URL(location.href);
+      var swReloaded = url.searchParams.has("updated");
+      if (swReloaded) {
+        url.searchParams.delete("updated");
+        history.replaceState(null, "", url.href);
+      }
+      if (localStorage.getItem(KEY)) return;
+      localStorage.setItem(KEY, "1");
+      if (!swReloaded) location.reload();
+    } catch (e) {}
+  })();
+</script>
 
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#4a7fd6">
@@ -14,7 +32,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DDARIN">
 
-<link rel="stylesheet" href="style.css?v=634">
+<link rel="stylesheet" href="style.css?v=635">
 </head>
 <body>
   <button type="button" id="backToCalendarBtn" class="back-to-calendar-btn" aria-label="홈으로">←</button>
@@ -923,8 +941,8 @@
 
 
 
-  <script src="app.js?v=634"></script>
-  <script src="games.js?v=634"></script>
+  <script src="app.js?v=635"></script>
+  <script src="games.js?v=635"></script>
   <script>
     // 앱을 켤 때 새 버전이 있으면 서비스워커가 깔리면서 한 번 새로고침해 줌(service-worker.js activate).
     // 쓰는 도중 새로 나온 버전은 화면 상단의 새로고침 버튼으로 반영.
