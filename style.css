@@ -8037,3 +8037,39 @@ body.youtube-view-open {
   background: var(--mn-accent);
   color: #fff;
 }
+
+/* ── 노래 클립(Playlist): iframe은 body 끝에 하나, 화면에 따라 슬롯 위에 겹치거나 아래 바가 됨 ── */
+.ttarin-songs-view {
+  display: flex;
+  flex-direction: column;
+}
+
+.ttarin-songs-slot {
+  flex: 1;
+  min-height: 0;
+}
+
+.ttarin-songs-frame {
+  position: absolute;
+  z-index: 10; /* 햄버거 메뉴(.back-menu-nav-menu, z-index 20)보다 아래 */
+  display: block;
+  border: 0;
+  border-radius: 0 0 15px 15px;
+  background: #fff;
+}
+
+.ttarin-songs-frame--bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: var(--ttarin-bar-bottom, env(safe-area-inset-bottom, 0px));
+  z-index: 60; /* 아래 메뉴바(.side-nav, z-index 50)보다 위 */
+  width: 100%;
+  height: 64px;
+  border-radius: 0;
+  background: #0b0d12;
+}
+
+body.ttarin-bar-open {
+  padding-bottom: calc(64px + var(--ttarin-bar-bottom, env(safe-area-inset-bottom, 0px)));
+}

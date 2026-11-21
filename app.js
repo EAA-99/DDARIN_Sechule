@@ -212,7 +212,73 @@ const backMenuView = document.getElementById("backMenuView");
 const cafePhotosView = document.getElementById("cafePhotosView");
 const soopChatView = document.getElementById("soopChatView");
 const soopChatDayView = document.getElementById("soopChatDayView");
+const ttarinSongsView = document.getElementById("ttarinSongsView");
 const sideNavEl = document.querySelector(".side-nav");
+
+// ── 노래 클립(Playlist) ──
+// iframe 하나를 계속 살려 두고 모양만 바꿈: 노래 화면이면 #ttarinSongsSlot 위를 꽉 채움,
+// 다른 화면인데 재생 중이면 화면 아래 바, 아니면 숨김. iframe을 DOM에서 옮기면 다시 불러오므로 옮기지 않음.
+const TTARIN_SONGS_URL = "https://ddarin-songs.vercel.app/";
+const TTARIN_SONGS_ORIGIN = new URL(TTARIN_SONGS_URL).origin;
+const ttarinSongsFrame = document.getElementById("ttarinSongsFrame");
+const ttarinSongsSlot = document.getElementById("ttarinSongsSlot");
+let ttarinPlaying = false; // 노래 사이트가 알려 주는 "재생 중"
+let ttarinDockSent = false; // 노래 사이트에 마지막으로 보낸 dock 값
+
+function openTtarinSongs() {
+  if (!ttarinSongsFrame.src) ttarinSongsFrame.src = TTARIN_SONGS_URL;
+  showMainView("ttarinsongs");
+}
+
+function sendTtarinDock(on) {
+  if (ttarinDockSent === on || !ttarinSongsFrame.contentWindow) return;
+  ttarinDockSent = on;
+  ttarinSongsFrame.contentWindow.postMessage({ type: "ttarin-dock", on }, TTARIN_SONGS_ORIGIN);
+}
+
+function layoutTtarinFrame() {
+  const frame = ttarinSongsFrame;
+  const full = currentMainView === "ttarinsongs";
+  const bar = !full && ttarinPlaying && !!frame.src;
+  frame.classList.toggle("hidden", !full && !bar);
+  frame.classList.toggle("ttarin-songs-frame--bar", bar);
+  document.body.classList.toggle("ttarin-bar-open", bar);
+
+  if (full) {
+    // 슬롯의 문서 기준 위치에 겹침 (body가 static이라 absolute 좌표 = 문서 좌표)
+    const r = ttarinSongsSlot.getBoundingClientRect();
+    frame.style.top = `${r.top + window.scrollY}px`;
+    frame.style.left = `${r.left + window.scrollX}px`;
+    frame.style.width = `${r.width}px`;
+    frame.style.height = `${r.height}px`;
+  } else {
+    frame.style.top = frame.style.left = frame.style.width = frame.style.height = "";
+  }
+
+  if (bar) {
+    // 휴대폰에서 아래 메뉴바(side-nav)가 떠 있으면 그 위에 붙임
+    const navFixed =
+      !sideNavEl.classList.contains("hidden") && getComputedStyle(sideNavEl).position === "fixed";
+    if (navFixed) document.body.style.setProperty("--ttarin-bar-bottom", `${sideNavEl.getBoundingClientRect().height}px`);
+    else document.body.style.removeProperty("--ttarin-bar-bottom");
+  }
+
+  if (full) sendTtarinDock(false);
+  else if (bar) sendTtarinDock(true);
+}
+
+window.addEventListener("message", (e) => {
+  if (e.origin !== TTARIN_SONGS_ORIGIN || e.source !== ttarinSongsFrame.contentWindow) return;
+  if (e.data?.type !== "ttarin-player") return;
+  ttarinPlaying = !!e.data.active;
+  layoutTtarinFrame();
+});
+window.addEventListener("resize", () => {
+  if (currentMainView === "ttarinsongs") layoutTtarinFrame();
+});
+new ResizeObserver(() => {
+  if (currentMainView === "ttarinsongs") layoutTtarinFrame();
+}).observe(ttarinSongsSlot);
 const calendarPostMenuBtn = document.querySelector(".calendar-post-menu");
 const songSearchInput = document.getElementById("songSearchInput");
 const genreTabsMenu = document.getElementById("genreTabsMenu");
@@ -1777,9 +1843,11 @@ function showMainView(view) {
   soopChatView.classList.toggle("hidden", view !== "soopchat");
   soopChatDayView.classList.toggle("hidden", view !== "soopchatday");
   youtubeView.classList.toggle("hidden", view !== "youtube");
+  ttarinSongsView.classList.toggle("hidden", view !== "ttarinsongs");
   document.body.classList.toggle("youtube-view-open", view === "youtube");
 
   if (view === "backmenu") applyHomeMatchedHeight(backMenuView);
+  if (view === "ttarinsongs") applyHomeMatchedHeight(ttarinSongsView);
   if (view === "calendar" && viewMode === "card") requestAnimationFrame(fitWeekView);
   if (view === "calendar") requestAnimationFrame(fitMonthNew);
   if (view === "songbook") applyHomeMatchedHeight(songbookView);
@@ -1795,7 +1863,8 @@ function showMainView(view) {
       view === "songbookgw" ||
       view === "soopchat" ||
       view === "soopchatday" ||
-      view === "youtube"
+      view === "youtube" ||
+      view === "ttarinsongs"
   );
   backToCalendarBtn.classList.toggle(
     "hidden",
@@ -1805,7 +1874,8 @@ function showMainView(view) {
       view === "calendar" ||
       view === "soopchat" ||
       view === "soopchatday" ||
-      view === "youtube"
+      view === "youtube" ||
+      view === "ttarinsongs"
   );
 
   if (currentMainView === "backmenu" && view !== "backmenu") {
@@ -1817,6 +1887,7 @@ function showMainView(view) {
     }
   }
   currentMainView = view;
+  layoutTtarinFrame();
   if (view !== "backmenu") armBackNav();
 }
 
@@ -2048,7 +2119,7 @@ function renderHome() {
 }
 
 document.getElementById("homeAllScheduleBtn").addEventListener("click", () => showMainView("calendar"));
-document.getElementById("homePlaylistBtn").addEventListener("click", openSongbook);
+document.getElementById("homePlaylistBtn").addEventListener("click", openTtarinSongs); // 예전 Playlist 화면은 openSongbook (코드는 남겨 둠)
 document.getElementById("homeSongbookBtn").addEventListener("click", openSongbook2Table);
 document.getElementById("homeYoutubeBtn").addEventListener("click", () => openYoutubeView("backmenu"));
 
@@ -2069,7 +2140,7 @@ function wireNavMenu(prefix, hamburgerId, menuId) {
   });
   document.getElementById(`${prefix}HomeBtn`).addEventListener("click", () => showMainView("backmenu"));
   document.getElementById(`${prefix}CalendarBtn`).addEventListener("click", () => showMainView("calendar"));
-  document.getElementById(`${prefix}PlaylistBtn`).addEventListener("click", openSongbook);
+  document.getElementById(`${prefix}PlaylistBtn`).addEventListener("click", openTtarinSongs);
   document.getElementById(`${prefix}PostsBtn`).addEventListener("click", () => {
     switchCafePhotosTab(cafePhotosTabEls[0], { menuId: "27", titleContains: "" });
     showMainView("cafephotos");
@@ -2081,6 +2152,7 @@ function wireNavMenu(prefix, hamburgerId, menuId) {
 wireNavMenu("cafePhotosNav", "cafePhotosHamburgerBtn", "cafePhotosNavMenu");
 wireNavMenu("songbookNav", "songbookHamburgerBtn", "songbookNavMenu");
 wireNavMenu("soopChatNav", "soopChatHamburgerBtn", "soopChatNavMenu");
+wireNavMenu("ttarinSongsNav", "ttarinSongsHamburgerBtn", "ttarinSongsNavMenu");
 
 const cafePhotosList = document.getElementById("cafePhotosList");
 
