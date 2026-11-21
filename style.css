@@ -8042,6 +8042,7 @@ body.youtube-view-open {
 .ttarin-songs-view {
   display: flex;
   flex-direction: column;
+  width: min(1200px, 100%); /* 달력 칸(.calendar-post-column: max-width 1500px × zoom 0.8)과 같은 폭 */
 }
 
 .ttarin-songs-slot {
