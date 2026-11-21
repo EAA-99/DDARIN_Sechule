@@ -8066,11 +8066,23 @@ body.youtube-view-open {
   bottom: var(--ttarin-bar-bottom, env(safe-area-inset-bottom, 0px));
   z-index: 60; /* 아래 메뉴바(.side-nav, z-index 50)보다 위 */
   width: 100%;
-  height: 64px;
+  height: 64px; /* 실제 높이는 노래 사이트가 알려 준 값으로 JS가 넣음 */
   border-radius: 0;
   background: #0b0d12;
 }
 
+/* 영상 모양: PC에서는 달력을 다 가리지 않게 오른쪽 아래 작은 창 */
+@media (min-width: 901px) {
+  .ttarin-songs-frame--video {
+    left: auto;
+    right: 16px;
+    bottom: 16px;
+    width: 400px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  }
+}
+
 body.ttarin-bar-open {
-  padding-bottom: calc(64px + var(--ttarin-bar-bottom, env(safe-area-inset-bottom, 0px)));
+  padding-bottom: calc(var(--ttarin-bar-h, 64px) + var(--ttarin-bar-bottom, env(safe-area-inset-bottom, 0px)));
 }

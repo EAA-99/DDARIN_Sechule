@@ -223,6 +223,8 @@ const TTARIN_SONGS_ORIGIN = new URL(TTARIN_SONGS_URL).origin;
 const ttarinSongsFrame = document.getElementById("ttarinSongsFrame");
 const ttarinSongsSlot = document.getElementById("ttarinSongsSlot");
 let ttarinPlaying = false; // 노래 사이트가 알려 주는 "재생 중"
+let ttarinMode = "bar"; // 노래 사이트 플레이어 모양: "bar" | "video"
+let ttarinHeight = 64; // 노래 사이트 플레이어 높이(px) — 아래 창 높이로 씀
 let ttarinDockSent = false; // 노래 사이트에 마지막으로 보낸 dock 값
 
 function openTtarinSongs() {
@@ -242,6 +244,7 @@ function layoutTtarinFrame() {
   const bar = !full && ttarinPlaying && !!frame.src;
   frame.classList.toggle("hidden", !full && !bar);
   frame.classList.toggle("ttarin-songs-frame--bar", bar);
+  frame.classList.toggle("ttarin-songs-frame--video", bar && ttarinMode === "video");
   document.body.classList.toggle("ttarin-bar-open", bar);
 
   if (full) {
@@ -256,6 +259,9 @@ function layoutTtarinFrame() {
   }
 
   if (bar) {
+    // 높이는 노래 사이트가 알려 준 플레이어 높이(바 ≈ 60px, 영상이면 영상 + 제목 줄)
+    frame.style.height = `${ttarinHeight}px`;
+    document.body.style.setProperty("--ttarin-bar-h", `${ttarinHeight}px`);
     // 휴대폰에서 아래 메뉴바(side-nav)가 떠 있으면 그 위에 붙임
     const navFixed =
       !sideNavEl.classList.contains("hidden") && getComputedStyle(sideNavEl).position === "fixed";
@@ -269,8 +275,15 @@ function layoutTtarinFrame() {
 
 window.addEventListener("message", (e) => {
   if (e.origin !== TTARIN_SONGS_ORIGIN || e.source !== ttarinSongsFrame.contentWindow) return;
+  // 아래 플레이어의 제목을 누름 → Playlist 화면으로 (노래 사이트가 재생 중인 클립으로 스크롤함)
+  if (e.data?.type === "ttarin-open") {
+    openTtarinSongs();
+    return;
+  }
   if (e.data?.type !== "ttarin-player") return;
   ttarinPlaying = !!e.data.active;
+  ttarinMode = e.data.mode === "video" ? "video" : "bar";
+  if (e.data.height > 0) ttarinHeight = Math.round(e.data.height);
   layoutTtarinFrame();
 });
 window.addEventListener("resize", () => {
